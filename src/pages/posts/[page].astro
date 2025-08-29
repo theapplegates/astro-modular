@@ -1,3 +1,4 @@
+
 ---
 import type { GetStaticPaths } from 'astro';
 import { getCollection } from 'astro:content';
@@ -95,57 +96,56 @@ const pagination = {
 
 <BaseLayout seoData={seoData}>
   <div class="py-12">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto px-4 sm:px-6 lg:px-8 mb-12" style={`max-width: ${siteConfig.layout.contentWidth}`}>
       <!-- Header -->
-      <header class="mb-12">
-        <nav class="mb-4">
+      <header class="mb-8">
+        <div class="flex items-start justify-between mb-3">
+          <h1 class="font-bold text-primary-900 dark:text-primary-50">
+            {selectedTag ? (
+              <>Posts tagged "{selectedTag}"</>
+            ) : (
+              <>All Posts</>
+            )}
+          </h1>
+          <a 
+            href="/rss.xml"
+            class="inline-flex items-center px-3 py-2 text-sm font-medium text-highlight-600 dark:text-highlight-400 bg-highlight-50 dark:bg-highlight-900/20 rounded-lg border border-highlight-200 dark:border-highlight-700 hover:bg-highlight-100 dark:hover:bg-highlight-900/40 hover:text-highlight-700 dark:hover:text-highlight-300 transition-all duration-200"
+            title="Subscribe to RSS feed"
+          >
+            <Icon name="rss" class="w-4 h-4 mr-1.5" />
+            RSS Feed
+          </a>
+        </div>
+        <p class="text-base text-primary-600 dark:text-primary-300">
+          Page {currentPage} of {totalPages} • <strong>{filteredPosts.length}</strong> 
+          {selectedTag ? (
+            <>posts tagged with 
+            <span class="inline-flex items-center px-2 py-1 bg-highlight-100 dark:bg-highlight-900/30 text-highlight-800 dark:text-highlight-200 rounded text-sm font-medium ml-1">
+              #{selectedTag}
+            </span></>
+          ) : (
+            <>total posts</>
+          )}
+        </p>
+
+        <div class="mt-4">
           <a 
             href="/posts"
             class="inline-flex items-center text-sm text-highlight-600 dark:text-highlight-400 hover:text-highlight-700 dark:hover:text-highlight-300 transition-colors"
           >
             <Icon name="arrow-left" class="w-4 h-4 mr-1" />
-            All Posts
+            Show all posts
           </a>
-        </nav>
-        
-        <h1 class="text-3xl sm:text-4xl font-bold text-primary-900 dark:text-primary-50 mb-4">
-          {selectedTag ? (
-            <>Posts tagged "{selectedTag}"</>
-          ) : (
-            <>All Posts</>
-          )}
-        </h1>
-        
-        <div class="flex items-center space-x-4 text-primary-600 dark:text-primary-300">
-          <span>
-            Page {currentPage} of {totalPages}
-          </span>
-          <span>•</span>
-          <span>
-            {selectedTag ? (
-              <>Showing {filteredPosts.length} tagged posts</>
-            ) : (
-              <>Showing {posts.length} total posts</>
-            )}
-          </span>
         </div>
-        
-        {selectedTag && (
-          <div class="mt-4">
-            <span class="inline-flex items-center px-3 py-1 bg-highlight-100 dark:bg-highlight-900/30 text-highlight-800 dark:text-highlight-200 rounded-full text-sm font-medium">
-              #{selectedTag}
-            </span>
-          </div>
-        )}
       </header>
-      
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+      <div class="relative">
         <!-- Main content -->
-        <div class="lg:col-span-8 xl:col-span-9">
+        <div class="max-w-none">
           {paginatedPosts.length > 0 ? (
             <>
               <!-- Posts list -->
-              <div class="space-y-4 mb-12">
+              <div class="space-y-6 mb-12">
                 {paginatedPosts.map(post => (
                   <PostCard post={post} />
                 ))}
@@ -177,54 +177,22 @@ const pagination = {
             </div>
           )}
         </div>
-        
-        <!-- Sidebar -->
-        <div class="lg:col-span-4 xl:col-span-3">
-          <div class="sticky top-24 space-y-6">
+
+        <!-- Mobile sidebar - appears below content on mobile/tablet -->
+        <div class="xl:hidden mt-12 space-y-6">
+          <!-- Tags -->
+          {siteConfig.features.tags && allTags.length > 0 && (
+            <Tags tags={allTags} currentTag={selectedTag} />
+          )}
+        </div>
+
+        <!-- Desktop sidebar - floats to the right of the content container -->
+        <div class="hidden xl:block absolute top-0 left-full ml-8 w-64">
+          <div class="sticky top-24 space-y-3 max-h-[calc(100vh-12rem)] overflow-y-auto pb-6">
             <!-- Tags -->
             {siteConfig.features.tags && allTags.length > 0 && (
               <Tags tags={allTags} currentTag={selectedTag} />
             )}
-            
-            <!-- Page navigation -->
-            <div class="p-6 bg-white dark:bg-primary-900 rounded-xl border border-primary-200 dark:border-primary-700">
-              <h3 class="font-semibold text-primary-900 dark:text-primary-50 mb-4 flex items-center">
-                <Icon name="navigation" class="w-4 h-4 mr-2" />
-                Quick Navigation
-              </h3>
-              <div class="space-y-2 text-sm">
-                <a 
-                  href="/posts"
-                  class="block px-3 py-2 text-primary-600 dark:text-primary-300 hover:text-highlight-600 dark:hover:text-highlight-400 hover:bg-primary-50 dark:hover:bg-primary-800 rounded-lg transition-colors"
-                >
-                  First Page
-                </a>
-                {pagination.hasPrev && (
-                  <a 
-                    href={pagination.prevUrl}
-                    class="block px-3 py-2 text-primary-600 dark:text-primary-300 hover:text-highlight-600 dark:hover:text-highlight-400 hover:bg-primary-50 dark:hover:bg-primary-800 rounded-lg transition-colors"
-                  >
-                    Previous Page
-                  </a>
-                )}
-                {pagination.hasNext && (
-                  <a 
-                    href={pagination.nextUrl}
-                    class="block px-3 py-2 text-primary-600 dark:text-primary-300 hover:text-highlight-600 dark:hover:text-highlight-400 hover:bg-primary-50 dark:hover:bg-primary-800 rounded-lg transition-colors"
-                  >
-                    Next Page
-                  </a>
-                )}
-                {currentPage < totalPages && (
-                  <a 
-                    href={`/posts/${totalPages}`}
-                    class="block px-3 py-2 text-primary-600 dark:text-primary-300 hover:text-highlight-600 dark:hover:text-highlight-400 hover:bg-primary-50 dark:hover:bg-primary-800 rounded-lg transition-colors"
-                  >
-                    Last Page
-                  </a>
-                )}
-              </div>
-            </div>
           </div>
         </div>
       </div>
