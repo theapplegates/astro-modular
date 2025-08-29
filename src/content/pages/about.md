@@ -68,6 +68,10 @@ Have questions, suggestions, or just want to say hello?
 
 This theme is open source and available for anyone to use, modify, and contribute to. We believe in the power of community-driven development and welcome contributions from developers of all skill levels.
 
+## Beautiful
+
+![Landscape](images/pexels-fotios-photos-1107717.jpg)
+
 ---
 
 *Thank you for visiting our blog. We hope this theme inspires you to create amazing content and helps you share your ideas with the world.*

@@ -16,6 +16,7 @@ export interface PostData {
   image?: string;
   imageAlt?: string;
   imageOG?: boolean;
+  hideCoverImage?: boolean;
   tags?: string[];
   draft?: boolean;
   targetKeyword?: string;

@@ -1,6 +1,7 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 import { formatDate, processMarkdown, calculateReadingTime } from '../utils/markdown';
+import { optimizePostImagePath } from '../utils/images';
 import { siteConfig } from '../config';
 
 interface Props {
@@ -17,15 +18,15 @@ const readingTime = calculateReadingTime(post.body);
 
 
 
-const { title, description, date, tags, image, imageAlt } = post.data;
+const { title, description, date, tags, image, imageAlt, hideCoverImage } = post.data;
 ---
 
 <article class={`group ${featured ? 'featured-post' : 'post-card'}`}>
   <a href={`/posts/${post.slug}`} class="block">
-    {image && siteConfig.features.showCoverImages && (
+    {image && siteConfig.features.showCoverImages && !hideCoverImage && (
       <div class="aspect-video overflow-hidden rounded-lg mb-4 bg-primary-100 dark:bg-primary-800">
         <img
-          src={image}
+          src={optimizePostImagePath(image)}
           alt={imageAlt || title}
           class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           loading="lazy"
@@ -69,7 +70,7 @@ const { title, description, date, tags, image, imageAlt } = post.data;
       {tags && tags.length > 0 && siteConfig.features.tags && (
         <div class="flex items-start mt-3">
           <div class="flex flex-wrap gap-2 -mx-2.5">
-            {tags.map((tag) => (
+            {tags.slice(0, 3).map((tag) => (
               <a
                 href={`/posts/tag/${tag}`}
                 class="text-xs text-primary-600 dark:text-primary-300 bg-primary-100 dark:bg-primary-800 px-2.5 py-1 rounded-full border border-primary-200 dark:border-primary-700 transition-colors hover:bg-highlight-100 dark:hover:bg-highlight-800"
@@ -77,6 +78,11 @@ const { title, description, date, tags, image, imageAlt } = post.data;
                 {tag}
               </a>
             ))}
+            {tags.length > 3 && (
+              <span class="text-xs text-primary-500 dark:text-primary-400 bg-primary-50 dark:bg-primary-800 px-2.5 py-1 rounded-full border border-primary-200 dark:border-primary-700">
+                + {tags.length - 3} more
+              </span>
+            )}
           </div>
         </div>
       )}

@@ -49,7 +49,8 @@ export default defineConfig({
         '0b4ea26e-07ff-411e-a293-99d72ae7d1b2-00-rx4xuahdxqtw.worf.replit.dev',
         '1a537f8e-3c44-41fe-b014-7f889986f234-00-2a93cn23ljkra.janeway.replit.dev',
         'da3a5d58-35ee-4f75-a6f0-dc4fa5e2615d-00-8t8nzbk8fv8w.worf.replit.dev',
-        '36787a49-1ce5-4b67-bed1-8e119127c480-00-15t3xn17nsvet.worf.replit.dev'
+        '36787a49-1ce5-4b67-bed1-8e119127c480-00-15t3xn17nsvet.worf.replit.dev',
+        'e99adaee-bacd-4c0e-9a43-3367c5473a37-00-2r78uv08uy8pr.janeway.replit.dev'
       ]
     }
   }

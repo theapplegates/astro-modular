@@ -15,6 +15,10 @@ export interface SiteConfig {
     };
   };
 
+  layout: {
+    contentWidth: string;
+  };
+
   features: {
     readingTime: boolean;
     wordCount: boolean;
@@ -55,7 +59,9 @@ export interface SiteConfig {
     schemaType: string;
   };
 
-  footer?: {
+  homeBlurb?: {
+    enabled?: boolean;
+    placement?: 'above' | 'below';
     title?: string;
     description?: string;
   };
@@ -74,6 +80,9 @@ export const siteConfig: SiteConfig = {
       body: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
     }
   },
+  layout: {
+    contentWidth: '40rem'
+  },
   features: {
     readingTime: true,
     wordCount: true,
@@ -87,7 +96,7 @@ export const siteConfig: SiteConfig = {
     postNavigation: true,
     showSocialIconsInFooter: true
   },
-  postsPerPage: 10,
+  postsPerPage: 5,
   commandPalette: {
     shortcut: 'ctrl+K',
     placeholder: 'Search all posts...',
@@ -117,8 +126,9 @@ export const siteConfig: SiteConfig = {
     generateOgImages: true,
     schemaType: 'blog'
   },
-  footer: {
-    enabled: true
+  homeBlurb: {
+    enabled: true,
+    placement: 'below' // 'above' (before latest post) or 'below' (after recent posts)
   }
 };
 
@@ -133,6 +143,10 @@ export function getHighlightColor(): string {
 
 export function getCommandPaletteShortcut(): string {
   return siteConfig.commandPalette.shortcut;
+}
+
+export function getContentWidth(): string {
+  return siteConfig.layout.contentWidth;
 }
 
 // Export the configuration as default

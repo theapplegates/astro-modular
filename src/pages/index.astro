@@ -22,19 +22,19 @@ const processedPosts = await Promise.all(
 const featuredPost = processedPosts[0];
 const previewPosts = processedPosts.slice(1, 4);
 
-// Get footer content from markdown file
-let footerContent = null;
-let FooterContent = null;
+// Get home blurb content from markdown file
+let homeBlurbContent = null;
+let HomeBlurbContent = null;
 
-if (siteConfig.footer?.enabled) {
+if (siteConfig.homeBlurb?.enabled) {
   try {
-    footerContent = await getEntry('pages', 'index');
-    if (footerContent) {
-      const { Content } = await footerContent.render();
-      FooterContent = Content;
+    homeBlurbContent = await getEntry('pages', 'index');
+    if (homeBlurbContent) {
+      const { Content } = await homeBlurbContent.render();
+      HomeBlurbContent = Content;
     }
   } catch (error) {
-    console.warn('Footer content not found:', error);
+    console.warn('Home blurb content not found:', error);
   }
 }
 
@@ -67,14 +67,21 @@ const structuredData = {
   </Fragment>
 
   <main class="py-2">
-    <div class="max-w-[40rem] mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto px-4 sm:px-6 lg:px-8" style={`max-width: ${siteConfig.layout.contentWidth}`}>
       {processedPosts.length > 0 ? (
         <>
+          <!-- Home blurb above posts -->
+          {siteConfig.homeBlurb?.enabled && siteConfig.homeBlurb?.placement === 'above' && HomeBlurbContent && (
+            <section class="prose prose-lg dark:prose-dark max-w-none mb-16">
+              <HomeBlurbContent />
+            </section>
+          )}
+
           <!-- Featured post -->
           {featuredPost && (
             <section class="mb-12">
               <div class="flex items-center justify-between mb-6">
-                <h2 class="font-semibold text-primary-900 dark:text-primary-50">
+                <h2 class="text-xl font-semibold text-primary-900 dark:text-primary-50">
                   Latest Post
                 </h2>
               </div>
@@ -87,7 +94,7 @@ const structuredData = {
           {previewPosts.length > 0 && (
             <section class="mb-12">
               <div class="flex items-center justify-between mb-6">
-                <h2 class="font-semibold text-primary-900 dark:text-primary-50">
+                <h2 class="text-xl font-semibold text-primary-900 dark:text-primary-50">
                   Recent Posts
                 </h2>
                 <a 
@@ -106,6 +113,13 @@ const structuredData = {
             </section>
           )}
 
+          <!-- Home blurb below posts -->
+          {siteConfig.homeBlurb?.enabled && siteConfig.homeBlurb?.placement === 'below' && HomeBlurbContent && (
+            <section class="prose prose-lg dark:prose-dark max-w-none mt-16">
+              <HomeBlurbContent />
+            </section>
+          )}
+
 
         </>
       ) : (
@@ -113,7 +127,7 @@ const structuredData = {
         <section class="text-center py-16">
           <div class="max-w-md mx-auto">
             <Icon name="file-text" class="w-16 h-16 text-primary-400 dark:text-primary-500 mx-auto mb-6" />
-            <h2 class="text-2xl font-semibold text-primary-900 dark:text-primary-50 mb-4">
+            <h2 class="text-xl font-semibold text-primary-900 dark:text-primary-50 mb-4">
               No Posts Yet
             </h2>
             <p class="text-primary-600 dark:text-primary-300 mb-8">
@@ -130,12 +144,6 @@ const structuredData = {
         </section>
       )}
 
-      <!-- Footer content from markdown -->
-      {siteConfig.footer?.enabled && FooterContent && (
-        <section class="prose prose-lg dark:prose-dark max-w-none mt-16">
-          <FooterContent />
-        </section>
-      )}
     </div>
   </main>
 </BaseLayout>

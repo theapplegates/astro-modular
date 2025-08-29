@@ -2,15 +2,17 @@
 title: "Complete Guide to Markdown Features"
 date: 2024-01-25
 description: "Explore all the markdown features available in this Obsidian-inspired blog theme, including callouts, code blocks, tables, and advanced formatting options."
-image: "https://pixabay.com/get/g2458558f774cf75fc718afb49ac5a3116d6d86f3349f7cf227f1678b580ccfb718edd582befe99cf573cd63bfaef970a800c45808519bdc7c8af5b64ae86b3b1_1280.jpg"
+image: "./images/pexels-bri-schneiter-28802-346529.jpg"
 imageAlt: "Code editor with markdown syntax highlighting"
 imageOG: true
-hideCoverImage: true
+hideCoverImage: false
 tags:
 - markdown
 - formatting
 - tutorial
 - reference
+- meta
+- blog
 targetKeyword: "markdown features"
 ---
 This post demonstrates all the markdown features available in our Obsidian-inspired blog theme. Use this as both a reference guide and a showcase of what's possible with our enhanced markdown processing.
@@ -89,6 +91,10 @@ Our theme supports Obsidian-style callouts with proper icons and styling. Each c
 
 > [!quote] Quote
 > Quote callouts can be used to highlight important quotes or references.
+
+## Images
+
+![Landscape](./images/pexels-bri-schneiter-28802-346529.jpg)
 
 ## Multiple Image Layouts
 

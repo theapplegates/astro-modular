@@ -11,6 +11,11 @@ export function remarkWikilinks() {
         return;
       }
 
+      // Skip wikilink processing if we're inside a code block
+      if (isInsideCodeBlock(parent, tree)) {
+        return;
+      }
+
       const wikilinkRegex = /\[\[([^\]]+)\]\]/g;
       let match;
       const newChildren: any[] = [];
@@ -102,10 +107,16 @@ export function extractWikilinks(content: string): WikilinkMatch[] {
   let match;
 
   while ((match = wikilinkRegex.exec(content)) !== null) {
-    const [, content] = match;
-    const [link, displayText] = content.includes('|')
-      ? content.split('|', 2)
-      : [content, content];
+    const [fullMatch, linkContent] = match;
+    
+    // Skip if wikilink is inside backticks (code)
+    if (isWikilinkInCode(content, match.index)) {
+      continue;
+    }
+    
+    const [link, displayText] = linkContent.includes('|')
+      ? linkContent.split('|', 2)
+      : [linkContent, linkContent];
 
     matches.push({
       link: link.trim(),
@@ -147,26 +158,38 @@ function createExcerptAroundWikilink(content: string, linkText: string): string 
   // Remove frontmatter
   const withoutFrontmatter = content.replace(/^---\n[\s\S]*?\n---\n/, '');
 
-  const match = withoutFrontmatter.match(regex);
-  if (!match) return '';
+  let match;
+  let searchStart = 0;
+  
+  // Find the wikilink that's not in code
+  while ((match = regex.exec(withoutFrontmatter.slice(searchStart))) !== null) {
+    const actualIndex = searchStart + match.index!;
+    
+    // Check if this wikilink is inside backticks
+    if (!isWikilinkInCode(withoutFrontmatter, actualIndex)) {
+      const contextLength = 100;
+      
+      // Get context around the match
+      const start = Math.max(0, actualIndex - contextLength);
+      const end = Math.min(withoutFrontmatter.length, actualIndex + match[0].length + contextLength);
 
-  const matchIndex = match.index || 0;
-  const contextLength = 100;
+      let excerpt = withoutFrontmatter.slice(start, end);
 
-  // Get context around the match
-  const start = Math.max(0, matchIndex - contextLength);
-  const end = Math.min(withoutFrontmatter.length, matchIndex + match[0].length + contextLength);
+      // Clean up excerpt
+      excerpt = excerpt
+        .replace(/^\S*\s*/, '') // Remove partial word at start
+        .replace(/\s*\S*$/, '') // Remove partial word at end
+        .replace(/\n+/g, ' ') // Replace newlines with spaces
+        .trim();
 
-  let excerpt = withoutFrontmatter.slice(start, end);
+      return excerpt;
+    }
+    
+    searchStart = actualIndex + match[0].length;
+    regex.lastIndex = 0; // Reset regex for next search
+  }
 
-  // Clean up excerpt
-  excerpt = excerpt
-    .replace(/^\S*\s*/, '') // Remove partial word at start
-    .replace(/\s*\S*$/, '') // Remove partial word at end
-    .replace(/\n+/g, ' ') // Replace newlines with spaces
-    .trim();
-
-  return excerpt;
+  return '';
 }
 
 // Resolve wikilink to actual post
@@ -205,6 +228,48 @@ export function validateWikilinks(posts: Post[], content: string): {
   });
 
   return { valid, invalid };
+}
+
+// Helper function to check if a node is inside a code block
+function isInsideCodeBlock(parent: any, tree: any): boolean {
+  // Check if the immediate parent is a code-related node
+  if (!parent) return false;
+  
+  // Check for inline code or code blocks
+  if (parent.type === 'inlineCode' || parent.type === 'code') {
+    return true;
+  }
+  
+  // Walk up the AST to check for code block ancestors
+  let currentNode = parent;
+  while (currentNode) {
+    if (currentNode.type === 'inlineCode' || currentNode.type === 'code') {
+      return true;
+    }
+    // Try to find the parent node in the tree (simplified check)
+    currentNode = currentNode.parent;
+  }
+  
+  return false;
+}
+
+// Helper function to check if a wikilink is inside backticks in raw content
+function isWikilinkInCode(content: string, wikilinkIndex: number): boolean {
+  // Find all backtick pairs in the content
+  const backtickRegex = /`([^`]*)`/g;
+  let match;
+  
+  while ((match = backtickRegex.exec(content)) !== null) {
+    const codeStart = match.index;
+    const codeEnd = match.index + match[0].length;
+    
+    // Check if the wikilink is inside this code block
+    if (wikilinkIndex >= codeStart && wikilinkIndex < codeEnd) {
+      return true;
+    }
+  }
+  
+  return false;
 }
 
 // Process HTML content to resolve wikilink display text with post titles

@@ -157,7 +157,7 @@ const { seoData, bodyClass = '' } = Astro.props;
   <Header />
 
   <!-- Main content -->
-  <main id="main-content" class="container mx-auto px-4 py-8 max-w-4xl relative flex-grow">
+  <main id="main-content" class="container mx-auto py-8 relative flex-grow" style={`max-width: ${siteConfig.layout.contentWidth}`}>
     <slot />
   </main>
 

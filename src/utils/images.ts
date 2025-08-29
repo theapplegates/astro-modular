@@ -111,6 +111,54 @@ export function optimizeImagePath(imagePath: string): string {
   return `/${imagePath}`;
 }
 
+// Optimize image path specifically for posts
+export function optimizePostImagePath(imagePath: string): string {
+  // Handle different image path formats
+  if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+    return imagePath; // External URL
+  }
+  
+  if (imagePath.startsWith('/')) {
+    return imagePath; // Absolute path
+  }
+  
+  // Relative path from post content - convert ./images/ to /posts/images/
+  if (imagePath.startsWith('./images/')) {
+    return imagePath.replace('./images/', '/posts/images/');
+  }
+  
+  if (imagePath.startsWith('images/')) {
+    return `/posts/${imagePath}`;
+  }
+  
+  // Default - ensure it starts with /
+  return `/${imagePath}`;
+}
+
+// Optimize image path specifically for pages
+export function optimizePageImagePath(imagePath: string): string {
+  // Handle different image path formats
+  if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+    return imagePath; // External URL
+  }
+  
+  if (imagePath.startsWith('/')) {
+    return imagePath; // Absolute path
+  }
+  
+  // Relative path from page content - convert ./images/ to /pages/images/
+  if (imagePath.startsWith('./images/')) {
+    return imagePath.replace('./images/', '/pages/images/');
+  }
+  
+  if (imagePath.startsWith('images/')) {
+    return `/pages/${imagePath}`;
+  }
+  
+  // Default - ensure it starts with /
+  return `/${imagePath}`;
+}
+
 // Generate responsive image srcset
 export function generateSrcSet(imagePath: string, widths: number[] = [320, 640, 768, 1024, 1280]): string {
   if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {

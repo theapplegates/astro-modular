@@ -410,7 +410,7 @@ textarea {
 
 /* Prose improvements */
 .prose {
-  @apply max-w-none;
+  @apply max-w-none text-primary-700 dark:text-primary-300;
 }
 
 /* Improve list spacing */
@@ -459,6 +459,50 @@ textarea {
   scroll-margin-top: 8rem;
 }
 
+/* Specific heading sizing */
+.prose h1 {
+  @apply text-2xl mt-8 mb-6;
+}
+
+.prose h2 {
+  @apply text-xl mt-8 mb-4;
+}
+
+.prose h3 {
+  @apply text-lg mt-6 mb-3;
+}
+
+.prose h4 {
+  @apply text-base mt-5 mb-2;
+}
+
+.prose h5 {
+  @apply text-base mt-4 mb-2;
+}
+
+.prose h6 {
+  @apply text-base mt-4 mb-2;
+}
+
+/* Heading anchor links styling */
+.prose h1 a, 
+.prose h2 a, 
+.prose h3 a, 
+.prose h4 a, 
+.prose h5 a, 
+.prose h6 a {
+  @apply text-primary-900 dark:text-primary-50 no-underline transition-colors duration-200;
+}
+
+.prose h1 a:hover, 
+.prose h2 a:hover, 
+.prose h3 a:hover, 
+.prose h4 a:hover, 
+.prose h5 a:hover, 
+.prose h6 a:hover {
+  @apply text-highlight-600 dark:text-highlight-400 no-underline;
+}
+
 /* Footnote positioning - add more scroll margin for better header clearance */
 .prose sup a,
 .prose .footnote-ref {
@@ -472,6 +516,14 @@ textarea {
 
 .prose a {
   @apply text-highlight-600 dark:text-highlight-400 font-medium no-underline hover:underline;
+}
+
+.prose a:hover {
+  @apply text-highlight-700 dark:text-highlight-300;
+}
+
+.prose a:focus-visible {
+  @apply outline-none ring-2 ring-highlight-500 ring-offset-2;
 }
 
 .prose strong {
