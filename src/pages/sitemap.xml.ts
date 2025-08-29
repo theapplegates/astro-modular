@@ -1,7 +1,8 @@
 import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
 import { siteConfig } from '@/config';
-import { shouldShowPost, shouldExcludeFromSitemap } from '@/utils/seo';
+import { shouldShowPost } from '@/utils/markdown';
+import { shouldExcludeFromSitemap } from '@/utils/seo';
 
 export const GET: APIRoute = async ({ site }) => {
   const siteUrl = site?.toString() || siteConfig.site;
