@@ -1,5 +1,6 @@
 ---
 import { siteConfig } from '@/config';
+import Icon from './Icon.astro';
 
 export interface Props {
   tags: string[];
@@ -17,7 +18,7 @@ const sortedTags = [...tags].sort();
 {siteConfig.features.tags && sortedTags.length > 0 && (
   <div class="tags-container">
     <h3 class="font-semibold text-primary-900 dark:text-primary-50 mb-4 flex items-center">
-      <i data-lucide="tag" class="w-4 h-4 mr-2"></i>
+      <Icon name="tag" class="w-4 h-4 mr-2" />
       Tags
     </h3>
 

@@ -8,6 +8,7 @@ import BaseLayout from '@/components/BaseLayout.astro';
 import PostCard from '@/components/PostCard.astro';
 import Tags from '@/components/Tags.astro';
 import Pagination from '@/components/Pagination.astro';
+import Icon from '@/components/Icon.astro';
 
 export const getStaticPaths: GetStaticPaths = async () => {
   // Get all posts
@@ -102,7 +103,7 @@ const pagination = {
             href="/posts"
             class="inline-flex items-center text-sm text-highlight-600 dark:text-highlight-400 hover:text-highlight-700 dark:hover:text-highlight-300 transition-colors"
           >
-            <i data-lucide="arrow-left" class="w-4 h-4 mr-1"></i>
+            <Icon name="arrow-left" class="w-4 h-4 mr-1" />
             All Posts
           </a>
         </nav>
@@ -156,7 +157,7 @@ const pagination = {
           ) : (
             <!-- No posts found -->
             <div class="text-center py-16">
-              <i data-lucide="search-x" class="w-16 h-16 text-primary-400 dark:text-primary-500 mx-auto mb-6"></i>
+              <Icon name="search-x" class="w-16 h-16 text-primary-400 dark:text-primary-500 mx-auto mb-6" />
               <h2 class="text-2xl font-semibold text-primary-900 dark:text-primary-50 mb-4">
                 No posts found on this page
               </h2>
@@ -188,7 +189,7 @@ const pagination = {
             <!-- Page navigation -->
             <div class="p-6 bg-white dark:bg-primary-900 rounded-xl border border-primary-200 dark:border-primary-700">
               <h3 class="font-semibold text-primary-900 dark:text-primary-50 mb-4 flex items-center">
-                <i data-lucide="navigation" class="w-4 h-4 mr-2"></i>
+                <Icon name="navigation" class="w-4 h-4 mr-2" />
                 Quick Navigation
               </h3>
               <div class="space-y-2 text-sm">

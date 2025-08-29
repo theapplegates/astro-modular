@@ -1,5 +1,6 @@
 ---
 import type { PaginationInfo } from '@/types';
+import Icon from './Icon.astro';
 
 export interface Props {
   pagination: PaginationInfo;
@@ -60,12 +61,12 @@ const prevUrl = hasPrev
           href={prevUrl || `${baseUrl}/${currentPage - 1}`}
           class="inline-flex items-center px-4 py-2 text-sm font-medium text-primary-600 dark:text-primary-300 bg-white dark:bg-primary-900 border border-primary-300 dark:border-primary-600 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-800 hover:text-highlight-600 dark:hover:text-highlight-400 transition-colors"
         >
-          <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
+          <Icon name="arrow-left" class="w-4 h-4 mr-2" />
           Previous
         </a>
       ) : (
         <span class="inline-flex items-center px-4 py-2 text-sm font-medium text-primary-400 dark:text-primary-500 bg-primary-100 dark:bg-primary-800 border border-primary-200 dark:border-primary-700 rounded-lg cursor-not-allowed">
-          <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
+          <Icon name="arrow-left" class="w-4 h-4 mr-2" />
           Previous
         </span>
       )}
@@ -109,12 +110,12 @@ const prevUrl = hasPrev
           class="inline-flex items-center px-4 py-2 text-sm font-medium text-primary-600 dark:text-primary-300 bg-white dark:bg-primary-900 border border-primary-300 dark:border-primary-600 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-800 hover:text-highlight-600 dark:hover:text-highlight-400 transition-colors"
         >
           Next
-          <i data-lucide="arrow-right" class="w-4 h-4 ml-2"></i>
+          <Icon name="arrow-right" class="w-4 h-4 ml-2" />
         </a>
       ) : (
         <span class="inline-flex items-center px-4 py-2 text-sm font-medium text-primary-400 dark:text-primary-500 bg-primary-100 dark:bg-primary-800 border border-primary-200 dark:border-primary-700 rounded-lg cursor-not-allowed">
           Next
-          <i data-lucide="arrow-right" class="w-4 h-4 ml-2"></i>
+          <Icon name="arrow-right" class="w-4 h-4 ml-2" />
         </span>
       )}
     </div>

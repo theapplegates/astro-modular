@@ -8,6 +8,7 @@ import { shouldShowPost, processPost, calculateReadingTime, generateTOC, getAdja
 import BaseLayout from '@/components/BaseLayout.astro';
 import TableOfContents from '@/components/TableOfContents.astro';
 import LinkedMentions from '@/components/LinkedMentions.astro';
+import Icon from '@/components/Icon.astro';
 
 export interface Props {
   post: Post;
@@ -143,7 +144,7 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
                       {prevPost.data.title}
                     </h3>
                     <div class="flex justify-start mt-2">
-                      <i data-lucide="arrow-left" class="w-5 h-5 text-primary-500 dark:text-primary-400 group-hover:text-highlight-500 dark:group-hover:text-highlight-400 transition-colors"></i>
+                      <Icon name="arrow-left" class="w-5 h-5 text-primary-500 dark:text-primary-400 group-hover:text-highlight-500 dark:group-hover:text-highlight-400 transition-colors" />
                     </div>
                   </a>
                 </div>
@@ -159,7 +160,7 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
                       {nextPost.data.title}
                     </h3>
                     <div class="flex justify-end mt-2">
-                      <i data-lucide="arrow-right" class="w-5 h-5 text-primary-500 dark:text-primary-400 group-hover:text-highlight-500 dark:group-hover:text-highlight-400 transition-colors"></i>
+                      <Icon name="arrow-right" class="w-5 h-5 text-primary-500 dark:text-primary-400 group-hover:text-highlight-500 dark:group-hover:text-highlight-400 transition-colors" />
                     </div>
                   </a>
                 </div>
@@ -182,29 +183,8 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
 
   <Fragment slot="scripts">
     <script define:vars={{ posts: visiblePosts }}>
-      // Process wikilinks and initialize callout icons after content loads
+      // Process wikilinks and initialize layouts after content loads
       document.addEventListener('DOMContentLoaded', () => {
-        // Function to wait for Lucide and initialize icons
-        const waitForLucideAndInit = () => {
-          if (window.lucide && typeof window.lucide.createIcons === 'function') {
-            try {
-              window.lucide.createIcons();
-                
-              // Mark all callouts as initialized
-              document.querySelectorAll('.callout').forEach(callout => {
-                callout.setAttribute('data-callout-initialized', 'true');
-              });
-            } catch (error) {
-              console.error('Failed to initialize callout icons:', error);
-            }
-          } else {
-            console.log('Lucide not available yet, retrying...');
-            setTimeout(waitForLucideAndInit, 50);
-          }
-        };
-        
-        // Start waiting for Lucide
-        waitForLucideAndInit();
         
         // Initialize image grid layouts
         function initializeImageGrids() {

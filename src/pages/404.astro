@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import { siteConfig } from '@/config';
 import BaseLayout from '@/components/BaseLayout.astro';
+import Icon from '@/components/Icon.astro';
 
 // Try to get 404 page content from collection
 let pageContent = null;
@@ -32,7 +33,7 @@ Astro.response.status = 404;
     <div class="max-w-[37em] mx-auto px-4 sm:px-6 lg:px-8 text-center">
       <!-- Error icon -->
       <div class="mb-8">
-        <i data-lucide="file-x" class="w-12 h-12 text-primary-400 dark:text-primary-500 mx-auto"></i>
+        <Icon name="file-x" class="w-12 h-12 text-primary-400 dark:text-primary-500 mx-auto" />
       </div>
       
       <!-- Error message -->

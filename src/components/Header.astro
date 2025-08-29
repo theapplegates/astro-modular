@@ -1,6 +1,7 @@
 ---
 import { siteConfig } from '../config.ts';
 import ThemeToggle from './ThemeToggle.astro';
+import Icon from './Icon.astro';
 
 const { pathname } = Astro.url;
 const isHome = pathname === '/';
@@ -47,7 +48,7 @@ const isHome = pathname === '/';
             class="flex items-center space-x-2 px-3 py-2 text-sm text-primary-500 dark:text-primary-400 bg-primary-50 dark:bg-primary-800 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-700 transition-colors"
             aria-label="Open command palette"
           >
-            <i data-lucide="command" class="w-5 h-5"></i>
+            <Icon name="command" class="w-5 h-5" />
             <kbd class="text-sm font-medium text-primary-600 dark:text-primary-300">
               K
             </kbd>
@@ -61,7 +62,8 @@ const isHome = pathname === '/';
             class="md:hidden p-2 text-primary-500 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-800 rounded-lg transition-colors"
             aria-label="Toggle mobile menu"
           >
-            <i data-lucide="menu" class="w-5 h-5"></i>
+            <Icon name="menu" class="w-5 h-5 menu-icon" />
+            <Icon name="x" class="w-5 h-5 close-icon hidden" />
           </button>
         )}
       </div>
@@ -100,16 +102,15 @@ const isHome = pathname === '/';
         mobileMenu.classList.toggle('hidden');
 
         // Update menu icon
-        const icon = menuToggle.querySelector('i');
-        if (icon) {
+        const menuIcon = menuToggle.querySelector('.menu-icon');
+        const closeIcon = menuToggle.querySelector('.close-icon');
+        if (menuIcon && closeIcon) {
           if (mobileMenu.classList.contains('hidden')) {
-            icon.setAttribute('data-lucide', 'menu');
+            menuIcon.classList.remove('hidden');
+            closeIcon.classList.add('hidden');
           } else {
-            icon.setAttribute('data-lucide', 'x');
-          }
-          // Re-initialize lucide icons
-          if (window.lucide) {
-            lucide.createIcons();
+            menuIcon.classList.add('hidden');
+            closeIcon.classList.remove('hidden');
           }
         }
       });

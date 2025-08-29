@@ -1,9 +1,8 @@
 ---
 title: "Privacy Policy"
-description: "Our commitment to protecting your privacy and how we handle your data."
-showTOC: true
+description: "Our privacy policy explains how we collect, use, and protect your information when you visit our blog."
 ---
-# Privacy Policy 
+# Privacy Policy
 
 *Last updated: January 15, 2024*
 

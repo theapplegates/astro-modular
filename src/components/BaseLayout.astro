@@ -73,8 +73,7 @@ const { seoData, bodyClass = '' } = Astro.props;
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Icons -->
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <!-- Theme initialization script -->
@@ -126,10 +125,7 @@ const { seoData, bodyClass = '' } = Astro.props;
         favicon.href = newTheme === 'dark' ? '/favicon-dark.ico' : '/favicon-light.ico';
       }
 
-      // Re-initialize Lucide icons to update any toggle icons
-      if (typeof lucide !== 'undefined' && typeof lucide.createIcons === 'function') {
-        lucide.createIcons();
-      }
+      // Icons are now static SVG - no re-initialization needed
 
       // Dispatch theme change event
       window.dispatchEvent(new CustomEvent('themechange', {
@@ -192,10 +188,7 @@ const { seoData, bodyClass = '' } = Astro.props;
         });
       });
 
-      // Initialize Lucide icons
-      if (window.lucide) {
-        lucide.createIcons();
-      }
+      // Icons are now static SVG - no initialization needed
 
       // Handle external links
       document.querySelectorAll('a[href^="http"]').forEach(link => {
@@ -220,30 +213,7 @@ const { seoData, bodyClass = '' } = Astro.props;
   <!-- Additional body scripts -->
   <slot name="scripts" />
 
-  <!-- Lucide Icons Initialization -->
-  <script>
-    // Initialize Lucide icons when DOM is ready
-    function initLucideIcons() {
-      if (typeof lucide !== 'undefined' && lucide.createIcons) {
-        try {
-          lucide.createIcons();
-        } catch (error) {
-          console.warn('Lucide icons initialization failed:', error);
-        }
-      }
-    }
-
-    // Initialize immediately if lucide is already loaded
-    if (typeof lucide !== 'undefined') {
-      initLucideIcons();
-    }
-
-    // Initialize when DOM is ready
-    document.addEventListener('DOMContentLoaded', initLucideIcons);
-
-    // Fallback: ensure icons are initialized after a short delay
-    setTimeout(initLucideIcons, 100);
-  </script>
+  <!-- Static SVG icons - no dynamic loading needed -->
 </body>
 </html>
 

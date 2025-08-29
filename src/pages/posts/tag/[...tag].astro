@@ -8,6 +8,7 @@ import BaseLayout from '@/components/BaseLayout.astro';
 import PostCard from '@/components/PostCard.astro';
 import Tags from '@/components/Tags.astro';
 import Pagination from '@/components/Pagination.astro';
+import Icon from '@/components/Icon.astro';
 
 export const getStaticPaths: GetStaticPaths = async () => {
   // Get all posts
@@ -79,7 +80,7 @@ const pagination = {
             class="inline-flex items-center px-3 py-2 text-sm font-medium text-highlight-600 dark:text-highlight-400 bg-highlight-50 dark:bg-highlight-900/20 rounded-lg border border-highlight-200 dark:border-highlight-700 hover:bg-highlight-100 dark:hover:bg-highlight-900/40 hover:text-highlight-700 dark:hover:text-highlight-300 transition-all duration-200"
             title="Subscribe to RSS feed"
           >
-            <i data-lucide="rss" class="w-4 h-4 mr-1.5"></i>
+            <Icon name="rss" class="w-4 h-4 mr-1.5" />
             RSS Feed
           </a>
         </div>
@@ -95,7 +96,7 @@ const pagination = {
             href="/posts"
             class="inline-flex items-center text-sm text-highlight-600 dark:text-highlight-400 hover:text-highlight-700 dark:hover:text-highlight-300 transition-colors"
           >
-            <i data-lucide="arrow-left" class="w-4 h-4 mr-1"></i>
+            <Icon name="arrow-left" class="w-4 h-4 mr-1" />
             Show all posts
           </a>
         </div>
@@ -119,7 +120,7 @@ const pagination = {
           ) : (
             <!-- No posts for selected tag -->
             <div class="text-center py-16">
-              <i data-lucide="tag" class="w-16 h-16 text-primary-400 dark:text-primary-500 mx-auto mb-6"></i>
+              <Icon name="tag" class="w-16 h-16 text-primary-400 dark:text-primary-500 mx-auto mb-6" />
               <h2 class="text-2xl font-semibold text-primary-900 dark:text-primary-50 mb-4">
                 No posts found
               </h2>

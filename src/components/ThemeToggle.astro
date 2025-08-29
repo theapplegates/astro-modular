@@ -1,11 +1,14 @@
+---
+import Icon from './Icon.astro';
+---
 <!-- Theme toggle component -->
 <button
   id="theme-toggle"
   class="p-2 text-primary-500 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-800 rounded-lg transition-colors duration-200"
   aria-label="Toggle theme"
 >
-  <i data-lucide="sun" class="w-5 h-5 dark:hidden"></i>
-  <i data-lucide="moon" class="w-5 h-5 hidden dark:block"></i>
+  <Icon name="sun" class="w-5 h-5 dark:hidden" />
+  <Icon name="moon" class="w-5 h-5 hidden dark:block" />
 </button>
 
 <script>
@@ -26,10 +29,7 @@
       favicon.href = newTheme === 'dark' ? '/favicon-dark.ico' : '/favicon-light.ico';
     }
 
-    // Re-initialize Lucide icons to update the toggle icon
-    if (window.lucide) {
-      lucide.createIcons();
-    }
+    // Icons are now static SVG - no re-initialization needed
 
     // Dispatch theme change event
     window.dispatchEvent(new CustomEvent('themechange', {
