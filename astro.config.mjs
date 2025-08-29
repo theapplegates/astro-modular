@@ -17,6 +17,17 @@ export default defineConfig({
     sitemap(),
     mdx()
   ],
+  image: {
+    service: {
+      entrypoint: 'astro/assets/services/sharp',
+      config: {
+        limitInputPixels: false,
+      }
+    },
+    remotePatterns: [{
+      protocol: 'https'
+    }]
+  },
   markdown: {
     remarkPlugins: [
       remarkWikilinks,
@@ -51,7 +62,15 @@ export default defineConfig({
         'da3a5d58-35ee-4f75-a6f0-dc4fa5e2615d-00-8t8nzbk8fv8w.worf.replit.dev',
         '36787a49-1ce5-4b67-bed1-8e119127c480-00-15t3xn17nsvet.worf.replit.dev',
         'e99adaee-bacd-4c0e-9a43-3367c5473a37-00-2r78uv08uy8pr.janeway.replit.dev'
+,
+        '1f862f47-304a-41f1-b4ef-c30fd52c20f4-00-pysanuvprrps.riker.replit.dev'
       ]
+    },
+    define: {
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development')
     }
+  },
+  build: {
+    assets: '_assets'
   }
 });

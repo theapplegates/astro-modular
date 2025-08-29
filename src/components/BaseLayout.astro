@@ -172,10 +172,64 @@ const { seoData, bodyClass = '' } = Astro.props;
 
   <!-- Global scripts -->
   <script>
+    // Global image preloader to prevent reloading across navigation
+    class ImagePreloader {
+      constructor() {
+        this.loadedImages = new Set();
+        this.preloadedImages = new Map();
+      }
+
+      preloadImage(src, priority = 'low') {
+        return new Promise((resolve, reject) => {
+          if (this.loadedImages.has(src)) {
+            resolve();
+            return;
+          }
+
+          if (this.preloadedImages.has(src)) {
+            resolve();
+            return;
+          }
+
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          img.loading = priority === 'high' ? 'eager' : 'lazy';
+          
+          img.onload = () => {
+            this.loadedImages.add(src);
+            this.preloadedImages.set(src, img);
+            resolve();
+          };
+          
+          img.onerror = () => {
+            reject(new Error(`Failed to load image: ${src}`));
+          };
+          
+          img.src = src;
+        });
+      }
+
+      preloadAllImages() {
+        const images = document.querySelectorAll('img[src*="/_image"]');
+        images.forEach((img, index) => {
+          if (img instanceof HTMLImageElement) {
+            const priority = index < 3 ? 'high' : 'low';
+            this.preloadImage(img.src, priority).catch(console.warn);
+          }
+        });
+      }
+    }
+
+    // Initialize global preloader
+    window.imagePreloader = new ImagePreloader();
+
     // Smooth scrolling for anchor links
     document.addEventListener('DOMContentLoaded', () => {
       // Enable smooth scrolling
       document.documentElement.style.scrollBehavior = 'smooth';
+
+      // Preload all images on initial page load
+      window.imagePreloader.preloadAllImages();
 
       // Handle anchor links
       document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -217,6 +271,17 @@ const { seoData, bodyClass = '' } = Astro.props;
             window.dispatchEvent(event);
           }
         }
+      });
+
+      // Preload images when hovering over navigation links
+      document.querySelectorAll('a[href^="/"]').forEach(link => {
+        link.addEventListener('mouseenter', () => {
+          // Prefetch the page and its images
+          const linkUrl = link.getAttribute('href');
+          if (linkUrl && linkUrl !== window.location.pathname) {
+            fetch(linkUrl, { method: 'HEAD' }).catch(() => {});
+          }
+        });
       });
     });
   </script>

@@ -131,8 +131,8 @@ export function optimizePostImagePath(imagePath: string): string {
     return `/posts/${imagePath}`;
   }
   
-  // Default - ensure it starts with /
-  return `/${imagePath}`;
+  // Default - assume it's a relative path in the posts directory
+  return `/posts/images/${imagePath}`;
 }
 
 // Optimize image path specifically for pages

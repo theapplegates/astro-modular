@@ -64,6 +64,16 @@ const structuredData = {
   <Fragment slot="head">
     <!-- Structured Data -->
     <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+    
+    <!-- Preload critical images -->
+    {featuredPost && featuredPost.data.image && siteConfig.features.showCoverImages && !featuredPost.data.hideCoverImage && !featuredPost.data.image.startsWith('http') && (
+      <link 
+        rel="preload" 
+        as="image" 
+        href={`/_image?href=${encodeURIComponent(featuredPost.data.image.startsWith('./') ? featuredPost.data.image.replace('./images/', '/posts/images/') : `/posts/images/${featuredPost.data.image}`)}&w=800&h=450&f=webp&q=90`}
+        type="image/webp"
+      />
+    )}
   </Fragment>
 
   <main class="py-2">
@@ -81,7 +91,7 @@ const structuredData = {
           {featuredPost && (
             <section class="mb-12">
               <div class="flex items-center justify-between mb-6">
-                <h2 class="text-xl font-semibold text-primary-900 dark:text-primary-50">
+                <h2 class="font-semibold text-primary-900 dark:text-primary-50">
                   Latest Post
                 </h2>
               </div>
@@ -94,7 +104,7 @@ const structuredData = {
           {previewPosts.length > 0 && (
             <section class="mb-12">
               <div class="flex items-center justify-between mb-6">
-                <h2 class="text-xl font-semibold text-primary-900 dark:text-primary-50">
+                <h2 class="font-semibold text-primary-900 dark:text-primary-50">
                   Recent Posts
                 </h2>
                 <a 
@@ -127,7 +137,7 @@ const structuredData = {
         <section class="text-center py-16">
           <div class="max-w-md mx-auto">
             <Icon name="file-text" class="w-16 h-16 text-primary-400 dark:text-primary-500 mx-auto mb-6" />
-            <h2 class="text-xl font-semibold text-primary-900 dark:text-primary-50 mb-4">
+            <h2 class="text-2xl font-semibold text-primary-900 dark:text-primary-50 mb-4">
               No Posts Yet
             </h2>
             <p class="text-primary-600 dark:text-primary-300 mb-8">

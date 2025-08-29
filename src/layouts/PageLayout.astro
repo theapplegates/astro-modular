@@ -7,6 +7,7 @@ import { optimizePageImagePath } from '@/utils/images';
 import BaseLayout from '@/components/BaseLayout.astro';
 import TableOfContents from '@/components/TableOfContents.astro';
 import Lightbox from '@/components/Lightbox.astro';
+import { Image } from 'astro:assets';
 
 export interface Props {
   page: Page;
@@ -64,10 +65,13 @@ const structuredData = {
 
           {page.data.image && (
             <div class="aspect-video overflow-hidden rounded-xl mt-8">
-              <img
+              <Image
                 src={optimizePageImagePath(page.data.image)}
                 alt={page.data.imageAlt || page.data.title}
                 class="w-full h-full object-cover"
+                width={800}
+                height={450}
+                loading="eager"
               />
             </div>
           )}

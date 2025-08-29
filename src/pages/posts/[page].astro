@@ -13,17 +13,17 @@ import Icon from '@/components/Icon.astro';
 export const getStaticPaths: GetStaticPaths = async () => {
   // Get all posts
   const allPosts = await getCollection('posts');
-
+  
   // Filter posts for production
   const visiblePosts = allPosts.filter(post => shouldShowPost(post, false));
-
+  
   // Sort posts by date
   const sortedPosts = sortPostsByDate(visiblePosts);
-
+  
   // Calculate total pages
   const postsPerPage = siteConfig.postsPerPage;
   const totalPages = Math.ceil(sortedPosts.length / postsPerPage);
-
+  
   // Generate paths for each page (starting from page 2)
   const paths = [];
   for (let page = 2; page <= totalPages; page++) {
@@ -37,7 +37,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
       }
     });
   }
-
+  
   return paths;
 };
 
@@ -95,7 +95,7 @@ const pagination = {
 
 <BaseLayout seoData={seoData}>
   <div class="py-12">
-    <div class="mx-auto px-4 sm:px-6 lg:px-8 mb-12" style={`max-width: ${siteConfig.layout.contentWidth}`}>
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Header -->
       <header class="mb-12">
         <nav class="mb-4">
@@ -107,15 +107,15 @@ const pagination = {
             All Posts
           </a>
         </nav>
-
-        <h1 class="text-xl font-bold text-primary-900 dark:text-primary-50 mb-4">
+        
+        <h1 class="text-3xl sm:text-4xl font-bold text-primary-900 dark:text-primary-50 mb-4">
           {selectedTag ? (
             <>Posts tagged "{selectedTag}"</>
           ) : (
             <>All Posts</>
           )}
         </h1>
-
+        
         <div class="flex items-center space-x-4 text-primary-600 dark:text-primary-300">
           <span>
             Page {currentPage} of {totalPages}
@@ -129,7 +129,7 @@ const pagination = {
             )}
           </span>
         </div>
-
+        
         {selectedTag && (
           <div class="mt-4">
             <span class="inline-flex items-center px-3 py-1 bg-highlight-100 dark:bg-highlight-900/30 text-highlight-800 dark:text-highlight-200 rounded-full text-sm font-medium">
@@ -138,19 +138,19 @@ const pagination = {
           </div>
         )}
       </header>
-
-      <div class="relative">
+      
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <!-- Main content -->
-        <div class="max-w-none">
+        <div class="lg:col-span-8 xl:col-span-9">
           {paginatedPosts.length > 0 ? (
             <>
               <!-- Posts list -->
-              <div class="space-y-6 mb-12">
+              <div class="space-y-4 mb-12">
                 {paginatedPosts.map(post => (
                   <PostCard post={post} />
                 ))}
               </div>
-
+              
               <!-- Pagination -->
               <Pagination pagination={pagination} baseUrl="/posts" />
             </>
@@ -177,22 +177,54 @@ const pagination = {
             </div>
           )}
         </div>
-
-        <!-- Mobile sidebar - appears below content on mobile/tablet -->
-        <div class="xl:hidden mt-12 space-y-6">
-          <!-- Tags -->
-          {siteConfig.features.tags && allTags.length > 0 && (
-            <Tags tags={allTags} currentTag={selectedTag} />
-          )}
-        </div>
-
-        <!-- Desktop sidebar - floats to the right of the content container -->
-        <div class="hidden xl:block absolute top-0 left-full ml-8 w-64">
-          <div class="sticky top-24 space-y-3 max-h-[calc(100vh-12rem)] overflow-y-auto pb-6">
+        
+        <!-- Sidebar -->
+        <div class="lg:col-span-4 xl:col-span-3">
+          <div class="sticky top-24 space-y-6">
             <!-- Tags -->
             {siteConfig.features.tags && allTags.length > 0 && (
               <Tags tags={allTags} currentTag={selectedTag} />
             )}
+            
+            <!-- Page navigation -->
+            <div class="p-6 bg-white dark:bg-primary-900 rounded-xl border border-primary-200 dark:border-primary-700">
+              <h3 class="font-semibold text-primary-900 dark:text-primary-50 mb-4 flex items-center">
+                <Icon name="navigation" class="w-4 h-4 mr-2" />
+                Quick Navigation
+              </h3>
+              <div class="space-y-2 text-sm">
+                <a 
+                  href="/posts"
+                  class="block px-3 py-2 text-primary-600 dark:text-primary-300 hover:text-highlight-600 dark:hover:text-highlight-400 hover:bg-primary-50 dark:hover:bg-primary-800 rounded-lg transition-colors"
+                >
+                  First Page
+                </a>
+                {pagination.hasPrev && (
+                  <a 
+                    href={pagination.prevUrl}
+                    class="block px-3 py-2 text-primary-600 dark:text-primary-300 hover:text-highlight-600 dark:hover:text-highlight-400 hover:bg-primary-50 dark:hover:bg-primary-800 rounded-lg transition-colors"
+                  >
+                    Previous Page
+                  </a>
+                )}
+                {pagination.hasNext && (
+                  <a 
+                    href={pagination.nextUrl}
+                    class="block px-3 py-2 text-primary-600 dark:text-primary-300 hover:text-highlight-600 dark:hover:text-highlight-400 hover:bg-primary-50 dark:hover:bg-primary-800 rounded-lg transition-colors"
+                  >
+                    Next Page
+                  </a>
+                )}
+                {currentPage < totalPages && (
+                  <a 
+                    href={`/posts/${totalPages}`}
+                    class="block px-3 py-2 text-primary-600 dark:text-primary-300 hover:text-highlight-600 dark:hover:text-highlight-400 hover:bg-primary-50 dark:hover:bg-primary-800 rounded-lg transition-colors"
+                  >
+                    Last Page
+                  </a>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -10,6 +10,7 @@ import BaseLayout from '@/components/BaseLayout.astro';
 import TableOfContents from '@/components/TableOfContents.astro';
 import LinkedMentions from '@/components/LinkedMentions.astro';
 import Icon from '@/components/Icon.astro';
+import { Image } from 'astro:assets';
 
 export interface Props {
   post: Post;
@@ -82,10 +83,13 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
         <header class="mb-8">
           {/* Cover image - shown if global config allows and not hidden by frontmatter */}
           {siteConfig.features.showCoverImages && post.data.image && !post.data.hideCoverImage && (
-            <img 
+            <Image 
               src={optimizePostImagePath(post.data.image)}
               alt={post.data.imageAlt || `Cover image for ${post.data.title}`}
               class="w-full h-64 object-cover rounded-lg shadow-sm mb-6"
+              width={800}
+              height={256}
+              loading="eager"
             />
           )}
 
@@ -198,14 +202,14 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
         
         // Initialize image grid layouts
         function initializeImageGrids() {
-          // Find all paragraphs that contain only images
+          // Find all paragraphs that contain only images (including Image component output)
           const paragraphs = document.querySelectorAll('.prose p');
           
           paragraphs.forEach(p => {
-            const images = p.querySelectorAll('img');
+            const images = p.querySelectorAll('img, picture');
             const otherContent = Array.from(p.childNodes).filter(node => 
               node.nodeType === Node.TEXT_NODE ? node.textContent.trim() !== '' : 
-              node.nodeType === Node.ELEMENT_NODE && node.tagName !== 'IMG'
+              node.nodeType === Node.ELEMENT_NODE && !['IMG', 'PICTURE'].includes(node.tagName)
             );
             
             // Only process if paragraph contains only images (and whitespace)

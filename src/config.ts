@@ -102,8 +102,8 @@ export const siteConfig: SiteConfig = {
     placeholder: 'Search all posts...',
     sections: {
       quickActions: true,
-      pages: false,
-      social: false
+      pages: true,
+      social: true
     }
   },
   navigation: {
@@ -113,7 +113,8 @@ export const siteConfig: SiteConfig = {
     pages: [
       { title: 'Posts', url: '/posts' },
       { title: 'About', url: '/about' },
-      { title: 'Privacy Policy', url: '/privacy-policy' }
+      { title: 'Privacy Policy', url: '/privacy-policy' },
+      { title: 'Google', url: 'https://google.com' }
     ],
     social: [
       { title: 'GitHub', url: 'https://github.com', icon: 'github' },

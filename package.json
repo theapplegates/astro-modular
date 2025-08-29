@@ -4,7 +4,7 @@
   "description": "A minimal, elegant blog theme for Astro heavily inspired by Obsidian, designed for clarity, performance, and seamless compatibility with Obsidian markdown workflows.",
   "main": "index.js",
   "scripts": {
-    "dev": "astro dev --host 0.0.0.0 --port 5000",
+    "dev": "astro dev --port 5000",
     "build": "astro build",
     "preview": "astro preview --host 0.0.0.0 --port 5000",
     "test": "echo \"Error: no test specified\" && exit 1"
