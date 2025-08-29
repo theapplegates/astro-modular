@@ -16,7 +16,7 @@ export async function GET(context: any) {
     description: siteConfig.description,
     site: context.site || siteConfig.site,
     items: sortedPosts.map((post) => {
-      const postUrl = `${context.site || siteConfig.site}/posts/${post.slug}`;
+      const postUrl = `${context.site || siteConfig.site}posts/${post.slug}`;
       
       return {
         title: post.data.title,
