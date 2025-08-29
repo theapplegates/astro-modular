@@ -8,7 +8,7 @@ const isHome = pathname === '/';
 ---
 
 <header class="sticky top-0 z-40 w-full bg-white/80 dark:bg-primary-950/80 backdrop-blur-md">
-  <div class="max-w-[37em] mx-auto px-4 sm:px-6 lg:px-8">
+  <div class="max-w-[40rem] mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-16">
       <!-- Logo / Site Title -->
       <div class="flex items-center">
@@ -19,23 +19,44 @@ const isHome = pathname === '/';
         </a>
       </div>
 
-      <!-- Navigation (if enabled) -->
-      {siteConfig.navigation.showTraditionalNav && (
-        <nav class="hidden md:flex items-center space-x-8">
-          {siteConfig.navigation.pages.map(page => (
-            <a 
-              href={page.url}
-              class={`text-sm font-medium transition-colors hover:text-highlight-600 dark:hover:text-highlight-400 ${
-                pathname === page.url 
-                  ? 'text-highlight-600 dark:text-highlight-400' 
-                  : 'text-primary-600 dark:text-primary-300'
-              }`}
-            >
-              {page.title}
-            </a>
-          ))}
-        </nav>
-      )}
+      <!-- Center area with minimal nav and traditional nav -->
+      <div class="flex-1 flex justify-end items-center">
+        <!-- Minimal Header Navigation (if enabled) -->
+        {siteConfig.features.minimalHeaderNav && (
+          <nav class="hidden md:flex items-center space-x-4 mr-8">
+            {siteConfig.navigation.pages.map(page => (
+              <a 
+                href={page.url}
+                class={`text-xs font-normal transition-colors hover:text-highlight-600 dark:hover:text-highlight-400 ${
+                  pathname === page.url 
+                    ? 'text-highlight-600 dark:text-highlight-400' 
+                    : 'text-primary-500 dark:text-primary-400'
+                }`}
+              >
+                {page.title.toLowerCase()}
+              </a>
+            ))}
+          </nav>
+        )}
+
+        <!-- Traditional Navigation (if enabled) -->
+        {siteConfig.navigation.showTraditionalNav && (
+          <nav class="hidden md:flex items-center space-x-8 mr-8">
+            {siteConfig.navigation.pages.map(page => (
+              <a 
+                href={page.url}
+                class={`text-sm font-medium transition-colors hover:text-highlight-600 dark:hover:text-highlight-400 ${
+                  pathname === page.url 
+                    ? 'text-highlight-600 dark:text-highlight-400' 
+                    : 'text-primary-600 dark:text-primary-300'
+                }`}
+              >
+                {page.title}
+              </a>
+            ))}
+          </nav>
+        )}
+      </div>
 
       <!-- Action buttons -->
       <div class="flex items-center space-x-4">

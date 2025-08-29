@@ -26,6 +26,7 @@ export interface SiteConfig {
     darkModeToggleButton: boolean;
     showCoverImages: boolean;
     postNavigation: boolean;
+    minimalHeaderNav: boolean;
   };
 
   postsPerPage: number;
@@ -75,8 +76,9 @@ export const siteConfig: SiteConfig = {
     commandPalette: true,
     scrollToTop: true,
     darkModeToggleButton: true,
-    showCoverImages: false,
-    postNavigation: true
+    showCoverImages: true,
+    postNavigation: true,
+    minimalHeaderNav: true
   },
   postsPerPage: 10,
   commandPalette: {
