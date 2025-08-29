@@ -2,15 +2,35 @@
 import { siteConfig } from '@/config';
 
 const currentYear = new Date().getFullYear();
+const showSocialIcons = siteConfig.features.showSocialIconsInFooter;
+const socialLinks = siteConfig.navigation.social;
 ---
 
 <footer class="bg-white dark:bg-primary-950 mt-auto">
   <div class="max-w-[40rem] mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <div class="text-center">
+    <div class={showSocialIcons && socialLinks.length > 0 ? "flex justify-between items-center" : "text-center"}>
       <p class="text-xs text-primary-500 dark:text-primary-400">
         Built with <a href="https://astro.build" class="hover:text-highlight-600 dark:hover:text-highlight-400 transition-colors">Astro</a> 
         and <a href="https://tailwindcss.com" class="hover:text-highlight-600 dark:hover:text-highlight-400 transition-colors">Tailwind CSS</a>
       </p>
+      
+      {showSocialIcons && socialLinks.length > 0 && (
+        <!-- Social Icons -->
+        <div class="flex items-center space-x-4">
+          {socialLinks.map((social) => (
+            <a
+              href={social.url}
+              title={social.title}
+              class="text-primary-500 hover:text-highlight-600 dark:text-primary-400 dark:hover:text-highlight-400 transition-colors duration-200"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <i class={`fab fa-${social.icon} text-lg`}></i>
+              <span class="sr-only">{social.title}</span>
+            </a>
+          ))}
+        </div>
+      )}
     </div>
   </div>
 </footer>

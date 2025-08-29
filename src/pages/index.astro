@@ -1,5 +1,5 @@
 ---
-import { getCollection } from 'astro:content';
+import { getCollection, getEntry } from 'astro:content';
 import { siteConfig } from '@/config';
 import { generateHomeSEO } from '@/utils/seo';
 import { shouldShowPost, sortPostsByDate, processPost } from '@/utils/markdown';
@@ -21,6 +21,22 @@ const processedPosts = await Promise.all(
 // Get featured post (latest) and preview posts (next 3)
 const featuredPost = processedPosts[0];
 const previewPosts = processedPosts.slice(1, 4);
+
+// Get footer content from markdown file
+let footerContent = null;
+let FooterContent = null;
+
+if (siteConfig.footer?.enabled) {
+  try {
+    footerContent = await getEntry('pages', 'index');
+    if (footerContent) {
+      const { Content } = await footerContent.render();
+      FooterContent = Content;
+    }
+  } catch (error) {
+    console.warn('Footer content not found:', error);
+  }
+}
 
 // Generate SEO data for homepage
 const seoData = generateHomeSEO(Astro.url.href);
@@ -114,21 +130,10 @@ const structuredData = {
         </section>
       )}
 
-      <!-- Optional footer section -->
-      {(siteConfig.footer.title || siteConfig.footer.description) && (
-        <section>
-          <div>
-            {siteConfig.footer.title && (
-              <h2 class="font-semibold text-primary-900 dark:text-primary-50 mb-4">
-                {siteConfig.footer.title}
-              </h2>
-            )}
-            {siteConfig.footer.description && (
-              <p class="text-base text-primary-600 dark:text-primary-300 max-w-2xl mx-auto">
-                {siteConfig.footer.description}
-              </p>
-            )}
-          </div>
+      <!-- Footer content from markdown -->
+      {siteConfig.footer?.enabled && FooterContent && (
+        <section class="prose prose-lg dark:prose-dark max-w-none mt-16">
+          <FooterContent />
         </section>
       )}
     </div>

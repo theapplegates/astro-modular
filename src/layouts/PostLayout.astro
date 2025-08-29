@@ -79,6 +79,15 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
       <article>
         <!-- Article header -->
         <header class="mb-8">
+          {/* Cover image - shown if global config allows and not hidden by frontmatter */}
+          {siteConfig.features.showCoverImages && post.data.image && !post.data.hideCoverImage && (
+            <img 
+              src={post.data.image}
+              alt={post.data.imageAlt || `Cover image for ${post.data.title}`}
+              class="w-full h-64 object-cover rounded-lg shadow-sm mb-6"
+            />
+          )}
+
           <h1 class="text-2xl font-bold text-primary-900 dark:text-primary-50 mb-6 leading-tight">
             {post.data.title}
           </h1>

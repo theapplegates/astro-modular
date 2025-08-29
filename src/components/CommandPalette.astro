@@ -30,15 +30,18 @@ import Icon from './Icon.astro';
       <!-- Search Input -->
       <div class="p-4">
         <div class="relative">
-          <Icon name="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-primary-400 dark:text-primary-500" />
           <input
             id="command-palette-input"
             type="text"
             placeholder={siteConfig.commandPalette.placeholder}
-            class="w-full pl-10 pr-4 py-3 bg-primary-50 dark:bg-primary-800 border border-primary-200 dark:border-primary-600 rounded-lg text-primary-900 dark:text-primary-50 placeholder-primary-500 dark:placeholder-primary-400 focus:outline-none focus:ring-2 focus:ring-highlight-500 focus:border-transparent"
+            class="w-full pl-10 pr-10 py-3 bg-primary-50 dark:bg-primary-800 border border-primary-200 dark:border-primary-600 rounded-lg text-primary-900 dark:text-primary-50 placeholder-primary-500 dark:placeholder-primary-400 focus:outline-none focus:ring-2 focus:ring-highlight-500 focus:border-transparent"
             autocomplete="off"
             spellcheck="false"
           >
+          <!-- Inline loading indicator -->
+          <div id="command-palette-inline-loading" class="absolute right-3 top-1/2 transform -translate-y-1/2 hidden">
+            <div class="animate-spin rounded-full h-4 w-4 border-2 border-primary-300 dark:border-primary-600 border-t-highlight-500"></div>
+          </div>
         </div>
       </div>
 
@@ -46,9 +49,9 @@ import Icon from './Icon.astro';
       <div id="command-palette-results" class="max-h-96 overflow-y-auto scrollbar-hide">
         <!-- Loading state -->
         <div id="command-palette-loading" class="hidden p-4 text-center">
-          <div class="inline-flex items-center space-x-2 text-primary-500 dark:text-primary-400">
-            <div class="animate-spin rounded-full h-4 w-4 border-2 border-primary-300 dark:border-primary-600 border-t-highlight-500"></div>
+          <div class="inline-flex items-center justify-center space-x-2 text-primary-500 dark:text-primary-400">
             <span>Searching...</span>
+            <div class="animate-spin rounded-full h-4 w-4 border-2 border-primary-300 dark:border-primary-600 border-t-highlight-500"></div>
           </div>
         </div>
 
@@ -62,21 +65,23 @@ import Icon from './Icon.astro';
         <!-- Default items (shown when no search) -->
         <div id="command-palette-default" class="divide-y divide-primary-200 dark:divide-primary-700">
           <!-- Quick Actions -->
-          <div class="p-2">
-            <div class="px-3 py-2 text-xs font-medium text-primary-500 dark:text-primary-400 uppercase tracking-wide">
-              Quick Actions
+          {siteConfig.commandPalette.sections.quickActions && (
+            <div class="p-2">
+              <div class="px-3 py-2 text-xs font-medium text-primary-500 dark:text-primary-400 uppercase tracking-wide">
+                Quick Actions
+              </div>
+              <button 
+                data-action="toggle-theme"
+                class="w-full flex items-center space-x-3 px-3 py-2 text-left hover:bg-primary-50 dark:hover:bg-primary-800 rounded-lg transition-colors group"
+              >
+                <Icon name="palette" class="w-4 h-4 text-primary-500 dark:text-primary-400 group-hover:text-highlight-500" />
+                <span class="text-primary-900 dark:text-primary-50">Toggle Theme</span>
+              </button>
             </div>
-            <button 
-              data-action="toggle-theme"
-              class="w-full flex items-center space-x-3 px-3 py-2 text-left hover:bg-primary-50 dark:hover:bg-primary-800 rounded-lg transition-colors group"
-            >
-              <Icon name="palette" class="w-4 h-4 text-primary-500 dark:text-primary-400 group-hover:text-highlight-500" />
-              <span class="text-primary-900 dark:text-primary-50">Toggle Theme</span>
-            </button>
-          </div>
+          )}
 
           <!-- Pages -->
-          {siteConfig.navigation.pages.length > 0 && (
+          {siteConfig.commandPalette.sections.pages && siteConfig.navigation.pages.length > 0 && (
             <div class="p-2">
               <div class="px-3 py-2 text-xs font-medium text-primary-500 dark:text-primary-400 uppercase tracking-wide">
                 Pages
@@ -94,7 +99,7 @@ import Icon from './Icon.astro';
           )}
 
           <!-- Social Links -->
-          {siteConfig.navigation.social.length > 0 && (
+          {siteConfig.commandPalette.sections.social && siteConfig.navigation.social.length > 0 && (
             <div class="p-2">
               <div class="px-3 py-2 text-xs font-medium text-primary-500 dark:text-primary-400 uppercase tracking-wide">
                 Social
@@ -124,7 +129,7 @@ import Icon from './Icon.astro';
       <div class="p-3 border-t border-primary-200 dark:border-primary-700 bg-primary-50 dark:bg-primary-800 rounded-b-xl">
         <div class="flex items-center justify-between text-xs text-primary-500 dark:text-primary-400">
           <span>Use ↑↓ to navigate, ↵ to select, ESC to close</span>
-          <span>Press <kbd class="px-1 py-0.5 bg-white dark:bg-primary-700 rounded border">⌘K</kbd> to search</span>
+          <span>Press <kbd class="px-1 py-0.5 bg-white dark:bg-primary-700 rounded border">{siteConfig.commandPalette.shortcut.replace('ctrl', '⌘').replace('+', '').toUpperCase()}</kbd> to search</span>
         </div>
       </div>
     </div>
@@ -148,6 +153,7 @@ import Icon from './Icon.astro';
     private input: HTMLInputElement;
     private results: HTMLElement;
     private loading: HTMLElement;
+    private inlineLoading: HTMLElement;
     private noResults: HTMLElement;
     private defaultItems: HTMLElement;
     private searchResults: HTMLElement;
@@ -162,6 +168,7 @@ import Icon from './Icon.astro';
       this.input = document.getElementById('command-palette-input') as HTMLInputElement;
       this.results = document.getElementById('command-palette-results')!;
       this.loading = document.getElementById('command-palette-loading')!;
+      this.inlineLoading = document.getElementById('command-palette-inline-loading')!;
       this.noResults = document.getElementById('command-palette-no-results')!;
       this.defaultItems = document.getElementById('command-palette-default')!;
       this.searchResults = document.getElementById('command-palette-search-results')!;
@@ -258,6 +265,7 @@ import Icon from './Icon.astro';
     // Methods to control the visibility of different sections within the palette
     private showDefault() {
       this.loading.classList.add('hidden');
+      this.inlineLoading.classList.add('hidden');
       this.noResults.classList.add('hidden');
       this.searchResults.classList.add('hidden');
       this.defaultItems.classList.remove('hidden');
@@ -267,12 +275,14 @@ import Icon from './Icon.astro';
       this.defaultItems.classList.add('hidden');
       this.noResults.classList.add('hidden');
       this.searchResults.classList.add('hidden');
-      this.loading.classList.remove('hidden');
+      this.loading.classList.add('hidden');
+      this.inlineLoading.classList.remove('hidden');
     }
 
     private showNoResults() {
       this.defaultItems.classList.add('hidden');
       this.loading.classList.add('hidden');
+      this.inlineLoading.classList.add('hidden');
       this.searchResults.classList.add('hidden');
       this.noResults.classList.remove('hidden');
     }
@@ -280,6 +290,7 @@ import Icon from './Icon.astro';
     private showSearchResults() {
       this.defaultItems.classList.add('hidden');
       this.loading.classList.add('hidden');
+      this.inlineLoading.classList.add('hidden');
       this.noResults.classList.add('hidden');
       this.searchResults.classList.remove('hidden');
     }

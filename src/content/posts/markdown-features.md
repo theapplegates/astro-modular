@@ -5,6 +5,7 @@ description: "Explore all the markdown features available in this Obsidian-inspi
 image: "https://pixabay.com/get/g2458558f774cf75fc718afb49ac5a3116d6d86f3349f7cf227f1678b580ccfb718edd582befe99cf573cd63bfaef970a800c45808519bdc7c8af5b64ae86b3b1_1280.jpg"
 imageAlt: "Code editor with markdown syntax highlighting"
 imageOG: true
+hideCoverImage: true
 tags:
 - markdown
 - formatting

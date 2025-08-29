@@ -26,7 +26,7 @@ export interface SiteConfig {
     darkModeToggleButton: boolean;
     showCoverImages: boolean;
     postNavigation: boolean;
-    minimalHeaderNav: boolean;
+    showSocialIconsInFooter: boolean;
   };
 
   postsPerPage: number;
@@ -34,10 +34,17 @@ export interface SiteConfig {
   commandPalette: {
     shortcut: string;
     placeholder: string;
+    sections: {
+      quickActions: boolean;
+      pages: boolean;
+      social: boolean;
+    };
   };
 
   navigation: {
-    showTraditionalNav: boolean;
+    showNavigation: boolean;
+    style: 'minimal' | 'traditional';
+    showMobileMenu: boolean;
     pages: Array<{ title: string; url: string; }>;
     social: Array<{ title: string; url: string; icon: string; }>;
     external: Array<any>;
@@ -48,7 +55,7 @@ export interface SiteConfig {
     schemaType: string;
   };
 
-  footer: {
+  footer?: {
     title?: string;
     description?: string;
   };
@@ -78,22 +85,31 @@ export const siteConfig: SiteConfig = {
     darkModeToggleButton: true,
     showCoverImages: true,
     postNavigation: true,
-    minimalHeaderNav: true
+    showSocialIconsInFooter: true
   },
   postsPerPage: 10,
   commandPalette: {
-    shortcut: 'ctrl+k',
-    placeholder: 'Search all posts...'
+    shortcut: 'ctrl+K',
+    placeholder: 'Search all posts...',
+    sections: {
+      quickActions: true,
+      pages: false,
+      social: false
+    }
   },
   navigation: {
-    showTraditionalNav: false,
+    showNavigation: true,
+    style: 'minimal', // 'minimal' or 'traditional'
+    showMobileMenu: true,
     pages: [
+      { title: 'Posts', url: '/posts' },
       { title: 'About', url: '/about' },
-      { title: 'Posts', url: '/posts' }
+      { title: 'Privacy Policy', url: '/privacy-policy' }
     ],
     social: [
       { title: 'GitHub', url: 'https://github.com', icon: 'github' },
-      { title: 'Twitter', url: 'https://twitter.com', icon: 'twitter' }
+      { title: 'Twitter', url: 'https://x.com', icon: 'x-twitter' },
+      { title: 'Twitter', url: 'https://x.com', icon: 'facebook' }
     ],
     external: []
   },
@@ -102,8 +118,7 @@ export const siteConfig: SiteConfig = {
     schemaType: 'blog'
   },
   footer: {
-    title: "Thanks for Reading",
-    description: "Hope you enjoyed exploring these thoughts and ideas. Feel free to connect with me through the links above or check out more posts."
+    enabled: true
   }
 };
 
