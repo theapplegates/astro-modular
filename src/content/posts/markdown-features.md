@@ -5,7 +5,11 @@ description: "Explore all the markdown features available in this Obsidian-inspi
 image: "https://pixabay.com/get/g2458558f774cf75fc718afb49ac5a3116d6d86f3349f7cf227f1678b580ccfb718edd582befe99cf573cd63bfaef970a800c45808519bdc7c8af5b64ae86b3b1_1280.jpg"
 imageAlt: "Code editor with markdown syntax highlighting"
 imageOG: true
-tags: ["markdown", "formatting", "tutorial", "reference"]
+tags:
+- markdown
+- formatting
+- tutorial
+- reference
 targetKeyword: "markdown features"
 ---
 This post demonstrates all the markdown features available in our Obsidian-inspired blog theme. Use this as both a reference guide and a showcase of what's possible with our enhanced markdown processing.
@@ -22,6 +26,13 @@ This post demonstrates all the markdown features available in our Obsidian-inspi
 - `Inline code` using backticks
 
 ### Headings
+
+# Heading 1
+## Heading 2
+### Heading 3
+#### Heading 4
+##### Heading 5
+###### Heading 6
 
 ```markdown
 # Heading 1

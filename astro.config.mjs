@@ -30,9 +30,12 @@ export default defineConfig({
       }]
     ],
     rehypePlugins: [
-      rehypeSlug,
+      [rehypeSlug, {
+        test: (node) => node.tagName !== 'h1'
+      }],
       [rehypeAutolinkHeadings, {
         behavior: 'wrap',
+        test: (node) => node.tagName !== 'h1',
         properties: {
           className: ['anchor-link'],
           ariaLabel: 'Link to this section'

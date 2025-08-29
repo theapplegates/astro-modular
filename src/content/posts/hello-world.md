@@ -5,7 +5,11 @@ description: "Welcome to our new blog! This post introduces the Obsidian-inspire
 image: "https://pixabay.com/get/g18d7db23bd8d4a3529ebf9ad8afda0b9feb2beaa35485a45f319f7a05e39e64f693b52700f361c650b858b77a60af4622ccbdee90fb6263bc220a82ba58be755_1280.jpg"
 imageAlt: "Abstract digital network visualization representing connectivity and knowledge"
 imageOG: true
-tags: ["welcome", "blog", "obsidian", "markdown"]
+tags:
+- welcome
+- blog
+- obsidian
+- markdown
 targetKeyword: "obsidian blog theme"
 ---
 Welcome to our new blog, built with an Obsidian-inspired theme that prioritizes clarity, performance, and seamless content creation. This inaugural post will introduce you to the key features and philosophy behind this minimal yet powerful blogging platform.

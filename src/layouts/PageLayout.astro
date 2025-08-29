@@ -104,16 +104,37 @@ const structuredData = {
     scroll-margin-top: 6rem;
   }
 
-  .prose h2 {
-    @apply text-2xl mt-12 mb-6;
+  .prose h1 {
+    @apply text-2xl mt-8 mb-6 text-primary-900 dark:text-primary-50;
   }
 
-  .prose h3 {
+  .prose h2 {
     @apply text-xl mt-8 mb-4;
   }
 
-  .prose h4 {
+  .prose h3 {
     @apply text-lg mt-6 mb-3;
+  }
+
+  .prose h4 {
+    @apply text-base mt-5 mb-2;
+  }
+
+  .prose h5 {
+    @apply text-base mt-4 mb-2;
+  }
+
+  .prose h6 {
+    @apply text-base mt-4 mb-2;
+  }
+
+  /* Heading anchor links styling (excluding H1) */
+  .prose h2 a, .prose h3 a, .prose h4 a, .prose h5 a, .prose h6 a {
+    @apply text-primary-900 dark:text-primary-50 no-underline transition-colors duration-200;
+  }
+
+  .prose h2 a:hover, .prose h3 a:hover, .prose h4 a:hover, .prose h5 a:hover, .prose h6 a:hover {
+    @apply text-highlight-600 dark:text-highlight-400 no-underline;
   }
 
   .prose a {
