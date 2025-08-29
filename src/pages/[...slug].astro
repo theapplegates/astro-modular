@@ -1,0 +1,38 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { getCollection } from 'astro:content';
+import PageLayout from '@/layouts/PageLayout.astro';
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  // Get all pages
+  const pages = await getCollection('pages');
+  
+  // Filter out 404 page (handled separately)
+  const visiblePages = pages.filter(page => page.slug !== '404');
+  
+  // Generate paths
+  return visiblePages.map(page => ({
+    params: { slug: page.slug },
+    props: { page }
+  }));
+};
+
+export interface Props {
+  page: any;
+}
+
+const { page } = Astro.props;
+
+// Validate page data
+if (!page) {
+  return Astro.redirect('/404');
+}
+
+// Check if page is draft (only in production)
+const isDev = import.meta.env.DEV;
+if (!isDev && page.data.draft) {
+  return Astro.redirect('/404');
+}
+---
+
+<PageLayout page={page} />

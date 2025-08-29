@@ -1,0 +1,133 @@
+---
+import { siteConfig } from '../config.ts';
+import ThemeToggle from './ThemeToggle.astro';
+
+const { pathname } = Astro.url;
+const isHome = pathname === '/';
+---
+
+<header class="sticky top-0 z-40 w-full bg-white/80 dark:bg-primary-950/80 backdrop-blur-md">
+  <div class="max-w-[37em] mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <!-- Logo / Site Title -->
+      <div class="flex items-center">
+        <a href="/" class="hover:opacity-75 transition-opacity">
+          <span class="font-semibold text-primary-900 dark:text-primary-50">
+            {siteConfig.title}
+          </span>
+        </a>
+      </div>
+
+      <!-- Navigation (if enabled) -->
+      {siteConfig.navigation.showTraditionalNav && (
+        <nav class="hidden md:flex items-center space-x-8">
+          {siteConfig.navigation.pages.map(page => (
+            <a 
+              href={page.url}
+              class={`text-sm font-medium transition-colors hover:text-highlight-600 dark:hover:text-highlight-400 ${
+                pathname === page.url 
+                  ? 'text-highlight-600 dark:text-highlight-400' 
+                  : 'text-primary-600 dark:text-primary-300'
+              }`}
+            >
+              {page.title}
+            </a>
+          ))}
+        </nav>
+      )}
+
+      <!-- Action buttons -->
+      <div class="flex items-center space-x-4">
+        <!-- Theme Toggle -->
+        {siteConfig.features.darkModeToggleButton && <ThemeToggle />}
+        <!-- Command palette trigger -->
+        {siteConfig.features.commandPalette && (
+          <button
+            id="command-palette-trigger"
+            class="flex items-center space-x-2 px-3 py-2 text-sm text-primary-500 dark:text-primary-400 bg-primary-50 dark:bg-primary-800 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-700 transition-colors"
+            aria-label="Open command palette"
+          >
+            <i data-lucide="command" class="w-5 h-5"></i>
+            <kbd class="text-sm font-medium text-primary-600 dark:text-primary-300">
+              K
+            </kbd>
+          </button>
+        )}
+
+        <!-- Mobile menu button (if traditional nav is enabled) -->
+        {siteConfig.navigation.showTraditionalNav && (
+          <button
+            id="mobile-menu-toggle"
+            class="md:hidden p-2 text-primary-500 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-800 rounded-lg transition-colors"
+            aria-label="Toggle mobile menu"
+          >
+            <i data-lucide="menu" class="w-5 h-5"></i>
+          </button>
+        )}
+      </div>
+    </div>
+
+    <!-- Mobile navigation menu -->
+    {siteConfig.navigation.showTraditionalNav && (
+      <div id="mobile-menu" class="md:hidden hidden py-4 border-t border-primary-200 dark:border-primary-700">
+        <nav class="flex flex-col space-y-3">
+          {siteConfig.navigation.pages.map(page => (
+            <a 
+              href={page.url}
+              class={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                pathname === page.url 
+                  ? 'text-highlight-600 dark:text-highlight-400 bg-highlight-50 dark:bg-highlight-900/20' 
+                  : 'text-primary-600 dark:text-primary-300 hover:text-highlight-600 dark:hover:text-highlight-400 hover:bg-primary-50 dark:hover:bg-primary-800'
+              }`}
+            >
+              {page.title}
+            </a>
+          ))}
+        </nav>
+      </div>
+    )}
+  </div>
+</header>
+
+<script>
+  // Mobile menu toggle
+  document.addEventListener('DOMContentLoaded', () => {
+    const menuToggle = document.getElementById('mobile-menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    if (menuToggle && mobileMenu) {
+      menuToggle.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+
+        // Update menu icon
+        const icon = menuToggle.querySelector('i');
+        if (icon) {
+          if (mobileMenu.classList.contains('hidden')) {
+            icon.setAttribute('data-lucide', 'menu');
+          } else {
+            icon.setAttribute('data-lucide', 'x');
+          }
+          // Re-initialize lucide icons
+          if (window.lucide) {
+            lucide.createIcons();
+          }
+        }
+      });
+    }
+
+    // Command palette triggers
+    const triggers = [
+      document.getElementById('command-palette-trigger'),
+      document.getElementById('command-palette-trigger-mobile')
+    ].filter(Boolean);
+
+    triggers.forEach(trigger => {
+      trigger?.addEventListener('click', () => {
+        const event = new CustomEvent('openCommandPalette');
+        window.dispatchEvent(event);
+      });
+    });
+
+    // Theme toggle and command palette shortcuts are handled in BaseLayout
+  });
+</script>

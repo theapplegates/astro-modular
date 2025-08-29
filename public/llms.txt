@@ -1,0 +1,32 @@
+# Large Language Model Configuration
+
+# Allow LLM crawling by default
+User-agent: *
+Allow: /
+
+# Specific LLM agents
+User-agent: GPTBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: claude-web
+Allow: /
+
+# Optionally disallow specific content
+# Disallow: /private/
+# Disallow: /draft/
+
+# Training data guidelines
+# This site allows AI training on public content
+# Respect copyright and attribution requirements
+# Commercial use permitted with proper attribution
+
+Sitemap: https://your-blog.netlify.app/sitemap.xml

@@ -1,0 +1,243 @@
+---
+// Lightbox component for image viewing
+---
+
+<!-- Lightbox Overlay -->
+<div 
+  id="lightbox-overlay" 
+  class="fixed inset-0 z-50 hidden bg-black/90 backdrop-blur-sm animate-fade-in"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Image viewer"
+>
+  <!-- Close button -->
+  <button 
+    id="lightbox-close"
+    class="absolute top-4 right-4 z-10 p-3 text-white hover:text-primary-300 transition-colors bg-black/50 rounded-full backdrop-blur-sm"
+    aria-label="Close lightbox"
+  >
+    <i data-lucide="x" class="w-6 h-6"></i>
+  </button>
+  
+  <!-- Navigation buttons -->
+  <button 
+    id="lightbox-prev"
+    class="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 p-3 text-white hover:text-primary-300 transition-colors bg-black/50 rounded-full backdrop-blur-sm"
+    aria-label="Previous image"
+  >
+    <i data-lucide="chevron-left" class="w-6 h-6"></i>
+  </button>
+  
+  <button 
+    id="lightbox-next"
+    class="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 p-3 text-white hover:text-primary-300 transition-colors bg-black/50 rounded-full backdrop-blur-sm"
+    aria-label="Next image"
+  >
+    <i data-lucide="chevron-right" class="w-6 h-6"></i>
+  </button>
+  
+  <!-- Image container -->
+  <div class="flex items-center justify-center h-full p-4 sm:p-8">
+    <div class="relative max-w-full max-h-full">
+      <img 
+        id="lightbox-image"
+        src="" 
+        alt=""
+        class="max-w-full max-h-full w-auto h-auto object-contain rounded-lg shadow-2xl"
+      />
+      
+      <!-- Loading spinner -->
+      <div id="lightbox-loading" class="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg">
+        <div class="animate-spin rounded-full h-8 w-8 border-2 border-white border-t-transparent"></div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Image info -->
+  <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
+    <div class="text-center">
+      <p id="lightbox-caption" class="text-white text-sm font-medium mb-2"></p>
+      <p id="lightbox-counter" class="text-white/70 text-xs"></p>
+    </div>
+  </div>
+</div>
+
+<script>
+  interface LightboxImage {
+    src: string;
+    alt: string;
+  }
+
+  class Lightbox {
+    private overlay: HTMLElement;
+    private image: HTMLImageElement;
+    private caption: HTMLElement;
+    private counter: HTMLElement;
+    private loading: HTMLElement;
+    private prevButton: HTMLElement;
+    private nextButton: HTMLElement;
+    private closeButton: HTMLElement;
+    
+    private images: LightboxImage[] = [];
+    private currentIndex: number = 0;
+    private isOpen: boolean = false;
+
+    constructor() {
+      this.overlay = document.getElementById('lightbox-overlay')!;
+      this.image = document.getElementById('lightbox-image') as HTMLImageElement;
+      this.caption = document.getElementById('lightbox-caption')!;
+      this.counter = document.getElementById('lightbox-counter')!;
+      this.loading = document.getElementById('lightbox-loading')!;
+      this.prevButton = document.getElementById('lightbox-prev')!;
+      this.nextButton = document.getElementById('lightbox-next')!;
+      this.closeButton = document.getElementById('lightbox-close')!;
+
+      this.init();
+    }
+
+    private init() {
+      // Event listeners
+      window.addEventListener('openLightbox', (e: any) => {
+        this.collectImages();
+        this.open(e.detail.index || 0);
+      });
+
+      this.closeButton.addEventListener('click', () => this.close());
+      this.prevButton.addEventListener('click', () => this.prev());
+      this.nextButton.addEventListener('click', () => this.next());
+
+      // Close on overlay click
+      this.overlay.addEventListener('click', (e) => {
+        if (e.target === this.overlay) this.close();
+      });
+
+      // Keyboard navigation
+      document.addEventListener('keydown', (e) => {
+        if (!this.isOpen) return;
+
+        switch (e.key) {
+          case 'Escape':
+            this.close();
+            break;
+          case 'ArrowLeft':
+            this.prev();
+            break;
+          case 'ArrowRight':
+            this.next();
+            break;
+        }
+      });
+
+      // Prevent body scroll when lightbox is open
+      this.overlay.addEventListener('wheel', (e) => {
+        e.preventDefault();
+      }, { passive: false });
+    }
+
+    private collectImages() {
+      // Collect all images from the page
+      const imageElements = document.querySelectorAll('img');
+      this.images = Array.from(imageElements).map(img => ({
+        src: img.src,
+        alt: img.alt || 'Image'
+      }));
+    }
+
+    private open(index: number) {
+      this.currentIndex = index;
+      this.isOpen = true;
+      this.overlay.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      
+      this.loadImage();
+      this.updateUI();
+    }
+
+    private close() {
+      this.isOpen = false;
+      this.overlay.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    private prev() {
+      if (this.images.length <= 1) return;
+      this.currentIndex = (this.currentIndex - 1 + this.images.length) % this.images.length;
+      this.loadImage();
+      this.updateUI();
+    }
+
+    private next() {
+      if (this.images.length <= 1) return;
+      this.currentIndex = (this.currentIndex + 1) % this.images.length;
+      this.loadImage();
+      this.updateUI();
+    }
+
+    private loadImage() {
+      if (!this.images[this.currentIndex]) return;
+
+      const currentImage = this.images[this.currentIndex];
+      
+      // Show loading spinner
+      this.loading.classList.remove('hidden');
+      
+      // Create new image element to preload
+      const img = new Image();
+      img.onload = () => {
+        this.image.src = currentImage.src;
+        this.image.alt = currentImage.alt;
+        this.loading.classList.add('hidden');
+      };
+      
+      img.onerror = () => {
+        this.loading.classList.add('hidden');
+        console.error('Failed to load image:', currentImage.src);
+      };
+      
+      img.src = currentImage.src;
+    }
+
+    private updateUI() {
+      const currentImage = this.images[this.currentIndex];
+      if (!currentImage) return;
+
+      // Update caption
+      this.caption.textContent = currentImage.alt;
+      
+      // Update counter
+      this.counter.textContent = `${this.currentIndex + 1} of ${this.images.length}`;
+      
+      // Show/hide navigation buttons
+      const hasMultipleImages = this.images.length > 1;
+      this.prevButton.style.display = hasMultipleImages ? 'block' : 'none';
+      this.nextButton.style.display = hasMultipleImages ? 'block' : 'none';
+    }
+  }
+
+  // Initialize lightbox when DOM is loaded
+  document.addEventListener('DOMContentLoaded', () => {
+    new Lightbox();
+  });
+</script>
+
+<style>
+  #lightbox-overlay {
+    backdrop-filter: blur(8px);
+  }
+  
+  #lightbox-image {
+    max-height: calc(100vh - 160px);
+    transition: opacity 0.3s ease;
+  }
+  
+  @media (max-width: 640px) {
+    #lightbox-prev,
+    #lightbox-next {
+      display: none !important;
+    }
+    
+    #lightbox-image {
+      max-height: calc(100vh - 120px);
+    }
+  }
+</style>

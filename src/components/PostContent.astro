@@ -1,0 +1,204 @@
+---
+import type { Post } from '@/types';
+import { processImagesForLightbox } from '@/utils/images';
+import { siteConfig } from '@/config';
+import ImageGallery from './ImageGallery.astro';
+import TableOfContents from './TableOfContents.astro';
+
+export interface Props {
+  post: Post & {
+    Content: any;
+    toc: any[];
+    readingTime?: any;
+    wordCount?: number;
+  };
+}
+
+const { post } = Astro.props;
+const { Content, toc, readingTime, wordCount } = post;
+---
+
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+    <!-- Main content -->
+    <div class="lg:col-span-8 xl:col-span-9">
+      <!-- Article header -->
+      <header class="mb-8">
+        <h1 class="text-3xl sm:text-4xl font-bold text-primary-900 dark:text-primary-50 mb-6 leading-tight">
+          {post.data.title}
+        </h1>
+        
+        <div class="flex flex-wrap items-center gap-4 text-sm text-primary-600 dark:text-primary-300 mb-6">
+          <time datetime={post.data.date.toISOString()} class="font-medium">
+            {post.data.date.toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            })}
+          </time>
+          
+          {siteConfig.features.readingTime && readingTime && (
+            <>
+              <span class="hidden sm:inline">•</span>
+              <span class={siteConfig.features.mobileHideFeatures.includes('readingTime') ? 'hidden sm:inline' : ''}>
+                {readingTime.text}
+              </span>
+            </>
+          )}
+          
+          {siteConfig.features.wordCount && wordCount && (
+            <>
+              <span class="hidden sm:inline">•</span>
+              <span class={siteConfig.features.mobileHideFeatures.includes('wordCount') ? 'hidden sm:inline' : ''}>
+                {wordCount.toLocaleString()} words
+              </span>
+            </>
+          )}
+        </div>
+        
+        {post.data.tags && post.data.tags.length > 0 && siteConfig.features.tags && (
+          <div class="flex flex-wrap gap-2 mb-8">
+            {post.data.tags.map(tag => (
+              <a 
+                href={`/posts?tag=${encodeURIComponent(tag)}`}
+                class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-100 dark:bg-primary-800 text-primary-800 dark:text-primary-200 hover:bg-primary-200 dark:hover:bg-primary-700 transition-colors"
+              >
+                #{tag}
+              </a>
+            ))}
+          </div>
+        )}
+        
+        {post.data.image && (
+          <div class="aspect-video overflow-hidden rounded-xl mb-8">
+            <img 
+              src={post.data.image} 
+              alt={post.data.imageAlt || post.data.title}
+              class="w-full h-full object-cover"
+            />
+          </div>
+        )}
+      </header>
+      
+      <!-- Article content -->
+      <div class="prose prose-lg dark:prose-dark max-w-none">
+        <Content />
+      </div>
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="lg:col-span-4 xl:col-span-3">
+      <div class="sticky top-24 space-y-6">
+        <!-- Table of Contents -->
+        {siteConfig.features.tableOfContents && toc && toc.length > 0 && (
+          <TableOfContents headings={toc} />
+        )}
+        
+        <!-- Post meta info -->
+        <div class="p-6 bg-primary-50 dark:bg-primary-800/50 rounded-xl">
+          <h3 class="font-semibold text-primary-900 dark:text-primary-50 mb-4">
+            Post Information
+          </h3>
+          <div class="space-y-3 text-sm">
+            <div class="flex justify-between">
+              <span class="text-primary-600 dark:text-primary-300">Published</span>
+              <span class="text-primary-900 dark:text-primary-50">
+                {post.data.date.toLocaleDateString()}
+              </span>
+            </div>
+            
+            {readingTime && (
+              <div class="flex justify-between">
+                <span class="text-primary-600 dark:text-primary-300">Reading time</span>
+                <span class="text-primary-900 dark:text-primary-50">{readingTime.text}</span>
+              </div>
+            )}
+            
+            {wordCount && (
+              <div class="flex justify-between">
+                <span class="text-primary-600 dark:text-primary-300">Word count</span>
+                <span class="text-primary-900 dark:text-primary-50">{wordCount.toLocaleString()}</span>
+              </div>
+            )}
+            
+            {post.data.targetKeyword && (
+              <div class="flex justify-between">
+                <span class="text-primary-600 dark:text-primary-300">Target keyword</span>
+                <span class="text-primary-900 dark:text-primary-50 text-right">{post.data.targetKeyword}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style is:global>
+  /* Enhanced prose styles for post content */
+  .prose {
+    @apply text-primary-700 dark:text-primary-300;
+  }
+  
+  .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+    @apply text-primary-900 dark:text-primary-50 font-semibold;
+    scroll-margin-top: 6rem;
+  }
+  
+  .prose h2 {
+    @apply text-2xl mt-12 mb-6;
+  }
+  
+  .prose h3 {
+    @apply text-xl mt-8 mb-4;
+  }
+  
+  .prose h4 {
+    @apply text-lg mt-6 mb-3;
+  }
+  
+  .prose a {
+    @apply text-highlight-600 dark:text-highlight-400 font-medium no-underline hover:underline;
+  }
+  
+  
+  .prose blockquote {
+    @apply border-l-4 border-primary-300 dark:border-primary-600 pl-6 py-2 bg-primary-50 dark:bg-primary-800/30 rounded-r-lg my-6;
+  }
+  
+  .prose img {
+    @apply rounded-lg shadow-sm;
+  }
+  
+  .prose table {
+    @apply border-collapse border border-primary-300 dark:border-primary-600;
+  }
+  
+  .prose th,
+  .prose td {
+    @apply border border-primary-300 dark:border-primary-600 px-4 py-2;
+  }
+  
+  .prose th {
+    @apply bg-primary-100 dark:bg-primary-800 font-semibold;
+  }
+  
+  /* Callout styles */
+  .prose .callout {
+    @apply my-6 p-4 rounded-lg border-l-4;
+  }
+  
+  /* Highlight text (==text==) */
+  .prose mark {
+    @apply bg-highlight-100 dark:bg-highlight-900/30 text-highlight-800 dark:text-highlight-200 px-1 py-0.5 rounded;
+  }
+  
+  /* YouTube embeds */
+  .prose .youtube-embed {
+    @apply aspect-video w-full rounded-lg overflow-hidden my-6;
+  }
+  
+  .prose .youtube-embed iframe {
+    @apply w-full h-full;
+  }
+</style>

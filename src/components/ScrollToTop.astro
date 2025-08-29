@@ -1,0 +1,85 @@
+
+---
+// Scroll to top button component
+---
+
+<button
+  id="scroll-to-top"
+  class="fixed bottom-6 right-6 z-50 hidden p-3 bg-primary-900 dark:bg-primary-100 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
+  aria-label="Scroll to top"
+>
+  <i data-lucide="arrow-up" class="w-5 h-5 text-white"></i>
+</button>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const scrollToTopButton = document.getElementById('scroll-to-top');
+    
+    if (!scrollToTopButton) return;
+    
+    // Show/hide button based on scroll position
+    function toggleScrollButton() {
+      const scrolled = window.scrollY > 300;
+      
+      if (scrolled) {
+        scrollToTopButton.classList.remove('hidden');
+        scrollToTopButton.classList.add('animate-fade-in');
+      } else {
+        scrollToTopButton.classList.add('hidden');
+        scrollToTopButton.classList.remove('animate-fade-in');
+      }
+    }
+    
+    // Smooth scroll to top
+    function scrollToTop() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+    
+    // Event listeners
+    scrollToTopButton.addEventListener('click', scrollToTop);
+    
+    // Throttled scroll listener
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          toggleScrollButton();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    });
+    
+    // Initial check
+    toggleScrollButton();
+  });
+</script>
+
+<style>
+  #scroll-to-top {
+    backdrop-filter: blur(8px);
+    background: rgba(15, 23, 42, 0.9);
+  }
+  
+  .dark #scroll-to-top {
+    background: rgba(248, 250, 252, 0.9);
+  }
+  
+  #scroll-to-top:hover {
+    background: rgba(15, 23, 42, 1);
+  }
+  
+  .dark #scroll-to-top:hover {
+    background: rgba(248, 250, 252, 1);
+  }
+  
+  @media (max-width: 640px) {
+    #scroll-to-top {
+      bottom: 1rem;
+      right: 1rem;
+    }
+  }
+</style>

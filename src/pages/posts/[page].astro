@@ -1,0 +1,232 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { getCollection } from 'astro:content';
+import { siteConfig } from '@/config';
+import { generatePageSEO } from '@/utils/seo';
+import { shouldShowPost, sortPostsByDate, extractTags } from '@/utils/markdown';
+import BaseLayout from '@/components/BaseLayout.astro';
+import PostCard from '@/components/PostCard.astro';
+import Tags from '@/components/Tags.astro';
+import Pagination from '@/components/Pagination.astro';
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  // Get all posts
+  const allPosts = await getCollection('posts');
+  
+  // Filter posts for production
+  const visiblePosts = allPosts.filter(post => shouldShowPost(post, false));
+  
+  // Sort posts by date
+  const sortedPosts = sortPostsByDate(visiblePosts);
+  
+  // Calculate total pages
+  const postsPerPage = siteConfig.postsPerPage;
+  const totalPages = Math.ceil(sortedPosts.length / postsPerPage);
+  
+  // Generate paths for each page (starting from page 2)
+  const paths = [];
+  for (let page = 2; page <= totalPages; page++) {
+    paths.push({
+      params: { page: page.toString() },
+      props: {
+        posts: sortedPosts,
+        currentPage: page,
+        totalPages,
+        postsPerPage
+      }
+    });
+  }
+  
+  return paths;
+};
+
+export interface Props {
+  posts: any[];
+  currentPage: number;
+  totalPages: number;
+  postsPerPage: number;
+}
+
+const { posts, currentPage, totalPages, postsPerPage } = Astro.props;
+
+// Get query parameters
+const url = new URL(Astro.request.url);
+const selectedTag = url.searchParams.get('tag');
+
+// Filter by tag if specified
+const filteredPosts = selectedTag 
+  ? posts.filter(post => post.data.tags?.includes(selectedTag))
+  : posts;
+
+// Calculate pagination for current page
+const startIndex = (currentPage - 1) * postsPerPage;
+const endIndex = Math.min(startIndex + postsPerPage, filteredPosts.length);
+const paginatedPosts = filteredPosts.slice(startIndex, endIndex);
+
+// Extract all unique tags
+const allTags = extractTags(posts);
+
+// Generate SEO data
+const pageTitle = selectedTag 
+  ? `Posts tagged "${selectedTag}" - Page ${currentPage}` 
+  : `All Posts - Page ${currentPage}`;
+const pageDescription = selectedTag 
+  ? `Page ${currentPage} of posts tagged with "${selectedTag}"`
+  : `Page ${currentPage} of all posts on ${siteConfig.title}`;
+
+const seoData = {
+  title: `${pageTitle} | ${siteConfig.title}`,
+  description: pageDescription,
+  canonical: Astro.url.href,
+  ogType: 'website' as const
+};
+
+// Pagination info
+const pagination = {
+  currentPage,
+  totalPages,
+  hasNext: currentPage < totalPages,
+  hasPrev: currentPage > 1,
+  nextUrl: currentPage < totalPages ? `/posts/${currentPage + 1}` : undefined,
+  prevUrl: currentPage > 2 ? `/posts/${currentPage - 1}` : '/posts'
+};
+---
+
+<BaseLayout seoData={seoData}>
+  <div class="py-12">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Header -->
+      <header class="mb-12">
+        <nav class="mb-4">
+          <a 
+            href="/posts"
+            class="inline-flex items-center text-sm text-highlight-600 dark:text-highlight-400 hover:text-highlight-700 dark:hover:text-highlight-300 transition-colors"
+          >
+            <i data-lucide="arrow-left" class="w-4 h-4 mr-1"></i>
+            All Posts
+          </a>
+        </nav>
+        
+        <h1 class="text-3xl sm:text-4xl font-bold text-primary-900 dark:text-primary-50 mb-4">
+          {selectedTag ? (
+            <>Posts tagged "{selectedTag}"</>
+          ) : (
+            <>All Posts</>
+          )}
+        </h1>
+        
+        <div class="flex items-center space-x-4 text-primary-600 dark:text-primary-300">
+          <span>
+            Page {currentPage} of {totalPages}
+          </span>
+          <span>•</span>
+          <span>
+            {selectedTag ? (
+              <>Showing {filteredPosts.length} tagged posts</>
+            ) : (
+              <>Showing {posts.length} total posts</>
+            )}
+          </span>
+        </div>
+        
+        {selectedTag && (
+          <div class="mt-4">
+            <span class="inline-flex items-center px-3 py-1 bg-highlight-100 dark:bg-highlight-900/30 text-highlight-800 dark:text-highlight-200 rounded-full text-sm font-medium">
+              #{selectedTag}
+            </span>
+          </div>
+        )}
+      </header>
+      
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <!-- Main content -->
+        <div class="lg:col-span-8 xl:col-span-9">
+          {paginatedPosts.length > 0 ? (
+            <>
+              <!-- Posts grid -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                {paginatedPosts.map(post => (
+                  <PostCard post={post} />
+                ))}
+              </div>
+              
+              <!-- Pagination -->
+              <Pagination pagination={pagination} baseUrl="/posts" />
+            </>
+          ) : (
+            <!-- No posts found -->
+            <div class="text-center py-16">
+              <i data-lucide="search-x" class="w-16 h-16 text-primary-400 dark:text-primary-500 mx-auto mb-6"></i>
+              <h2 class="text-2xl font-semibold text-primary-900 dark:text-primary-50 mb-4">
+                No posts found on this page
+              </h2>
+              <p class="text-primary-600 dark:text-primary-300 mb-8">
+                Try going back to an earlier page or removing filters.
+              </p>
+              <div class="space-x-4">
+                <a href="/posts" class="btn-secondary">
+                  View All Posts
+                </a>
+                {currentPage > 1 && (
+                  <a href={pagination.prevUrl} class="btn-outline">
+                    Previous Page
+                  </a>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="lg:col-span-4 xl:col-span-3">
+          <div class="sticky top-24 space-y-6">
+            <!-- Tags -->
+            {siteConfig.features.tags && allTags.length > 0 && (
+              <Tags tags={allTags} currentTag={selectedTag} />
+            )}
+            
+            <!-- Page navigation -->
+            <div class="p-6 bg-white dark:bg-primary-900 rounded-xl border border-primary-200 dark:border-primary-700">
+              <h3 class="font-semibold text-primary-900 dark:text-primary-50 mb-4 flex items-center">
+                <i data-lucide="navigation" class="w-4 h-4 mr-2"></i>
+                Quick Navigation
+              </h3>
+              <div class="space-y-2 text-sm">
+                <a 
+                  href="/posts"
+                  class="block px-3 py-2 text-primary-600 dark:text-primary-300 hover:text-highlight-600 dark:hover:text-highlight-400 hover:bg-primary-50 dark:hover:bg-primary-800 rounded-lg transition-colors"
+                >
+                  First Page
+                </a>
+                {pagination.hasPrev && (
+                  <a 
+                    href={pagination.prevUrl}
+                    class="block px-3 py-2 text-primary-600 dark:text-primary-300 hover:text-highlight-600 dark:hover:text-highlight-400 hover:bg-primary-50 dark:hover:bg-primary-800 rounded-lg transition-colors"
+                  >
+                    Previous Page
+                  </a>
+                )}
+                {pagination.hasNext && (
+                  <a 
+                    href={pagination.nextUrl}
+                    class="block px-3 py-2 text-primary-600 dark:text-primary-300 hover:text-highlight-600 dark:hover:text-highlight-400 hover:bg-primary-50 dark:hover:bg-primary-800 rounded-lg transition-colors"
+                  >
+                    Next Page
+                  </a>
+                )}
+                {currentPage < totalPages && (
+                  <a 
+                    href={`/posts/${totalPages}`}
+                    class="block px-3 py-2 text-primary-600 dark:text-primary-300 hover:text-highlight-600 dark:hover:text-highlight-400 hover:bg-primary-50 dark:hover:bg-primary-800 rounded-lg transition-colors"
+                  >
+                    Last Page
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
