@@ -68,8 +68,8 @@ export interface SiteConfig {
 }
 
 export const siteConfig: SiteConfig = {
-  site: 'https://astro-flow.netlify.app',
-  title: 'Astro Flow',
+  site: 'https://astro-modular.netlify.app',
+  title: 'Astro Modular',
   description: 'A modular Astro blog.',
   author: 'David V. Kimball',
   language: 'en',
