@@ -3,6 +3,8 @@ import { getCollection } from 'astro:content';
 import { siteConfig } from '@/config';
 import { generatePageSEO } from '@/utils/seo';
 import { shouldShowPost, sortPostsByDate, extractTags } from '@/utils/markdown';
+import { optimizePostImagePath } from '@/utils/images';
+import { getImage } from 'astro:assets';
 import BaseLayout from '@/components/BaseLayout.astro';
 import PostCard from '@/components/PostCard.astro';
 import Tags from '@/components/Tags.astro';
@@ -55,6 +57,27 @@ const seoData = {
   ogType: 'website' as const
 };
 
+// Generate optimized image URLs for preloading
+const preloadImages = await Promise.all(
+  paginatedPosts.map(async (post) => {
+    if (post.data.image && !post.data.image.startsWith('http')) {
+      try {
+        const optimizedImage = await getImage({
+          src: `/src/content/posts/${post.data.image}`,
+          width: 800,
+          height: 450,
+          format: 'webp',
+          quality: 85
+        });
+        return { post, src: optimizedImage.src };
+      } catch {
+        return { post, src: optimizePostImagePath(post.data.image) };
+      }
+    }
+    return null;
+  })
+);
+
 // Pagination info
 const baseUrl = selectedTag ? `/posts?tag=${encodeURIComponent(selectedTag)}` : '/posts';
 const pagination = {
@@ -68,6 +91,20 @@ const pagination = {
 ---
 
 <BaseLayout seoData={seoData}>
+  <Fragment slot="head">
+    <!-- Preload critical images from all visible posts on first page -->
+    {preloadImages.map((item, index) => 
+      item && siteConfig.features.showCoverImages && !item.post.data.hideCoverImage && (
+        <link 
+          rel="preload" 
+          as="image" 
+          href={item.src}
+          fetchpriority={index < 2 ? "high" : "auto"}
+        />
+      )
+    )}
+  </Fragment>
+
   <div class="py-2">
     <div class="mx-auto px-4 sm:px-6 lg:px-8 mb-12" style={`max-width: ${siteConfig.layout.contentWidth}`}>
       <!-- Header -->
@@ -118,8 +155,8 @@ const pagination = {
             <>
               <!-- Posts list -->
               <div class="space-y-4 mb-12">
-                {paginatedPosts.map(post => (
-                  <PostCard post={post} />
+                {paginatedPosts.map((post, index) => (
+                  <PostCard post={post} eager={index < 2} />
                 ))}
               </div>
 

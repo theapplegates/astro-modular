@@ -8,9 +8,14 @@ import { siteConfig } from '../config';
 interface Props {
   post: CollectionEntry<'posts'>;
   featured?: boolean;
+  eager?: boolean;
 }
 
-const { post, featured = false } = Astro.props;
+const { post, featured = false, eager = false } = Astro.props;
+
+// Generate preload data if this is a critical image
+const shouldPreload = featured || eager;
+const imageUrl = post.data.image && !post.data.image.startsWith('http') ? optimizePostImagePath(post.data.image) : post.data.image;
 
 // Get reading time and word count from markdown processing
 const { remarkPluginFrontmatter } = await post.render();
@@ -31,22 +36,20 @@ const { title, description, date, tags, image, imageAlt, hideCoverImage } = post
             src={image}
             alt={imageAlt || title}
             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-            loading={featured ? "eager" : "lazy"}
+            loading="eager"
             decoding="async"
-            fetchpriority={featured ? "high" : "auto"}
+            fetchpriority={featured || eager ? "high" : "auto"}
           />
         ) : (
           <Image
-            src={optimizePostImagePath(image)}
+            src={`/src/content/posts/${image}`}
             alt={imageAlt || title}
+            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            loading="eager"
             width={800}
             height={450}
-            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-            loading={featured ? "eager" : "lazy"}
-            decoding="async"
+            quality={85}
             format="webp"
-            quality={90}
-            densities={[1, 2]}
           />
         )}
       </div>

@@ -15,8 +15,9 @@ export const getStaticPaths: GetStaticPaths = async () => {
   // Get all posts
   const allPosts = await getCollection('posts');
   
-  // Filter posts for production
-  const visiblePosts = allPosts.filter(post => shouldShowPost(post, false));
+  // Filter posts based on environment
+  const isDev = import.meta.env.DEV;
+  const visiblePosts = allPosts.filter(post => shouldShowPost(post, isDev));
   
   // Sort posts by date
   const sortedPosts = sortPostsByDate(visiblePosts);
@@ -146,8 +147,8 @@ const pagination = {
             <>
               <!-- Posts list -->
               <div class="space-y-6 mb-12">
-                {paginatedPosts.map(post => (
-                  <PostCard post={post} />
+                {paginatedPosts.map((post, index) => (
+                  <PostCard post={post} eager={index < 2} />
                 ))}
               </div>
               

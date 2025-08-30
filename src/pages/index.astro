@@ -6,6 +6,8 @@ import { shouldShowPost, sortPostsByDate, processPost } from '@/utils/markdown';
 import BaseLayout from '@/components/BaseLayout.astro';
 import PostCard from '@/components/PostCard.astro';
 import Icon from '@/components/Icon.astro';
+import { optimizePostImagePath } from '@/utils/images';
+import { getImage } from 'astro:assets';
 
 // Get all posts and filter by visibility
 const allPosts = await getCollection('posts');
@@ -38,6 +40,23 @@ if (siteConfig.homeBlurb?.enabled) {
   }
 }
 
+// Generate optimized image URL for featured post preload
+let featuredImageSrc = null;
+if (featuredPost && featuredPost.data.image && !featuredPost.data.image.startsWith('http')) {
+  try {
+    const optimizedImage = await getImage({
+      src: `/src/content/posts/${featuredPost.data.image}`,
+      width: 800,
+      height: 450,
+      format: 'webp',
+      quality: 85
+    });
+    featuredImageSrc = optimizedImage.src;
+  } catch {
+    featuredImageSrc = optimizePostImagePath(featuredPost.data.image);
+  }
+}
+
 // Generate SEO data for homepage
 const seoData = generateHomeSEO(Astro.url.href);
 
@@ -65,13 +84,13 @@ const structuredData = {
     <!-- Structured Data -->
     <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
     
-    <!-- Preload critical images -->
-    {featuredPost && featuredPost.data.image && siteConfig.features.showCoverImages && !featuredPost.data.hideCoverImage && !featuredPost.data.image.startsWith('http') && (
+    <!-- Preload critical images - use same URL as actual img tags for caching -->
+    {featuredImageSrc && featuredPost && siteConfig.features.showCoverImages && !featuredPost.data.hideCoverImage && (
       <link 
         rel="preload" 
         as="image" 
-        href={`/_image?href=${encodeURIComponent(featuredPost.data.image.startsWith('./') ? featuredPost.data.image.replace('./images/', '/posts/images/') : `/posts/images/${featuredPost.data.image}`)}&w=800&h=450&f=webp&q=90`}
-        type="image/webp"
+        href={featuredImageSrc}
+        fetchpriority="high"
       />
     )}
   </Fragment>
@@ -96,7 +115,7 @@ const structuredData = {
                 </h2>
               </div>
 
-              <PostCard post={featuredPost} featured={true} />
+              <PostCard post={featuredPost} featured={true} eager={true} />
             </section>
           )}
 
@@ -116,8 +135,8 @@ const structuredData = {
               </div>
 
               <div class="space-y-4">
-                {previewPosts.slice(0, 3).map(post => (
-                  <PostCard post={post} />
+                {previewPosts.slice(0, 3).map((post, index) => (
+                  <PostCard post={post} eager={index === 0} />
                 ))}
               </div>
             </section>

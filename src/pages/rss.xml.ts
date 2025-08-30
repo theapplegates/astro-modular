@@ -2,13 +2,15 @@ import rss from '@astrojs/rss';
 import { getCollection } from 'astro:content';
 import { siteConfig } from '@/config';
 import { shouldShowPost, sortPostsByDate } from '@/utils/markdown';
+import { getMimeTypeFromPath } from '@/utils/images';
 
 export async function GET(context: any) {
   // Get all posts
   const posts = await getCollection('posts');
   
-  // Filter and sort posts
-  const visiblePosts = posts.filter(post => shouldShowPost(post, false));
+  // Filter and sort posts based on environment
+  const isDev = import.meta.env.DEV;
+  const visiblePosts = posts.filter(post => shouldShowPost(post, isDev));
   const sortedPosts = sortPostsByDate(visiblePosts);
 
   return rss({
@@ -16,7 +18,7 @@ export async function GET(context: any) {
     description: siteConfig.description,
     site: context.site || siteConfig.site,
     items: sortedPosts.map((post) => {
-      const postUrl = `${context.site || siteConfig.site}posts/${post.slug}`;
+      const postUrl = `${context.site || siteConfig.site}/posts/${post.slug}`;
       
       return {
         title: post.data.title,
@@ -30,7 +32,7 @@ export async function GET(context: any) {
           url: post.data.image.startsWith('http') 
             ? post.data.image 
             : `${context.site || siteConfig.site}${post.data.image}`,
-          type: 'image/jpeg', // Default type, could be enhanced
+          type: getMimeTypeFromPath(post.data.image),
           length: 0 // Length is optional
         } : undefined,
         customData: [

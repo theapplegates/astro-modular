@@ -3,6 +3,7 @@ import type { Post, Heading } from '@/types';
 import { siteConfig } from '@/config';
 import { generatePostSEO } from '@/utils/seo';
 import { optimizePostImagePath } from '@/utils/images';
+import { getImage } from 'astro:assets';
 import { processWikilinksInHTML } from '@/utils/wikilinks';
 import { getCollection } from 'astro:content';
 import { shouldShowPost, processPost, calculateReadingTime, generateTOC, getAdjacentPosts } from '@/utils/markdown';
@@ -62,12 +63,39 @@ const toc = shouldShowTOC ? generateTOC(headings) : [];
 
 // Get adjacent posts for navigation
 const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.slug);
+
+// Generate optimized image URL for post preload
+let postImageSrc = null;
+if (post.data.image && !post.data.image.startsWith('http')) {
+  try {
+    const optimizedImage = await getImage({
+      src: `/src/content/posts/${post.data.image}`,
+      width: 800,
+      height: 256,
+      format: 'webp',
+      quality: 90
+    });
+    postImageSrc = optimizedImage.src;
+  } catch {
+    postImageSrc = optimizePostImagePath(post.data.image);
+  }
+}
 ---
 
 <BaseLayout seoData={seoData}>
   <Fragment slot="head">
     <!-- Structured Data -->
     <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+
+    <!-- Preload post cover image -->
+    {postImageSrc && siteConfig.features.showCoverImages && !post.data.hideCoverImage && (
+      <link 
+        rel="preload" 
+        as="image" 
+        href={postImageSrc}
+        fetchpriority="high"
+      />
+    )}
 
     <!-- Post-specific meta tags -->
     {post.data.targetKeyword && (
@@ -83,14 +111,29 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
         <header class="mb-8">
           {/* Cover image - shown if global config allows and not hidden by frontmatter */}
           {siteConfig.features.showCoverImages && post.data.image && !post.data.hideCoverImage && (
-            <Image 
-              src={optimizePostImagePath(post.data.image)}
-              alt={post.data.imageAlt || `Cover image for ${post.data.title}`}
-              class="w-full h-64 object-cover rounded-lg shadow-sm mb-6"
-              width={800}
-              height={256}
-              loading="eager"
-            />
+            post.data.image.startsWith('http') ? (
+              <img 
+                src={post.data.image}
+                alt={post.data.imageAlt || `Cover image for ${post.data.title}`}
+                class="w-full h-64 object-cover rounded-lg shadow-sm mb-6"
+                width="800"
+                height="256"
+                loading="eager"
+                decoding="async"
+                fetchpriority="high"
+              />
+            ) : (
+              <Image 
+                src={`/src/content/posts/${post.data.image}`}
+                alt={post.data.imageAlt || `Cover image for ${post.data.title}`}
+                class="w-full h-64 object-cover rounded-lg shadow-sm mb-6"
+                width={800}
+                height={256}
+                loading="eager"
+                quality={90}
+                format="webp"
+              />
+            )
           )}
 
           <h1 class="text-2xl font-bold text-primary-900 dark:text-primary-50 mb-6 leading-tight">

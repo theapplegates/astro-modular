@@ -68,10 +68,10 @@ export interface SiteConfig {
 }
 
 export const siteConfig: SiteConfig = {
-  site: 'https://astro-flow.netlify.app',
-  title: 'Astro Flow',
-  description: 'A modular Astro blog.',
-  author: 'David V. Kimball',
+  site: 'http://localhost:5000',
+  title: 'Obsidian Blog',
+  description: 'A minimal blog inspired by Obsidian',
+  author: 'Blog Author',
   language: 'en',
   theme: {
     highlightColor: 'slate',
@@ -113,11 +113,13 @@ export const siteConfig: SiteConfig = {
     pages: [
       { title: 'Posts', url: '/posts' },
       { title: 'About', url: '/about' },
-      { title: 'Website', url: 'https://davidvkimball.com' }
+      { title: 'Privacy Policy', url: '/privacy-policy' },
+      { title: 'Google', url: 'https://google.com' }
     ],
     social: [
       { title: 'GitHub', url: 'https://github.com', icon: 'github' },
-      { title: 'Twitter', url: 'https://x.com', icon: 'x-twitter' }
+      { title: 'Twitter', url: 'https://x.com', icon: 'x-twitter' },
+      { title: 'Twitter', url: 'https://x.com', icon: 'facebook' }
     ],
     external: []
   },

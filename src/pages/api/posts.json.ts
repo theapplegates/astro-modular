@@ -7,8 +7,9 @@ export const GET: APIRoute = async () => {
     // Get all posts
     const posts = await getCollection('posts');
     
-    // Filter visible posts
-    const visiblePosts = posts.filter((post: any) => shouldShowPost(post, false));
+    // Filter visible posts based on environment
+    const isDev = import.meta.env.DEV;
+    const visiblePosts = posts.filter((post: any) => shouldShowPost(post, isDev));
     
     // Map to command palette format
     const commandPaletteData = visiblePosts.map((post: any) => ({

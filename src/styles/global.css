@@ -660,8 +660,12 @@ pre.astro-code code,
   @apply bg-highlight-100 dark:bg-highlight-900/30 text-highlight-800 dark:text-highlight-200 px-1 py-0.5 rounded;
 }
 
-/* Smooth transitions for theme changes */
-* {
+/* Smooth transitions for theme changes - more selective to avoid flickering */
+:root,
+html,
+body,
+[data-theme],
+.theme-transition {
   transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, color 0.2s ease-in-out;
 }
 

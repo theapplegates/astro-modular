@@ -1,7 +1,8 @@
 ---
 import type { Post } from '@/types';
-import { processImagesForLightbox } from '@/utils/images';
+import { processImagesForLightbox, optimizePostImagePath } from '@/utils/images';
 import { siteConfig } from '@/config';
+import { Image } from 'astro:assets';
 import ImageGallery from './ImageGallery.astro';
 import TableOfContents from './TableOfContents.astro';
 
@@ -71,11 +72,30 @@ const { Content, toc, readingTime, wordCount } = post;
         
         {post.data.image && (
           <div class="aspect-video overflow-hidden rounded-xl mb-8">
-            <img 
-              src={post.data.image} 
-              alt={post.data.imageAlt || post.data.title}
-              class="w-full h-full object-cover"
-            />
+            {post.data.image.startsWith('http') ? (
+              <img 
+                src={post.data.image} 
+                alt={post.data.imageAlt || post.data.title}
+                class="w-full h-full object-cover"
+                loading="eager"
+                decoding="async"
+                fetchpriority="high"
+              />
+            ) : (
+              <Image
+                src={optimizePostImagePath(post.data.image)}
+                alt={post.data.imageAlt || post.data.title}
+                width={1200}
+                height={675}
+                class="w-full h-full object-cover"
+                loading="eager"
+                decoding="async"
+                fetchpriority="high"
+                format={post.data.image.endsWith('.svg') ? undefined : "webp"}
+                quality={90}
+                densities={[1, 2]}
+              />
+            )}
           </div>
         )}
       </header>

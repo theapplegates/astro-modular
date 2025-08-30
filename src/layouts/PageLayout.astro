@@ -51,6 +51,16 @@ const structuredData = {
   <Fragment slot="head">
     <!-- Structured Data -->
     <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+    
+    <!-- Preload page image if exists -->
+    {page.data.image && !page.data.image.startsWith('http') && (
+      <link 
+        rel="preload" 
+        as="image" 
+        href={optimizePageImagePath(page.data.image)}
+        fetchpriority="high"
+      />
+    )}
   </Fragment>
 
   <div class="py-2 relative">

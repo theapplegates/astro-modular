@@ -122,13 +122,23 @@ export function optimizePostImagePath(imagePath: string): string {
     return imagePath; // Absolute path
   }
   
-  // Relative path from post content - convert ./images/ to /posts/images/
+  // Prevent double processing - if already optimized, return as-is
+  if (imagePath.startsWith('/posts/images/')) {
+    return imagePath;
+  }
+  
+  // Handle Obsidian-style relative paths from markdown content
   if (imagePath.startsWith('./images/')) {
     return imagePath.replace('./images/', '/posts/images/');
   }
   
   if (imagePath.startsWith('images/')) {
     return `/posts/${imagePath}`;
+  }
+  
+  // Handle case where filename is provided without path
+  if (!imagePath.includes('/')) {
+    return `/posts/images/${imagePath}`;
   }
   
   // Default - assume it's a relative path in the posts directory
@@ -146,13 +156,23 @@ export function optimizePageImagePath(imagePath: string): string {
     return imagePath; // Absolute path
   }
   
-  // Relative path from page content - convert ./images/ to /pages/images/
+  // Prevent double processing - if already optimized, return as-is
+  if (imagePath.startsWith('/pages/images/')) {
+    return imagePath;
+  }
+  
+  // Handle Obsidian-style relative paths from markdown content
   if (imagePath.startsWith('./images/')) {
     return imagePath.replace('./images/', '/pages/images/');
   }
   
   if (imagePath.startsWith('images/')) {
     return `/pages/${imagePath}`;
+  }
+  
+  // Handle case where filename is provided without path
+  if (!imagePath.includes('/')) {
+    return `/pages/images/${imagePath}`;
   }
   
   // Default - ensure it starts with /
@@ -226,8 +246,36 @@ export function createImageGallery(images: ImageInfo[], layout: string) {
 
 // Validate image format
 export function isValidImageFormat(imagePath: string): boolean {
-  const validExtensions = /\.(jpg|jpeg|png|gif|webp|svg)$/i;
+  const validExtensions = /\.(jpg|jpeg|png|gif|webp|svg|bmp|tiff|tif|ico)$/i;
   return validExtensions.test(imagePath);
+}
+
+// Get MIME type from file extension
+export function getMimeTypeFromPath(imagePath: string): string {
+  const extension = imagePath.toLowerCase().match(/\.([^.]+)$/)?.[1];
+  
+  switch (extension) {
+    case 'jpg':
+    case 'jpeg':
+      return 'image/jpeg';
+    case 'png':
+      return 'image/png';
+    case 'gif':
+      return 'image/gif';
+    case 'webp':
+      return 'image/webp';
+    case 'svg':
+      return 'image/svg+xml';
+    case 'bmp':
+      return 'image/bmp';
+    case 'tiff':
+    case 'tif':
+      return 'image/tiff';
+    case 'ico':
+      return 'image/x-icon';
+    default:
+      return 'image/jpeg'; // Safe fallback
+  }
 }
 
 // Get optimized image format
@@ -236,6 +284,18 @@ export function getOptimizedFormat(imagePath: string): string {
     return imagePath; // Keep SVG as-is
   }
   
-  // For other formats, prefer WebP
-  return imagePath.replace(/\.(jpg|jpeg|png)$/i, '.webp');
+  // Don't change external URLs
+  if (isExternalImage(imagePath)) {
+    return imagePath;
+  }
+  
+  // For local images, ensure they use WebP format
+  return imagePath.replace(/\.(jpg|jpeg|png|gif|bmp|tiff|tif)$/i, '.webp');
+}
+
+// Check if image format can be optimized
+export function canOptimizeImageFormat(imagePath: string): boolean {
+  const extension = imagePath.toLowerCase().match(/\.([^.]+)$/)?.[1];
+  // SVG and WebP don't need optimization, ICO is usually small
+  return !['svg', 'webp', 'ico'].includes(extension || '');
 }
