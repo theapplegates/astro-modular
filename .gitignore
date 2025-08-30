@@ -31,10 +31,6 @@ lerna-debug.log*
 *.sln
 *.sw?
 
-# Obsidian
-.obsidian/
-content/**/.obsidian/
-
 # Temporary files
 *.tmp
 *.temp
@@ -42,3 +38,5 @@ content/**/.obsidian/
 # OS generated files
 Thumbs.db
 ehthumbs.db
+src/content/.obsidian/workspace.json
+src/content/.obsidian/workspace-mobile.json

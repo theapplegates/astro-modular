@@ -7,7 +7,6 @@ import BaseLayout from '@/components/BaseLayout.astro';
 import PostCard from '@/components/PostCard.astro';
 import Icon from '@/components/Icon.astro';
 import { optimizePostImagePath } from '@/utils/images';
-import { getImage } from 'astro:assets';
 
 // Get all posts and filter by visibility
 const allPosts = await getCollection('posts');
@@ -40,23 +39,6 @@ if (siteConfig.homeBlurb?.enabled) {
   }
 }
 
-// Generate optimized image URL for featured post preload
-let featuredImageSrc = null;
-if (featuredPost && featuredPost.data.image && !featuredPost.data.image.startsWith('http')) {
-  try {
-    const optimizedImage = await getImage({
-      src: `/src/content/posts/${featuredPost.data.image}`,
-      width: 800,
-      height: 450,
-      format: 'webp',
-      quality: 85
-    });
-    featuredImageSrc = optimizedImage.src;
-  } catch {
-    featuredImageSrc = optimizePostImagePath(featuredPost.data.image);
-  }
-}
-
 // Generate SEO data for homepage
 const seoData = generateHomeSEO(Astro.url.href);
 
@@ -85,11 +67,11 @@ const structuredData = {
     <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
     
     <!-- Preload critical images - use same URL as actual img tags for caching -->
-    {featuredImageSrc && featuredPost && siteConfig.features.showCoverImages && !featuredPost.data.hideCoverImage && (
+    {featuredPost && featuredPost.data.image && siteConfig.features.showCoverImages && !featuredPost.data.hideCoverImage && !featuredPost.data.image.startsWith('http') && (
       <link 
         rel="preload" 
         as="image" 
-        href={featuredImageSrc}
+        href={optimizePostImagePath(featuredPost.data.image)}
         fetchpriority="high"
       />
     )}

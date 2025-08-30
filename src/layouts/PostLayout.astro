@@ -3,7 +3,6 @@ import type { Post, Heading } from '@/types';
 import { siteConfig } from '@/config';
 import { generatePostSEO } from '@/utils/seo';
 import { optimizePostImagePath } from '@/utils/images';
-import { getImage } from 'astro:assets';
 import { processWikilinksInHTML } from '@/utils/wikilinks';
 import { getCollection } from 'astro:content';
 import { shouldShowPost, processPost, calculateReadingTime, generateTOC, getAdjacentPosts } from '@/utils/markdown';
@@ -63,23 +62,6 @@ const toc = shouldShowTOC ? generateTOC(headings) : [];
 
 // Get adjacent posts for navigation
 const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.slug);
-
-// Generate optimized image URL for post preload
-let postImageSrc = null;
-if (post.data.image && !post.data.image.startsWith('http')) {
-  try {
-    const optimizedImage = await getImage({
-      src: `/src/content/posts/${post.data.image}`,
-      width: 800,
-      height: 256,
-      format: 'webp',
-      quality: 90
-    });
-    postImageSrc = optimizedImage.src;
-  } catch {
-    postImageSrc = optimizePostImagePath(post.data.image);
-  }
-}
 ---
 
 <BaseLayout seoData={seoData}>
@@ -88,11 +70,11 @@ if (post.data.image && !post.data.image.startsWith('http')) {
     <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
 
     <!-- Preload post cover image -->
-    {postImageSrc && siteConfig.features.showCoverImages && !post.data.hideCoverImage && (
+    {siteConfig.features.showCoverImages && post.data.image && !post.data.hideCoverImage && !post.data.image.startsWith('http') && (
       <link 
         rel="preload" 
         as="image" 
-        href={postImageSrc}
+        href={optimizePostImagePath(post.data.image)}
         fetchpriority="high"
       />
     )}
@@ -123,15 +105,15 @@ if (post.data.image && !post.data.image.startsWith('http')) {
                 fetchpriority="high"
               />
             ) : (
-              <Image 
-                src={`/src/content/posts/${post.data.image}`}
+              <img 
+                src={optimizePostImagePath(post.data.image)}
                 alt={post.data.imageAlt || `Cover image for ${post.data.title}`}
                 class="w-full h-64 object-cover rounded-lg shadow-sm mb-6"
-                width={800}
-                height={256}
+                width="800"
+                height="256"
                 loading="eager"
-                quality={90}
-                format="webp"
+                decoding="async"
+                fetchpriority="high"
               />
             )
           )}

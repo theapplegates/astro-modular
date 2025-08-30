@@ -284,12 +284,7 @@ export function getOptimizedFormat(imagePath: string): string {
     return imagePath; // Keep SVG as-is
   }
   
-  // Don't change external URLs
-  if (isExternalImage(imagePath)) {
-    return imagePath;
-  }
-  
-  // For local images, ensure they use WebP format
+  // For other formats, prefer WebP but be more flexible
   return imagePath.replace(/\.(jpg|jpeg|png|gif|bmp|tiff|tif)$/i, '.webp');
 }
 

@@ -1,0 +1,16 @@
+{
+  "enableUnderscorePrefix": true,
+  "defaultTemplate": "---\ntitle: \"{{title}}\"\ndate: {{date}}\ndescription: \"\"\nimage: \"\"\nimageAlt: \"\"\nimageOG: \"\"\nhideCoverImage: false\ntags: []\ntargetKeyword: \"\"\n---\n\n",
+  "linkBasePath": "/posts/",
+  "postsFolder": "posts",
+  "automatePostCreation": true,
+  "autoInsertProperties": true,
+  "creationMode": "file",
+  "indexFileName": "index",
+  "dateFormat": "YYYY-MM-DD",
+  "excludedDirectories": "",
+  "onlyAutomateInPostsFolder": false,
+  "enableAutoRename": true,
+  "enableAutoInsertFrontmatter": true,
+  "draftStyle": "filename"
+}

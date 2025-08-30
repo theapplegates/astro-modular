@@ -66,13 +66,7 @@ export default defineConfig({
         '7c7d17a5-9e7a-489b-81ee-2831ec9efa37-00-1hzc8ugx94cy6.janeway.replit.dev'
       ],
       middlewareMode: false,
-      hmr: {
-        overlay: false,
-        port: 24678,
-        host: '0.0.0.0',
-        timeout: 30000,
-        skipSSR: true
-      },
+      hmr: false,
       headers: {
         'Cache-Control': 'public, max-age=3600'
       }

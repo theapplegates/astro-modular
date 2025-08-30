@@ -36,20 +36,20 @@ const { title, description, date, tags, image, imageAlt, hideCoverImage } = post
             src={image}
             alt={imageAlt || title}
             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-            loading="eager"
+            loading={featured || eager ? "eager" : "lazy"}
             decoding="async"
             fetchpriority={featured || eager ? "high" : "auto"}
           />
         ) : (
-          <Image
-            src={`/src/content/posts/${image}`}
+          <img
+            src={optimizePostImagePath(image)}
             alt={imageAlt || title}
             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-            loading="eager"
-            width={800}
-            height={450}
-            quality={85}
-            format="webp"
+            loading={featured || eager ? "eager" : "lazy"}
+            decoding="async"
+            fetchpriority={featured || eager ? "high" : "auto"}
+            width="800"
+            height="450"
           />
         )}
       </div>
