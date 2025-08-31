@@ -5,6 +5,7 @@ import { siteConfig } from '@/config';
 import { Image } from 'astro:assets';
 import ImageGallery from './ImageGallery.astro';
 import TableOfContents from './TableOfContents.astro';
+import Button from './Button.astro';
 
 export interface Props {
   post: Post & {
@@ -101,7 +102,7 @@ const { Content, toc, readingTime, wordCount } = post;
       </header>
       
       <!-- Article content -->
-      <div class="prose prose-lg dark:prose-dark max-w-none">
+      <div class="prose prose-lg dark:prose-dark max-w-none table-responsive">
         <Content />
       </div>
     </div>
@@ -153,6 +154,28 @@ const { Content, toc, readingTime, wordCount } = post;
     </div>
   </div>
 </div>
+
+<script>
+  // Wrap tables in responsive containers for better mobile experience
+  document.addEventListener('DOMContentLoaded', function() {
+    const tables = document.querySelectorAll('.prose table');
+    tables.forEach(table => {
+      if (!table.parentElement.classList.contains('table-wrapper')) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'table-wrapper';
+        wrapper.style.cssText = 'overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 1.5rem 0; border-radius: 0.5rem; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);';
+        
+        table.parentNode.insertBefore(wrapper, table);
+        wrapper.appendChild(table);
+        
+        // Reset table margin since wrapper handles it
+        table.style.margin = '0';
+      }
+    });
+
+    
+  });
+</script>
 
 <style is:global>
   /* Enhanced prose styles for post content */
@@ -213,12 +236,5 @@ const { Content, toc, readingTime, wordCount } = post;
     @apply bg-highlight-100 dark:bg-highlight-900/30 text-highlight-800 dark:text-highlight-200 px-1 py-0.5 rounded;
   }
   
-  /* YouTube embeds */
-  .prose .youtube-embed {
-    @apply aspect-video w-full rounded-lg overflow-hidden my-6;
-  }
   
-  .prose .youtube-embed iframe {
-    @apply w-full h-full;
-  }
 </style>

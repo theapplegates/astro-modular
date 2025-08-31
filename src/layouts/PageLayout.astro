@@ -149,5 +149,59 @@ const structuredData = {
 
   <!-- Lightbox for images -->
   <Lightbox />
+
+  <Fragment slot="scripts">
+    <script>
+      // Process content after DOM loads
+      document.addEventListener('DOMContentLoaded', function() {
+        // Initialize image grid layouts
+        function initializeImageGrids() {
+          // Find all paragraphs that contain only images (including Image component output)
+          const paragraphs = document.querySelectorAll('.prose p');
+          
+          paragraphs.forEach(p => {
+            const images = p.querySelectorAll('img, picture');
+            const textNodes = Array.from(p.childNodes).filter(node => 
+              node.nodeType === Node.TEXT_NODE && node.textContent.trim() !== ''
+            );
+            const otherElements = Array.from(p.childNodes).filter(node => 
+              node.nodeType === Node.ELEMENT_NODE && !['IMG', 'PICTURE', 'BR'].includes(node.tagName)
+            );
+            
+            // Only process if paragraph contains 2+ images and no other meaningful content
+            if (images.length >= 2 && textNodes.length === 0 && otherElements.length === 0) {
+              // Remove any existing image-grid classes first
+              p.classList.remove('image-grid', 'image-grid-2', 'image-grid-3', 'image-grid-4', 'image-grid-5', 'image-grid-6');
+              
+              // Add the appropriate grid class
+              const gridClass = `image-grid-${Math.min(images.length, 6)}`;
+              p.classList.add('image-grid', gridClass);
+            }
+          });
+        }
+        
+        // Initialize image grids
+        initializeImageGrids();
+        
+        // Wrap tables in responsive containers for better mobile experience
+        const tables = document.querySelectorAll('.prose table');
+        tables.forEach(table => {
+          if (!table.parentElement.classList.contains('table-wrapper')) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'table-wrapper';
+            wrapper.style.cssText = 'overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 1.5rem 0; border-radius: 0.5rem; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);';
+            
+            table.parentNode.insertBefore(wrapper, table);
+            wrapper.appendChild(table);
+            
+            // Reset table margin since wrapper handles it
+            table.style.margin = '0';
+          }
+        });
+
+        
+      });
+    </script>
+  </Fragment>
 </BaseLayout>
 
