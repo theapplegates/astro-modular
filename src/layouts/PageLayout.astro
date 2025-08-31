@@ -15,6 +15,22 @@ export interface Props {
 
 const { page } = Astro.props;
 
+// Dynamic image import for local images
+let localImage: any = null;
+if (page.data.image && !page.data.image.startsWith('http')) {
+  try {
+    const imagePath = optimizePageImagePath(page.data.image);
+    const images = import.meta.glob('/public/pages/images/*');
+    const imageKey = `/public${imagePath}`;
+    
+    if (images[imageKey]) {
+      localImage = await images[imageKey]();
+    }
+  } catch (error) {
+    console.warn('Failed to import page image:', page.data.image, error);
+  }
+}
+
 // Render the page content
 const { Content, headings } = await page.render();
 
@@ -75,14 +91,41 @@ const structuredData = {
 
           {page.data.image && (
             <div class="aspect-video overflow-hidden rounded-xl mt-8">
-              <Image
-                src={optimizePageImagePath(page.data.image)}
-                alt={page.data.imageAlt || page.data.title}
-                class="w-full h-full object-cover"
-                width={800}
-                height={450}
-                loading="eager"
-              />
+              {page.data.image.startsWith('http') ? (
+                <img
+                  src={page.data.image}
+                  alt={page.data.imageAlt || page.data.title}
+                  class="w-full h-full object-cover"
+                  width="800"
+                  height="450"
+                  loading="eager"
+                  decoding="async"
+                  fetchpriority="high"
+                />
+              ) : localImage ? (
+                <Image
+                  src={localImage.default}
+                  alt={page.data.imageAlt || page.data.title}
+                  width={800}
+                  height={450}
+                  format="webp"
+                  class="w-full h-full object-cover"
+                  loading="eager"
+                  decoding="async"
+                  fetchpriority="high"
+                />
+              ) : (
+                <img
+                  src={optimizePageImagePath(page.data.image)}
+                  alt={page.data.imageAlt || page.data.title}
+                  class="w-full h-full object-cover"
+                  width="800"
+                  height="450"
+                  loading="eager"
+                  decoding="async"
+                  fetchpriority="high"
+                />
+              )}
             </div>
           )}
         </header>

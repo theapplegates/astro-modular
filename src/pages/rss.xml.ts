@@ -1,8 +1,25 @@
+
 import rss from '@astrojs/rss';
 import { getCollection } from 'astro:content';
-import { siteConfig } from '@/config';
-import { shouldShowPost, sortPostsByDate } from '@/utils/markdown';
-import { getMimeTypeFromPath } from '@/utils/images';
+import { siteConfig } from '../config';
+import { shouldShowPost, sortPostsByDate } from '../utils/markdown';
+
+function getMimeTypeFromPath(path: string): string {
+  const ext = path.split('.').pop()?.toLowerCase();
+  switch (ext) {
+    case 'jpg':
+    case 'jpeg':
+      return 'image/jpeg';
+    case 'png':
+      return 'image/png';
+    case 'gif':
+      return 'image/gif';
+    case 'webp':
+      return 'image/webp';
+    default:
+      return 'image/jpeg';
+  }
+}
 
 export async function GET(context: any) {
   // Get all posts
@@ -13,12 +30,14 @@ export async function GET(context: any) {
   const visiblePosts = posts.filter(post => shouldShowPost(post, isDev));
   const sortedPosts = sortPostsByDate(visiblePosts);
 
+  const siteUrl = context.site?.toString() || siteConfig.site;
+
   return rss({
     title: siteConfig.title,
     description: siteConfig.description,
-    site: context.site || siteConfig.site,
+    site: siteUrl,
     items: sortedPosts.map((post) => {
-      const postUrl = `${context.site || siteConfig.site}/posts/${post.slug}`;
+      const postUrl = `${siteUrl}posts/${post.slug}`;
       
       return {
         title: post.data.title,
@@ -31,7 +50,7 @@ export async function GET(context: any) {
         enclosure: post.data.image && post.data.imageOG ? {
           url: post.data.image.startsWith('http') 
             ? post.data.image 
-            : `${context.site || siteConfig.site}${post.data.image}`,
+            : `${siteUrl}posts/images/${post.data.image.replace(/^.*\//, '')}`,
           type: getMimeTypeFromPath(post.data.image),
           length: 0 // Length is optional
         } : undefined,
@@ -39,7 +58,7 @@ export async function GET(context: any) {
           post.data.targetKeyword && `<keyword>${post.data.targetKeyword}</keyword>`,
           post.data.image && `<image>${post.data.image.startsWith('http') 
             ? post.data.image 
-            : `${context.site || siteConfig.site}${post.data.image}`}</image>`,
+            : `${siteUrl}posts/images/${post.data.image.replace(/^.*\//, '')}`}</image>`,
         ].filter(Boolean).join(''),
       };
     }),
@@ -55,7 +74,6 @@ export async function GET(context: any) {
       <docs>https://www.rssboard.org/rss-specification</docs>
       <ttl>60</ttl>
     `,
-    
     
     xmlns: {
       atom: 'http://www.w3.org/2005/Atom',

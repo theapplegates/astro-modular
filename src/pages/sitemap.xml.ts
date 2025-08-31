@@ -1,8 +1,13 @@
+
 import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
-import { siteConfig } from '@/config';
-import { shouldShowPost } from '@/utils/markdown';
-import { shouldExcludeFromSitemap } from '@/utils/seo';
+import { siteConfig } from '../config';
+import { shouldShowPost } from '../utils/markdown';
+
+function shouldExcludeFromSitemap(slug: string): boolean {
+  const excludedSlugs = ['404', 'sitemap', 'rss'];
+  return excludedSlugs.includes(slug);
+}
 
 export const GET: APIRoute = async ({ site }) => {
   const siteUrl = site?.toString() || siteConfig.site;
@@ -49,7 +54,7 @@ export const GET: APIRoute = async ({ site }) => {
   visiblePosts.forEach(post => {
     urls.push(`
       <url>
-        <loc>${siteUrl}/posts/${post.slug}/</loc>
+        <loc>${siteUrl}posts/${post.slug}/</loc>
         <lastmod>${post.data.date.toISOString()}</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
@@ -61,7 +66,7 @@ export const GET: APIRoute = async ({ site }) => {
   visiblePages.forEach(page => {
     urls.push(`
       <url>
-        <loc>${siteUrl}/${page.slug}/</loc>
+        <loc>${siteUrl}${page.slug}/</loc>
         <lastmod>${new Date().toISOString()}</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.6</priority>
@@ -76,7 +81,7 @@ export const GET: APIRoute = async ({ site }) => {
   for (let page = 2; page <= totalPages; page++) {
     urls.push(`
       <url>
-        <loc>${siteUrl}/posts/${page}/</loc>
+        <loc>${siteUrl}posts/${page}/</loc>
         <lastmod>${new Date().toISOString()}</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.5</priority>

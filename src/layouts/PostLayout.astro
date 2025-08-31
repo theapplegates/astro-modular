@@ -21,6 +21,22 @@ const { post } = Astro.props;
 // Generate SEO data
 const seoData = generatePostSEO(post, Astro.url.href);
 
+// Dynamic image import for local images
+let localImage: any = null;
+if (post.data.image && !post.data.image.startsWith('http')) {
+  try {
+    const imagePath = optimizePostImagePath(post.data.image);
+    const images = import.meta.glob('/public/posts/images/*');
+    const imageKey = `/public${imagePath}`;
+    
+    if (images[imageKey]) {
+      localImage = await images[imageKey]();
+    }
+  } catch (error) {
+    console.warn('Failed to import image:', post.data.image, error);
+  }
+}
+
 // Generate structured data for the post
 const structuredData = {
   "@context": "https://schema.schema.org",
@@ -100,6 +116,18 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
                 class="w-full h-64 object-cover rounded-lg shadow-sm mb-6"
                 width="800"
                 height="256"
+                loading="eager"
+                decoding="async"
+                fetchpriority="high"
+              />
+            ) : localImage ? (
+              <Image
+                src={localImage.default}
+                alt={post.data.imageAlt || `Cover image for ${post.data.title}`}
+                width={800}
+                height={256}
+                format="webp"
+                class="w-full h-64 object-cover rounded-lg shadow-sm mb-6"
                 loading="eager"
                 decoding="async"
                 fetchpriority="high"

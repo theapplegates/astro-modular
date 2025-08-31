@@ -111,6 +111,40 @@ export function optimizeImagePath(imagePath: string): string {
   return `/${imagePath}`;
 }
 
+// Optimize image path specifically for pages
+export function optimizePageImagePath(imagePath: string): string {
+  // Handle different image path formats
+  if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+    return imagePath; // External URL
+  }
+  
+  if (imagePath.startsWith('/')) {
+    return imagePath; // Absolute path
+  }
+  
+  // Prevent double processing - if already optimized, return as-is
+  if (imagePath.startsWith('/pages/images/')) {
+    return imagePath;
+  }
+  
+  // Handle Obsidian-style relative paths from markdown content
+  if (imagePath.startsWith('./images/')) {
+    return imagePath.replace('./images/', '/pages/images/');
+  }
+  
+  if (imagePath.startsWith('images/')) {
+    return `/pages/${imagePath}`;
+  }
+  
+  // Handle case where filename is provided without path
+  if (!imagePath.includes('/')) {
+    return `/pages/images/${imagePath}`;
+  }
+  
+  // Default - assume it's a relative path in the pages directory
+  return `/pages/images/${imagePath}`;
+}
+
 // Optimize image path specifically for posts
 export function optimizePostImagePath(imagePath: string): string {
   // Handle different image path formats
@@ -143,40 +177,6 @@ export function optimizePostImagePath(imagePath: string): string {
   
   // Default - assume it's a relative path in the posts directory
   return `/posts/images/${imagePath}`;
-}
-
-// Optimize image path specifically for pages
-export function optimizePageImagePath(imagePath: string): string {
-  // Handle different image path formats
-  if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
-    return imagePath; // External URL
-  }
-  
-  if (imagePath.startsWith('/')) {
-    return imagePath; // Absolute path
-  }
-  
-  // Prevent double processing - if already optimized, return as-is
-  if (imagePath.startsWith('/pages/images/')) {
-    return imagePath;
-  }
-  
-  // Handle Obsidian-style relative paths from markdown content
-  if (imagePath.startsWith('./images/')) {
-    return imagePath.replace('./images/', '/pages/images/');
-  }
-  
-  if (imagePath.startsWith('images/')) {
-    return `/pages/${imagePath}`;
-  }
-  
-  // Handle case where filename is provided without path
-  if (!imagePath.includes('/')) {
-    return `/pages/images/${imagePath}`;
-  }
-  
-  // Default - ensure it starts with /
-  return `/${imagePath}`;
 }
 
 // Generate responsive image srcset

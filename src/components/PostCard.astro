@@ -13,18 +13,30 @@ interface Props {
 
 const { post, featured = false, eager = false } = Astro.props;
 
-// Generate preload data if this is a critical image
-const shouldPreload = featured || eager;
-const imageUrl = post.data.image && !post.data.image.startsWith('http') ? optimizePostImagePath(post.data.image) : post.data.image;
-
 // Get reading time and word count from markdown processing
 const { remarkPluginFrontmatter } = await post.render();
 const { excerpt, wordCount } = processMarkdown(post.body);
 const readingTime = calculateReadingTime(post.body);
 
-
-
 const { title, description, date, tags, image, imageAlt, hideCoverImage } = post.data;
+
+// Dynamic image import for local images
+let localImage: any = null;
+if (image && !image.startsWith('http')) {
+  try {
+    const imagePath = optimizePostImagePath(image).replace('/posts/', '/posts/');
+    // Convert public path to src import path
+    const importPath = `../..${imagePath}`;
+    const images = import.meta.glob('/public/posts/images/*');
+    const imageKey = `/public${imagePath}`;
+    
+    if (images[imageKey]) {
+      localImage = await images[imageKey]();
+    }
+  } catch (error) {
+    console.warn('Failed to import image:', image, error);
+  }
+}
 ---
 
 <article class={`group ${featured ? 'featured-post' : 'post-card'}`}>
@@ -35,6 +47,18 @@ const { title, description, date, tags, image, imageAlt, hideCoverImage } = post
           <img
             src={image}
             alt={imageAlt || title}
+            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            loading={featured || eager ? "eager" : "lazy"}
+            decoding="async"
+            fetchpriority={featured || eager ? "high" : "auto"}
+          />
+        ) : localImage ? (
+          <Image
+            src={localImage.default}
+            alt={imageAlt || title}
+            width={800}
+            height={450}
+            format="webp"
             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             loading={featured || eager ? "eager" : "lazy"}
             decoding="async"
