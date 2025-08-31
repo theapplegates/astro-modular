@@ -18,7 +18,7 @@ const { remarkPluginFrontmatter } = await post.render();
 const { excerpt, wordCount } = processMarkdown(post.body);
 const readingTime = calculateReadingTime(post.body);
 
-const { title, description, date, tags, image, imageAlt, hideCoverImage } = post.data;
+const { title, description, date, tags, image, imageAlt } = post.data;
 
 // Dynamic image import for local images
 let localImage: any = null;
@@ -41,7 +41,7 @@ if (image && !image.startsWith('http')) {
 
 <article class={`group ${featured ? 'featured-post' : 'post-card'}`}>
   <a href={`/posts/${post.slug}`} class="block">
-    {image && siteConfig.features.showCoverImages && !hideCoverImage && (
+    {image && siteConfig.features.showCoverImages && (
       <div class="aspect-video overflow-hidden rounded-lg mb-4 bg-primary-100 dark:bg-primary-800">
         {image.startsWith('http') ? (
           <img
