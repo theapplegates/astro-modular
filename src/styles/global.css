@@ -1,8 +1,9 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Global CSS custom properties */
+/* CSS Custom Properties */
 :root {
   --color-background: 255 255 255;
   --color-foreground: 15 23 42;
@@ -20,6 +21,12 @@
   --color-destructive-foreground: 248 250 252;
   --color-ring: 15 23 42;
   --color-highlight: 14 165 233;
+  
+  /* Code block colors */
+  --code-bg: #111827;
+  --code-text: #f9fafb;
+  --inline-code-bg: #f3f4f6;
+  --inline-code-text: #111827;
 }
 
 .dark {
@@ -39,9 +46,13 @@
   --color-destructive-foreground: 248 250 252;
   --color-ring: 212 212 216;
   --color-highlight: 56 189 248;
+  
+  /* Code blocks remain theme-independent */
+  --inline-code-bg: #1f2937;
+  --inline-code-text: #f9fafb;
 }
 
-/* Base styles */
+/* Base Styles */
 * {
   border-color: rgb(var(--color-border));
 }
@@ -60,7 +71,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Hide scrollbars globally */
+/* Scrollbar Hiding */
 ::-webkit-scrollbar {
   display: none;
 }
@@ -70,7 +81,7 @@ body {
   scrollbar-width: none;
 }
 
-/* Custom selection colors */
+/* Selection Colors */
 ::selection {
   background-color: rgb(var(--color-highlight) / 0.2);
   color: inherit;
@@ -81,15 +92,11 @@ body {
   color: inherit;
 }
 
-/* Code block selection colors - theme independent and protected */
+/* Code block selection - theme independent */
 pre ::selection,
 code ::selection,
 .prose pre ::selection,
-.prose code ::selection {
-  background-color: rgba(100, 116, 139, 0.3) !important;
-  color: inherit !important;
-}
-
+.prose code ::selection,
 pre ::-moz-selection,
 code ::-moz-selection,
 .prose pre ::-moz-selection,
@@ -98,27 +105,18 @@ code ::-moz-selection,
   color: inherit !important;
 }
 
-/* Focus styles */
+/* Focus Styles */
 :focus-visible {
   outline: 2px solid rgb(var(--color-highlight));
   outline-offset: 2px;
 }
 
-/* Headings */
+/* Typography */
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-weight: 500;
   line-height: 1.3;
   color: rgb(var(--color-foreground));
-}
-
-/* Keyboard shortcut styling */
-kbd {
-  @apply inline-flex items-center px-2 py-1 text-xs font-medium bg-primary-100 dark:bg-primary-800 text-primary-800 dark:text-primary-200 border border-primary-300 dark:border-primary-600 rounded shadow-sm;
-}
-
-.prose kbd {
-  @apply bg-primary-100 dark:bg-primary-800 text-primary-800 dark:text-primary-200 border border-primary-300 dark:border-primary-600;
 }
 
 /* Links */
@@ -133,7 +131,7 @@ a:hover {
   opacity: 0.8;
 }
 
-/* Wikilink styles */
+/* Wikilinks */
 .wikilink {
   color: rgb(var(--color-highlight));
   font-weight: 500;
@@ -154,20 +152,57 @@ a:hover {
   text-decoration: line-through;
 }
 
-/* Code styles */
+/* Code Styles - Simplified and Theme Independent */
 code {
   font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
   font-size: 0.875em;
+  background-color: var(--inline-code-bg);
+  color: var(--inline-code-text);
+  padding: 0.375rem;
+  border-radius: 0.25rem;
 }
 
 pre {
   font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-  overflow-x: auto;
+  background-color: var(--code-bg);
+  color: var(--code-text);
   padding: 1rem;
   border-radius: 0.5rem;
+  overflow-x: auto;
 }
 
-/* Button styles - Enhanced for Obsidian-inspired design */
+/* Code inside pre blocks */
+pre code {
+  background-color: transparent;
+  color: inherit;
+  padding: 0;
+  border-radius: 0;
+}
+
+/* Syntax highlighting (astro-code) */
+.astro-code,
+pre.astro-code {
+  background-color: var(--code-bg) !important;
+  color: var(--code-text) !important;
+  padding: 1rem !important;
+  border-radius: 0.5rem !important;
+  overflow-x: auto !important;
+}
+
+.astro-code code,
+pre.astro-code code {
+  background-color: transparent !important;
+  color: inherit !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+}
+
+/* Keyboard Shortcuts */
+kbd {
+  @apply inline-flex items-center px-2 py-1 text-xs font-medium bg-primary-100 dark:bg-primary-800 text-primary-800 dark:text-primary-200 border border-primary-300 dark:border-primary-600 rounded shadow-sm;
+}
+
+/* Button Styles - Consolidated */
 .btn {
   @apply inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer border no-underline;
   text-decoration: none !important;
@@ -185,7 +220,7 @@ pre {
 }
 
 .btn-primary {
-  @apply bg-highlight-600 dark:bg-highlight-500 text-white dark:text-white hover:bg-highlight-700 dark:hover:bg-highlight-600;
+  @apply bg-highlight-600 dark:bg-highlight-500 text-white hover:bg-highlight-700 dark:hover:bg-highlight-600;
 }
 
 .btn-secondary {
@@ -200,29 +235,30 @@ pre {
   @apply text-highlight-600 dark:text-highlight-400 hover:bg-highlight-50 dark:hover:bg-highlight-900/30 border-transparent bg-transparent;
 }
 
-
-
-/* Buttons in prose/markdown content */
-.prose .btn {
-  @apply my-1 mx-0.5;
-  font-weight: 500 !important;
+/* Button Groups */
+.btn-group {
+  @apply flex flex-wrap gap-2;
 }
 
-/* Ensure buttons don't get prose link styles */
-.prose a.btn {
-  font-weight: 500 !important;
+.btn-group-center {
+  @apply flex flex-wrap gap-2 justify-center;
 }
 
-.prose a.btn:hover {
-  opacity: 0.9;
+@media (max-width: 640px) {
+  .btn-group {
+    @apply flex-col;
+  }
+  .btn-group .btn {
+    @apply w-full justify-center;
+  }
 }
 
-/* Card styles */
+/* Card Styles */
 .card {
   @apply bg-white dark:bg-primary-900 border border-primary-200 dark:border-primary-700 rounded-lg shadow-sm;
 }
 
-/* Form styles */
+/* Form Styles */
 input[type="text"],
 input[type="email"],
 input[type="search"],
@@ -232,49 +268,25 @@ textarea {
 
 /* Animations */
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes slideUp {
-  from {
-    transform: translateY(10px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+  from { transform: translateY(10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
 @keyframes scaleIn {
-  from {
-    transform: scale(0.95);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.2s ease-in-out;
-}
+.animate-fade-in { animation: fadeIn 0.2s ease-in-out; }
+.animate-slide-up { animation: slideUp 0.3s ease-out; }
+.animate-scale-in { animation: scaleIn 0.2s ease-out; }
 
-.animate-slide-up {
-  animation: slideUp 0.3s ease-out;
-}
-
-.animate-scale-in {
-  animation: scaleIn 0.2s ease-out;
-}
-
-/* Callout styles */
+/* Callout Styles */
 .callout {
   @apply p-4 my-6 rounded-lg border-l-4;
 }
@@ -291,83 +303,47 @@ textarea {
   @apply text-sm;
 }
 
-.callout-content > *:first-child {
-  @apply mt-0;
-}
-
-.callout-content > *:last-child {
-  @apply mb-0;
-}
+.callout-content > *:first-child { @apply mt-0; }
+.callout-content > *:last-child { @apply mb-0; }
 
 .callout-note {
   @apply bg-blue-50 dark:bg-blue-950/30 border-blue-400 dark:border-blue-600;
 }
-
-.callout-note .callout-title {
-  @apply text-blue-700 dark:text-blue-300;
-}
-
-.callout-note .callout-content {
-  @apply text-blue-800 dark:text-blue-200;
-}
+.callout-note .callout-title { @apply text-blue-700 dark:text-blue-300; }
+.callout-note .callout-content { @apply text-blue-800 dark:text-blue-200; }
 
 .callout-tip {
   @apply bg-green-50 dark:bg-green-950/30 border-green-400 dark:border-green-600;
 }
-
-.callout-tip .callout-title {
-  @apply text-green-700 dark:text-green-300;
-}
-
-.callout-tip .callout-content {
-  @apply text-green-800 dark:text-green-200;
-}
+.callout-tip .callout-title { @apply text-green-700 dark:text-green-300; }
+.callout-tip .callout-content { @apply text-green-800 dark:text-green-200; }
 
 .callout-important {
   @apply bg-purple-50 dark:bg-purple-950/30 border-purple-400 dark:border-purple-600;
 }
-
-.callout-important .callout-title {
-  @apply text-purple-700 dark:text-purple-300;
-}
-
-.callout-important .callout-content {
-  @apply text-purple-800 dark:text-purple-200;
-}
+.callout-important .callout-title { @apply text-purple-700 dark:text-purple-300; }
+.callout-important .callout-content { @apply text-purple-800 dark:text-purple-200; }
 
 .callout-warning {
   @apply bg-yellow-50 dark:bg-yellow-950/30 border-yellow-400 dark:border-yellow-600;
 }
-
-.callout-warning .callout-title {
-  @apply text-yellow-700 dark:text-yellow-300;
-}
-
-.callout-warning .callout-content {
-  @apply text-yellow-800 dark:text-yellow-200;
-}
+.callout-warning .callout-title { @apply text-yellow-700 dark:text-yellow-300; }
+.callout-warning .callout-content { @apply text-yellow-800 dark:text-yellow-200; }
 
 .callout-caution {
   @apply bg-red-50 dark:bg-red-950/30 border-red-400 dark:border-red-600;
 }
+.callout-caution .callout-title { @apply text-red-700 dark:text-red-300; }
+.callout-caution .callout-content { @apply text-red-800 dark:text-red-200; }
 
-.callout-caution .callout-title {
-  @apply text-red-700 dark:text-red-300;
-}
-
-.callout-caution .callout-content {
-  @apply text-red-800 dark:text-red-200;
-}
-
-/* Multiple Image Layouts - CSS Grid for reliable responsive behavior */
+/* Image Grid Layouts */
 .prose .image-grid {
   display: grid;
-  gap: 0.5rem; /* Reduce gap for tighter fit */
+  gap: 0.5rem;
   margin: 1.5rem 0;
-  max-width: 100%; /* Ensure container scales */
+  max-width: 100%;
 }
 
-/* Default: All layouts stack in single column */
 .prose .image-grid-2,
 .prose .image-grid-3,
 .prose .image-grid-4,
@@ -376,26 +352,26 @@ textarea {
   grid-template-columns: 1fr;
 }
 
-/* Only enable 2-column on larger tablets and up */
 @media (min-width: 600px) {
-  .prose .image-grid-2 { grid-template-columns: 1fr 1fr; }
-  .prose .image-grid-3 { grid-template-columns: 1fr 1fr; }
-  .prose .image-grid-4 { grid-template-columns: 1fr 1fr; }
-  .prose .image-grid-5 { grid-template-columns: 1fr 1fr; }
+  .prose .image-grid-2,
+  .prose .image-grid-3,
+  .prose .image-grid-4,
+  .prose .image-grid-5,
   .prose .image-grid-6 { grid-template-columns: 1fr 1fr; }
 }
+
 @media (min-width: 900px) {
-  .prose .image-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
-  .prose .image-grid-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
-  .prose .image-grid-5 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+  .prose .image-grid-3,
+  .prose .image-grid-4,
+  .prose .image-grid-5,
   .prose .image-grid-6 { grid-template-columns: 1fr 1fr 1fr 1fr; }
 }
+
 @media (min-width: 1400px) {
   .prose .image-grid-5 { grid-template-columns: 1fr 1fr 1fr 1fr 1fr; }
   .prose .image-grid-6 { grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr; }
 }
 
-/* Ensure responsiveness */
 .prose .image-grid img,
 .prose .image-grid picture {
   width: 100%;
@@ -404,128 +380,32 @@ textarea {
   border-radius: 0.5rem;
   margin: 0;
   display: block;
-  max-width: 100%; /* Prevent overflow */
+  max-width: 100%;
 }
 
-/* Image styling within grid layouts */
-.prose .image-grid img,
-.prose .image-grid picture {
-  width: 100%;
-  height: auto;
-  object-fit: cover;
-  border-radius: 0.5rem;
-  margin: 0;
-  display: block;
-}
-
-
-
-/* Prose improvements */
+/* Prose Styles */
 .prose {
   @apply text-primary-700 dark:text-primary-300;
 }
 
-
-
-/* Improve list spacing */
-.prose ul,
-.prose ol {
-  @apply my-1;
-}
-
-.prose li {
-  @apply my-0;
-}
-
-.prose li > p {
-  @apply my-0;
-}
-
-.prose ul > li,
-.prose ol > li {
-  @apply pl-1;
-}
-
-/* Checkbox lists */
-.prose ul li input[type="checkbox"] {
-  @apply mr-2;
-}
-
-/* Remove bullet points from task lists */
-.prose ul li:has(input[type="checkbox"]) {
-  list-style: none;
-  margin-left: -1.5rem;
-  padding-left: 1.5rem;
-}
-
-/* Remove extra indent from top-level task list containers only */
-.prose > ul.contains-task-list {
-  padding-left: 0 !important;
-}
-
-.prose h1,
-.prose h2,
-.prose h3,
-.prose h4,
-.prose h5,
-.prose h6 {
+.prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
   @apply font-semibold text-primary-900 dark:text-primary-50;
   scroll-margin-top: 8rem;
 }
 
-/* Specific heading sizing */
-.prose h1 {
-  @apply text-2xl mt-8 mb-6;
-}
+.prose h1 { @apply text-2xl mt-8 mb-6; }
+.prose h2 { @apply text-xl mt-8 mb-4; }
+.prose h3 { @apply text-lg mt-6 mb-3; }
+.prose h4 { @apply text-base mt-5 mb-2; }
+.prose h5 { @apply text-base mt-4 mb-2; }
+.prose h6 { @apply text-base mt-4 mb-2; }
 
-.prose h2 {
-  @apply text-xl mt-8 mb-4;
-}
-
-.prose h3 {
-  @apply text-lg mt-6 mb-3;
-}
-
-.prose h4 {
-  @apply text-base mt-5 mb-2;
-}
-
-.prose h5 {
-  @apply text-base mt-4 mb-2;
-}
-
-.prose h6 {
-  @apply text-base mt-4 mb-2;
-}
-
-/* Heading anchor links styling */
-.prose h1 a, 
-.prose h2 a, 
-.prose h3 a, 
-.prose h4 a, 
-.prose h5 a, 
-.prose h6 a {
+.prose h1 a, .prose h2 a, .prose h3 a, .prose h4 a, .prose h5 a, .prose h6 a {
   @apply text-primary-900 dark:text-primary-50 no-underline transition-colors duration-200;
 }
 
-.prose h1 a:hover, 
-.prose h2 a:hover, 
-.prose h3 a:hover, 
-.prose h4 a:hover, 
-.prose h5 a:hover, 
-.prose h6 a:hover {
+.prose h1 a:hover, .prose h2 a:hover, .prose h3 a:hover, .prose h4 a:hover, .prose h5 a:hover, .prose h6 a:hover {
   @apply text-highlight-600 dark:text-highlight-400 no-underline;
-}
-
-/* Footnote positioning - add more scroll margin for better header clearance */
-.prose sup a,
-.prose .footnote-ref {
-  scroll-margin-top: 8rem;
-}
-
-.prose .footnotes,
-.prose .footnote {
-  scroll-margin-top: 8rem;
 }
 
 .prose a {
@@ -536,78 +416,8 @@ textarea {
   @apply text-highlight-700 dark:text-highlight-300;
 }
 
-.prose a:focus-visible {
-  @apply outline-none ring-2 ring-highlight-500 ring-offset-2;
-}
-
 .prose strong {
   @apply text-primary-900 dark:text-primary-200 font-semibold;
-}
-
-/* Code blocks - completely theme independent */
-pre, .prose pre {
-  background-color: #111827 !important;
-  color: #f9fafb !important;
-  padding: 1rem !important;
-  border-radius: 0.5rem !important;
-  overflow-x: auto !important;
-  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace !important;
-}
-
-code, .prose code {
-  background-color: #f3f4f6 !important;
-  color: #111827 !important;
-  padding: 0.375rem !important;
-  border-radius: 0.25rem !important;
-  font-size: 0.875rem !important;
-  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace !important;
-}
-
-/* Code inside pre blocks should be transparent and inherit color - must come before dark mode rules */
-pre code, .prose pre code,
-.dark pre code, .dark .prose pre code {
-  background-color: transparent !important;
-  color: inherit !important;
-  padding: 0 !important;
-  border-radius: 0 !important;
-}
-
-/* Dark mode adjustments for inline code only (not inside pre blocks) */
-.dark code:not(pre code), .dark .prose code:not(pre code) {
-  background-color: #1f2937 !important;
-  color: #f9fafb !important;
-}
-
-/* Make astro-code class and all syntax highlighting completely immune to theme changes */
-.astro-code,
-.prose .astro-code,
-.dark .astro-code,
-.dark .prose .astro-code,
-pre.astro-code,
-.prose pre.astro-code,
-.dark pre.astro-code,
-.dark .prose pre.astro-code {
-  background-color: #111827 !important;
-  color: #f9fafb !important;
-  padding: 1rem !important;
-  border-radius: 0.5rem !important;
-  overflow-x: auto !important;
-  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace !important;
-}
-
-/* Ensure all code inside syntax highlighted blocks inherits properly */
-.astro-code code,
-.prose .astro-code code,
-.dark .astro-code code,
-.dark .prose .astro-code code,
-pre.astro-code code,
-.prose pre.astro-code code,
-.dark pre.astro-code code,
-.dark .prose pre.astro-code code {
-  background-color: transparent !important;
-  color: inherit !important;
-  padding: 0 !important;
-  border-radius: 0 !important;
 }
 
 .prose blockquote {
@@ -618,14 +428,33 @@ pre.astro-code code,
   @apply rounded-lg shadow-sm;
 }
 
+.prose mark {
+  @apply bg-highlight-100 dark:bg-highlight-900/30 text-highlight-800 dark:text-highlight-200 px-1 py-0.5 rounded;
+}
 
+/* Lists */
+.prose ul, .prose ol { @apply my-1; }
+.prose li { @apply my-0; }
+.prose li > p { @apply my-0; }
+.prose ul > li, .prose ol > li { @apply pl-1; }
 
-/* Responsive table wrapper */
+.prose ul li input[type="checkbox"] { @apply mr-2; }
+
+.prose ul li:has(input[type="checkbox"]) {
+  list-style: none;
+  margin-left: -1.5rem;
+  padding-left: 1.5rem;
+}
+
+.prose > ul.contains-task-list {
+  padding-left: 0 !important;
+}
+
+/* Tables */
 .prose table {
   @apply border-collapse border border-primary-300 dark:border-primary-600 w-full;
 }
 
-/* Table wrapper for responsive scrolling */
 .table-wrapper {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
@@ -637,23 +466,13 @@ pre.astro-code code,
 .table-wrapper table {
   margin: 0 !important;
   width: 100%;
-  min-width: 500px; /* Ensure table maintains minimum width for readability */
+  min-width: 500px;
 }
 
-.prose th,
-.prose td {
+.prose th, .prose td {
   @apply border border-primary-300 dark:border-primary-600 px-4 py-2;
   white-space: nowrap;
   min-width: 100px;
-}
-
-/* Allow text wrapping in cells on larger screens */
-@media (min-width: 768px) {
-  .prose th,
-  .prose td {
-    white-space: normal;
-    min-width: auto;
-  }
 }
 
 .prose th {
@@ -663,170 +482,67 @@ pre.astro-code code,
   z-index: 10;
 }
 
-/* Table responsive wrapper */
-.table-responsive .prose table {
-  margin: 1.5rem 0;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+@media (min-width: 768px) {
+  .prose th, .prose td {
+    white-space: normal;
+    min-width: auto;
+  }
 }
 
-/* Improve mobile table readability */
 @media (max-width: 767px) {
   .prose table {
     font-size: 0.875rem;
     line-height: 1.25rem;
   }
-
-  .prose th,
-  .prose td {
+  .prose th, .prose td {
     @apply px-3 py-2;
     min-width: 80px;
   }
-
-  /* Add subtle scroll indicator on mobile */
-  .table-responsive .prose table::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 20px;
-    background: linear-gradient(to left, rgba(255,255,255,0.8), transparent);
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-
-  .table-responsive .prose table:hover::after {
-    opacity: 1;
-  }
 }
 
-/* Mark (highlight) text */
-.prose mark {
-  @apply bg-highlight-100 dark:bg-highlight-900/30 text-highlight-800 dark:text-highlight-200 px-1 py-0.5 rounded;
-}
+/* Utility Classes */
+.text-balance { text-wrap: balance; }
+.text-pretty { text-wrap: pretty; }
+.btn-center { @apply flex justify-center; }
+.btn-left { @apply flex justify-start; }
+.btn-right { @apply flex justify-end; }
 
-/* Smooth transitions for theme changes - more selective to avoid flickering */
-:root,
-html,
-body,
-[data-theme],
-.theme-transition {
+/* Theme Transitions */
+:root, html, body, [data-theme], .theme-transition {
   transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, color 0.2s ease-in-out;
 }
 
-/* Loading states */
-.loading {
-  @apply animate-pulse;
-}
+/* Loading States */
+.loading { @apply animate-pulse; }
+.skeleton { @apply bg-primary-200 dark:bg-primary-700 rounded; }
 
-.skeleton {
-  @apply bg-primary-200 dark:bg-primary-700 rounded;
-}
-
-/* Utility classes */
-.text-balance {
-  text-wrap: balance;
-}
-
-.text-pretty {
-  text-wrap: pretty;
-}
-
-/* Button utility classes for easy markdown usage */
-.btn-center {
-  @apply flex justify-center;
-}
-
-.btn-left {
-  @apply flex justify-start;
-}
-
-.btn-right {
-  @apply flex justify-end;
-}
-
-.btn-group {
-  @apply flex flex-wrap gap-2;
-}
-
-.btn-group-center {
-  @apply flex flex-wrap gap-2 justify-center;
-}
-
-/* Responsive button spacing */
+/* Mobile Responsive */
 @media (max-width: 640px) {
-  .btn-group {
-    @apply flex-col;
-  }
-
-  .btn-group .btn {
-    @apply w-full justify-center;
-  }
+  html { scroll-padding-top: 1rem; }
+  .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 { scroll-margin-top: 6rem; }
+  .prose sup a, .prose .footnote-ref, .prose .footnotes, .prose .footnote { scroll-margin-top: 6rem; }
 }
 
-/* Mobile-specific styles */
-@media (max-width: 640px) {
-  html {
-    scroll-padding-top: 1rem;
-  }
-
-  .prose h1,
-  .prose h2,
-  .prose h3,
-  .prose h4,
-  .prose h5,
-  .prose h6 {
-    scroll-margin-top: 6rem;
-  }
-
-  .prose sup a,
-  .prose .footnote-ref,
-  .prose .footnotes,
-  .prose .footnote {
-    scroll-margin-top: 6rem;
-  }
-}
-
-/* High contrast mode support */
+/* Accessibility */
 @media (prefers-contrast: high) {
-  .wikilink {
-    border-bottom-width: 2px;
-  }
-
-  .btn {
-    @apply border-2;
-  }
+  .wikilink { border-bottom-width: 2px; }
+  .btn { @apply border-2; }
 }
 
-/* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-
-  html {
-    scroll-behavior: auto;
-  }
+  html { scroll-behavior: auto; }
 }
 
-/* Print styles */
+/* Print Styles */
 @media print {
-  .no-print {
-    display: none !important;
-  }
-
-  body {
-    @apply text-black bg-white;
-  }
-
-  a {
-    @apply text-black no-underline;
-  }
-
+  .no-print { display: none !important; }
+  body { @apply text-black bg-white; }
+  a { @apply text-black no-underline; }
   .prose a::after {
     content: " (" attr(href) ")";
     @apply text-sm text-gray-600;
