@@ -226,7 +226,7 @@ export function generateRobotsMeta(index: boolean = true, follow: boolean = true
 }
 
 // Create breadcrumb structured data
-export function generateBreadcrumbs(path: string[]): any {
+export function generateBreadcrumbs(path: Array<{ name: string; url: string }>): any {
   const items = path.map((item, index) => ({
     '@type': 'ListItem',
     position: index + 1,

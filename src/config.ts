@@ -51,19 +51,15 @@ export interface SiteConfig {
     showMobileMenu: boolean;
     pages: Array<{ title: string; url: string; }>;
     social: Array<{ title: string; url: string; icon: string; }>;
-    external: Array<any>;
   };
 
   seo: {
-    schemaType: string;
     defaultOgImageAlt: string;
   };
 
   homeBlurb?: {
     enabled?: boolean;
     placement?: 'above' | 'below';
-    title?: string;
-    description?: string;
   };
 }
 
@@ -119,11 +115,9 @@ export const siteConfig: SiteConfig = {
     social: [
       { title: 'GitHub', url: 'https://github.com/davidvkimball', icon: 'github' },
       { title: 'Twitter', url: 'https://x.com/davidvkimball', icon: 'x-twitter' }
-    ],
-    external: []
+    ]
   },
   seo: {
-    schemaType: 'blog',
     defaultOgImageAlt: 'Astro Modular logo.'
   },
   homeBlurb: {

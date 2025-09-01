@@ -2,7 +2,7 @@
   "showInlineTitle": true,
   "promptDelete": true,
   "showIndentGuide": false,
-  "attachmentFolderPath": "_assets",
+  "attachmentFolderPath": "./images",
   "userIgnoreFilters": null,
   "focusNewTab": false,
   "mobilePullAction": "file-explorer:new-file",
