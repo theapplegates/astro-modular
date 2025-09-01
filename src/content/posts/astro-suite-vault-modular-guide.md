@@ -1,5 +1,5 @@
 ---
-title: Astro Suite Vault (Minimal) Guide
+title: Astro Suite Vault (Modular) Guide
 description: How to use this vault.
 date: 2025-08-25
 image: images/astro-composer-suite-for-obsidian.png
@@ -12,13 +12,13 @@ targetKeyword: "astro suite minimal vault"
 
 ## Overview
 
-All plugins, key bindings, and the theme can be customized to your liking, but this is what's on by default. Optimized for use with the [Chiri Astro theme](https://github.com/the3ash/astro-chiri).
+All plugins, key bindings, and the theme can be customized to your liking, but this is what's on by default. Optimized for use with the [Modular Astro theme](https://github.com/davidvkimball/astro-modular).
 
 ## Philosophy 
 
 1. Plug-and-play Astro blogging experience. 
-2. Emphasis on focus. 
-3. Reliance on keyboard shortcuts.
+2. Emphasis on modularity. 
+3. Customize your experience to get it just right.
 
 ## Theme
 

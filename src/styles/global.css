@@ -760,7 +760,7 @@ body,
   .btn-group {
     @apply flex-col;
   }
-  
+
   .btn-group .btn {
     @apply w-full justify-center;
   }

@@ -55,8 +55,8 @@ export interface SiteConfig {
   };
 
   seo: {
-    generateOgImages: boolean;
     schemaType: string;
+    defaultOgImageAlt: string;
   };
 
   homeBlurb?: {
@@ -67,6 +67,7 @@ export interface SiteConfig {
   };
 }
 
+// Set your values HERE
 export const siteConfig: SiteConfig = {
   site: 'https://astro-modular.netlify.app',
   title: 'Astro Modular',
@@ -94,7 +95,7 @@ export const siteConfig: SiteConfig = {
     darkModeToggleButton: true,
     showCoverImages: true,
     postNavigation: true,
-    showSocialIconsInFooter: true
+    showSocialIconsInFooter: false
   },
   postsPerPage: 5,
   commandPalette: {
@@ -122,8 +123,8 @@ export const siteConfig: SiteConfig = {
     external: []
   },
   seo: {
-    generateOgImages: true,
-    schemaType: 'blog'
+    schemaType: 'blog',
+    defaultOgImageAlt: 'Astro Modular logo.'
   },
   homeBlurb: {
     enabled: true,

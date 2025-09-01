@@ -1,6 +1,16 @@
 import type { Post, Page, SEOData, OpenGraphImage } from '@/types';
 import siteConfig from '@/config';
-import { generateOGImage } from './images';
+import { getFallbackOGImage, optimizePostImagePath } from './images';
+
+// Helper function to get default OG image
+function getDefaultOGImage(): OpenGraphImage {
+  return {
+    url: '/open-graph.png',
+    alt: siteConfig.seo.defaultOgImageAlt,
+    width: 1200,
+    height: 630,
+  };
+}
 
 // Generate SEO data for posts
 export function generatePostSEO(post: Post, url: string): SEOData {
@@ -9,15 +19,29 @@ export function generatePostSEO(post: Post, url: string): SEOData {
   let ogImage: OpenGraphImage | undefined;
 
   if (image && imageOG) {
+    // Handle both local and external image paths
+    let imageUrl: string;
+    if (image.startsWith('http')) {
+      // External URL
+      imageUrl = image;
+    } else {
+      // Use optimizePostImagePath for proper path resolution
+      const imagePath = optimizePostImagePath(image);
+      imageUrl = `${siteConfig.site}${imagePath}`;
+    }
     ogImage = {
-      url: `${siteConfig.site}${image.startsWith('/') ? '' : '/'}${image}`,
+      url: imageUrl,
       alt: post.data.imageAlt || `Cover image for ${title}`,
       width: 1200,
-      height: 630
+      height: 630,
     };
-  } else if (siteConfig.seo.generateOgImages) {
-    ogImage = generateOGImage(title, description);
-    ogImage.url = `${siteConfig.site}${ogImage.url}`;
+  } else {
+    // Use default OG image
+    ogImage = getDefaultOGImage();
+    ogImage = {
+      ...ogImage,
+      url: `${siteConfig.site}${ogImage.url}`
+    };
   }
 
   return {
@@ -45,9 +69,13 @@ export function generatePageSEO(page: Page, url: string): SEOData {
       width: 1200,
       height: 630
     };
-  } else if (siteConfig.seo.generateOgImages) {
-    ogImage = generateOGImage(title, description);
-    ogImage.url = `${siteConfig.site}${ogImage.url}`;
+  } else {
+    // Use default OG image
+    ogImage = getDefaultOGImage();
+    ogImage = {
+      ...ogImage,
+      url: `${siteConfig.site}${ogImage.url}`
+    };
   }
 
   return {
@@ -63,10 +91,12 @@ export function generatePageSEO(page: Page, url: string): SEOData {
 export function generateHomeSEO(url: string): SEOData {
   let ogImage: OpenGraphImage | undefined;
 
-  if (siteConfig.seo.generateOgImages) {
-    ogImage = generateOGImage(siteConfig.title, siteConfig.description);
-    ogImage.url = `${siteConfig.site}${ogImage.url}`;
-  }
+  // Always use fallback image for homepage
+  ogImage = getDefaultOGImage();
+  ogImage = {
+    ...ogImage,
+    url: `${siteConfig.site}${ogImage.url}`
+  };
 
   return {
     title: siteConfig.title,

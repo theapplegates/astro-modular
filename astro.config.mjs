@@ -12,11 +12,6 @@ import { siteConfig } from './src/config.ts';
 
 export default defineConfig({
   site: siteConfig.site,
-  integrations: [
-    tailwind(),
-    sitemap(),
-    mdx()
-  ],
   image: {
     service: {
       entrypoint: 'astro/assets/services/sharp',
@@ -28,6 +23,11 @@ export default defineConfig({
       protocol: 'https'
     }]
   },
+  integrations: [
+    tailwind(),
+    sitemap(),
+    mdx()
+  ],
   markdown: {
     remarkPlugins: [
       remarkWikilinks,

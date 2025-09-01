@@ -19,7 +19,10 @@ export interface Props {
 const { post } = Astro.props;
 
 // Generate SEO data
-const seoData = generatePostSEO(post, Astro.url.href);
+const seoData = generatePostSEO(post, Astro.site!);
+
+// Debug OG image URL
+console.log('Post OG Image URL:', seoData.ogImage?.url);
 
 // Dynamic image import for local images
 let localImage: any = null;
@@ -28,7 +31,7 @@ if (post.data.image && !post.data.image.startsWith('http')) {
     const imagePath = optimizePostImagePath(post.data.image);
     const images = import.meta.glob('/public/posts/images/*');
     const imageKey = `/public${imagePath}`;
-    
+
     if (images[imageKey]) {
       localImage = await images[imageKey]();
     }
@@ -252,12 +255,12 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
     <script define:vars={{ posts: visiblePosts }}>
       // Process wikilinks and initialize layouts after content loads
       document.addEventListener('DOMContentLoaded', () => {
-        
+
         // Initialize image grid layouts
         function initializeImageGrids() {
           // Find all paragraphs that contain only images (including Image component output)
           const paragraphs = document.querySelectorAll('.prose p');
-          
+
           paragraphs.forEach(p => {
             const images = p.querySelectorAll('img, picture');
             const textNodes = Array.from(p.childNodes).filter(node => 
@@ -266,19 +269,19 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
             const otherElements = Array.from(p.childNodes).filter(node => 
               node.nodeType === Node.ELEMENT_NODE && !['IMG', 'PICTURE', 'BR'].includes(node.tagName)
             );
-            
+
             // Only process if paragraph contains 2+ images and no other meaningful content
             if (images.length >= 2 && textNodes.length === 0 && otherElements.length === 0) {
               // Remove any existing image-grid classes first
               p.classList.remove('image-grid', 'image-grid-2', 'image-grid-3', 'image-grid-4', 'image-grid-5', 'image-grid-6');
-              
+
               // Add the appropriate grid class
               const gridClass = `image-grid-${Math.min(images.length, 6)}`;
               p.classList.add('image-grid', gridClass);
             }
           });
         }
-        
+
         // Initialize image grids
         initializeImageGrids();
         const wikilinks = document.querySelectorAll('.wikilink[data-wikilink]');
@@ -310,4 +313,3 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
     </script>
   </Fragment>
 </BaseLayout>
-

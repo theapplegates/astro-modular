@@ -1,7 +1,8 @@
+
 ---
-title: "Welcome to Our Obsidian-Inspired Blog"
+title: "Welcome to Your Modular Astro Blog"
 date: 2024-01-15
-description: "Welcome to our new blog! This post introduces the Obsidian-inspired theme and demonstrates some of its key features including wikilinks, markdown support, and clean design."
+description: "Welcome to your new modular Astro blog built specifically for Obsidian users! This post introduces the theme's key features, Obsidian integration, and powerful content creation workflow."
 image: "images/pexels-pixabay-462162.jpg"
 imageAlt: "Abstract digital network visualization representing connectivity and knowledge"
 imageOG: true
@@ -10,64 +11,68 @@ tags:
 - welcome
 - blog
 - obsidian
-- markdown
-targetKeyword: "obsidian blog theme"
+- astro
+- modular
+targetKeyword: "modular astro blog"
 ---
-Welcome to our new blog, built with an Obsidian-inspired theme that prioritizes clarity, performance, and seamless content creation. This inaugural post will introduce you to the key features and philosophy behind this minimal yet powerful blogging platform.
+Welcome to your modular Astro blog—a publishing platform designed for Obsidian users who want to transform their notes into a beautiful, performant website. This is a complete content creation system that bridges your Obsidian vault with the web.
 
-## Why Obsidian-Inspired?
+## Modular by Design
 
-[Obsidian](https://obsidian.md) has revolutionized how we think about note-taking and knowledge management. Its approach to **linked thinking** and markdown-first workflow has inspired this blog theme. Here's what we've borrowed from Obsidian's philosophy:
+Every feature can be enabled or disabled through configuration, giving you exactly the blogging experience you want:
 
-### Key Features
+- **Command palette** (`Ctrl+K`) for quick navigation
+- **Linked mentions** to see post connections
+- **Reading time** and word count displays
+- **Table of contents** auto-generation
+- **Dark/light theme** with system preference detection
+- **Tag filtering** and organization
+- **Image optimization** with responsive grids
 
-- **Wikilinks Support**: Create connections between posts using `[[Getting Started]]` syntax
-- **Clean, Minimal Design**: Focus on content without distractions
-- **Dark/Light Theme**: Automatic theme switching based on your preference
-- **Command Palette**: Press `Ctrl+K` to quickly navigate and search
-- **Markdown-First**: Full support for Obsidian-compatible markdown
+Enable only what you need—keep your blog lightweight and focused.
 
-## Design Philosophy
+## Obsidian Integration
 
-> "The best design is the one you don't notice." - Atticus
+Write naturally in Obsidian with full feature support:
 
-Our theme follows three core principles:
+- **Wikilinks** like `[[Getting Started]]` connect your ideas
+- **Callouts** (`> [!note]`, `> [!tip]`) render beautifully
+- **Tags** sync automatically between Obsidian and your blog
+- **Images** optimize automatically via drag-and-drop
 
-1. **Clarity**: Content should be the star, not the design
-2. **Performance**: Fast loading times and optimized for all devices
-3. **Compatibility**: Works seamlessly with your existing Obsidian workflow
+The included vault configuration in `src/content/.obsidian/` provides:
+- **Astro Composer plugin** for one-click publishing
+- **Minimal theme** for distraction-free writing
+- **Custom hotkeys** optimized for blogging
+- **Auto-formatting** shortcuts for web-ready content
 
-## What's Different?
+## Performance & Design
 
-Unlike traditional blog themes, this one is built specifically for:
+Built on Astro 5 with modern web standards:
 
-- **Writers** who use Obsidian for content creation
-- **Developers** who want a technical blog with great performance
-- **Minimalists** who prefer clean, distraction-free reading experiences
+- **95+ Lighthouse scores** across all metrics
+- **Static site generation** for maximum speed
+- **Clean typography** with Inter font
+- **Responsive layouts** for all devices
+- **Accessibility-first** design principles
 
-## Getting Started
+## Quick Start
 
-Ready to explore? Here are some recommended next steps:
-
-1. Check out our [[Getting Started]] guide for setup instructions
-2. Learn about [[Markdown Features]] and advanced formatting options
-3. Browse the command palette with `Ctrl+K` to see all available features
-
-## Technical Highlights
-
-This blog is built with modern web technologies:
+1. Check the [[Getting Started]] guide for setup details
+2. Configure your blog in `src/config.ts`
+3. Write your first post in `src/content/posts/`
+4. Connect your Obsidian vault using the included configuration
 
 ```typescript
-// Example: Theme configuration
-const themeConfig = {
-  highlightColor: 'slate',
-  fonts: {
-    heading: 'Inter',
-    body: 'Inter'
-  },
+// Example: Feature configuration
+export const siteConfig = {
   features: {
+    readingTime: true,
     commandPalette: true,
-    darkMode: true,
-    linkedMentions: true
+    linkedMentions: true,
+    // Enable only what you need
   }
 }
+```
+
+Whether you're documenting projects, sharing research, or building an audience, this modular blog adapts to your workflow. Focus on creating—let the blog handle the technical details.

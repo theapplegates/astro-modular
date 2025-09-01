@@ -1,4 +1,5 @@
 import type { ImageInfo, OpenGraphImage } from '@/types';
+import { siteConfig } from '@/config';
 
 // Process images for responsive layouts
 export function processImageLayout(images: ImageInfo[]): {
@@ -6,7 +7,7 @@ export function processImageLayout(images: ImageInfo[]): {
   images: ImageInfo[];
 } {
   const count = images.length;
-  
+
   if (count === 1) {
     return { layout: 'single', images };
   } else if (count === 2) {
@@ -16,7 +17,7 @@ export function processImageLayout(images: ImageInfo[]): {
   } else if (count >= 4) {
     return { layout: 'grid-4', images: images.slice(0, 4) };
   }
-  
+
   return { layout: 'single', images };
 }
 
@@ -25,7 +26,7 @@ export function extractImagesFromContent(content: string): ImageInfo[] {
   const imageRegex = /!\[([^\]]*)\]\(([^)]+)\)/g;
   const images: ImageInfo[] = [];
   let match;
-  
+
   while ((match = imageRegex.exec(content)) !== null) {
     const [, alt, src] = match;
     images.push({
@@ -33,7 +34,7 @@ export function extractImagesFromContent(content: string): ImageInfo[] {
       alt: alt.trim() || 'Image',
     });
   }
-  
+
   return images;
 }
 
@@ -49,20 +50,20 @@ export function findConsecutiveImages(content: string): Array<{
     startIndex: number;
     endIndex: number;
   }> = [];
-  
+
   let currentGroup: ImageInfo[] = [];
   let groupStart = -1;
-  
+
   lines.forEach((line, index) => {
     const imageMatch = line.match(/!\[([^\]]*)\]\(([^)]+)\)/);
-    
+
     if (imageMatch) {
       const [, alt, src] = imageMatch;
-      
+
       if (currentGroup.length === 0) {
         groupStart = index;
       }
-      
+
       currentGroup.push({
         src: src.trim(),
         alt: alt.trim() || 'Image',
@@ -83,7 +84,7 @@ export function findConsecutiveImages(content: string): Array<{
       groupStart = -1;
     }
   });
-  
+
   // Handle group at end of content
   if (currentGroup.length > 1) {
     imageGroups.push({
@@ -92,7 +93,7 @@ export function findConsecutiveImages(content: string): Array<{
       endIndex: lines.length - 1
     });
   }
-  
+
   return imageGroups;
 }
 
@@ -102,11 +103,11 @@ export function optimizeImagePath(imagePath: string): string {
   if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
     return imagePath; // External URL
   }
-  
+
   if (imagePath.startsWith('/')) {
     return imagePath; // Absolute path
   }
-  
+
   // Relative path - ensure it starts with /
   return `/${imagePath}`;
 }
@@ -117,30 +118,30 @@ export function optimizePageImagePath(imagePath: string): string {
   if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
     return imagePath; // External URL
   }
-  
+
   if (imagePath.startsWith('/')) {
     return imagePath; // Absolute path
   }
-  
+
   // Prevent double processing - if already optimized, return as-is
   if (imagePath.startsWith('/pages/images/')) {
     return imagePath;
   }
-  
+
   // Handle Obsidian-style relative paths from markdown content
   if (imagePath.startsWith('./images/')) {
     return imagePath.replace('./images/', '/pages/images/');
   }
-  
+
   if (imagePath.startsWith('images/')) {
     return `/pages/${imagePath}`;
   }
-  
+
   // Handle case where filename is provided without path
   if (!imagePath.includes('/')) {
     return `/pages/images/${imagePath}`;
   }
-  
+
   // Default - assume it's a relative path in the pages directory
   return `/pages/images/${imagePath}`;
 }
@@ -151,30 +152,30 @@ export function optimizePostImagePath(imagePath: string): string {
   if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
     return imagePath; // External URL
   }
-  
+
   if (imagePath.startsWith('/')) {
     return imagePath; // Absolute path
   }
-  
+
   // Prevent double processing - if already optimized, return as-is
   if (imagePath.startsWith('/posts/images/')) {
     return imagePath;
   }
-  
+
   // Handle Obsidian-style relative paths from markdown content
   if (imagePath.startsWith('./images/')) {
     return imagePath.replace('./images/', '/posts/images/');
   }
-  
+
   if (imagePath.startsWith('images/')) {
     return `/posts/${imagePath}`;
   }
-  
+
   // Handle case where filename is provided without path
   if (!imagePath.includes('/')) {
     return `/posts/images/${imagePath}`;
   }
-  
+
   // Default - assume it's a relative path in the posts directory
   return `/posts/images/${imagePath}`;
 }
@@ -184,10 +185,10 @@ export function generateSrcSet(imagePath: string, widths: number[] = [320, 640, 
   if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
     return imagePath; // Can't generate srcset for external images
   }
-  
+
   const basePath = imagePath.replace(/\.[^.]+$/, ''); // Remove extension
   const extension = imagePath.match(/\.[^.]+$/)?.[0] || '.jpg';
-  
+
   return widths
     .map(width => `${basePath}-${width}w${extension} ${width}w`)
     .join(', ');
@@ -200,24 +201,30 @@ export async function getImageDimensions(imagePath: string): Promise<{ width: nu
   return null;
 }
 
-// Generate Open Graph image
-export function generateOGImage(title: string, description?: string): OpenGraphImage {
-  // This would typically generate an actual image
-  // For now, return a placeholder
-  const encodedTitle = encodeURIComponent(title);
-  const encodedDesc = encodeURIComponent(description || '');
-  
+// Get the default OG image
+export function getDefaultOGImage(): OpenGraphImage {
   return {
-    url: `/og-image.jpg?title=${encodedTitle}&desc=${encodedDesc}`,
-    alt: `Cover image for ${title}`,
+    url: '/open-graph.png',
+    alt: siteConfig.seo.defaultOgImageAlt,
     width: 1200,
-    height: 630
+    height: 630,
   };
 }
 
 // Check if image is external
 export function isExternalImage(imagePath: string): boolean {
   return imagePath.startsWith('http://') || imagePath.startsWith('https://');
+}
+
+// Get fallback OG image
+export function getFallbackOGImage(site?: URL): OpenGraphImage {
+  const baseUrl = site ? site.toString() : siteConfig.site;
+  return {
+    url: `${baseUrl}/open-graph.png`,
+    alt: siteConfig.seo.defaultOgImageAlt,
+    width: 1200,
+    height: 630,
+  };
 }
 
 // Get image alt text with fallback
@@ -253,7 +260,7 @@ export function isValidImageFormat(imagePath: string): boolean {
 // Get MIME type from file extension
 export function getMimeTypeFromPath(imagePath: string): string {
   const extension = imagePath.toLowerCase().match(/\.([^.]+)$/)?.[1];
-  
+
   switch (extension) {
     case 'jpg':
     case 'jpeg':
@@ -283,7 +290,7 @@ export function getOptimizedFormat(imagePath: string): string {
   if (imagePath.includes('.svg')) {
     return imagePath; // Keep SVG as-is
   }
-  
+
   // For other formats, prefer WebP but be more flexible
   return imagePath.replace(/\.(jpg|jpeg|png|gif|bmp|tiff|tif)$/i, '.webp');
 }

@@ -4,7 +4,7 @@ date: 2024-01-25
 description: "Explore all the markdown features available in this Obsidian-inspired blog theme, including callouts, code blocks, tables, and advanced formatting options."
 image: "images/pexels-bri-schneiter-28802-346529.jpg"
 imageAlt: "Code editor with markdown syntax highlighting"
-imageOG: true
+imageOG: false
 hideCoverImage: false
 tags:
 - markdown

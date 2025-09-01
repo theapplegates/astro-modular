@@ -34,12 +34,20 @@ const { seoData, bodyClass = '' } = Astro.props;
   <meta property="og:type" content={seoData.ogType}>
   <meta property="og:site_name" content={siteConfig.title}>
 
-  {seoData.ogImage && (
+  {seoData.ogImage ? (
     <>
       <meta property="og:image" content={seoData.ogImage.url}>
       <meta property="og:image:alt" content={seoData.ogImage.alt}>
       <meta property="og:image:width" content={seoData.ogImage.width.toString()}>
       <meta property="og:image:height" content={seoData.ogImage.height.toString()}>
+    </>
+  ) : (
+    <>
+      <meta property="og:image" content="/open-graph.png">
+      <meta property="og:image:alt" content={siteConfig.seo.defaultOgImageAlt}>
+      {/* Assuming default image dimensions, adjust if known */}
+      <meta property="og:image:width" content="1200">
+      <meta property="og:image:height" content="630">
     </>
   )}
 
@@ -47,12 +55,18 @@ const { seoData, bodyClass = '' } = Astro.props;
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content={seoData.title}>
   <meta name="twitter:description" content={seoData.description}>
-  {seoData.ogImage && (
+  {seoData.ogImage ? (
     <>
       <meta name="twitter:image" content={seoData.ogImage.url}>
       <meta name="twitter:image:alt" content={seoData.ogImage.alt}>
     </>
+  ) : (
+    <>
+      <meta name="twitter:image" content="/open-graph.png">
+      <meta name="twitter:image:alt" content={siteConfig.seo.defaultOgImageAlt}>
+    </>
   )}
+
 
   <!-- Article specific meta tags -->
   {seoData.ogType === 'article' && (
@@ -65,9 +79,11 @@ const { seoData, bodyClass = '' } = Astro.props;
     </>
   )}
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/x-icon" href="/favicon-light.ico" id="favicon">
-  
+  <!-- Theme-aware favicons -->
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="icon" type="image/png" href="/favicon-light.png" media="(prefers-color-scheme: light)" />
+    <link rel="icon" type="image/png" href="/favicon-dark.png" media="(prefers-color-scheme: dark)" />
+
   <!-- Command Palette Config for Client Script -->
   <meta name="command-palette-shortcut" content={siteConfig.commandPalette.shortcut || ''}>
 
@@ -90,11 +106,7 @@ const { seoData, bodyClass = '' } = Astro.props;
       document.documentElement.classList.remove('light', 'dark');
       document.documentElement.classList.add(theme);
 
-      // Update favicon
-      const favicon = document.getElementById('favicon');
-      if (favicon) {
-        favicon.href = theme === 'dark' ? '/favicon-dark.ico' : '/favicon-light.ico';
-      }
+      // Update favicon - this is now handled by media attributes on the link tags
     }
 
     // Initialize immediately
@@ -122,11 +134,7 @@ const { seoData, bodyClass = '' } = Astro.props;
       html.classList.remove('light', 'dark');
       html.classList.add(newTheme);
 
-      // Update favicon
-      const favicon = document.getElementById('favicon');
-      if (favicon) {
-        favicon.href = newTheme === 'dark' ? '/favicon-dark.ico' : '/favicon-light.ico';
-      }
+      // Update favicon - this is now handled by media attributes on the link tags
 
       // Icons are now static SVG - no re-initialization needed
 
@@ -194,17 +202,17 @@ const { seoData, bodyClass = '' } = Astro.props;
           const img = new Image();
           img.crossOrigin = 'anonymous';
           img.loading = priority === 'high' ? 'eager' : 'lazy';
-          
+
           img.onload = () => {
             this.loadedImages.add(src);
             this.preloadedImages.set(src, img);
             resolve();
           };
-          
+
           img.onerror = () => {
             reject(new Error(`Failed to load image: ${src}`));
           };
-          
+
           img.src = src;
         });
       }
@@ -263,7 +271,7 @@ const { seoData, bodyClass = '' } = Astro.props;
           const key = parts[parts.length - 1];
           const needsCtrl = parts.includes('ctrl');
           const needsMeta = parts.includes('cmd') || parts.includes('meta');
-          
+
           if (((needsCtrl && e.ctrlKey) || (needsMeta && e.metaKey)) && e.key.toLowerCase() === key) {
             e.preventDefault();
             const event = new CustomEvent('openCommandPalette');
