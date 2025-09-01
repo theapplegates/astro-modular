@@ -1,20 +1,20 @@
-
 ---
-title: "Complete Setup Guide for Your Modular Astro Blog"
+title: Complete Setup Guide for Your Modular Astro Blog
 date: 2024-01-20
-description: "Everything you need to know to set up, configure, and customize your modular Astro blog built for Obsidian users. From installation to advanced features and workflow optimization."
-image: "images/pexels-fotios-photos-1107717.jpg"
-imageAlt: "Minimalist workspace with computer and notebook representing digital writing"
+description: Everything you need to know to set up, configure, and customize your modular Astro blog built for Obsidian users. From installation to advanced features and workflow optimization.
+image: images/pexels-fotios-photos-1107717.jpg
+imageAlt: Minimalist workspace with computer and notebook representing digital writing
 imageOG: true
 hideCoverImage: false
+draft: false
 tags:
-- tutorial
-- setup
-- configuration
-- astro
-- blog
-- obsidian
-targetKeyword: "astro blog setup"
+  - tutorial
+  - setup
+  - configuration
+  - astro
+  - blog
+  - obsidian
+targetKeyword: astro blog setup
 ---
 This guide covers everything needed to set up and customize your modular Astro blog—designed for Obsidian users who want to publish content with minimal friction.
 

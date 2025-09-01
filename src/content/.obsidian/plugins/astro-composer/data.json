@@ -1,6 +1,6 @@
 {
-  "enableUnderscorePrefix": true,
-  "defaultTemplate": "---\ntitle: \"{{title}}\"\ndate: {{date}}\ndescription: \"\"\nimage: \"\"\nimageAlt: \"\"\nimageOG: \"\"\nhideCoverImage: false\ntags: []\ntargetKeyword: \"\"\n---\n\n",
+  "enableUnderscorePrefix": false,
+  "defaultTemplate": "---\ntitle: \"{{title}}\"\ndate: {{date}}\ndescription: \"\"\nimage: \"\"\nimageAlt: \"\"\nimageOG: false\nhideCoverImage: false\ndraft: true\ntags: []\ntargetKeyword: \"\"\n---\n\n",
   "linkBasePath": "/posts/",
   "postsFolder": "posts",
   "automatePostCreation": true,

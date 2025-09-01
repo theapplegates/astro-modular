@@ -1,19 +1,19 @@
-
 ---
-title: "Welcome to Your Modular Astro Blog"
+title: Welcome to Your Modular Astro Blog
 date: 2024-01-15
-description: "Welcome to your new modular Astro blog built specifically for Obsidian users! This post introduces the theme's key features, Obsidian integration, and powerful content creation workflow."
-image: "images/pexels-pixabay-462162.jpg"
-imageAlt: "Abstract digital network visualization representing connectivity and knowledge"
+description: Welcome to your new modular Astro blog built specifically for Obsidian users! This post introduces the theme's key features, Obsidian integration, and powerful content creation workflow.
+image: images/pexels-pixabay-462162.jpg
+imageAlt: Abstract digital network visualization representing connectivity and knowledge
 imageOG: true
 hideCoverImage: false
+draft: false
 tags:
-- welcome
-- blog
-- obsidian
-- astro
-- modular
-targetKeyword: "modular astro blog"
+  - welcome
+  - blog
+  - obsidian
+  - astro
+  - modular
+targetKeyword: modular astro blog
 ---
 Welcome to your modular Astro blog—a publishing platform designed for Obsidian users who want to transform their notes into a beautiful, performant website. This is a complete content creation system that bridges your Obsidian vault with the web.
 
