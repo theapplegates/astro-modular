@@ -8,7 +8,6 @@ export interface SiteConfig {
   language: string;
 
   theme: {
-    highlightColor: string;
     fonts: {
       heading: string;
       body: string;
@@ -71,7 +70,6 @@ export const siteConfig: SiteConfig = {
   author: 'David V. Kimball',
   language: 'en',
   theme: {
-    highlightColor: 'slate',
     fonts: {
       heading: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       body: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
@@ -131,9 +129,7 @@ export function getFeature(feature: keyof SiteConfig['features']): boolean {
   return siteConfig.features[feature];
 }
 
-export function getHighlightColor(): string {
-  return siteConfig.theme.highlightColor;
-}
+
 
 export function getCommandPaletteShortcut(): string {
   return siteConfig.commandPalette.shortcut;

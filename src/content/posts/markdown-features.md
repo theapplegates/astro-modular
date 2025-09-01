@@ -1,20 +1,19 @@
 ---
-title: Complete Guide to Markdown Features
+title: "Complete Guide to Markdown Features"
 date: 2024-01-25
-description: Explore all the markdown features available in this Obsidian-inspired blog theme, including callouts, code blocks, tables, and advanced formatting options.
-image: images/pexels-bri-schneiter-28802-346529.jpg
-imageAlt: Code editor with markdown syntax highlighting
+description: "Explore all the markdown features available in this Obsidian-inspired blog theme, including callouts, code blocks, tables, and advanced formatting options."
+image: "images/pexels-bri-schneiter-28802-346529.jpg"
+imageAlt: "Code editor with markdown syntax highlighting"
 imageOG: false
 hideCoverImage: false
 tags:
-  - markdown
-  - formatting
-  - tutorial
-  - reference
-  - meta
-  - blog
-draft: false
-targetKeyword: markdown features
+- markdown
+- formatting
+- tutorial
+- reference
+- meta
+- blog
+targetKeyword: "markdown features"
 ---
 This post demonstrates all the markdown features available in our Obsidian-inspired blog theme. Use this as both a reference guide and a showcase of what's possible with our enhanced markdown processing.
 
@@ -191,10 +190,10 @@ These buttons use your existing color palette and adapt perfectly to light/dark 
 
 1. First step
 2. Second step
-   3. Sub-step A
-   4. Sub-step B
+   1. Sub-step A
+   2. Sub-step B
       1. Sub-sub-step
-5. Third step
+3. Third step
 
 ### Task Lists
 
@@ -213,7 +212,7 @@ These buttons use your existing color palette and adapt perfectly to light/dark 
 
 ### Wikilinks
 
-You can create internal links using double brackets: [Getting Started](/posts/getting-started/) or [Markdown Features](/posts/markdown-features/).
+You can create internal links using double brackets: [[Getting Started]] or [[Markdown Features]].
 
 ### Reference Links
 
@@ -377,7 +376,7 @@ This comprehensive guide covers most of the markdown features available in our O
 - **Bold**: `**text**` or `__text__`
 - **Italic**: `*text*` or `_text_`
 - **Code**: `` `code` ``
-- **Links**: `[text](url)` or `[wikilink](/posts/wikilink/)`
+- **Links**: `[text](url)` or `[[wikilink]]`
 - **Images**: `![alt](url)`
 - **Lists**: `-` or `1.` for ordered
 - **Tasks**: `- [ ]` and `- [x]`

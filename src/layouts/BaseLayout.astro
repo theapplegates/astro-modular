@@ -1,3 +1,4 @@
+
 ---
 import { ViewTransitions } from 'astro:transitions';
 import { siteConfig } from '@/config';
@@ -295,89 +296,5 @@ const { seoData, bodyClass = '' } = Astro.props;
 
   <!-- Additional body scripts -->
   <slot name="scripts" />
-
-  <!-- Static SVG icons - no dynamic loading needed -->
 </body>
 </html>
-
-<style is:global>
-  /* Global styles */
-  html {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-    scroll-padding-top: 2rem;
-  }
-
-  /* Hide scrollbars */
-  .scrollbar-hide {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
-
-  /* Text selection */
-  ::selection {
-    background-color: rgb(14 165 233 / 0.2);
-    color: inherit;
-  }
-
-  ::-moz-selection {
-    background-color: rgb(14 165 233 / 0.2);
-    color: inherit;
-  }
-
-  /* Focus styles */
-  :focus-visible {
-    outline: 2px solid rgb(14 165 233);
-    outline-offset: 2px;
-  }
-
-  /* Wikilink styles */
-  .wikilink {
-    @apply text-highlight-500 dark:text-highlight-400 font-medium hover:text-highlight-600 dark:hover:text-highlight-300 transition-colors;
-  }
-
-  .wikilink-broken {
-    @apply text-red-500 dark:text-red-400 cursor-not-allowed;
-  }
-
-  /* Button styles */
-  .btn-primary {
-    @apply inline-flex items-center px-4 py-2 bg-primary-900 dark:bg-primary-100 text-white dark:text-primary-900 font-medium rounded-lg hover:bg-primary-800 dark:hover:bg-primary-200 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
-  }
-
-  .btn-secondary {
-    @apply inline-flex items-center px-4 py-2 bg-primary-100 dark:bg-primary-800 text-primary-900 dark:text-primary-100 font-medium rounded-lg hover:bg-primary-200 dark:hover:bg-primary-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
-  }
-
-  .btn-outline {
-    @apply inline-flex items-center px-4 py-2 border border-primary-300 dark:border-primary-600 text-primary-900 dark:text-primary-100 font-medium rounded-lg hover:bg-primary-50 dark:hover:bg-primary-800 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
-  }
-
-  /* Callout styles */
-  .callout {
-    @apply my-6 p-4 rounded-lg border-l-4;
-  }
-
-  .callout-note {
-    @apply bg-blue-50 dark:bg-blue-950 border-blue-400 dark:border-blue-600;
-  }
-
-  .callout-warning {
-    @apply bg-yellow-50 dark:bg-yellow-950 border-yellow-400 dark:border-yellow-600;
-  }
-
-  .callout-tip {
-    @apply bg-green-50 dark:bg-green-950 border-green-400 dark:border-green-600;
-  }
-
-  .callout-important {
-    @apply bg-purple-50 dark:bg-purple-950 border-purple-400 dark:border-purple-600;
-  }
-
-  .callout-caution {
-    @apply bg-red-50 dark:bg-red-950 border-red-400 dark:border-red-600;
-  }
-</style>
