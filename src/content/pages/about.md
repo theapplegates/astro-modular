@@ -54,7 +54,7 @@ Whether you're a developer, writer, or content creator, this theme supports your
 
 ## Getting Started
 
-Ready to start your own blog with this theme? Check out our comprehensive [[Getting Started]] guide or explore the [[Markdown Features]] to see what's possible.
+Ready to start your own blog with this theme? Check out our comprehensive [Getting Started](../posts/getting-started.md) guide or explore the [Markdown Features](../posts/markdown-features.md) to see what's possible.
 
 ## Connect With Us
 

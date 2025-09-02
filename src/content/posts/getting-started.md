@@ -215,7 +215,7 @@ Common issues:
 
 1. **Customize** `src/config.ts`
 2. **Write** your first post
-3. **Explore** [[Markdown Features]]
+3. **Explore** [Markdown Features](markdown-features.md)
 4. **Set up** Obsidian vault workflow
 5. **Deploy** and share
 

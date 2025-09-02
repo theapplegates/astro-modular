@@ -30,7 +30,7 @@ function processExcerptLinks(text: string, targetSlug: string): string {
     }
   });
   
-  // Then, process standard markdown links - bold only the relevant link
+  // Then, process standard markdown links - convert to wikilink format and bold only the relevant link
   text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, displayText, url) => {
     // Extract the link text from URL to check if it matches target
     let linkText = null;
@@ -46,13 +46,19 @@ function processExcerptLinks(text: string, targetSlug: string): string {
       const linkSlug = linkText.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
       const isRelevantLink = linkSlug === targetSlug;
       
+      // Convert markdown link to wikilink format: [Display](url) → [[Display]]
+      const wikilinkFormat = `[[${displayText}]]`;
+      
       if (isRelevantLink) {
-        // Bold the entire markdown link for the relevant link
-        return `<strong class="text-primary-800 dark:text-primary-200">${match}</strong>`;
+        // Bold the wikilink format for the relevant link
+        return `<strong class="text-primary-800 dark:text-primary-200">${wikilinkFormat}</strong>`;
+      } else {
+        // Keep as wikilink format but not bold
+        return wikilinkFormat;
       }
     }
     
-    // Keep other markdown links as-is (not bold)
+    // If we can't extract link text, keep the original markdown format
     return match;
   });
   

@@ -3,7 +3,10 @@
   "promptDelete": true,
   "showIndentGuide": false,
   "attachmentFolderPath": "./images",
-  "userIgnoreFilters": null,
+  "userIgnoreFilters": [
+    "_bases/",
+    "pages/"
+  ],
   "focusNewTab": false,
   "mobilePullAction": "file-explorer:new-file",
   "trashOption": "system",

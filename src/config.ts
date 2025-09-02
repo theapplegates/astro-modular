@@ -1,4 +1,3 @@
-
 // Site configuration with TypeScript types
 export interface SiteConfig {
   site: string;
@@ -46,10 +45,10 @@ export interface SiteConfig {
 
   navigation: {
     showNavigation: boolean;
-    style: 'minimal' | 'traditional';
+    style: "minimal" | "traditional";
     showMobileMenu: boolean;
-    pages: Array<{ title: string; url: string; }>;
-    social: Array<{ title: string; url: string; icon: string; }>;
+    pages: Array<{ title: string; url: string }>;
+    social: Array<{ title: string; url: string; icon: string }>;
   };
 
   seo: {
@@ -58,25 +57,26 @@ export interface SiteConfig {
 
   homeBlurb?: {
     enabled?: boolean;
-    placement?: 'above' | 'below';
+    placement?: "above" | "below";
   };
 }
 
 // Set your values HERE
 export const siteConfig: SiteConfig = {
-  site: 'https://astro-modular.netlify.app',
-  title: 'Astro Modular',
-  description: 'A modular Astro blog.',
-  author: 'David V. Kimball',
-  language: 'en',
+  site: "https://astro-modular.netlify.app",
+  title: "Astro Modular",
+  description: "A modular Astro blog.",
+  author: "David V. Kimball",
+  language: "en",
   theme: {
     fonts: {
-      heading: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-      body: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-    }
+      heading:
+        'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      body: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    },
   },
   layout: {
-    contentWidth: '40rem'
+    contentWidth: "40rem",
   },
   features: {
     readingTime: true,
@@ -89,47 +89,53 @@ export const siteConfig: SiteConfig = {
     darkModeToggleButton: true,
     showCoverImages: true,
     postNavigation: true,
-    showSocialIconsInFooter: false
+    showSocialIconsInFooter: false,
   },
   postsPerPage: 5,
   commandPalette: {
-    shortcut: 'ctrl+K',
-    placeholder: 'Search all posts...',
+    shortcut: "ctrl+K",
+    placeholder: "Search all posts...",
     sections: {
       quickActions: true,
       pages: true,
-      social: true
-    }
+      social: true,
+    },
   },
   navigation: {
     showNavigation: true,
-    style: 'minimal', // 'minimal' or 'traditional'
+    style: "traditional", // 'minimal' or 'traditional'
     showMobileMenu: true,
     pages: [
-      { title: 'Posts', url: '/posts' },
-      { title: 'About', url: '/about' },
-      { title: 'Website', url: 'https://davidvkimball.com' }
+      { title: "Posts", url: "/posts" },
+      { title: "About", url: "/about" },
+      { title: "Website", url: "https://davidvkimball.com" },
     ],
     social: [
-      { title: 'GitHub', url: 'https://github.com/davidvkimball', icon: 'github' },
-      { title: 'Twitter', url: 'https://x.com/davidvkimball', icon: 'x-twitter' }
-    ]
+      {
+        title: "GitHub",
+        url: "https://github.com/davidvkimball",
+        icon: "github",
+      },
+      {
+        title: "Twitter",
+        url: "https://x.com/davidvkimball",
+        icon: "x-twitter",
+      },
+    ],
   },
   seo: {
-    defaultOgImageAlt: 'Astro Modular logo.'
+    defaultOgImageAlt: "Astro Modular logo.",
   },
   homeBlurb: {
     enabled: true,
-    placement: 'below' // 'above' (before latest post) or 'below' (after recent posts)
-  }
+    placement: "below", // 'above' (before latest post) or 'below' (after recent posts)
+  },
 };
 
 // Utility functions
-export function getFeature(feature: keyof SiteConfig['features']): boolean {
+export function getFeature(feature: keyof SiteConfig["features"]): boolean {
   return siteConfig.features[feature];
 }
-
-
 
 export function getCommandPaletteShortcut(): string {
   return siteConfig.commandPalette.shortcut;

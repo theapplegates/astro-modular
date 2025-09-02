@@ -207,13 +207,13 @@ These buttons use your existing color palette and adapt perfectly to light/dark 
 
 ## Links and References
 
-### Basic Links
+### External Links
 
-[Visit our homepage](/) or check out [external links](https://obsidian.md).
+Here's an [external link](https://obsidian.md).
 
-### Wikilinks
+### Internal Links
 
-You can create internal links using double brackets: [[Getting Started]] or [[Markdown Features]].
+You can create internal links using double brackets or with standard markdown: [[getting-started|Getting Started]] or [Markdown Features](markdown-features.md).
 
 ### Reference Links
 

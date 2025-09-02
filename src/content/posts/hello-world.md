@@ -58,7 +58,7 @@ Built on Astro 5 with modern web standards:
 
 ## Quick Start
 
-1. Check the [Getting Started](/posts/getting-started/) guide for setup details
+1. Check the [Getting Started](getting-started.md) guide for setup details
 2. Configure your blog in `src/config.ts`
 3. Write your first post in `src/content/posts/`
 4. Connect your Obsidian vault using the included configuration

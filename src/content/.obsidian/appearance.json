@@ -1,9 +1,6 @@
 {
   "cssTheme": "Minimal",
-  "showViewHeader": false,
+  "showViewHeader": true,
   "showRibbon": false,
-  "enabledCssSnippets": [
-    "custom-draggable-top-area-windows",
-    "hide-tabs-icon-mobile"
-  ]
+  "enabledCssSnippets": []
 }
