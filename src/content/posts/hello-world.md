@@ -1,18 +1,19 @@
 ---
-title: "Welcome to Your Modular Astro Blog"
+title: Welcome to Your Modular Astro Blog
 date: 2024-01-15
-description: "Welcome to your new modular Astro blog built specifically for Obsidian users! This post introduces the theme's key features, Obsidian integration, and powerful content creation workflow."
-image: "images/pexels-pixabay-462162.jpg"
-imageAlt: "Abstract digital network visualization representing connectivity and knowledge"
+description: Welcome to your new modular Astro blog built specifically for Obsidian users! This post introduces the theme's key features, Obsidian integration, and powerful content creation workflow.
+image: "[[images/water.jpg]]"
+imageAlt: Abstract digital network visualization representing connectivity and knowledge
 imageOG: true
 hideCoverImage: false
 tags:
-- welcome
-- blog
-- obsidian
-- astro
-- modular
-targetKeyword: "modular astro blog"
+  - welcome
+  - blog
+  - obsidian
+  - astro
+  - modular
+draft: false
+targetKeyword: modular astro blog
 ---
 Welcome to your modular Astro blog—a publishing platform designed for Obsidian users who want to transform their notes into a beautiful, performant website. This is a complete content creation system that bridges your Obsidian vault with the web.
 
@@ -34,7 +35,7 @@ Enable only what you need—keep your blog lightweight and focused.
 
 Write naturally in Obsidian with full feature support:
 
-- **Wikilinks** like `[[Getting Started]]` connect your ideas
+- **Wikilinks** like `[Getting Started](/posts/getting-started/)` connect your ideas
 - **Callouts** (`> [!note]`, `> [!tip]`) render beautifully
 - **Tags** sync automatically between Obsidian and your blog
 - **Images** optimize automatically via drag-and-drop
@@ -57,7 +58,7 @@ Built on Astro 5 with modern web standards:
 
 ## Quick Start
 
-1. Check the [[Getting Started]] guide for setup details
+1. Check the [Getting Started](/posts/getting-started/) guide for setup details
 2. Configure your blog in `src/config.ts`
 3. Write your first post in `src/content/posts/`
 4. Connect your Obsidian vault using the included configuration

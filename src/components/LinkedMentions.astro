@@ -14,13 +14,49 @@ const { currentSlug } = Astro.props;
 const posts = await getCollection('posts');
 const linkedMentions = findLinkedMentions(posts, currentSlug);
 
-// Function to process wikilinks in excerpt text
-function processExcerptWikilinks(text: string): string {
-  // Replace [[text]] with <strong>text</strong> and [[link|display]] with <strong>display</strong>
-  return text.replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (match, link, display) => {
-    const displayText = display || link;
-    return `<strong class="text-primary-800 dark:text-primary-200">${displayText}</strong>`;
+// Function to process links in excerpt text
+function processExcerptLinks(text: string, targetSlug: string): string {
+  // First, process wikilinks - keep brackets but bold only the relevant link
+  text = text.replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (match, link, display) => {
+    const linkSlug = link.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
+    const isRelevantLink = linkSlug === targetSlug;
+    
+    if (isRelevantLink) {
+      // Bold the entire wikilink including brackets for the relevant link
+      return `<strong class="text-primary-800 dark:text-primary-200">${match}</strong>`;
+    } else {
+      // Keep other wikilinks as-is (not bold)
+      return match;
+    }
   });
+  
+  // Then, process standard markdown links - bold only the relevant link
+  text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, displayText, url) => {
+    // Extract the link text from URL to check if it matches target
+    let linkText = null;
+    if (url.endsWith('.md')) {
+      linkText = url.replace(/\.md$/, '');
+    } else if (url.startsWith('/posts/')) {
+      linkText = url.replace('/posts/', '');
+    } else if (!url.includes('/')) {
+      linkText = url;
+    }
+    
+    if (linkText) {
+      const linkSlug = linkText.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
+      const isRelevantLink = linkSlug === targetSlug;
+      
+      if (isRelevantLink) {
+        // Bold the entire markdown link for the relevant link
+        return `<strong class="text-primary-800 dark:text-primary-200">${match}</strong>`;
+      }
+    }
+    
+    // Keep other markdown links as-is (not bold)
+    return match;
+  });
+  
+  return text;
 }
 ---
 
@@ -49,7 +85,7 @@ function processExcerptWikilinks(text: string): string {
           {mention.excerpt && (
             <p 
               class="text-sm text-primary-600 dark:text-primary-300 leading-relaxed"
-              set:html={`...${processExcerptWikilinks(mention.excerpt)}...`}
+              set:html={`...${processExcerptLinks(mention.excerpt, currentSlug)}...`}
             />
           )}
           

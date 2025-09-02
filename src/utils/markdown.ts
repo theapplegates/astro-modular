@@ -15,10 +15,10 @@ export function processMarkdown(content: string): {
       hasMore: false
     };
   }
-  
+
   // Remove frontmatter
   const withoutFrontmatter = content.replace(/^---\n[\s\S]*?\n---\n/, '');
-  
+
   // Remove markdown syntax for word counting and excerpt
   const plainText = withoutFrontmatter
     .replace(/!\[.*?\]\(.*?\)/g, '') // Images
@@ -31,7 +31,7 @@ export function processMarkdown(content: string): {
 
   const words = plainText.split(/\s+/).filter(word => word.length > 0);
   const wordCount = words.length;
-  
+
   // Create excerpt (first 150 words or until first heading)
   const excerptWords = words.slice(0, 150);
   const excerpt = excerptWords.join(' ');
@@ -55,7 +55,7 @@ export function calculateReadingTime(content: string): ReadingTime {
       words: 0
     };
   }
-  
+
   // Remove frontmatter and markdown syntax for accurate word counting
   const plainText = content
     .replace(/^---\n[\s\S]*?\n---\n/, '') // Remove frontmatter
@@ -69,11 +69,11 @@ export function calculateReadingTime(content: string): ReadingTime {
 
   const words = plainText.split(/\s+/).filter(word => word.length > 0);
   const wordCount = words.length;
-  
+
   // Average reading speed is 200-250 words per minute, using 225
   const wordsPerMinute = 225;
   const minutes = Math.max(1, Math.ceil(wordCount / wordsPerMinute));
-  
+
   return {
     text: `${minutes} min read`,
     minutes: minutes,
@@ -102,12 +102,12 @@ export function getReadingTime(remarkData: any, content?: string): ReadingTime |
       words: remarkData.readingTime.words
     };
   }
-  
+
   // Fallback to manual calculation if content is provided
   if (content !== undefined) {
     return calculateReadingTime(content);
   }
-  
+
   // Default for no content and no valid remark data
   return {
     text: '1 min read',
@@ -159,17 +159,17 @@ export function formatDateISO(date: Date): string {
 // Check if a post should be shown in production
 export function shouldShowPost(post: Post, isDev: boolean = false): boolean {
   const { draft, title, date } = post.data;
-  
+
   // In development, show all posts (even drafts)
   if (isDev) {
     return true;
   }
-  
+
   // In production, hide drafts and posts without required fields
   if (draft || !title || !date) {
     return false;
   }
-  
+
   return true;
 }
 
@@ -182,7 +182,7 @@ export function sortPostsByDate<T extends { data: { date: Date } }>(posts: T[]):
 export function getAdjacentPosts(posts: Post[], currentSlug: string) {
   const sortedPosts = sortPostsByDate(posts);
   const currentIndex = sortedPosts.findIndex(post => post.slug === currentSlug);
-  
+
   return {
     prev: currentIndex > 0 ? sortedPosts[currentIndex - 1] : null,
     next: currentIndex < sortedPosts.length - 1 ? sortedPosts[currentIndex + 1] : null
@@ -192,13 +192,13 @@ export function getAdjacentPosts(posts: Post[], currentSlug: string) {
 // Extract tags from posts
 export function extractTags(posts: Post[]): string[] {
   const tags = new Set<string>();
-  
+
   posts.forEach(post => {
     if (post.data.tags) {
       post.data.tags.forEach(tag => tags.add(tag));
     }
   });
-  
+
   return Array.from(tags).sort();
 }
 
@@ -223,19 +223,19 @@ export function validatePostData(data: Partial<PostData>): {
   errors: string[];
 } {
   const errors: string[] = [];
-  
+
   if (!data.title) {
     errors.push('Title is required');
   }
-  
+
   if (!data.date) {
     errors.push('Date is required');
   }
-  
+
   if (!data.description) {
     errors.push('Description is required');
   }
-  
+
   return {
     isValid: errors.length === 0,
     errors

@@ -81,6 +81,32 @@ export function remarkWikilinks() {
       }
     });
 
+    // Process existing link nodes to add wikilink data attributes for internal links
+    visit(tree, 'link', (node: any) => {
+      if (node.url && isInternalLink(node.url)) {
+        const linkText = extractLinkTextFromUrl(node.url);
+        if (linkText) {
+          // Add wikilink data attributes to make it work with linked mentions
+          if (!node.data) {
+            node.data = {};
+          }
+          if (!node.data.hProperties) {
+            node.data.hProperties = {};
+          }
+          
+          // Add wikilink class and data attributes
+          const existingClasses = node.data.hProperties.className || [];
+          node.data.hProperties.className = Array.isArray(existingClasses) 
+            ? [...existingClasses, 'wikilink']
+            : [existingClasses, 'wikilink'].filter(Boolean);
+          
+          node.data.hProperties['data-wikilink'] = linkText;
+          // For standard markdown links, we don't have a display override
+          node.data.hProperties['data-display-override'] = null;
+        }
+      }
+    });
+
     // Replace nodes with wikilinks
     nodesToReplace.reverse().forEach(({ parent, index, newChildren }) => {
       if (parent && parent.children && Array.isArray(parent.children)) {
@@ -100,17 +126,19 @@ function createSlugFromTitle(title: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
-// Extract wikilinks from content
+// Extract wikilinks and standard markdown links from content
 export function extractWikilinks(content: string): WikilinkMatch[] {
-  const wikilinkRegex = /\[\[([^\]]+)\]\]/g;
   const matches: WikilinkMatch[] = [];
-  let match;
 
-  while ((match = wikilinkRegex.exec(content)) !== null) {
-    const [fullMatch, linkContent] = match;
+  // Extract wikilinks [[...]]
+  const wikilinkRegex = /\[\[([^\]]+)\]\]/g;
+  let wikilinkMatch;
+
+  while ((wikilinkMatch = wikilinkRegex.exec(content)) !== null) {
+    const [fullMatch, linkContent] = wikilinkMatch;
     
     // Skip if wikilink is inside backticks (code)
-    if (isWikilinkInCode(content, match.index)) {
+    if (isWikilinkInCode(content, wikilinkMatch.index)) {
       continue;
     }
     
@@ -123,6 +151,31 @@ export function extractWikilinks(content: string): WikilinkMatch[] {
       display: displayText.trim(),
       slug: createSlugFromTitle(link.trim())
     });
+  }
+
+  // Extract standard markdown links [text](url) that point to internal posts
+  const markdownLinkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+  let markdownMatch;
+
+  while ((markdownMatch = markdownLinkRegex.exec(content)) !== null) {
+    const [fullMatch, displayText, url] = markdownMatch;
+    
+    // Skip if markdown link is inside backticks (code)
+    if (isWikilinkInCode(content, markdownMatch.index)) {
+      continue;
+    }
+
+    // Check if this is an internal link (relative path or pointing to a post)
+    if (isInternalLink(url)) {
+      const linkText = extractLinkTextFromUrl(url);
+      if (linkText) {
+        matches.push({
+          link: linkText,
+          display: displayText.trim(),
+          slug: createSlugFromTitle(linkText)
+        });
+      }
+    }
   }
 
   return matches;
@@ -152,44 +205,69 @@ export function findLinkedMentions(posts: Post[], targetSlug: string) {
 
 // Create excerpt around wikilink for context
 function createExcerptAroundWikilink(content: string, linkText: string): string {
-  const wikilinkPattern = `\\[\\[${linkText}[^\\]]*\\]\\]`;
-  const regex = new RegExp(wikilinkPattern, 'i');
-
   // Remove frontmatter
   const withoutFrontmatter = content.replace(/^---\n[\s\S]*?\n---\n/, '');
 
+  // Try to find wikilink pattern first
+  const wikilinkPattern = `\\[\\[${linkText}[^\\]]*\\]\\]`;
+  const wikilinkRegex = new RegExp(wikilinkPattern, 'i');
+  
   let match;
   let searchStart = 0;
   
   // Find the wikilink that's not in code
-  while ((match = regex.exec(withoutFrontmatter.slice(searchStart))) !== null) {
+  while ((match = wikilinkRegex.exec(withoutFrontmatter.slice(searchStart))) !== null) {
     const actualIndex = searchStart + match.index!;
     
     // Check if this wikilink is inside backticks
     if (!isWikilinkInCode(withoutFrontmatter, actualIndex)) {
-      const contextLength = 100;
-      
-      // Get context around the match
-      const start = Math.max(0, actualIndex - contextLength);
-      const end = Math.min(withoutFrontmatter.length, actualIndex + match[0].length + contextLength);
-
-      let excerpt = withoutFrontmatter.slice(start, end);
-
-      // Clean up excerpt
-      excerpt = excerpt
-        .replace(/^\S*\s*/, '') // Remove partial word at start
-        .replace(/\s*\S*$/, '') // Remove partial word at end
-        .replace(/\n+/g, ' ') // Replace newlines with spaces
-        .trim();
-
-      return excerpt;
+      return extractExcerptAtPosition(withoutFrontmatter, actualIndex, match[0].length);
     }
     
     searchStart = actualIndex + match[0].length;
-    regex.lastIndex = 0; // Reset regex for next search
+    wikilinkRegex.lastIndex = 0; // Reset regex for next search
+  }
+  
+  // If no wikilink found, try to find standard markdown links that point to this linkText
+  const markdownLinkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+  let markdownMatch;
+  
+  while ((markdownMatch = markdownLinkRegex.exec(withoutFrontmatter)) !== null) {
+    const [fullMatch, displayText, url] = markdownMatch;
+    
+    // Check if this markdown link is inside backticks
+    if (!isWikilinkInCode(withoutFrontmatter, markdownMatch.index)) {
+      // Check if this URL points to our target linkText
+      if (isInternalLink(url)) {
+        const urlLinkText = extractLinkTextFromUrl(url);
+        if (urlLinkText === linkText) {
+          return extractExcerptAtPosition(withoutFrontmatter, markdownMatch.index, fullMatch.length);
+        }
+      }
+    }
   }
 
   return '';
+}
+
+// Helper function to extract excerpt at a specific position
+function extractExcerptAtPosition(content: string, position: number, linkLength: number): string {
+  const contextLength = 100;
+  
+  // Get context around the match
+  const start = Math.max(0, position - contextLength);
+  const end = Math.min(content.length, position + linkLength + contextLength);
+
+  let excerpt = content.slice(start, end);
+
+  // Clean up excerpt
+  excerpt = excerpt
+    .replace(/^\S*\s*/, '') // Remove partial word at start
+    .replace(/\s*\S*$/, '') // Remove partial word at end
+    .replace(/\n+/g, ' ') // Replace newlines with spaces
+    .trim();
+
+  return excerpt;
 }
 
 // Resolve wikilink to actual post
@@ -272,19 +350,73 @@ function isWikilinkInCode(content: string, wikilinkIndex: number): boolean {
   return false;
 }
 
+// Helper function to check if a URL is an internal link
+function isInternalLink(url: string): boolean {
+  // Remove any leading/trailing whitespace
+  url = url.trim();
+  
+  // Skip external URLs (http/https)
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return false;
+  }
+  
+  // Skip email links
+  if (url.startsWith('mailto:')) {
+    return false;
+  }
+  
+  // Skip anchors only
+  if (url.startsWith('#')) {
+    return false;
+  }
+  
+  // Check if it's a post link (ends with .md or is a slug)
+  return url.endsWith('.md') || url.startsWith('/posts/') || !url.includes('/');
+}
+
+// Helper function to extract link text from URL for internal links
+function extractLinkTextFromUrl(url: string): string | null {
+  url = url.trim();
+  
+  // Handle .md files
+  if (url.endsWith('.md')) {
+    return url.replace(/\.md$/, '');
+  }
+  
+  // Handle /posts/ URLs
+  if (url.startsWith('/posts/')) {
+    return url.replace('/posts/', '');
+  }
+  
+  // If it's just a slug (no slashes), use it directly
+  if (!url.includes('/')) {
+    return url;
+  }
+  
+  return null;
+}
+
 // Process HTML content to resolve wikilink display text with post titles
 export function processWikilinksInHTML(posts: Post[], html: string): string {
   // Find all wikilink elements and update their display text
   return html.replace(
-    /<a[^>]*class="[^"]*wikilink[^"]*"[^>]*data-wikilink="([^"]*)"[^>]*data-display-override="([^"]*)"[^>]*>([^<]*)<\/a>/g,
+    /<a[^>]*class="[^"]*wikilink[^"]*"[^>]*data-wikilink="([^"]*)"[^>]*(?:data-display-override="([^"]*)"[^>]*)?[^>]*>([^<]*)<\/a>/g,
     (match, linkText, displayOverride, currentDisplay) => {
       const resolved = resolveWikilink(posts, linkText);
 
       if (resolved) {
-        // Use display override if provided, otherwise use the post title
-        const finalDisplay = displayOverride && displayOverride !== 'null'
-          ? displayOverride
-          : resolved.data.title;
+        // For wikilinks with display override, use it; otherwise use post title
+        // For standard markdown links (no display override), keep the original display text
+        let finalDisplay;
+        if (displayOverride && displayOverride !== 'null' && displayOverride !== 'undefined') {
+          finalDisplay = displayOverride;
+        } else if (displayOverride === null || displayOverride === 'null' || displayOverride === 'undefined') {
+          // This is a standard markdown link, keep the original display text
+          finalDisplay = currentDisplay;
+        } else {
+          // This is a wikilink without display override, use post title
+          finalDisplay = resolved.data.title;
+        }
 
         return match.replace(`>${currentDisplay}<`, `>${finalDisplay}<`);
       } else {

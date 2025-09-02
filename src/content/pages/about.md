@@ -70,7 +70,7 @@ This theme is open source and available for anyone to use, modify, and contribut
 
 ## Beautiful
 
-![Landscape](images/pexels-fotios-photos-1107717.jpg)
+![Landscape](images/sunset.jpg)
 
 ---
 

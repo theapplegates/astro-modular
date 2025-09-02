@@ -1,5 +1,4 @@
 [
-  "custom-save",
   "new-tab-default-page",
   "homepage",
   "insert-unsplash-image",
@@ -13,5 +12,7 @@
   "obsidian-prozen",
   "obsidian-style-settings",
   "title-only-tab",
-  "paste-image-into-property"
+  "paste-image-into-property",
+  "simple-banner",
+  "iconic"
 ]

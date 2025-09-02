@@ -1,12 +1,14 @@
 {
   "name": "workspace",
   "version": "1.0.0",
+  "type": "module",
   "description": "A minimal, elegant blog theme for Astro heavily inspired by Obsidian, designed for clarity, performance, and seamless compatibility with Obsidian markdown workflows.",
   "main": "index.js",
   "scripts": {
-    "dev": "astro dev --port 5000",
-    "build": "astro build",
+    "dev": "node scripts/sync-images.js && astro dev --host 0.0.0.0 --port 5000",
+    "build": "node scripts/sync-images.js && astro build",
     "preview": "astro preview --host 0.0.0.0 --port 5000",
+    "sync-images": "node scripts/sync-images.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
