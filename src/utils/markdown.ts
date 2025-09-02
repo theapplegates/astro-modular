@@ -7,6 +7,15 @@ export function processMarkdown(content: string): {
   wordCount: number;
   hasMore: boolean;
 } {
+  // Handle empty or undefined content
+  if (!content || typeof content !== 'string') {
+    return {
+      excerpt: '',
+      wordCount: 0,
+      hasMore: false
+    };
+  }
+  
   // Remove frontmatter
   const withoutFrontmatter = content.replace(/^---\n[\s\S]*?\n---\n/, '');
   
@@ -37,6 +46,16 @@ export function processMarkdown(content: string): {
 
 // Calculate reading time manually
 export function calculateReadingTime(content: string): ReadingTime {
+  // Handle empty or undefined content
+  if (!content || typeof content !== 'string') {
+    return {
+      text: '1 min read',
+      minutes: 1,
+      time: 60000,
+      words: 0
+    };
+  }
+  
   // Remove frontmatter and markdown syntax for accurate word counting
   const plainText = content
     .replace(/^---\n[\s\S]*?\n---\n/, '') // Remove frontmatter
@@ -65,25 +84,38 @@ export function calculateReadingTime(content: string): ReadingTime {
 
 // Extract reading time from remark plugin or calculate manually
 export function getReadingTime(remarkData: any, content?: string): ReadingTime | null {
-  // Try to get from remark plugin first
-  if (remarkData?.readingTime) {
+  // Validate remark plugin reading time data
+  if (
+    remarkData?.readingTime &&
+    typeof remarkData.readingTime === 'object' &&
+    remarkData.readingTime.text &&
+    typeof remarkData.readingTime.text === 'string' &&
+    remarkData.readingTime.text !== 'read0' &&
+    typeof remarkData.readingTime.minutes === 'number' &&
+    typeof remarkData.readingTime.time === 'number' &&
+    typeof remarkData.readingTime.words === 'number'
+  ) {
     return {
-      text: remarkData.readingTime.text || `${Math.ceil(remarkData.readingTime.minutes || 1)} min read`,
-      minutes: remarkData.readingTime.minutes || 1,
-      time: remarkData.readingTime.time || 60000,
-      words: remarkData.readingTime.words || 200
+      text: remarkData.readingTime.text,
+      minutes: remarkData.readingTime.minutes,
+      time: remarkData.readingTime.time,
+      words: remarkData.readingTime.words
     };
   }
   
   // Fallback to manual calculation if content is provided
-  if (content) {
+  if (content !== undefined) {
     return calculateReadingTime(content);
   }
   
-  return null;
+  // Default for no content and no valid remark data
+  return {
+    text: '1 min read',
+    minutes: 1,
+    time: 60000,
+    words: 0
+  };
 }
-
-
 
 // Generate table of contents from headings
 export function generateTOC(headings: Heading[]): Heading[] {
@@ -94,7 +126,7 @@ export function generateTOC(headings: Heading[]): Heading[] {
 export async function processPost(post: Post) {
   const { Content, headings, remarkPluginFrontmatter } = await post.render();
   const { excerpt, wordCount, hasMore } = processMarkdown(post.body);
-  const readingTime = getReadingTime(remarkPluginFrontmatter);
+  const readingTime = getReadingTime(remarkPluginFrontmatter, post.body); // Pass post.body as fallback
   const toc = generateTOC(headings);
 
   return {

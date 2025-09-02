@@ -1,4 +1,3 @@
-
 ---
 title: "Complete Setup Guide for Your Modular Astro Blog"
 date: 2024-01-20

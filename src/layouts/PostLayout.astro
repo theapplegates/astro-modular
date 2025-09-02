@@ -165,14 +165,14 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
             {siteConfig.features.readingTime && readingTime && (
               <>
                 <span class="text-primary-300 dark:text-primary-600">•</span>
-                <span>{readingTime.text}</span>
+                <span>{readingTime.text && readingTime.text !== 'read0' && readingTime.text !== '' ? readingTime.text : '1 min read'}</span>
               </>
             )}
 
-            {siteConfig.features.wordCount && wordCount && (
+            {siteConfig.features.wordCount && wordCount !== undefined && (
               <>
                 <span class="text-primary-300 dark:text-primary-600">•</span>
-                <span>{wordCount} words</span>
+                <span>{wordCount === 1 ? '1 word' : `${wordCount} words`}</span>
               </>
             )}
           </div>

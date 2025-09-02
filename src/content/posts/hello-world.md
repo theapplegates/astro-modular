@@ -1,4 +1,3 @@
-
 ---
 title: "Welcome to Your Modular Astro Blog"
 date: 2024-01-15

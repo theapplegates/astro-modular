@@ -114,70 +114,88 @@ export function optimizeImagePath(imagePath: string): string {
 
 // Optimize image path specifically for pages
 export function optimizePageImagePath(imagePath: string): string {
+  // Strip Obsidian brackets first
+  const cleanPath = stripObsidianBrackets(imagePath);
+  
   // Handle different image path formats
-  if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
-    return imagePath; // External URL
+  if (cleanPath.startsWith('http://') || cleanPath.startsWith('https://')) {
+    return cleanPath; // External URL
   }
 
-  if (imagePath.startsWith('/')) {
-    return imagePath; // Absolute path
+  if (cleanPath.startsWith('/')) {
+    return cleanPath; // Absolute path
   }
 
   // Prevent double processing - if already optimized, return as-is
-  if (imagePath.startsWith('/pages/images/')) {
-    return imagePath;
+  if (cleanPath.startsWith('/pages/images/')) {
+    return cleanPath;
   }
 
   // Handle Obsidian-style relative paths from markdown content
-  if (imagePath.startsWith('./images/')) {
-    return imagePath.replace('./images/', '/pages/images/');
+  if (cleanPath.startsWith('./images/')) {
+    return cleanPath.replace('./images/', '/pages/images/');
   }
 
-  if (imagePath.startsWith('images/')) {
-    return `/pages/${imagePath}`;
+  if (cleanPath.startsWith('images/')) {
+    return `/pages/${cleanPath}`;
   }
 
   // Handle case where filename is provided without path
-  if (!imagePath.includes('/')) {
-    return `/pages/images/${imagePath}`;
+  if (!cleanPath.includes('/')) {
+    return `/pages/images/${cleanPath}`;
   }
 
   // Default - assume it's a relative path in the pages directory
-  return `/pages/images/${imagePath}`;
+  return `/pages/images/${cleanPath}`;
+}
+
+// Strip Obsidian double bracket syntax from image paths
+export function stripObsidianBrackets(imagePath: string): string {
+  if (!imagePath) return imagePath;
+  
+  // Remove double brackets if present
+  if (imagePath.startsWith('[[') && imagePath.endsWith(']]')) {
+    return imagePath.slice(2, -2);
+  }
+  
+  return imagePath;
 }
 
 // Optimize image path specifically for posts
 export function optimizePostImagePath(imagePath: string): string {
+  // Strip Obsidian brackets first
+  const cleanPath = stripObsidianBrackets(imagePath);
+  
   // Handle different image path formats
-  if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
-    return imagePath; // External URL
+  if (cleanPath.startsWith('http://') || cleanPath.startsWith('https://')) {
+    return cleanPath; // External URL
   }
 
-  if (imagePath.startsWith('/')) {
-    return imagePath; // Absolute path
+  if (cleanPath.startsWith('/')) {
+    return cleanPath; // Absolute path
   }
 
   // Prevent double processing - if already optimized, return as-is
-  if (imagePath.startsWith('/posts/images/')) {
-    return imagePath;
+  if (cleanPath.startsWith('/posts/images/')) {
+    return cleanPath;
   }
 
   // Handle Obsidian-style relative paths from markdown content
-  if (imagePath.startsWith('./images/')) {
-    return imagePath.replace('./images/', '/posts/images/');
+  if (cleanPath.startsWith('./images/')) {
+    return cleanPath.replace('./images/', '/posts/images/');
   }
 
-  if (imagePath.startsWith('images/')) {
-    return `/posts/${imagePath}`;
+  if (cleanPath.startsWith('images/')) {
+    return `/posts/${cleanPath}`;
   }
 
   // Handle case where filename is provided without path
-  if (!imagePath.includes('/')) {
-    return `/posts/images/${imagePath}`;
+  if (!cleanPath.includes('/')) {
+    return `/posts/images/${cleanPath}`;
   }
 
   // Default - assume it's a relative path in the posts directory
-  return `/posts/images/${imagePath}`;
+  return `/posts/images/${cleanPath}`;
 }
 
 // Generate responsive image srcset
