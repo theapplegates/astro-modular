@@ -6,6 +6,7 @@ import { remarkWikilinks } from './src/utils/wikilinks.ts';
 import remarkCallouts from './src/utils/remark-callouts.ts';
 import remarkReadingTime from 'remark-reading-time';
 import remarkToc from 'remark-toc';
+import rehypeMark from './src/utils/rehype-mark.ts';
 import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import { siteConfig } from './src/config.ts';
@@ -38,9 +39,10 @@ export default defineConfig({
         ordered: false,
         maxDepth: 3,
         heading: 'contents|table[ -]of[ -]contents?|toc'
-      }]
+      }],
     ],
     rehypePlugins: [
+      rehypeMark,
       [rehypeSlug, {
         test: (node) => node.tagName !== 'h1'
       }],
