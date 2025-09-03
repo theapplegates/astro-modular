@@ -3,7 +3,7 @@
     "bannerEnabled": true,
     "height": 240,
     "viewOffset": 0,
-    "noteOffset": 240,
+    "noteOffset": -32,
     "bannerRadius": [
       0,
       0,

@@ -3,7 +3,7 @@ title: Astro Suite Vault (Modular) Guide
 description: How to use this vault.
 date: 2025-08-25
 image: "[[images/astro-composer-suite-for-obsidian.png]]"
-imageAlt: Astro and Obsidian logos.
+imageAlt: Astro and Obsidian logos stacked vertically with a "+" (plus) sign between them.
 imageOG: true
 hideCoverImage: true
 draft: false
@@ -23,19 +23,19 @@ All plugins, key bindings, and the theme can be customized to your liking, but t
 
 ## Theme
 
-Fittingly, the [Minimal](https://minimal.guide/home) theme is used. It uses an understated color scheme with high contract options and a focus mode that helps immerse you in your content. 
+For out-of-the-box customization, [Minimal](https://minimal.guide/home) theme is used. It uses an understated color scheme with high contract options. 
 
-The [Minimal Theme Settings](https://github.com/kepano/obsidian-minimal-settings) and [Hider](https://github.com/kepano/obsidian-hider) community plugins are also installed by default, giving you complete control over your experience. 
+The [Minimal Theme Settings](https://github.com/kepano/obsidian-minimal-settings), [Hider](https://github.com/kepano/obsidian-hider), and [Style Settings](https://obsidian.md/plugins?id=obsidian-style-settings) community plugins are also installed by default, giving you complete control over your experience. 
 
 ## CSS Snippets
 
-A custom CSS snippet called `custom-draggable-top-area.css` makes moving your window is easier when the window frame is hidden and there's no tab bar. The default enabled version is `custom-draggable-top-area-windows.css` which is active by default, and helps with some offsets UI including closing/minimizing/maximizing on Windows, and there's a `custom-draggable-top-area-windows.css` which offers similar functionality for Mac. Use the base version for no offsets, all can be configured in Settings > Appearance > CSS Snippets (make sure to disable the Windows version when another is turned on). None of these are active in mobile.
+An optional custom CSS snippet called `custom-draggable-top-area.css` makes moving your window is easier when the window frame is hidden and there's no tab bar. There are also versions specific to Windows and Mac that have OS-specific UI offsets, or just use the base version for no offsets. All can be configured in Settings > Appearance > CSS Snippets. None of these are active in mobile.
 
-`hide-tabs-icon-mobile.css` removes the tabs icon in the mobile version of Obsidian. If you disable the Disable Tabs plugin, you may want to disable this snippet as well.
+`hide-tabs-icon-mobile.css` removes the tabs icon in the mobile version of Obsidian. If you enable the Disable Tabs plugin, you may want to enable this snippet as well.
 
 ## Important Hotkeys
 
-Because Obsidian's interface has been stripped down to its bare essence, relying on hotkeys is imperative. Here's a guide:
+Here's a guide for some important hotkeys, some default, some set especially for this theme:
 - New note: `CTRL + N`
 - Open settings: `CTRL + ,`
 - Command palette: `CTRL + P`
@@ -55,21 +55,16 @@ If you're on Mac, `CTRL` = `CMD`.
 ## Plugins 
 
 Disabled default core plugins: 
-- Backlinks
 - Canvas
 - Daily notes
-- Graph view
 - Note composer
-- Outgoing links
 - Page preview
 - Templates
 - Sync
 
 Community plugins enabled: 
 - Astro Composer
-- Custom save
 - Default New Tab Page
-- Disable Tabs
 - Hider
 - Homepage
 - Image Inserter
@@ -86,10 +81,7 @@ Handy for easily creating new notes as Astro blog posts. Just create a new note 
 
 You can also define and set default properties that can be generated automatically or manually set for any open note as well.
 
-Once you've used Wikilinks or markdown links, you can also convert those automatically to internal links for Astro with the "Convert internal links for Astro" command. 
-### Custom save
-
-This defines a set of commands to fire once `CTRL + S` is initiated. For convenience, both "Convert internal links for Astro" and "Standardize properties" commands from the Astro Composer plugin are included. You can add or remove any if you'd like - this is designed for posts to be "publish-ready" when manually saved.
+Unlike other themes, you can use Wikilinks or standard markdown links, ***without*** having to convert those to internal links for Astro with the "Convert internal links for Astro" command. This theme supports any internal link that works with Obsidian.
 
 ### Homepage and Default New Tab Page
 
@@ -97,7 +89,9 @@ Both of these work together so you're default screen is a `.base` file that's a 
 
 The Base is nested within a folder called `_bases` because Astro will ignore files and folders with an underscore prefix, letting you use this for Obsidian without processing it for the live site.
 
-### Minimal Theme Settings, Disable Tabs, Hider, and Style Settings
+I call this "Home Base."
+
+### Minimal Theme Settings, Hider, and Style Settings
 
 As mentioned earlier, these plugins keep you focused and distraction-free while allowing for customization of your experience. 
 
@@ -111,11 +105,7 @@ Quickly drag and drop image files or paste directly from your clipboard and give
 
 ### Image Inserter
 
-Pull in images from Unsplash or other sources easily with just a few keystrokes. 
-
-### Disable Tabs
-
-This effectively makes it so opening any new tab replaces the current one only. Especially nice for when you're hiding the tab bar and don't want multiple tabs. When combined with the Homepage and New Default Tab plugins, `CTRL + T` and `CTRL + M` essentially do the same thing.
+Pull in images from Unsplash or other sources easily with just a few keystrokes. Just use `CTRL + '` to insert an image - and immediately set a SEO-friendly filename for it via the Paste Image Rename plugin..
 
 ### Title-Only Tab
 
@@ -123,11 +113,7 @@ Pulls from the `title` property instead of using the filename for any tab. With 
 
 ### ProZen
 
-Zen mode offers another quick option to focus on your writing. Pressing `CTRL + SHIFT + Z` will enter Zen mode: automatic full-screen, all elements removed except for your content. This is a great alternative if you don't prefer to use Hider to remove the UI, and prefer to toggle it all on or off at once as needed.
-
-### mdx as md
-
-This is just for any Astro theme that uses `.mdx` in addition to `.md`, such as Chiri. Unfortunately there's not yet a way to have Bases read properties from `.mdx` files so while the files themselves will appear, the file's properties won't appear on the homepage `.base` view. 
+Zen mode offers another quick option to focus on your writing. Pressing `CTRL + SHIFT + Z` will enter Zen mode: automatic full-screen, all elements removed except for your content. This is a great alternative if you don't prefer to use Hider to remove the UI, and prefer to toggle it all on or off at once as needed. Alternatively, you can use the Focus Mode included in the Minimal theme.
 
 ### BRAT (Temporary)
 
@@ -136,3 +122,7 @@ Only used temporarily to load Astro Composer and Disable Tabs plugins before the
 ## Git
 
 The [Git](https://obsidian.md/plugins?id=obsidian-git) plugin is turned off by default, if you turn it on, you can easily publish to your Astro blog without leaving Obsidian using `CTRL + SHIFT + S`. Simply enable the plugin and configure with git to turn it on.
+
+### Disable Tabs
+
+This is also off by default, but if enabled, opening any new tab replaces the current one only. Especially nice for when you're hiding the tab bar and don't want multiple tabs. When combined with the Homepage and New Default Tab plugins, `CTRL + T` and `CTRL + M` essentially do the same thing.

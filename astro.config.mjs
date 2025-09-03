@@ -66,9 +66,8 @@ export default defineConfig({
         'e99adaee-bacd-4c0e-9a43-3367c5473a37-00-2r78uv08uy8pr.janeway.replit.dev',
         '1f862f47-304a-41f1-b4ef-c30fd52c20f4-00-pysanuvprrps.riker.replit.dev',
         '7c7d17a5-9e7a-489b-81ee-2831ec9efa37-00-1hzc8ugx94cy6.janeway.replit.dev',
-        
-'86e35c26-cef9-4a2b-b4db-75407fcddd2a-00-2nxxkvj0ojzsg.riker.replit.dev',
-
+        '86e35c26-cef9-4a2b-b4db-75407fcddd2a-00-2nxxkvj0ojzsg.riker.replit.dev',
+        '135a3955-455d-4e58-8348-79b7ffc4a03c-00-7y0e95ym3fse.picard.replit.dev',
         '135a3955-455d-4e58-8348-79b7ffc4a03c-00-7y0e95ym3fse.picard.replit.dev'
       ],
       middlewareMode: false,
