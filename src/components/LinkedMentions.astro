@@ -22,8 +22,10 @@ function processExcerptLinks(text: string, targetSlug: string): string {
     const isRelevantLink = linkSlug === targetSlug;
     
     if (isRelevantLink) {
-      // Bold the entire wikilink including brackets for the relevant link
-      return `<strong class="text-primary-800 dark:text-primary-200">${match}</strong>`;
+      // For relevant links, create the proper wikilink format and bold it
+      // If there's a display override, use [[display]], otherwise use [[link]]
+      const properFormat = display ? `[[${display}]]` : `[[${link}]]`;
+      return `<strong class="text-primary-800 dark:text-primary-200">${properFormat}</strong>`;
     } else {
       // Keep other wikilinks as-is (not bold)
       return match;
