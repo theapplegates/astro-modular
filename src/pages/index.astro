@@ -83,7 +83,7 @@ const structuredData = {
         <>
           <!-- Home blurb above posts -->
           {siteConfig.homeBlurb?.enabled && siteConfig.homeBlurb?.placement === 'above' && HomeBlurbContent && (
-            <section class="prose prose-lg dark:prose-dark max-w-none mb-16">
+            <section class="prose prose-sm dark:prose-dark max-w-none mb-16">
               <HomeBlurbContent />
             </section>
           )}
@@ -92,7 +92,7 @@ const structuredData = {
           {featuredPost && (
             <section class="mb-12">
               <div class="flex items-center justify-between mb-6">
-                <h2 class="font-semibold text-primary-900 dark:text-primary-50">
+                <h2 class="text-lg font-semibold text-primary-900 dark:text-primary-50">
                   Latest Post
                 </h2>
               </div>
@@ -105,7 +105,7 @@ const structuredData = {
           {previewPosts.length > 0 && (
             <section class="mb-12">
               <div class="flex items-center justify-between mb-6">
-                <h2 class="font-semibold text-primary-900 dark:text-primary-50">
+                <h2 class="text-lg font-semibold text-primary-900 dark:text-primary-50">
                   Recent Posts
                 </h2>
                 <a 
@@ -126,7 +126,7 @@ const structuredData = {
 
           <!-- Home blurb below posts -->
           {siteConfig.homeBlurb?.enabled && siteConfig.homeBlurb?.placement === 'below' && HomeBlurbContent && (
-            <section class="prose prose-lg dark:prose-dark max-w-none mt-16">
+            <section class="prose prose-sm dark:prose-dark max-w-none mt-16">
               <HomeBlurbContent />
             </section>
           )}
