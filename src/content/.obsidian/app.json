@@ -39,5 +39,6 @@
   ],
   "newFileLocation": "folder",
   "newFileFolderPath": "posts",
-  "newLinkFormat": "relative"
+  "newLinkFormat": "relative",
+  "mobileQuickRibbonItem": "command-palette:Open command palette"
 }
