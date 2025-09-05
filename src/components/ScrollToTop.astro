@@ -6,10 +6,10 @@ import Icon from './Icon.astro';
 
 <button
   id="scroll-to-top"
-  class="fixed bottom-6 right-6 z-50 hidden p-3 bg-primary-900 dark:bg-primary-100 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
+  class="fixed bottom-6 right-6 z-50 hidden p-3 bg-primary-800/90 dark:bg-primary-100/90 text-primary-50 dark:text-primary-900 rounded-full shadow-lg hover:shadow-xl hover:bg-primary-800 dark:hover:bg-primary-100 transition-all duration-300 backdrop-blur-sm"
   aria-label="Scroll to top"
 >
-  <svg class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-icon lucide-arrow-up"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
+  <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
 </button>
 
 <script>
@@ -60,23 +60,6 @@ import Icon from './Icon.astro';
 </script>
 
 <style>
-  #scroll-to-top {
-    backdrop-filter: blur(8px);
-    background: rgba(15, 23, 42, 0.9);
-  }
-  
-  .dark #scroll-to-top {
-    background: rgba(248, 250, 252, 0.9);
-  }
-  
-  #scroll-to-top:hover {
-    background: rgba(15, 23, 42, 1);
-  }
-  
-  .dark #scroll-to-top:hover {
-    background: rgba(248, 250, 252, 1);
-  }
-  
   @media (max-width: 640px) {
     #scroll-to-top {
       bottom: 1rem;

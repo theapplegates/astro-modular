@@ -58,61 +58,38 @@ export const siteConfig = {
   layout: {
     contentWidth: "45rem",
   },
-
-  postsPerPage: 5,
-
-  seo: {
-    defaultOgImageAlt: "Astro Modular logo.",
-  },
+  
 }
 ```
-
 ## Customization
 
-### Theme & Navigation
+### Theme & Layout
 
-Configure theme and navigation in the config:
+Configure theme and layout options in the config:
 
 ```typescript
+theme: "minimal",
 layout: {
   contentWidth: "45rem",
 },
-
+postsPerPage: 5,
+  seo: {
+    defaultOgImageAlt: "Astro Modular logo.",
+  },
 homeBlurb: {
   enabled: true,
   placement: "below", // 'above' or 'below'
 },
-
 footer: {
   content: `© 2025 {author}. Built with Astro Modular.`,
-},
-
-navigation: {
-  showNavigation: true,
-  style: 'traditional', // or 'minimal'
-  showMobileMenu: true,
-  pages: [
-    { title: 'Posts', url: '/posts' },
-    { title: 'About', url: '/about' }
-  ],
-  social: [
-    { title: 'GitHub', url: 'https://github.com/username', icon: 'github' }
-  ],
 }
 ```
 
-Customize colors in `src/styles/global.css`:
-
-```css
-:root {
-  --color-highlight: 14 165 233; /* Your accent color */
-  --color-background: 255 255 255;
-  --color-foreground: 15 23 42;
-}
-```
+The theme options are currently Minimal and Oxygen. You may need to do a hard refresh (`CTRL + SHIFT + R`) to see the changes.
 ### Modular Features
 
 Toggle modular features in the config: 
+
 ```typescript
 features: {
   readingTime: true,
@@ -139,6 +116,24 @@ commandPalette: {
 }
 ```
 
+### Navigtation
+
+Navigation is also set in the config:
+
+```typescript
+navigation: {
+  showNavigation: true,
+  style: 'traditional', // or 'minimal'
+  showMobileMenu: true,
+  pages: [
+    { title: 'Posts', url: '/posts' },
+    { title: 'About', url: '/about' }
+  ],
+  social: [
+    { title: 'GitHub', url: 'https://github.com/username', icon: 'github' }
+  ],
+}
+```
 ## Content Structure
 
 ```

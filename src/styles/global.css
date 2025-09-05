@@ -1,59 +1,31 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* CSS Custom Properties */
+/* CSS Custom Properties - Essential globals only */
 :root {
-  --color-background: 255 255 255;
-  --color-foreground: 15 23 42;
-  --color-muted: 248 250 252;
-  --color-muted-foreground: 100 116 139;
-  --color-border: 226 232 240;
-  --color-input: 255 255 255;
-  --color-primary: 15 23 42;
-  --color-primary-foreground: 248 250 252;
-  --color-secondary: 241 245 249;
-  --color-secondary-foreground: 15 23 42;
-  --color-accent: 241 245 249;
-  --color-accent-foreground: 15 23 42;
-  --color-destructive: 239 68 68;
-  --color-destructive-foreground: 248 250 252;
-  --color-ring: 15 23 42;
-  --color-highlight: 14 165 233;
-
-  /* Code block colors */
-  --code-bg: #111827;
-  --code-text: #f9fafb;
-  --inline-code-bg: #f3f4f6;
-  --inline-code-text: #111827;
+  /* Code block colors for light theme */
+  --code-bg: 33 33 33;
+  --code-text: 240 240 240;
+  --inline-code-bg: 240 240 240;
+  --inline-code-text: 33 33 33;
+  
+  /* Highlight/selection colors */
+  --selection-bg: 112 135 148;
 }
 
 .dark {
-  --color-background: 2 6 23;
-  --color-foreground: 248 250 252;
-  --color-muted: 15 23 42;
-  --color-muted-foreground: 148 163 184;
-  --color-border: 30 41 59;
-  --color-input: 15 23 42;
-  --color-primary: 248 250 252;
-  --color-primary-foreground: 15 23 42;
-  --color-secondary: 30 41 59;
-  --color-secondary-foreground: 248 250 252;
-  --color-accent: 30 41 59;
-  --color-accent-foreground: 248 250 252;
-  --color-destructive: 220 38 38;
-  --color-destructive-foreground: 248 250 252;
-  --color-ring: 212 212 216;
-  --color-highlight: 56 189 248;
-
-  /* Code blocks remain theme-independent */
-  --inline-code-bg: #1f2937;
-  --inline-code-text: #f9fafb;
+  /* Code blocks for dark theme */
+  --code-bg: 23 23 23;
+  --code-text: 240 240 240;
+  --inline-code-bg: 55 55 55;
+  --inline-code-text: 240 240 240;
 }
 
 /* Base Styles */
 * {
-  border-color: rgb(var(--color-border));
+  @apply border-primary-200 dark:border-primary-700;
 }
 
 html {
@@ -62,8 +34,7 @@ html {
 }
 
 body {
-  background-color: rgb(var(--color-background));
-  color: rgb(var(--color-foreground));
+  @apply bg-primary-50 dark:bg-primary-900 text-primary-900 dark:text-primary-100;
   font-feature-settings: "rlig" 1, "calt" 1;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -82,12 +53,12 @@ body {
 
 /* Selection Colors */
 ::selection {
-  background-color: rgb(var(--color-highlight) / 0.2);
+  background-color: rgb(var(--selection-bg) / 0.2);
   color: inherit;
 }
 
 ::-moz-selection {
-  background-color: rgb(var(--color-highlight) / 0.2);
+  background-color: rgb(var(--selection-bg) / 0.2);
   color: inherit;
 }
 
@@ -106,8 +77,7 @@ code ::-moz-selection,
 
 /* Focus Styles */
 :focus-visible {
-  outline: 2px solid rgb(var(--color-highlight));
-  outline-offset: 2px;
+  @apply outline-2 outline-highlight-500 dark:outline-highlight-400 outline-offset-2;
 }
 
 /* Typography */
@@ -120,51 +90,40 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Links */
 a {
-  color: rgb(var(--color-highlight));
-  text-decoration: none;
-  transition: color 0.2s ease-in-out;
+  @apply text-highlight-600 dark:text-highlight-400 no-underline transition-colors duration-200;
 }
 
 a:hover {
-  color: rgb(var(--color-highlight));
-  opacity: 0.8;
+  @apply text-highlight-700 dark:text-highlight-300 opacity-80;
 }
 
 /* Wikilinks */
 .wikilink {
-  color: rgb(var(--color-highlight));
-  font-weight: 500;
-  text-decoration: none;
-  border-bottom: 1px dashed rgb(var(--color-highlight) / 0.5);
-  transition: all 0.2s ease-in-out;
+  @apply text-highlight-600 dark:text-highlight-400 font-medium no-underline border-b border-dashed border-highlight-500/50 transition-all duration-200;
 }
 
 .wikilink:hover {
-  color: rgb(var(--color-highlight));
-  opacity: 0.8;
-  border-bottom-style: solid;
+  @apply text-highlight-700 dark:text-highlight-300 opacity-80 border-solid;
 }
 
 .wikilink-broken {
-  color: rgb(239 68 68);
-  cursor: not-allowed;
-  text-decoration: line-through;
+  @apply text-red-500 cursor-not-allowed line-through;
 }
 
 /* Code Styles - Simplified and Theme Independent */
 code {
   font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-  font-size: 1em !important;
-  background-color: var(--inline-code-bg);
-  color: var(--inline-code-text);
+  font-size: 0.875em;
+  background-color: rgb(var(--inline-code-bg));
+  color: rgb(var(--inline-code-text));
   padding: 0.375rem;
   border-radius: 0.25rem;
 }
 
 pre {
   font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-  background-color: var(--code-bg);
-  color: var(--code-text);
+  background-color: rgb(var(--code-bg));
+  color: rgb(var(--code-text));
   padding: 1rem;
   border-radius: 0.5rem;
   overflow-x: auto;
@@ -181,8 +140,8 @@ pre code {
 /* Syntax highlighting (astro-code) */
 .astro-code,
 pre.astro-code {
-  background-color: var(--code-bg) !important;
-  color: var(--code-text) !important;
+  background-color: rgb(var(--code-bg)) !important;
+  color: rgb(var(--code-text)) !important;
   padding: 1rem !important;
   border-radius: 0.5rem !important;
   overflow-x: auto !important;

@@ -58,6 +58,8 @@ export default defineConfig({
   },
   vite: {
     server: {
+      host: '0.0.0.0',
+      port: 5000,
       allowedHosts: [
         '0b4ea26e-07ff-411e-a293-99d72ae7d1b2-00-rx4xuahdxqtw.worf.replit.dev',
         '1a537f8e-3c44-41fe-b014-7f889986f234-00-2a93cn23ljkra.janeway.replit.dev',
@@ -72,9 +74,12 @@ export default defineConfig({
         'a8c78a87-ea7d-4ba6-b416-fbd5954cd0b1-00-1vz1me1zk5rvw.riker.replit.dev'
       ],
       middlewareMode: false,
-      hmr: true,
+      hmr: {
+        port: 5000,
+        host: '0.0.0.0'
+      },
       headers: {
-        'Cache-Control': 'public, max-age=3600'
+        'Cache-Control': 'no-cache, no-store, must-revalidate'
       }
     },
     define: {
