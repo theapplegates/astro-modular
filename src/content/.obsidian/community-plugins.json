@@ -12,5 +12,8 @@
   "title-only-tab",
   "paste-image-into-property",
   "simple-banner",
-  "iconic"
+  "iconic",
+  "cmdr",
+  "obsidian-shellcommands",
+  "obsidian-git"
 ]

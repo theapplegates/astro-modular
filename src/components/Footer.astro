@@ -4,14 +4,15 @@ import { siteConfig } from '@/config';
 const currentYear = new Date().getFullYear();
 const showSocialIcons = siteConfig.features.showSocialIconsInFooter;
 const socialLinks = siteConfig.navigation.social;
+
+// Replace placeholder with actual author name
+const footerContent = siteConfig.footer.content.replace('{author}', siteConfig.author);
 ---
 
 <footer class="bg-white dark:bg-primary-950 mt-auto">
   <div class="mx-auto px-4 sm:px-6 lg:px-8 py-8" style={`max-width: ${siteConfig.layout.contentWidth}`}>
     <div class={showSocialIcons && socialLinks.length > 0 ? "flex justify-between items-center" : "text-center"}>
-      <p class="text-xs text-primary-500 dark:text-primary-400">
-        Built with <a href="https://astro.build" class="hover:text-highlight-600 dark:hover:text-highlight-400 transition-colors">Astro</a> 
-        and <a href="https://tailwindcss.com" class="hover:text-highlight-600 dark:hover:text-highlight-400 transition-colors">Tailwind CSS</a>
+      <p class="text-xs text-primary-500 dark:text-primary-400" set:html={footerContent}>
       </p>
       
       {showSocialIcons && socialLinks.length > 0 && (

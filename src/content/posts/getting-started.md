@@ -44,18 +44,26 @@ pnpm run build
 
 ### Core Settings
 
-Configure everything in `src/config.ts`. Enable only the features you need:
+Configure everything in `src/config.ts`. The configuration is organized in logical sections:
 
 ```typescript
+// Set your values HERE
 export const siteConfig = {
   site: 'https://yourdomain.com',
   title: 'Your Blog Title',
   description: 'Your blog description',
   author: 'Your Name',
+  language: 'en',
+
+  layout: {
+    contentWidth: "45rem",
+  },
+
+  postsPerPage: 5,
 
   seo: {
-    defaultOgImageAlt: "Astro Modular logo.",
-  },
+    defaultOgImageAlt: "Astro Modular logo.",
+  },
 }
 ```
 
@@ -65,22 +73,24 @@ export const siteConfig = {
 
 Configure theme and navigation in the config:
 
-```TypeScript
- theme: {
-    fonts: {
-      heading:
-        'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-      body: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-    },
-  },
-  layout: {
-    contentWidth: "40rem",
-  }
-```
-
 ```typescript
+layout: {
+  contentWidth: "45rem",
+},
+
+homeBlurb: {
+  enabled: true,
+  placement: "below", // 'above' or 'below'
+},
+
+footer: {
+  content: `© 2025 {author}. Built with Astro Modular.`,
+},
+
 navigation: {
-  style: 'minimal', // or 'traditional'
+  showNavigation: true,
+  style: 'traditional', // or 'minimal'
+  showMobileMenu: true,
   pages: [
     { title: 'Posts', url: '/posts' },
     { title: 'About', url: '/about' }
@@ -88,10 +98,6 @@ navigation: {
   social: [
     { title: 'GitHub', url: 'https://github.com/username', icon: 'github' }
   ],
-  homeBlurb: {
-    enabled: true,
-    placement: "below", 
-  },
 }
 ```
 
@@ -109,28 +115,28 @@ Customize colors in `src/styles/global.css`:
 Toggle modular features in the config: 
 ```typescript
 features: {
-  readingTime: false,
-  commandPalette: true,
-  linkedMentions: true,
+  readingTime: true,
   wordCount: true,
   tableOfContents: true,
-  tags: true,
+  tags: true,
+  linkedMentions: true,
   scrollToTop: true,
   darkModeToggleButton: true,
   showCoverImages: true,
+  showSocialIconsInFooter: true,
+  commandPalette: true,
   postNavigation: true,
-  showSocialIconsInFooter: false,
 },
-postsPerPage: 5,
-  commandPalette: {
-    shortcut: "ctrl+K",
-    placeholder: "Search all posts...",
-    sections: {
-      quickActions: true,
-      pages: true,
-      social: true,
-    },
-  }
+
+commandPalette: {
+  shortcut: "ctrl+K",
+  placeholder: "Search posts",
+  sections: {
+    quickActions: true,
+    pages: true,
+    social: true,
+  },
+}
 ```
 
 ## Content Structure

@@ -1,6 +1,6 @@
 ---
 title: Astro Suite Vault (Modular) Guide
-description: How to use this vault.
+description: How to use this Astro Suite Obsidian vault.
 date: 2025-08-25
 image: "[[images/astro-composer-suite-for-obsidian.png]]"
 imageAlt: Astro and Obsidian logos stacked vertically with a "+" (plus) sign between them.
@@ -37,20 +37,19 @@ Both `hide-longpress-flair-mobile.css` and `hide-header-title-mobile.css` are al
 
 ## Important Hotkeys
 
-Here's a guide for some important hotkeys, some default, some set especially for this theme:
-- New note: `CTRL + N`
-- Open settings: `CTRL + ,`
-- Command palette: `CTRL + P`
-- Search vault: `CTRL + O`
-- Open a new tab: `CTRL + T`
-- Close current tab: `CTRL + W`
+Here's a guide for some important hotkeys set especially for this theme:
 - Toggle left side panel: `CTRL + ALT + Z`
 - Toggle right side panel: `CTRL + ALT + X`
 - Toggle tab bar: `CTRL + ALT + S`
+- Navigate back: `ALT + ←`
+- Navigate forward: `ALT + →`
 - Open homepage: `CTRL + M` 
 - Add a new property: `CTRL + ;`
 - Toggle reading view: `CTRL + E`
 - Toggle Zen mode: `CTRL + SHIFT + Z`
+- Insert image: `CTRL + '`
+- Start Terminal: `CTRL + SHIFT + D`
+- Git: Commit and Sync `CTRL + SHIFT + S`
 
 If you're on Mac, `CTRL` = `CMD`.
 
@@ -67,6 +66,7 @@ Disabled default core plugins:
 Community plugins enabled: 
 - Astro Composer
 - Default New Tab Page
+- Git
 - Hider
 - Homepage
 - Image Inserter
@@ -74,6 +74,7 @@ Community plugins enabled:
 - mdx as md
 - Paste image rename
 - ProZen
+- Shell commands
 - Style Settings
 - Title-Only Tab
 
@@ -117,14 +118,20 @@ Pulls from the `title` property instead of using the filename for any tab. With 
 
 Zen mode offers another quick option to focus on your writing. Pressing `CTRL + SHIFT + Z` will enter Zen mode: automatic full-screen, all elements removed except for your content. This is a great alternative if you don't prefer to use Hider to remove the UI, and prefer to toggle it all on or off at once as needed. Alternatively, you can use the Focus Mode included in the Minimal theme.
 
+### Shell commands and Commander
+
+Shell commands helps open terminal quickly with the `Start Terminal` command. It's been modified for Windows, macOS, and Linux to start terminal in the relevant directory so you can easily do standard package manager commands like `npm` or `pnpm`. It can be activated with `CTRL + SHIFT + D`. 
+
+Commander helps us place a button for it on the file explorer UI.
+
 ### BRAT (Temporary)
 
 Only used temporarily to load Astro Composer and Disable Tabs plugins before they're available in the Obsidian plugin directory. Future versions of this vault will remove BRAT in favor of the official releases.
 
 ## Git
 
-The [Git](https://obsidian.md/plugins?id=obsidian-git) plugin is turned off by default, if you turn it on, you can easily publish to your Astro blog without leaving Obsidian using `CTRL + SHIFT + S`. Simply enable the plugin and configure with git to turn it on.
+With the [Git](https://obsidian.md/plugins?id=obsidian-git) plugin, you can easily publish to your Astro blog without leaving Obsidian using `CTRL + SHIFT + S`. Simply configure with git to enable it.
 
 ### Disable Tabs
 
-This is also off by default, but if enabled, opening any new tab replaces the current one only. Especially nice for when you're hiding the tab bar and don't want multiple tabs. When combined with the Homepage and New Default Tab plugins, `CTRL + T` and `CTRL + M` essentially do the same thing.
+This is off by default, but if enabled, opening any new tab replaces the current one only. Especially nice for when you're hiding the tab bar and don't want multiple tabs. When combined with the Homepage and New Default Tab plugins, `CTRL + T` and `CTRL + M` essentially do the same thing.

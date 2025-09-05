@@ -11,7 +11,7 @@ const IMAGE_SYNC_CONFIGS = [
     name: 'posts'
   },
   {
-    source: 'src/content/pages/images', 
+    source: 'src/content/pages/images',
     target: 'public/pages/images',
     name: 'pages'
   }
@@ -27,10 +27,10 @@ async function ensureDir(dir) {
 
 async function syncImagesForConfig(config) {
   console.log(`🖼️ Syncing ${config.name} images...`);
-  
+
   // Ensure target directory exists
   await ensureDir(config.target);
-  
+
   try {
     // Check if source directory exists
     let sourceFiles = [];
@@ -43,24 +43,24 @@ async function syncImagesForConfig(config) {
       }
       throw error;
     }
-    
+
     for (const file of sourceFiles) {
       const sourcePath = path.join(config.source, file);
       const targetPath = path.join(config.target, file);
-      
+
       // Check if file needs updating
       let needsUpdate = true;
       try {
         const sourceStats = await fs.stat(sourcePath);
         const targetStats = await fs.stat(targetPath);
-        
+
         // Only update if source is newer or different size
         needsUpdate = sourceStats.mtime > targetStats.mtime || sourceStats.size !== targetStats.size;
       } catch {
         // Target doesn't exist, definitely needs update
         needsUpdate = true;
       }
-      
+
       if (needsUpdate) {
         await fs.copyFile(sourcePath, targetPath);
         console.log(`✅ Synced ${config.name}: ${file}`);
@@ -68,12 +68,12 @@ async function syncImagesForConfig(config) {
         console.log(`⏭️ Skipped ${config.name}: ${file} (up to date)`);
       }
     }
-    
+
     // Cleanup: Remove files from target that no longer exist in source
     console.log(`🧹 Cleaning up orphaned ${config.name} files...`);
     const targetFiles = await fs.readdir(config.target);
     const sourceFileSet = new Set(sourceFiles);
-    
+
     for (const file of targetFiles) {
       if (!sourceFileSet.has(file)) {
         const targetPath = path.join(config.target, file);
@@ -89,11 +89,11 @@ async function syncImagesForConfig(config) {
 
 async function syncAllImages() {
   console.log('🖼️ Syncing images from content to public directory...');
-  
+
   for (const config of IMAGE_SYNC_CONFIGS) {
     await syncImagesForConfig(config);
   }
-  
+
   console.log('🎉 Image sync complete!');
 }
 

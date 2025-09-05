@@ -1,3 +1,4 @@
+
 // Site configuration with TypeScript types
 export interface SiteConfig {
   site: string;
@@ -5,34 +6,33 @@ export interface SiteConfig {
   description: string;
   author: string;
   language: string;
-
-  theme: {
-    fonts: {
-      heading: string;
-      body: string;
-    };
-  };
-
   layout: {
     contentWidth: string;
   };
-
+  postsPerPage: number;
+  seo: {
+    defaultOgImageAlt: string;
+  };
+  homeBlurb?: {
+    enabled?: boolean;
+    placement?: "above" | "below";
+  };
+  footer: {
+    content: string;
+  };
   features: {
     readingTime: boolean;
     wordCount: boolean;
     tableOfContents: boolean;
     tags: boolean;
     linkedMentions: boolean;
-    commandPalette: boolean;
     scrollToTop: boolean;
     darkModeToggleButton: boolean;
     showCoverImages: boolean;
-    postNavigation: boolean;
     showSocialIconsInFooter: boolean;
+    commandPalette: boolean;
+    postNavigation: boolean;
   };
-
-  postsPerPage: number;
-
   commandPalette: {
     shortcut: string;
     placeholder: string;
@@ -42,22 +42,12 @@ export interface SiteConfig {
       social: boolean;
     };
   };
-
   navigation: {
     showNavigation: boolean;
     style: "minimal" | "traditional";
     showMobileMenu: boolean;
     pages: Array<{ title: string; url: string }>;
     social: Array<{ title: string; url: string; icon: string }>;
-  };
-
-  seo: {
-    defaultOgImageAlt: string;
-  };
-
-  homeBlurb?: {
-    enabled?: boolean;
-    placement?: "above" | "below";
   };
 }
 
@@ -68,39 +58,46 @@ export const siteConfig: SiteConfig = {
   description: "A modular Astro blog.",
   author: "David V. Kimball",
   language: "en",
-  theme: {
-    fonts: {
-      heading:
-        'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-      body: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-    },
-  },
+  
   layout: {
-    contentWidth: "40rem",
+    contentWidth: "45rem",
   },
+  postsPerPage: 5,
+  seo: {
+    defaultOgImageAlt: "Astro Modular logo.",
+  },
+  homeBlurb: {
+    enabled: true,
+    placement: "below", // 'above' (before latest post) or 'below' (after recent posts)
+  },
+  footer: {
+    content: `© 2025 {author}. Built with the <a href="https://astro-modular.netlify.app/" class="hover:text-highlight-600 dark:hover:text-highlight-400 transition-colors" target="_blank">Astro Modular</a> theme.`,
+  },
+
   features: {
     readingTime: true,
     wordCount: true,
     tableOfContents: true,
     tags: true,
     linkedMentions: true,
-    commandPalette: true,
     scrollToTop: true,
     darkModeToggleButton: true,
     showCoverImages: true,
+    showSocialIconsInFooter: true,
+    commandPalette: true,
     postNavigation: true,
-    showSocialIconsInFooter: false,
   },
-  postsPerPage: 5,
+
   commandPalette: {
     shortcut: "ctrl+K",
-    placeholder: "Search all posts...",
+    placeholder: "Search posts",
     sections: {
       quickActions: true,
       pages: true,
       social: true,
     },
   },
+
   navigation: {
     showNavigation: true,
     style: "traditional", // 'minimal' or 'traditional'
@@ -122,13 +119,6 @@ export const siteConfig: SiteConfig = {
         icon: "x-twitter",
       },
     ],
-  },
-  seo: {
-    defaultOgImageAlt: "Astro Modular logo.",
-  },
-  homeBlurb: {
-    enabled: true,
-    placement: "below", // 'above' (before latest post) or 'below' (after recent posts)
   },
 };
 
