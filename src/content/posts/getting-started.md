@@ -1,9 +1,9 @@
 ---
-title: Complete Setup Guide for Your Modular Astro Blog
+title: Getting Started
 date: 2024-01-20
-description: Everything you need to know to set up, configure, and customize your modular Astro blog built for Obsidian users. From installation to advanced features and workflow optimization.
+description: Everything you need to know to set up, configure, and customize Astro Modular.
 image: "[[images/sunset.jpg]]"
-imageAlt: Minimalist workspace with computer and notebook representing digital writing
+imageAlt: Sunset skyline.
 imageOG: true
 hideCoverImage: false
 tags:
@@ -16,7 +16,7 @@ tags:
 draft: false
 targetKeyword: astro blog setup
 ---
-This guide covers everything needed to set up and customize your modular Astro blog—designed for Obsidian users who want to publish content with minimal friction.
+This guide covers everything needed to set up and customize your modular Astro blog, designed for Obsidian users who want to publish content with minimal friction.
 
 ## Prerequisites & Setup
 
@@ -24,7 +24,7 @@ You'll need:
 - **Node.js 18+**
 - **pnpm** (recommended) or npm
 - Basic markdown familiarity
-- Obsidian (optional, for enhanced workflow)
+- Obsidian (optional)
 
 ### Installation
 
@@ -52,34 +52,31 @@ export const siteConfig = {
   title: 'Your Blog Title',
   description: 'Your blog description',
   author: 'Your Name',
-  
-  features: {
-    readingTime: true,          // Show reading time
-    tableOfContents: true,      // Auto-generate TOCs
-    tags: true,                 // Enable tag system
-    linkedMentions: true,       // Show post connections
-    commandPalette: true,       // Enable Ctrl+K search
-    darkModeToggleButton: true, // Theme switcher
-    showCoverImages: true,      // Display post images
-  },
-  
-  postsPerPage: 5,
+
+  seo: {
+    defaultOgImageAlt: "Astro Modular logo.",
+  },
 }
 ```
+
+## Customization
 
 ### Theme & Navigation
 
-Customize colors in `src/styles/global.css`:
+Configure theme and navigation in the config:
 
-```css
-:root {
-  --color-highlight: 14 165 233; /* Your accent color */
-  --color-background: 255 255 255;
-  --color-foreground: 15 23 42;
-}
+```TypeScript
+ theme: {
+    fonts: {
+      heading:
+        'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      body: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    },
+  },
+  layout: {
+    contentWidth: "40rem",
+  }
 ```
-
-Configure navigation in the config:
 
 ```typescript
 navigation: {
@@ -90,8 +87,50 @@ navigation: {
   ],
   social: [
     { title: 'GitHub', url: 'https://github.com/username', icon: 'github' }
-  ]
+  ],
+  homeBlurb: {
+    enabled: true,
+    placement: "below", 
+  },
 }
+```
+
+Customize colors in `src/styles/global.css`:
+
+```css
+:root {
+  --color-highlight: 14 165 233; /* Your accent color */
+  --color-background: 255 255 255;
+  --color-foreground: 15 23 42;
+}
+```
+### Modular Features
+
+Toggle modular features in the config: 
+```typescript
+features: {
+  readingTime: false,
+  commandPalette: true,
+  linkedMentions: true,
+  wordCount: true,
+  tableOfContents: true,
+  tags: true,
+  scrollToTop: true,
+  darkModeToggleButton: true,
+  showCoverImages: true,
+  postNavigation: true,
+  showSocialIconsInFooter: false,
+},
+postsPerPage: 5,
+  commandPalette: {
+    shortcut: "ctrl+K",
+    placeholder: "Search all posts...",
+    sections: {
+      quickActions: true,
+      pages: true,
+      social: true,
+    },
+  }
 ```
 
 ## Content Structure
@@ -102,6 +141,7 @@ src/content/
 │   ├── images/      # Post images
 │   └── *.md         # Markdown files
 ├── pages/           # Static pages
+│   ├── images/      # Page images
 │   └── *.md         # Markdown files
 └── .obsidian/       # Obsidian vault setup
 ```
@@ -114,13 +154,19 @@ Create posts in `src/content/posts/` with this frontmatter:
 ---
 title: "Your Post Title"
 date: 2024-01-20
-description: "SEO description"
+description: "Meta & open graph description"
 image: "images/cover.jpg"
 imageAlt: "Alt text"
+imageOG: true
+hideCoverImage: false
 tags:
   - tutorial
   - astro
+draft: true
+targetKeyword: "keyword"
 ---
+
+## Start with H2 Headings
 
 Write using markdown with enhanced features.
 
@@ -135,20 +181,21 @@ Use [[wikilinks]] to connect posts.
 ### Using the Included Vault
 
 1. **Open `src/content/` in Obsidian**
-2. **Install recommended plugins** (Astro Composer, Minimal theme)
+2. **Trust author and enable plugins** (Astro Composer, Minimal theme)
 3. **Write using your normal workflow**
-4. **Publish directly** using Astro Composer
+4. **Publish directly by enabling the Git community plugin**
 
 The vault provides:
 - **Minimal theme** for distraction-free writing
-- **Custom hotkeys** for blogging tasks
-- **Auto-formatting** on save
-- **Publishing shortcuts**
+- **Optional CSS snippets** to customize your experience
+- **Custom hotkeys** for accelerating post creation and publishing
+
+To remove Obsidian, simply delete the `.obsidian` folder.
 
 ## Key Features
 
 ### Command Palette
-Press `Ctrl+K` for instant navigation, search, and theme switching.
+Press `Ctrl+K` (or custom hotkey) for instant navigation, search, and theme switching.
 
 ### Wikilinks & Connections
 - `[[Post Title]]` - Standard wikilink
@@ -186,24 +233,6 @@ pnpm run build
 ```
 
 Generates a static site ready for any hosting platform with automatic optimization.
-
-## Customization
-
-### Modular Features
-```typescript
-features: {
-  readingTime: false,        // Disable if not needed
-  commandPalette: true,      // Keep search
-  linkedMentions: true,      // Show connections
-}
-```
-
-### Styling
-- **CSS custom properties** for colors
-- **Font configuration** options
-- **Layout width** settings
-- **Component-level** customization
-
 ## Troubleshooting
 
 Common issues:
@@ -215,7 +244,7 @@ Common issues:
 
 1. **Customize** `src/config.ts`
 2. **Write** your first post
-3. **Explore** [Markdown Features](markdown-features.md)
+3. **Explore** [Markdown Features](formatting-reference.md)
 4. **Set up** Obsidian vault workflow
 5. **Deploy** and share
 

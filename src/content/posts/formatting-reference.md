@@ -1,9 +1,9 @@
 ---
-title: Complete Guide to Markdown Features
+title: Formatting Reference
 date: 2024-01-25
-description: Explore all the markdown features available in this Obsidian-inspired blog theme, including callouts, code blocks, tables, and advanced formatting options.
+description: Explore all the markdown, extended markdown, and other embed features available in this blog theme.
 image: "[[images/mountains.jpg]]"
-imageAlt: Code editor with markdown syntax highlighting
+imageAlt: Mountains and water.
 imageOG: false
 hideCoverImage: false
 tags:
@@ -16,7 +16,7 @@ tags:
 draft: false
 targetKeyword: markdown features
 ---
-This post demonstrates all the markdown features available in our Obsidian-inspired blog theme. Use this as both a reference guide and a showcase of what's possible with our enhanced markdown processing.
+This post demonstrates all the markdown, extended markdown, and other embed features available in Astro Modular. Use this as both a reference guide and a showcase of what's possible.
 
 ## Basic Formatting
 
@@ -129,13 +129,6 @@ Simply place multiple images together without empty lines between them:
 ![Image 3](image3.jpg)
 ```
 
-The layout automatically adapts:
-- **2 images**: Side by side
-- **3 images**: Three columns 
-- **4 images**: 2x2 grid
-- **5 images**: 3+2 layout
-- **6 images**: 3x2 grid
-
 On mobile devices, all layouts switch to a single column for better readability.
 
 ## Videos
@@ -213,7 +206,7 @@ Here's an [external link](https://obsidian.md).
 
 ### Internal Links
 
-You can create internal links using double brackets or with standard markdown: [[getting-started|Getting Started]] or [Markdown Features](markdown-features.md).
+You can create internal links using double brackets or with standard markdown: [[getting-started|Getting Started]] or [Markdown Features](formatting-reference.md).
 
 ### Reference Links
 
@@ -368,15 +361,16 @@ This content is hidden by default and can be expanded by clicking the summary.
 
 <small>Small text for fine print</small>
 
-## Conclusion
+## Works with Obsidian
 
-This comprehensive guide covers most of the markdown features available in our Obsidian-inspired blog theme. The combination of standard markdown, extended syntax, and Obsidian-compatible features provides a powerful writing environment for creating rich, engaging content.
+All of these formatting options should also appear in Obsidian, with some differences depending on the theme you use. 
 
 ### Quick Reference
 
 - **Bold**: `**text**` or `__text__`
 - **Italic**: `*text*` or `_text_`
 - **Code**: `` `code` ``
+- **Highlight:** `==text==`
 - **Links**: `[text](url)` or `[[wikilink]]`
 - **Images**: `![alt](url)`
 - **Lists**: `-` or `1.` for ordered
@@ -386,4 +380,4 @@ This comprehensive guide covers most of the markdown features available in our O
 - **Callouts**: `> [!TYPE]`
 - **Horizontal rule**: `---`
 
-Happy writing! 🚀
+Happy writing! 
