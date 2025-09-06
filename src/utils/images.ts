@@ -114,9 +114,21 @@ export function optimizeImagePath(imagePath: string): string {
 
 // Optimize image path specifically for pages
 export function optimizePageImagePath(imagePath: string): string {
+  // Handle null, undefined, or empty strings
+  if (!imagePath || typeof imagePath !== 'string') {
+    console.warn('Invalid page image path provided:', imagePath);
+    return '/pages/images/placeholder.jpg'; // Fallback to placeholder
+  }
+
   // Strip Obsidian brackets first
-  const cleanPath = stripObsidianBrackets(imagePath);
+  const cleanPath = stripObsidianBrackets(imagePath.trim());
   
+  // Handle empty path after cleaning
+  if (!cleanPath) {
+    console.warn('Empty page image path after cleaning:', imagePath);
+    return '/pages/images/placeholder.jpg';
+  }
+
   // Handle different image path formats
   if (cleanPath.startsWith('http://') || cleanPath.startsWith('https://')) {
     return cleanPath; // External URL
@@ -163,9 +175,21 @@ export function stripObsidianBrackets(imagePath: string): string {
 
 // Optimize image path specifically for posts
 export function optimizePostImagePath(imagePath: string): string {
+  // Handle null, undefined, or empty strings
+  if (!imagePath || typeof imagePath !== 'string') {
+    console.warn('Invalid image path provided:', imagePath);
+    return '/posts/images/placeholder.jpg'; // Fallback to placeholder
+  }
+
   // Strip Obsidian brackets first
-  const cleanPath = stripObsidianBrackets(imagePath);
+  const cleanPath = stripObsidianBrackets(imagePath.trim());
   
+  // Handle empty path after cleaning
+  if (!cleanPath) {
+    console.warn('Empty image path after cleaning:', imagePath);
+    return '/posts/images/placeholder.jpg';
+  }
+
   // Handle different image path formats
   if (cleanPath.startsWith('http://') || cleanPath.startsWith('https://')) {
     return cleanPath; // External URL

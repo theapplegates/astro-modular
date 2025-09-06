@@ -101,10 +101,85 @@ export function generateHomeSEO(url: string): SEOData {
   return {
     title: siteConfig.title,
     description: siteConfig.description,
-    canonical: url,
+    canonical: normalizeCanonicalUrl(url),
     ogImage,
     ogType: 'website'
   };
+}
+
+// Generate SEO data for tag pages
+export function generateTagSEO(tag: string, site: string, currentPage?: number): SEOData {
+  const title = `Posts tagged with "${tag}" | ${siteConfig.title}`;
+  const description = `Browse all posts tagged with ${tag} on ${siteConfig.title}`;
+  const baseUrl = `${site}/posts/tag/${tag}`;
+  const canonical = currentPage && currentPage > 1 ? `${baseUrl}/${currentPage}` : baseUrl;
+
+  return {
+    title,
+    description,
+    canonical,
+    robots: 'index, follow',
+    openGraph: {
+      title,
+      description,
+      url: canonical,
+      type: 'website',
+      image: getDefaultOGImage(),
+      siteName: siteConfig.title
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      image: getDefaultOGImage().url
+    }
+  };
+}
+
+// Generate SEO data for posts listing pages
+export function generatePostsListSEO(site: string, currentPage?: number): SEOData {
+  const title = currentPage && currentPage > 1
+    ? `Posts - Page ${currentPage} | ${siteConfig.title}`
+    : `Posts | ${siteConfig.title}`;
+  const description = `Browse all posts on ${siteConfig.title}`;
+  const canonical = currentPage && currentPage > 1
+    ? `${site}/posts/${currentPage}`
+    : `${site}/posts`;
+
+  return {
+    title,
+    description,
+    canonical,
+    robots: 'index, follow',
+    openGraph: {
+      title,
+      description,
+      url: canonical,
+      type: 'website',
+      image: getDefaultOGImage(),
+      siteName: siteConfig.title
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      image: getDefaultOGImage().url
+    }
+  };
+}
+
+// Normalize canonical URLs to prevent duplicates
+export function normalizeCanonicalUrl(url: string): string {
+  try {
+    const urlObj = new URL(url);
+    // Remove trailing slash unless it's the root
+    if (urlObj.pathname !== '/' && urlObj.pathname.endsWith('/')) {
+      urlObj.pathname = urlObj.pathname.slice(0, -1);
+    }
+    return urlObj.toString();
+  } catch {
+    return url;
+  }
 }
 
 // Generate structured data (JSON-LD)
@@ -123,6 +198,7 @@ export function generateMetaTags(seoData: SEOData): string {
   const tags = [
     `<title>${seoData.title}</title>`,
     `<meta name="description" content="${seoData.description}">`,
+    seoData.robots && `<meta name="robots" content="${seoData.robots}">`,
     `<link rel="canonical" href="${seoData.canonical}">`,
 
     // Open Graph
@@ -163,9 +239,22 @@ export function generateMetaTags(seoData: SEOData): string {
         tags.push(`<meta property="article:tag" content="${tag}">`);
       });
     }
+    if (seoData.articleSection) {
+      tags.push(`<meta property="article:section" content="${seoData.articleSection}">`);
+    }
   }
 
-  return tags.join('\n');
+  // Add keywords
+  if (seoData.keywords) {
+    tags.push(`<meta name="keywords" content="${seoData.keywords}">`);
+  }
+
+  // Add Twitter creator
+  if (seoData.twitter?.creator) {
+    tags.push(`<meta name="twitter:creator" content="${seoData.twitter.creator}">`);
+  }
+
+  return tags.filter(Boolean).join('\n');
 }
 
 // Check if page should be excluded from sitemap
@@ -271,5 +360,47 @@ export function validateSEOData(seoData: SEOData): {
   return {
     isValid: warnings.length === 0,
     warnings
+  };
+}
+
+// Validate structured data (JSON-LD)
+export function validateStructuredData(data: any): {
+  isValid: boolean;
+  errors: string[];
+} {
+  const errors: string[] = [];
+
+  if (!data['@context']) {
+    errors.push('Missing @context property');
+  } else if (data['@context'] !== 'https://schema.org') {
+    errors.push('Invalid @context value, should be https://schema.org');
+  }
+
+  if (!data['@type']) {
+    errors.push('Missing @type property');
+  }
+
+  // Validate based on type
+  if (data['@type'] === 'Blog' || data['@type'] === 'WebSite') {
+    if (!data.name) errors.push('Missing name property');
+    if (!data.description) errors.push('Missing description property');
+    if (!data.url) errors.push('Missing url property');
+  }
+
+  if (data['@type'] === 'BlogPosting') {
+    if (!data.headline) errors.push('Missing headline property');
+    if (!data.datePublished) errors.push('Missing datePublished property');
+    if (!data.author) errors.push('Missing author property');
+  }
+
+  // Validate author structure
+  if (data.author && typeof data.author === 'object') {
+    if (!data.author['@type']) errors.push('Missing author @type');
+    if (!data.author.name) errors.push('Missing author name');
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors
   };
 }

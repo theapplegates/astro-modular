@@ -66,8 +66,8 @@ export const siteConfig: SiteConfig = {
   layout: {
     contentWidth: "45rem",
   },
-  postsPerPage: 5,
-  recentPostsCount: 3,
+  postsPerPage: 6,
+  recentPostsCount: 7,
   seo: {
     defaultOgImageAlt: "Astro Modular logo.",
   },
@@ -87,11 +87,11 @@ export const siteConfig: SiteConfig = {
     linkedMentions: true,
     scrollToTop: true,
     darkModeToggleButton: true,
-    showCoverImages: "latest-and-posts",
-    showSocialIconsInFooter: true,
     commandPalette: true,
     postNavigation: true,
     showLatestPost: true,
+    showSocialIconsInFooter: true,
+    showCoverImages: "latest-and-posts", // "all" | "latest" | "home" | "posts" | "latest-and-posts" | "none"
   },
 
   commandPalette: {
@@ -143,6 +143,77 @@ export function getContentWidth(): string {
 
 export function getTheme(): "minimal" | "oxygen" {
   return siteConfig.theme;
+}
+
+// Validation function for siteConfig
+function validateSiteConfig(config: SiteConfig): { isValid: boolean; errors: string[] } {
+  const errors: string[] = [];
+
+  // Required fields
+  if (!config.site || !config.site.startsWith('http')) {
+    errors.push('site must be a valid URL starting with http or https');
+  }
+  if (!config.title || config.title.trim() === '') {
+    errors.push('title is required and cannot be empty');
+  }
+  if (!config.description || config.description.trim() === '') {
+    errors.push('description is required and cannot be empty');
+  }
+  if (!config.author || config.author.trim() === '') {
+    errors.push('author is required and cannot be empty');
+  }
+
+  // Theme validation
+  if (!['minimal', 'oxygen'].includes(config.theme)) {
+    errors.push('theme must be either "minimal" or "oxygen"');
+  }
+
+  // Numeric validations
+  if (config.postsPerPage < 1 || config.postsPerPage > 50) {
+    errors.push('postsPerPage must be between 1 and 50');
+  }
+  if (config.recentPostsCount < 1 || config.recentPostsCount > 20) {
+    errors.push('recentPostsCount must be between 1 and 20');
+  }
+
+  // Content width validation
+  if (!config.layout.contentWidth || !config.layout.contentWidth.match(/^\d+(\.\d+)?(rem|px|em)$/)) {
+    errors.push('layout.contentWidth must be a valid CSS length value');
+  }
+
+  // Navigation style validation
+  if (!['minimal', 'traditional'].includes(config.navigation.style)) {
+    errors.push('navigation.style must be either "minimal" or "traditional"');
+  }
+
+  // Cover image options validation
+  const validCoverImageOptions = ['all', 'latest', 'home', 'posts', 'latest-and-posts', 'none'];
+  if (!validCoverImageOptions.includes(config.features.showCoverImages)) {
+    errors.push(`features.showCoverImages must be one of: ${validCoverImageOptions.join(', ')}`);
+  }
+
+  // Home blurb placement validation
+  if (config.homeBlurb?.enabled && config.homeBlurb.placement && !['above', 'below'].includes(config.homeBlurb.placement)) {
+    errors.push('homeBlurb.placement must be either "above" or "below"');
+  }
+
+  // Language validation
+  if (!config.language || !config.language.match(/^[a-z]{2}(-[A-Z]{2})?$/)) {
+    errors.push('language must be a valid language code (e.g., "en", "en-US")');
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+}
+
+// Validate configuration on import
+const validation = validateSiteConfig(siteConfig);
+if (!validation.isValid) {
+  console.error('❌ Site configuration validation failed:');
+  validation.errors.forEach(error => console.error(`  • ${error}`));
+  throw new Error(`Site configuration is invalid. Please fix the following issues:\n${validation.errors.join('\n')}`);
 }
 
 // Export the configuration as default

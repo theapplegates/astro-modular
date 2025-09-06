@@ -160,13 +160,18 @@ export function formatDateISO(date: Date): string {
 export function shouldShowPost(post: Post, isDev: boolean = false): boolean {
   const { draft, title, date } = post.data;
 
+  // Always require title and date
+  if (!title || !date) {
+    return false;
+  }
+
   // In development, show all posts (even drafts)
   if (isDev) {
     return true;
   }
 
-  // In production, hide drafts and posts without required fields
-  if (draft || !title || !date) {
+  // In production, hide drafts (draft: true or undefined draft defaults to false)
+  if (draft === true) {
     return false;
   }
 

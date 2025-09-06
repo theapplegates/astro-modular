@@ -6,6 +6,12 @@ image: "[[images/astro-composer-suite-for-obsidian.png]]"
 imageAlt: Astro and Obsidian logos stacked vertically with a "+" (plus) sign between them.
 imageOG: true
 hideCoverImage: true
+tags:
+- tutorial
+- setup
+- configuration
+- astro
+- obsidian
 draft: false
 targetKeyword: astro suite modular vault
 ---

@@ -81,9 +81,10 @@ footer: {
 ```
 
 The theme options are currently Minimal and Oxygen. You may need to do a hard refresh (`CTRL + SHIFT + R`) to see the changes.
+
 ### Modular Features
 
-Adjust modular features in the config: 
+Toggle modular features in the config: 
 
 ```
 features: {
@@ -94,11 +95,11 @@ features: {
   linkedMentions: true,
   scrollToTop: true,
   darkModeToggleButton: true,
-  showCoverImages: "latest-and-posts", 
-  showSocialIconsInFooter: true,
   commandPalette: true,
   postNavigation: true,
   showLatestPost: true,
+  showSocialIconsInFooter: true,
+  showCoverImages: "posts",
 },
 
 commandPalette: {
@@ -111,7 +112,6 @@ commandPalette: {
   },
 }
 ```
-
 **Cover Image Options:**
 - `"all"` - Show cover images everywhere
 - `"latest"` - Show only on the latest post section and featured posts
@@ -119,7 +119,8 @@ commandPalette: {
 - `"posts"` - Show only on posts pages, tag pages, and post listings
 - `"latest-and-posts"` - Show on latest post section AND posts pages/tags (but not recent posts section)
 - `"none"` - Never show cover images
-### Navigation
+
+### Navigtation
 
 Navigation is also set in the config:
 

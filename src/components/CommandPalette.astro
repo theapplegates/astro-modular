@@ -176,9 +176,8 @@ import Icon from './Icon.astro';
       this.defaultItems = document.getElementById('command-palette-default')!;
       this.searchResults = document.getElementById('command-palette-search-results')!;
 
-      // Initialize the palette and load initial data
+      // Initialize the palette (don't load posts until needed)
       this.init();
-      this.loadPosts();
     }
 
     private init() {
@@ -230,6 +229,11 @@ import Icon from './Icon.astro';
     }
 
     private async loadPosts() {
+      // Only load if not already loaded
+      if (this.items.length > 0) {
+        return;
+      }
+
       try {
         const response = await fetch('/api/posts.json');
         if (response.ok) {
@@ -298,7 +302,7 @@ import Icon from './Icon.astro';
       this.searchResults.classList.remove('hidden');
     }
 
-    private handleSearch(query: string) {
+    private async handleSearch(query: string) {
       if (!query.trim()) {
         this.showDefault(); // Show default items if query is empty
         return;
@@ -306,22 +310,22 @@ import Icon from './Icon.astro';
 
       this.showLoading(); // Show loading indicator
 
-      // Simulate a network delay for search results
-      setTimeout(() => {
-        // Filter items based on the search query (title and description)
-        this.filteredItems = this.items.filter(item => {
-          const searchText = `${item.title} ${item.description || ''}`.toLowerCase();
-          const queryLower = query.toLowerCase();
-          return searchText.includes(queryLower);
-        });
+      // Load posts if not already loaded
+      await this.loadPosts();
 
-        if (this.filteredItems.length === 0) {
-          this.showNoResults(); // Show "no results" message if no items match
-        } else {
-          this.renderSearchResults(); // Render the filtered results
-          this.showSearchResults(); // Show the search results section
-        }
-      }, 100); // Adjust delay as needed
+      // Filter items based on the search query (title and description)
+      this.filteredItems = this.items.filter(item => {
+        const searchText = `${item.title} ${item.description || ''}`.toLowerCase();
+        const queryLower = query.toLowerCase();
+        return searchText.includes(queryLower);
+      });
+
+      if (this.filteredItems.length === 0) {
+        this.showNoResults(); // Show "no results" message if no items match
+      } else {
+        this.renderSearchResults(); // Render the filtered results
+        this.showSearchResults(); // Show the search results section
+      }
     }
 
     private renderSearchResults() {

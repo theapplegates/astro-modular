@@ -39,7 +39,7 @@ const paletteIcon = allSectionsDisabled ? 'search' : 'command';
         {siteConfig.navigation.showNavigation && (
           <nav class={`hidden md:flex items-center mr-8 ${
             siteConfig.navigation.style === 'minimal' ? 'space-x-4' : 'space-x-8'
-          }`}>
+          }`} aria-label="Main navigation">
             {siteConfig.navigation.pages.map(page => (
               <a 
                 href={page.url}
@@ -57,6 +57,7 @@ const paletteIcon = allSectionsDisabled ? 'search' : 'command';
                       }`
                 }
                 target={page.url.startsWith('http') ? '_blank' : undefined}
+                aria-label={`Navigate to ${page.title}`}
               >
                 <span>{siteConfig.navigation.style === 'minimal' ? page.title.toLowerCase() : page.title}</span>
                 {page.url.startsWith('http') && (
@@ -101,7 +102,8 @@ const paletteIcon = allSectionsDisabled ? 'search' : 'command';
           <button
             id="mobile-menu-toggle"
             class="md:hidden p-2 text-primary-500 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-800 rounded-lg transition-colors"
-            aria-label="Toggle mobile menu"
+            aria-label="Toggle mobile navigation menu"
+            aria-expanded="false"
           >
             <Icon name="menu" class="w-5 h-5 menu-icon" />
             <Icon name="x" class="w-5 h-5 close-icon hidden" />
@@ -112,7 +114,9 @@ const paletteIcon = allSectionsDisabled ? 'search' : 'command';
 
     <!-- Mobile navigation menu -->
     {siteConfig.navigation.showNavigation && siteConfig.navigation.showMobileMenu && (
-      <div id="mobile-menu" class="md:hidden hidden py-4 border-t border-primary-200 dark:border-primary-700">
+      <div id="mobile-menu" class="md:hidden hidden py-4 border-t border-primary-200 dark:border-primary-700" role="dialog"
+          aria-modal="true"
+          aria-label="Mobile navigation menu">
         <nav class="flex flex-col space-y-3">
           {siteConfig.navigation.pages.map(page => (
             <a 
@@ -123,6 +127,7 @@ const paletteIcon = allSectionsDisabled ? 'search' : 'command';
                   : ''
               }`}
               target={page.url.startsWith('http') ? '_blank' : undefined}
+              aria-label={`Navigate to ${page.title}`}
             >
               <span>{page.title}</span>
               {page.url.startsWith('http') && (
@@ -146,16 +151,18 @@ const paletteIcon = allSectionsDisabled ? 'search' : 'command';
       menuToggle.addEventListener('click', () => {
         mobileMenu.classList.toggle('hidden');
 
-        // Update menu icon
+        // Update menu icon and ARIA attribute
         const menuIcon = menuToggle.querySelector('.menu-icon');
         const closeIcon = menuToggle.querySelector('.close-icon');
         if (menuIcon && closeIcon) {
           if (mobileMenu.classList.contains('hidden')) {
             menuIcon.classList.remove('hidden');
             closeIcon.classList.add('hidden');
+            menuToggle.setAttribute('aria-expanded', 'false');
           } else {
             menuIcon.classList.add('hidden');
             closeIcon.classList.remove('hidden');
+            menuToggle.setAttribute('aria-expanded', 'true');
           }
         }
       });
