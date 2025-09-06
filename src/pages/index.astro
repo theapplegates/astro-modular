@@ -19,9 +19,11 @@ const processedPosts = await Promise.all(
   sortedPosts.map(async (post) => await processPost(post))
 );
 
-// Get featured post (latest) and preview posts (next 3)
-const featuredPost = processedPosts[0];
-const previewPosts = processedPosts.slice(1, 4);
+// Get featured post (latest) and preview posts based on showLatestPost setting
+const featuredPost = siteConfig.features.showLatestPost ? processedPosts[0] : null;
+const previewPosts = siteConfig.features.showLatestPost 
+  ? processedPosts.slice(1, siteConfig.recentPostsCount + 1)
+  : processedPosts.slice(0, siteConfig.recentPostsCount);
 
 // Get home blurb content from markdown file
 let homeBlurbContent = null;
@@ -65,9 +67,9 @@ const structuredData = {
   <Fragment slot="head">
     <!-- Structured Data -->
     <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
-    
+
     <!-- Preload critical images - use same URL as actual img tags for caching -->
-    {featuredPost && featuredPost.data.image && siteConfig.features.showCoverImages && !featuredPost.data.hideCoverImage && !featuredPost.data.image.startsWith('http') && (
+    {featuredPost && featuredPost.data.image && siteConfig.features.showCoverImages === 'all' && !featuredPost.data.hideCoverImage && !featuredPost.data.image.startsWith('http') && (
       <link 
         rel="preload" 
         as="image" 
@@ -89,7 +91,7 @@ const structuredData = {
           )}
 
           <!-- Featured post -->
-          {featuredPost && (
+          {siteConfig.features.showLatestPost && featuredPost && (
             <section class="mb-12">
               <div class="flex items-center justify-between mb-6">
                 <h2 class="text-lg font-semibold text-primary-900 dark:text-primary-50">
@@ -97,30 +99,43 @@ const structuredData = {
                 </h2>
               </div>
 
-              <PostCard post={featuredPost} featured={true} eager={true} />
+              <PostCard post={featuredPost} featured={true} eager={true} context="latest" />
             </section>
           )}
 
           <!-- Recent posts preview -->
           {previewPosts.length > 0 && (
             <section class="mb-12">
-              <div class="flex items-center justify-between mb-6">
-                <h2 class="text-lg font-semibold text-primary-900 dark:text-primary-50">
-                  Recent Posts
-                </h2>
-                <a 
-                  href="/posts"
-                  class="text-highlight-600 dark:text-highlight-400 hover:text-highlight-700 dark:hover:text-highlight-300 font-medium transition-colors"
-                >
-                  View all posts →
-                </a>
-              </div>
+              {siteConfig.features.showLatestPost && (
+                <div class="flex items-center justify-between mb-6">
+                  <h2 class="text-lg font-semibold text-primary-900 dark:text-primary-50">
+                    Recent Posts
+                  </h2>
+                  <a 
+                    href="/posts"
+                    class="text-highlight-600 dark:text-highlight-400 hover:text-highlight-700 dark:hover:text-highlight-300 font-medium transition-colors"
+                  >
+                    View all posts →
+                  </a>
+                </div>
+              )}
 
               <div class="space-y-4">
-                {previewPosts.slice(0, 3).map((post, index) => (
-                  <PostCard post={post} eager={index === 0} />
+                {previewPosts.map((post, index) => (
+                  <PostCard post={post} eager={index === 0} context="recent" />
                 ))}
               </div>
+
+              {!siteConfig.features.showLatestPost && (
+                <div class="mt-8 text-center">
+                  <a 
+                    href="/posts"
+                    class="text-highlight-600 dark:text-highlight-400 hover:text-highlight-700 dark:hover:text-highlight-300 font-medium transition-colors"
+                  >
+                    View all posts →
+                  </a>
+                </div>
+              )}
             </section>
           )}
 
@@ -130,7 +145,6 @@ const structuredData = {
               <HomeBlurbContent />
             </section>
           )}
-
 
         </>
       ) : (

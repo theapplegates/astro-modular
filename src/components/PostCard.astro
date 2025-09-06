@@ -9,9 +9,10 @@ interface Props {
   post: CollectionEntry<'posts'>;
   featured?: boolean;
   eager?: boolean;
+  context?: 'latest' | 'recent' | 'posts' | 'tags';
 }
 
-const { post, featured = false, eager = false } = Astro.props;
+const { post, featured = false, eager = false, context = 'posts' } = Astro.props;
 
 // Get reading time and word count from markdown processing
 const { remarkPluginFrontmatter } = await post.render();
@@ -19,6 +20,32 @@ const { excerpt, wordCount } = processMarkdown(post.body);
 const readingTime = calculateReadingTime(post.body);
 
 const { title, description, date, tags, image, imageAlt } = post.data;
+
+// Determine if we should show the cover image based on configuration and context
+const shouldShowCoverImage = (() => {
+  // Only check if image exists - hideCoverImage only affects post content, not cards
+  if (!post.data.image) {
+    return false;
+  }
+
+  const showCoverImages = siteConfig.features.showCoverImages;
+
+  switch (showCoverImages) {
+    case 'all':
+      return true;
+    case 'latest':
+      return context === 'latest' || featured;
+    case 'home':
+      return context === 'latest' || context === 'recent';
+    case 'posts':
+      return context === 'posts' || context === 'tags';
+    case 'latest-and-posts':
+      return context === 'latest' || context === 'posts' || context === 'tags' || featured;
+    case 'none':
+    default:
+      return false;
+  }
+})();
 
 // Dynamic image import for local images
 let localImage: any = null;
@@ -41,7 +68,7 @@ if (image && !image.startsWith('http')) {
 
 <article class={`group ${featured ? 'featured-post' : 'post-card'}`}>
   <a href={`/posts/${post.slug}`} class="block">
-    {image && siteConfig.features.showCoverImages && (
+    {image && shouldShowCoverImage && (
       <div class="aspect-video overflow-hidden rounded-lg mb-4 bg-primary-100 dark:bg-primary-800">
         {image.startsWith('http') ? (
           <img

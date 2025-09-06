@@ -15,10 +15,10 @@ export const getStaticPaths: GetStaticPaths = async () => {
   const isDev = import.meta.env.DEV;
   const visiblePosts = allPosts.filter(post => shouldShowPost(post, isDev));
   const sortedPosts = sortPostsByDate(visiblePosts);
-  
+
   // Extract all unique tags
   const allTags = extractTags(sortedPosts);
-  
+
   // Generate paths for each tag
   return allTags.map(tag => ({
     params: { tag: tag },
@@ -109,7 +109,7 @@ const pagination = {
               <!-- Posts list -->
               <div class="space-y-6 mb-12">
                 {paginatedPosts.map(post => (
-                  <PostCard post={post} />
+                  <PostCard post={post} context="tags" />
                 ))}
               </div>
 

@@ -15,18 +15,18 @@ export const getStaticPaths: GetStaticPaths = async () => {
   const isDev = import.meta.env.DEV;
   const visiblePosts = allPosts.filter(post => shouldShowPost(post, isDev));
   const sortedPosts = sortPostsByDate(visiblePosts);
-  
+
   // Extract all unique tags
   const allTags = extractTags(sortedPosts);
-  
+
   const postsPerPage = siteConfig.postsPerPage;
   const paths: any[] = [];
-  
+
   // Generate paths for each tag and its pagination
   for (const tag of allTags) {
     const tagPosts = sortedPosts.filter(post => post.data.tags?.includes(tag));
     const totalPages = Math.ceil(tagPosts.length / postsPerPage);
-    
+
     for (let page = 2; page <= totalPages; page++) {
       paths.push({
         params: { tag: tag, page: page.toString() },
@@ -34,7 +34,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
       });
     }
   }
-  
+
   return paths;
 };
 
@@ -118,7 +118,7 @@ const pagination = {
           <!-- Posts list -->
           <div class="space-y-6 mb-12">
             {paginatedPosts.map(post => (
-              <PostCard post={post} />
+              <PostCard post={post} context="tags" />
             ))}
           </div>
 

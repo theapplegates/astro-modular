@@ -47,18 +47,12 @@ pnpm run build
 Configure everything in `src/config.ts`. The configuration is organized in logical sections:
 
 ```typescript
-// Set your values HERE
 export const siteConfig = {
   site: 'https://yourdomain.com',
   title: 'Your Blog Title',
   description: 'Your blog description',
   author: 'Your Name',
   language: 'en',
-
-  layout: {
-    contentWidth: "45rem",
-  },
-  
 }
 ```
 ## Customization
@@ -67,13 +61,14 @@ export const siteConfig = {
 
 Configure theme and layout options in the config:
 
-```typescript
-theme: "minimal",
+```
+theme: "oxygen",
 layout: {
   contentWidth: "45rem",
 },
 postsPerPage: 5,
-  seo: {
+recentPostsCount: 3,
+seo: {
     defaultOgImageAlt: "Astro Modular logo.",
   },
 homeBlurb: {
@@ -88,9 +83,9 @@ footer: {
 The theme options are currently Minimal and Oxygen. You may need to do a hard refresh (`CTRL + SHIFT + R`) to see the changes.
 ### Modular Features
 
-Toggle modular features in the config: 
+Adjust modular features in the config: 
 
-```typescript
+```
 features: {
   readingTime: true,
   wordCount: true,
@@ -99,10 +94,11 @@ features: {
   linkedMentions: true,
   scrollToTop: true,
   darkModeToggleButton: true,
-  showCoverImages: true,
+  showCoverImages: "latest-and-posts", 
   showSocialIconsInFooter: true,
   commandPalette: true,
   postNavigation: true,
+  showLatestPost: true,
 },
 
 commandPalette: {
@@ -116,11 +112,18 @@ commandPalette: {
 }
 ```
 
-### Navigtation
+**Cover Image Options:**
+- `"all"` - Show cover images everywhere
+- `"latest"` - Show only on the latest post section and featured posts
+- `"home"` - Show on homepage sections (latest and recent)
+- `"posts"` - Show only on posts pages, tag pages, and post listings
+- `"latest-and-posts"` - Show on latest post section AND posts pages/tags (but not recent posts section)
+- `"none"` - Never show cover images
+### Navigation
 
 Navigation is also set in the config:
 
-```typescript
+```
 navigation: {
   showNavigation: true,
   style: 'traditional', // or 'minimal'

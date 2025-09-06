@@ -6,10 +6,12 @@ export interface SiteConfig {
   description: string;
   author: string;
   language: string;
+  theme: "minimal" | "oxygen";
   layout: {
     contentWidth: string;
   };
   postsPerPage: number;
+  recentPostsCount: number;
   seo: {
     defaultOgImageAlt: string;
   };
@@ -28,10 +30,11 @@ export interface SiteConfig {
     linkedMentions: boolean;
     scrollToTop: boolean;
     darkModeToggleButton: boolean;
-    showCoverImages: boolean;
+    showCoverImages: "all" | "latest" | "home" | "posts" | "latest-and-posts" | "none";
     showSocialIconsInFooter: boolean;
     commandPalette: boolean;
     postNavigation: boolean;
+    showLatestPost: boolean;
   };
   commandPalette: {
     shortcut: string;
@@ -58,11 +61,13 @@ export const siteConfig: SiteConfig = {
   description: "A modular Astro blog.",
   author: "David V. Kimball",
   language: "en",
-  
+
+  theme: "oxygen", // "minimal" or "oxygen"
   layout: {
     contentWidth: "45rem",
   },
   postsPerPage: 5,
+  recentPostsCount: 3,
   seo: {
     defaultOgImageAlt: "Astro Modular logo.",
   },
@@ -82,10 +87,11 @@ export const siteConfig: SiteConfig = {
     linkedMentions: true,
     scrollToTop: true,
     darkModeToggleButton: true,
-    showCoverImages: true,
+    showCoverImages: "latest-and-posts",
     showSocialIconsInFooter: true,
     commandPalette: true,
     postNavigation: true,
+    showLatestPost: true,
   },
 
   commandPalette: {
@@ -133,6 +139,10 @@ export function getCommandPaletteShortcut(): string {
 
 export function getContentWidth(): string {
   return siteConfig.layout.contentWidth;
+}
+
+export function getTheme(): "minimal" | "oxygen" {
+  return siteConfig.theme;
 }
 
 // Export the configuration as default
