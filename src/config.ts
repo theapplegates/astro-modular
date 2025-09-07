@@ -5,7 +5,7 @@ export interface SiteConfig {
   description: string;
   author: string;
   language: string;
-  theme: "minimal" | "oxygen" | "atom" | "ayu" | "catppuccin" | "dracula" | "e-ink" | "everforest" | "flexoki" | "gruvbox" | "macos" | "nord" | "rose-pine" | "sky" | "solarized" | "things";
+  theme: "minimal" | "oxygen" | "atom" | "ayu" | "catppuccin" | "charcoal" | "dracula" | "everforest" | "flexoki" | "gruvbox" | "macos" | "nord" | "obsidian" | "rose-pine" | "sky" | "solarized" | "things";
   layout: {
     contentWidth: string;
   };
@@ -61,7 +61,7 @@ export const siteConfig: SiteConfig = {
   author: "David V. Kimball",
   language: "en",
 
-  theme: "oxygen", // Valid themes: "minimal" | "oxygen" | "atom" | "ayu" | "catppuccin" | "dracula" | "e-ink" | "everforest" | "flexoki" | "gruvbox" | "macos" | "nord" | "rose-pine" | "sky" | "solarized" | "things"
+  theme: "oxygen", // Valid themes: "minimal" | "oxygen" | "atom" | "ayu" | "catppuccin" | "charcoal" | "dracula" | "everforest" | "flexoki" | "gruvbox" | "macos" | "nord" | "obsidian" | "rose-pine" | "sky" | "solarized" | "things"
   layout: {
     contentWidth: "45rem",
   },
@@ -140,7 +140,7 @@ export function getContentWidth(): string {
   return siteConfig.layout.contentWidth;
 }
 
-export function getTheme(): "minimal" | "oxygen" | "atom" | "ayu" | "catppuccin" | "dracula" | "e-ink" | "everforest" | "flexoki" | "gruvbox" | "macos" | "nord" | "rose-pine" | "sky" | "solarized" | "things" {
+export function getTheme(): "minimal" | "oxygen" | "atom" | "ayu" | "catppuccin" | "charcoal" | "dracula" | "everforest" | "flexoki" | "gruvbox" | "macos" | "nord" | "obsidian" | "rose-pine" | "sky" | "solarized" | "things" {
   return siteConfig.theme;
 }
 
@@ -163,7 +163,7 @@ function validateSiteConfig(config: SiteConfig): { isValid: boolean; errors: str
   }
 
   // Theme validation
-  const validThemes = ['minimal', 'oxygen', 'atom', 'ayu', 'catppuccin', 'dracula', 'e-ink', 'everforest', 'flexoki', 'gruvbox', 'macos', 'nord', 'rose-pine', 'sky', 'solarized', 'things'];
+  const validThemes = ['minimal', 'oxygen', 'atom', 'ayu', 'catppuccin', 'charcoal', 'dracula', 'everforest', 'flexoki', 'gruvbox', 'macos', 'nord', 'rose-pine', 'sky', 'solarized', 'things'];
   if (!validThemes.includes(config.theme)) {
     errors.push(`theme must be one of: ${validThemes.join(', ')}`);
   }

@@ -80,7 +80,7 @@ footer: {
 }
 ```
 
-The theme options are currently Oxygen, Minimal, Atom, Ayu, Catppuccin, Dracula, E-ink, Everforest, Flexoki, Gruvbox, macOS, Nord Rosé Pine, Sky, Solarized, and Things. You may need to do a hard refresh (`CTRL + SHIFT + R`) to see the changes.
+The theme options are currently Oxygen, Minimal, Atom, Ayu, Catppuccin, Charcoal, Dracula, Everforest, Flexoki, Gruvbox, macOS, Nord, Obsidian, Rosé Pine, Sky, Solarized, and Things. You may need to do a hard refresh (`CTRL + SHIFT + R`) to see the changes.
 
 ### Modular Features
 
