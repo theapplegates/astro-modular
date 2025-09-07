@@ -2,18 +2,27 @@
 
 A powerful, modular blog theme for Astro specifically designed for Obsidian users who want to seamlessly publish their notes and content to the web. This theme bridges the gap between your Obsidian vault and a production-ready blog with minimal friction.
 
+## Previews
+
+### Oxygen Color Scheme
+<img width="1920" height="1200" alt="Astro Modular with the Oxygen theme applied." src="https://github.com/user-attachments/assets/55b3d2b4-6983-46d4-a977-7a772ffa5331" />
+
+### Minimal Color Scheme
+<img width="1920" height="1200" alt="Astro Modular with the Minimal theme applied" src="https://github.com/user-attachments/assets/3310365a-9c22-4a19-b26f-697230bebceb" />
+
 ## What Makes Astro Modular Special
 
 ### Built for Obsidian Users
-- **Direct Obsidian integration** - Write in your vault, publish to your blog
+- **Direct Obsidian integration** - Write in a dedicated vault, publish to your blog
 - **Wikilinks support** - `[[Internal Links]]` and `[[Link|Custom Text]]` work seamlessly
 - **Obsidian callouts** - Full support for `> [!note]`, `> [!tip]`, `> [!warning]` and more
 - **Tag compatibility** - Your Obsidian tags become blog tags automatically
 - **Frontmatter sync** - Compatible metadata structure between Obsidian and Astro
-- **Astro Composer plugin ready** - Includes vault configuration for streamlined publishing
+- **[Astro Suite Obsidian Vault](https://github.com/davidvkimball/obsidian-astro-suite) built-in** - Includes Obsidian vault configuration for streamlined publishing including [Astro Composer](https://github.com/davidvkimball/obsidian-astro-composer)
 
 ### Flexible & Customizeable 
 - **Modular design** - Each feature can be enabled/disabled independently
+- **Multiple color options** - Select from a variety of prebuilt themes
 - **95+ Lighthouse scores** across all metrics with TypeScript throughout
 - **Command palette** - Press `Ctrl+K` (or custom hotkey) for instant navigation and search
 - **Responsive image grids** - Automatic layouts for multiple consecutive images
