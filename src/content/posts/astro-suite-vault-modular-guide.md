@@ -55,6 +55,7 @@ Here's a guide for some important hotkeys set especially for this theme:
 - Toggle Zen mode: `CTRL + SHIFT + Z`
 - Insert image: `CTRL + '`
 - Start Terminal: `CTRL + SHIFT + D`
+- Open config file: `CTRL + SHIFT + ,`
 - Git: Commit and Sync `CTRL + SHIFT + S`
 
 If you're on Mac, `CTRL` = `CMD`.
@@ -126,9 +127,13 @@ Zen mode offers another quick option to focus on your writing. Pressing `CTRL + 
 
 ### Shell commands and Commander
 
-Shell commands helps open terminal quickly with the `Start Terminal` command. It's been modified for Windows, macOS, and Linux to start terminal in the relevant directory so you can easily do standard package manager commands like `npm` or `pnpm`. It can be activated with `CTRL + SHIFT + D`. 
+Shell commands helps us open two things quickly: terminal and Astro's `config.ts` file. 
 
-Commander helps us place a button for it on the file explorer UI.
+To open terminal quickly, use the `Start Terminal` command. It's been modified for Windows, macOS, and Linux to start terminal in the relevant directory so you can easily do standard package manager commands like `npm` or `pnpm`. It can be activated with `CTRL + SHIFT + D`. 
+
+To open your `config.ts` file quickly, simply use the `Astro Configuration` command. You can also press `CTRL + SHIFT + ,` to open it with your default application. 
+
+Commander helps us place a button for each of these actions on the file explorer UI.
 
 ### BRAT (Temporary)
 

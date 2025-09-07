@@ -99,5 +99,14 @@
       ],
       "key": "D"
     }
+  ],
+  "obsidian-shellcommands:shell-command-rgw8uy11vq": [
+    {
+      "modifiers": [
+        "Mod",
+        "Shift"
+      ],
+      "key": ","
+    }
   ]
 }
