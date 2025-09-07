@@ -163,7 +163,7 @@ export const themes = {
       900: '#6d28d9',
     }
   },
-  'e-ink': {
+  'charcoal': {
     primary: {
       50: '#ffffff',
       100: '#ffffff',
