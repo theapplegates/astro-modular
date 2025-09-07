@@ -1,4 +1,3 @@
-
 // Site configuration with TypeScript types
 export interface SiteConfig {
   site: string;
@@ -6,7 +5,7 @@ export interface SiteConfig {
   description: string;
   author: string;
   language: string;
-  theme: "minimal" | "oxygen";
+  theme: "minimal" | "oxygen" | "atom" | "ayu" | "catppuccin" | "dracula" | "e-ink" | "everforest" | "flexoki" | "gruvbox" | "macos" | "nord" | "rose-pine" | "sky" | "solarized" | "things";
   layout: {
     contentWidth: string;
   };
@@ -62,7 +61,7 @@ export const siteConfig: SiteConfig = {
   author: "David V. Kimball",
   language: "en",
 
-  theme: "oxygen", // "minimal" or "oxygen"
+  theme: "oxygen", // Valid themes: "minimal" | "oxygen" | "atom" | "ayu" | "catppuccin" | "dracula" | "e-ink" | "everforest" | "flexoki" | "gruvbox" | "macos" | "nord" | "rose-pine" | "sky" | "solarized" | "things"
   layout: {
     contentWidth: "45rem",
   },
@@ -129,7 +128,7 @@ export const siteConfig: SiteConfig = {
 };
 
 // Utility functions
-export function getFeature(feature: keyof SiteConfig["features"]): boolean {
+export function getFeature(feature: keyof Omit<SiteConfig["features"], "showCoverImages">): boolean {
   return siteConfig.features[feature];
 }
 
@@ -141,7 +140,7 @@ export function getContentWidth(): string {
   return siteConfig.layout.contentWidth;
 }
 
-export function getTheme(): "minimal" | "oxygen" {
+export function getTheme(): "minimal" | "oxygen" | "atom" | "ayu" | "catppuccin" | "dracula" | "e-ink" | "everforest" | "flexoki" | "gruvbox" | "macos" | "nord" | "rose-pine" | "sky" | "solarized" | "things" {
   return siteConfig.theme;
 }
 
@@ -164,8 +163,9 @@ function validateSiteConfig(config: SiteConfig): { isValid: boolean; errors: str
   }
 
   // Theme validation
-  if (!['minimal', 'oxygen'].includes(config.theme)) {
-    errors.push('theme must be either "minimal" or "oxygen"');
+  const validThemes = ['minimal', 'oxygen', 'atom', 'ayu', 'catppuccin', 'dracula', 'e-ink', 'everforest', 'flexoki', 'gruvbox', 'macos', 'nord', 'rose-pine', 'sky', 'solarized', 'things'];
+  if (!validThemes.includes(config.theme)) {
+    errors.push(`theme must be one of: ${validThemes.join(', ')}`);
   }
 
   // Numeric validations

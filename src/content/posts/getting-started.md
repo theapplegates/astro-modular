@@ -59,7 +59,7 @@ export const siteConfig = {
 
 ### Theme & Layout
 
-Configure theme and layout options in the config:
+Select theme and layout options in the config:
 
 ```
 theme: "oxygen",
@@ -80,38 +80,31 @@ footer: {
 }
 ```
 
-The theme options are currently Minimal and Oxygen. You may need to do a hard refresh (`CTRL + SHIFT + R`) to see the changes.
+The theme options are currently Oxygen, Minimal, Atom, Ayu, Catppuccin, Dracula, E-ink, Everforest, Flexoki, Gruvbox, macOS, Nord Rosé Pine, Sky, Solarized, and Things. You may need to do a hard refresh (`CTRL + SHIFT + R`) to see the changes.
 
 ### Modular Features
 
-Toggle modular features in the config: 
+Adjust modular features in the config: 
 
 ```
 features: {
-  readingTime: true,
-  wordCount: true,
-  tableOfContents: true,
-  tags: true,
-  linkedMentions: true,
-  scrollToTop: true,
-  darkModeToggleButton: true,
-  commandPalette: true,
-  postNavigation: true,
-  showLatestPost: true,
-  showSocialIconsInFooter: true,
-  showCoverImages: "posts",
-},
-
-commandPalette: {
-  shortcut: "ctrl+K",
-  placeholder: "Search posts",
-  sections: {
-    quickActions: true,
-    pages: true,
-    social: true,
+    flags: {
+      readingTime: true,
+      wordCount: true,
+      tableOfContents: true,
+      tags: true,
+      linkedMentions: true,
+      scrollToTop: true,
+      darkModeToggleButton: true,
+      commandPalette: true,
+      postNavigation: true,
+      showLatestPost: true,
+      showSocialIconsInFooter: true,
+    },
+    showCoverImages: "latest-and-posts",
   },
-}
 ```
+
 **Cover Image Options:**
 - `"all"` - Show cover images everywhere
 - `"latest"` - Show only on the latest post section and featured posts

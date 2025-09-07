@@ -71,7 +71,8 @@ export default defineConfig({
         '86e35c26-cef9-4a2b-b4db-75407fcddd2a-00-2nxxkvj0ojzsg.riker.replit.dev',
         '135a3955-455d-4e58-8348-79b7ffc4a03c-00-7y0e95ym3fse.picard.replit.dev',
         '135a3955-455d-4e58-8348-79b7ffc4a03c-00-7y0e95ym3fse.picard.replit.dev',
-        'a8c78a87-ea7d-4ba6-b416-fbd5954cd0b1-00-1vz1me1zk5rvw.riker.replit.dev'
+        'a8c78a87-ea7d-4ba6-b416-fbd5954cd0b1-00-1vz1me1zk5rvw.riker.replit.dev',
+        '72d804f9-ae9c-4b25-817a-8b62faff287c-00-ntvfdgl108vu.worf.replit.dev'
       ],
       middlewareMode: false,
       hmr: {

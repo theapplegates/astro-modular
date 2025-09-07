@@ -1,63 +1,6 @@
 
 import { siteConfig } from './src/config.ts';
-
-// Theme configurations
-const themes = {
-  minimal: {
-    primary: {
-      50: '#fafafa',   // Light theme backgrounds
-      100: '#f5f5f5',
-      200: '#e5e5e5',
-      300: '#d4d4d4',
-      400: '#a3a3a3',
-      500: '#737373',
-      600: '#525252',
-      700: '#404040',
-      800: '#262626',  // Your lighter background
-      900: '#212121',  // Your main background
-      950: '#1a1a1a',
-    },
-    highlight: {
-      50: '#f0f7f9',
-      100: '#e1eff3',
-      200: '#c3dfe7',
-      300: '#a5cfdb',
-      400: '#87bfcf',
-      500: '#708794',  // Your highlight color
-      600: '#5a6d77',
-      700: '#43535a',
-      800: '#2d383c',
-      900: '#161d1f',
-    }
-  },
-  oxygen: {
-    primary: {
-      50: '#f8fafc',
-      100: '#f1f5f9',
-      200: '#e2e8f0',
-      300: '#cbd5e1',
-      400: '#94a3b8',
-      500: '#64748b',
-      600: '#475569',
-      700: '#334155',
-      800: '#1e293b',
-      900: '#0f172a',
-      950: '#020617',
-    },
-    highlight: {
-      50: '#f0f9ff',
-      100: '#e0f2fe',
-      200: '#bae6fd',
-      300: '#7dd3fc',
-      400: '#38bdf8',
-      500: '#0ea5e9',
-      600: '#0284c7',
-      700: '#0369a1',
-      800: '#075985',
-      900: '#0c4a6e',
-    }
-  }
-};
+import { themes } from './src/themes/index.ts';
 
 // Get the selected theme
 const selectedTheme = themes[siteConfig.theme] || themes.minimal;
