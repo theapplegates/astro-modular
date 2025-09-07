@@ -75,7 +75,7 @@ export const siteConfig: SiteConfig = {
     placement: "below", // 'above' (before latest post) or 'below' (after recent posts)
   },
   footer: {
-    content: `© 2025 {author}. Built with the <a href="https://astro-modular.netlify.app/" class="hover:text-highlight-600 dark:hover:text-highlight-400 transition-colors" target="_blank">Astro Modular</a> theme.`,
+    content: `© 2025 {author}. Built with the <a href="https://github.com/davidvkimball/astro-modular" class="hover:text-highlight-600 dark:hover:text-highlight-400 transition-colors" target="_blank">Astro Modular</a> theme.`,
   },
 
   features: {
@@ -163,7 +163,7 @@ function validateSiteConfig(config: SiteConfig): { isValid: boolean; errors: str
   }
 
   // Theme validation
-  const validThemes = ['minimal', 'oxygen', 'atom', 'ayu', 'catppuccin', 'charcoal', 'dracula', 'everforest', 'flexoki', 'gruvbox', 'macos', 'nord', 'rose-pine', 'sky', 'solarized', 'things'];
+  const validThemes = ['minimal', 'oxygen', 'atom', 'ayu', 'catppuccin', 'charcoal', 'dracula', 'everforest', 'flexoki', 'gruvbox', 'macos', 'nord', 'obsidian', 'rose-pine', 'sky', 'solarized', 'things'];
   if (!validThemes.includes(config.theme)) {
     errors.push(`theme must be one of: ${validThemes.join(', ')}`);
   }
