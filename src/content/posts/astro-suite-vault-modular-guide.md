@@ -135,6 +135,8 @@ To open your `config.ts` file quickly, simply use the `Astro Configuration` comm
 
 Commander helps us place a button for each of these actions on the file explorer UI.
 
+(**Please note:** On Linux, the Flatpak  (via Flathub) uses non-trivial sandboxing and it seems there lacks a standard way to open the default terminal on Linux in-general. Both commands use FreeDesktop's `xdg-open` -- one to... well open the config file, the other to launch the file-manager.  Most file-managers support a right-click and something along the lines of `Open In Terminal`.)
+
 ### BRAT (Temporary)
 
 Only used temporarily to load Astro Composer and Disable Tabs plugins before they're available in the Obsidian plugin directory. Future versions of this vault will remove BRAT in favor of the official releases.

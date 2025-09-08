@@ -1,0 +1,9 @@
+CAN'T ACCESS TERMINAL CONSISTENTLY
+ON LINUX DUE TO FLATPAK SANDBOX !
+---------------------------------
+
+Partial Workaround:
+
+Right Click In Opened File-Manager
+And You Should See Something Like 
+"Open In Terminal" Option.
