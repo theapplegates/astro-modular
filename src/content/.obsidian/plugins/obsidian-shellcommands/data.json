@@ -28,7 +28,7 @@
       "platform_specific_commands": {
         "default": "wt -d \"{{vault_path}}/../..\"",
         "darwin": "osascript -e 'tell application \"Terminal\" to do script \"cd \\\"{{vault_path}}/../..\\\" && bash\"'",
-        "linux": "xdg-open ../../ && cat .obsidian/misc/linux-flatpak-sandbox-notice.txt"
+        "linux": "xdg-open {{vault_path}}../../ && cat .obsidian/misc/linux-flatpak-sandbox-notice.txt"
       },
       "shells": {},
       "alias": "Start Terminal",
