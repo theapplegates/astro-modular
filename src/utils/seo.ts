@@ -44,16 +44,17 @@ export function generatePostSEO(post: Post, url: string): SEOData {
     };
   }
 
-  return {
-    title: `${title} | ${siteConfig.title}`,
-    description,
-    canonical: url,
-    ogImage,
-    ogType: 'article',
-    publishedTime: date.toISOString(),
-    modifiedTime: date.toISOString(), // Could be updated separately
-    tags,
-  };
+  return {  
+    title: `${title} | ${siteConfig.title}`,  
+    description,  
+    canonical: url,  
+    ogImage,  
+    ogType: 'article',  
+    publishedTime: date.toISOString(),  
+    modifiedTime: date.toISOString(),  
+    tags,  
+    noIndex: post.data.noIndex || false  // Add this line  
+  };  
 }
 
 // Generate SEO data for pages
@@ -78,13 +79,13 @@ export function generatePageSEO(page: Page, url: string): SEOData {
     };
   }
 
-  return {
-    title: `${title} | ${siteConfig.title}`,
-    description,
-    canonical: url,
-    ogImage,
-    ogType: 'website',
-    noIndex: page.data.noIndex || false
+  return {  
+    title: `${title} | ${siteConfig.title}`,  
+    description,  
+    canonical: url,  
+    ogImage,  
+    ogType: 'website',  
+    noIndex: page.data.noIndex || false  // Add this line  
   };
 }
 

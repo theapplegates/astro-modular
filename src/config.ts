@@ -110,6 +110,7 @@ export const siteConfig: SiteConfig = {
     pages: [
       { title: "Posts", url: "/posts" },
       { title: "About", url: "/about" },
+      { title: "Contact", url: "/contact" },
       { title: "GitHub", url: "https://github.com/davidvkimball/astro-modular" },
     ],
     social: [

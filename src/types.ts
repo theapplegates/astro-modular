@@ -100,16 +100,25 @@ export interface OpenGraphImage {
   height: number;
 }
 
-export interface SEOData {
-  title: string;
-  description: string;
-  canonical: string;
-  ogImage?: OpenGraphImage;
-  ogType: 'website' | 'article';
-  publishedTime?: string;
-  modifiedTime?: string;
-  tags?: string[];
-  noIndex?: boolean; 
+export interface SEOData {  
+  title: string;  
+  description: string;  
+  canonical: string;  
+  ogImage?: OpenGraphImage;  
+  ogType: 'website' | 'article';  
+  publishedTime?: string;  
+  modifiedTime?: string;  
+  tags?: string[];  
+  noIndex?: boolean;  
+  robots?: string;  
+  articleSection?: string;  
+  twitter?: {  
+    card?: string;  
+    title?: string;  
+    description?: string;  
+    image?: string;  
+  };  
+  keywords?: string[];  
 }
 
 export interface WikilinkMatch {

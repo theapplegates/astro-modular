@@ -1,19 +1,19 @@
 ---
 title: Astro Suite Vault (Modular) Guide
-description: How to use this Astro Suite Obsidian vault.
 date: 2025-08-25
+description: How to use this Astro Suite Obsidian vault.
+tags:
+  - tutorial
+  - setup
+  - configuration
+  - astro
+  - obsidian
 image: "[[images/astro-composer-suite-for-obsidian.png]]"
 imageAlt: Astro and Obsidian logos stacked vertically with a "+" (plus) sign between them.
 imageOG: true
 hideCoverImage: true
-tags:
-- tutorial
-- setup
-- configuration
-- astro
-- obsidian
-draft: false
 targetKeyword: astro suite modular vault
+draft: false
 ---
 ![Astro and Obsidian logos stacked vertically with a "+" (plus) sign between them.](/posts/images/astro-composer-suite-for-obsidian.png)
 

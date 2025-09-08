@@ -34,12 +34,11 @@ const paletteIcon = allSectionsDisabled ? 'search' : 'command';
       </div>
 
       <!-- Center area with smart navigation -->
-      <div class="flex-1 flex justify-end items-center">
+      <div class={`flex-1 flex items-center ${ siteConfig.navigation.style === 'minimal' ? 'justify-end' : 'justify-center' }`}> 
         <!-- Smart Navigation (single system with style variants) -->
-        {siteConfig.navigation.showNavigation && (
-          <nav class={`hidden md:flex items-center mr-8 ${
-            siteConfig.navigation.style === 'minimal' ? 'space-x-4' : 'space-x-8'
-          }`} aria-label="Main navigation">
+        {siteConfig.navigation.showNavigation && (  
+    <nav class={`hidden md:flex items-center ${  
+      siteConfig.navigation.style === 'minimal' ? 'space-x-4 mr-4' : 'space-x-8' }`} aria-label="Main navigation">
             {siteConfig.navigation.pages.map(page => (
               <a 
                 href={page.url}

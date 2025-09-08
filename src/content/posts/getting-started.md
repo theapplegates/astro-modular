@@ -2,10 +2,6 @@
 title: Getting Started
 date: 2024-01-20
 description: Everything you need to know to set up, configure, and customize Astro Modular.
-image: "[[images/sunset.jpg]]"
-imageAlt: Sunset skyline.
-imageOG: true
-hideCoverImage: false
 tags:
   - tutorial
   - setup
@@ -13,8 +9,12 @@ tags:
   - astro
   - blog
   - obsidian
-draft: false
+image: "[[images/sunset.jpg]]"
+imageAlt: Sunset skyline.
+imageOG: true
+hideCoverImage: false
 targetKeyword: astro blog setup
+draft: false
 ---
 This guide covers everything needed to set up and customize your modular Astro blog, designed for Obsidian users who want to publish content with minimal friction.
 

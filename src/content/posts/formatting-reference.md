@@ -2,10 +2,6 @@
 title: Formatting Reference
 date: 2024-01-25
 description: Explore all the markdown, extended markdown, and other embed features available in this blog theme.
-image: "[[images/mountains.jpg]]"
-imageAlt: Mountains and water.
-imageOG: false
-hideCoverImage: false
 tags:
   - markdown
   - formatting
@@ -13,8 +9,12 @@ tags:
   - reference
   - meta
   - blog
-draft: false
+image: "[[images/mountains.jpg]]"
+imageAlt: Mountains and water.
+imageOG: false
+hideCoverImage: false
 targetKeyword: markdown features
+draft: false
 ---
 This post demonstrates all the markdown, extended markdown, and other embed features available in Astro Modular. Use this as both a reference guide and a showcase of what's possible.
 

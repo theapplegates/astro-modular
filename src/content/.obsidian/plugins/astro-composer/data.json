@@ -1,6 +1,6 @@
 {
   "enableUnderscorePrefix": false,
-  "defaultTemplate": "---\ntitle: \"{{title}}\"\ndate: {{date}}\ndescription: \"\"\nimage: \"\"\nimageAlt: \"\"\nimageOG: false\nhideCoverImage: false\ndraft: true\ntags: []\ntargetKeyword: \"\"\n---",
+  "defaultTemplate": "---\ntitle: \"{{title}}\"\ndate: {{date}}\ndescription: \"\"\ntags: []\nimage: \"\"\nimageAlt: \"\"\nimageOG: false\nhideCoverImage: false\ntargetKeyword: \"\"\ndraft: true\n---",
   "linkBasePath": "/posts/",
   "postsFolder": "posts",
   "automatePostCreation": true,
@@ -10,6 +10,9 @@
   "dateFormat": "YYYY-MM-DD",
   "excludedDirectories": "",
   "onlyAutomateInPostsFolder": false,
+  "enablePages": true,
+  "pagesFolder": "pages",
+  "pageTemplate": "---\ntitle: \"{{title}}\"\ndescription: \"\"\nnoIndex: false\n---\n",
   "enableAutoRename": true,
   "enableAutoInsertFrontmatter": true,
   "draftStyle": "filename"

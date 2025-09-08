@@ -1,6 +1,7 @@
 ---
 title: Contact
 description: Contact me.
+noIndex: false
 ---
 # Contact
 
