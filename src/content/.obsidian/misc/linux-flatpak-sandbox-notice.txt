@@ -1,0 +1,6 @@
+CAN'T ACCESS TERMINAL
+DUE TO FLATPAK SANDBOX
+-----------------------------------------------
+Right Click In Opened File-Manager
+And You Should See Something Like 
+"Open In Terminal" Option.
