@@ -2,7 +2,8 @@
 
 A powerful, modular blog theme for Astro specifically designed for Obsidian users who want to seamlessly publish their notes and content to the web. This theme bridges the gap between your Obsidian vault and a production-ready blog with minimal friction.
 
-<img width="1920" height="1200" alt="Astro Modular with the Oxygen theme applied, homepage." src="https://github.com/user-attachments/assets/55b3d2b4-6983-46d4-a977-7a772ffa5331" />
+<img width="1920" height="1200" alt="Astro Modular with the Oxygen theme applied, homepage." src="https://github.com/user-attachments/assets/6222d307-6c49-4337-8097-1e1ba08ad0f2" />
+
 
 ## What Makes Astro Modular Special
 
@@ -77,16 +78,19 @@ pnpm preview
 ## Theme Previews
 
 ### Post Body Example (Oxygen Theme)
-<img width="1920" height="1200" alt="AAstro Modular with the Oxygen theme applied, post example." src="https://github.com/user-attachments/assets/dd5860e3-e087-444d-8d3c-741e45f717a0" />
 
+<img width="1920" height="1200" alt="Astro Modular with the Oxygen theme applied, post example." src="https://github.com/user-attachments/assets/7d33274f-44eb-4e39-a793-e98743e3dff6" />
 
 ### Minimal Color Scheme
 
 #### Homepage
-<img width="1920" height="1200" alt="Astro Modular with the Minimal theme applied, homepage." src="https://github.com/user-attachments/assets/3310365a-9c22-4a19-b26f-697230bebceb" />
+
+<img width="1920" height="1200" alt="Astro Modular with the Minimal theme applied, homepage." src="https://github.com/user-attachments/assets/d0b4897c-49fa-4dbe-b39b-c0e1aca145f8" />
+
 
 #### Post Body
-<img width="1920" height="1200" alt="Astro Modular with Minimal theme applied, post example." src="https://github.com/user-attachments/assets/24b2ed84-8a56-47f3-b9d6-726ee0ca2b2d" />
+
+<img width="1920" height="1200" alt="Astro Modular with Minimal theme applied, post example." src="https://github.com/user-attachments/assets/e6a6a560-924e-43c7-8b46-d03a9cbee4a1" />
 
 ## Documentation
 
