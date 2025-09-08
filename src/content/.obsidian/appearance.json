@@ -2,5 +2,7 @@
   "cssTheme": "Minimal",
   "showViewHeader": true,
   "showRibbon": false,
-  "enabledCssSnippets": []
+  "enabledCssSnippets": [
+    "astro-modular-styling"
+  ]
 }

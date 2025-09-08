@@ -109,6 +109,7 @@ export interface SEOData {
   publishedTime?: string;
   modifiedTime?: string;
   tags?: string[];
+  noIndex?: boolean; 
 }
 
 export interface WikilinkMatch {

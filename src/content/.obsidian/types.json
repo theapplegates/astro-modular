@@ -5,6 +5,7 @@
     "tags": "tags",
     "pubDate": "date",
     "imageOG": "checkbox",
-    "draft": "checkbox"
+    "draft": "checkbox",
+    "noIndex": "checkbox"
   }
 }

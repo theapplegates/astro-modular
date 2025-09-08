@@ -75,7 +75,7 @@ export const siteConfig: SiteConfig = {
     placement: "below", // 'above' (before latest post) or 'below' (after recent posts)
   },
   footer: {
-    content: `© 2025 {author}. Built with the <a href="https://github.com/davidvkimball/astro-modular" class="hover:text-highlight-600 dark:hover:text-highlight-400 transition-colors" target="_blank">Astro Modular</a> theme.`,
+    content: `© 2025 {author}. Built with the <a href="https://github.com/davidvkimball/astro-modular" target="_blank">Astro Modular</a> theme.`,
   },
 
   features: {
@@ -110,7 +110,7 @@ export const siteConfig: SiteConfig = {
     pages: [
       { title: "Posts", url: "/posts" },
       { title: "About", url: "/about" },
-      { title: "Website", url: "https://davidvkimball.com" },
+      { title: "GitHub", url: "https://github.com/davidvkimball/astro-modular" },
     ],
     social: [
       {

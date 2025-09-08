@@ -15,5 +15,7 @@
   "iconic",
   "cmdr",
   "obsidian-shellcommands",
-  "obsidian-git"
+  "obsidian-git",
+  "obsidian-front-matter-title-plugin",
+  "link-title-from-property"
 ]

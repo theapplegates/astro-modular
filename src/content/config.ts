@@ -15,6 +15,7 @@ const postsCollection = defineCollection({
     hideCoverImage: z.boolean().optional(),
     targetKeyword: z.string().optional(),
     author: z.string().optional(),
+    noIndex: z.boolean().optional(),
   }),
 });
 
@@ -29,6 +30,7 @@ const pagesCollection = defineCollection({
     image: z.string().optional(),
     imageAlt: z.string().optional(),
     hideCoverImage: z.boolean().optional(),
+    noIndex: z.boolean().optional(),
   }),
 });
 

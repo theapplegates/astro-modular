@@ -9,23 +9,26 @@ function shouldExcludeFromSitemap(slug: string): boolean {
   return excludedSlugs.includes(slug);
 }
 
-export const GET: APIRoute = async ({ site }) => {
-  const siteUrl = site?.toString() || siteConfig.site;
-  
-  // Get all posts and pages
-  const posts = await getCollection('posts');
-  const pages = await getCollection('pages');
-  
-  // Filter posts based on environment
-  const isDev = import.meta.env.DEV;
-  const visiblePosts = posts.filter(post => shouldShowPost(post, isDev));
-  
-  // Filter pages (exclude drafts and 404)
-  const visiblePages = pages.filter(page => 
-    !page.data.draft && 
-    page.slug !== '404' &&
-    !shouldExcludeFromSitemap(page.slug)
-  );
+export const GET: APIRoute = async ({ site }) => {  
+  const siteUrl = site?.toString() || siteConfig.site;  
+    
+  // Get all posts and pages  
+  const posts = await getCollection('posts');  
+  const pages = await getCollection('pages');  
+    
+  // Filter posts based on environment  
+  const isDev = import.meta.env.DEV;  
+  const visiblePosts = posts.filter(post =>   
+    shouldShowPost(post, isDev) && !post.data.noIndex  
+  );  
+    
+  // Filter pages (exclude drafts, 404, and noIndex)  
+  const visiblePages = pages.filter(page =>   
+    !page.data.draft &&   
+    page.slug !== '404' &&  
+    !page.data.noIndex &&  
+    !shouldExcludeFromSitemap(page.slug)  
+  ); 
   
   // Generate URLs
   const urls: string[] = [];

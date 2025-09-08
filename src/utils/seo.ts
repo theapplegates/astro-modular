@@ -52,7 +52,7 @@ export function generatePostSEO(post: Post, url: string): SEOData {
     ogType: 'article',
     publishedTime: date.toISOString(),
     modifiedTime: date.toISOString(), // Could be updated separately
-    tags
+    tags,
   };
 }
 
@@ -83,7 +83,8 @@ export function generatePageSEO(page: Page, url: string): SEOData {
     description,
     canonical: url,
     ogImage,
-    ogType: 'website'
+    ogType: 'website',
+    noIndex: page.data.noIndex || false
   };
 }
 

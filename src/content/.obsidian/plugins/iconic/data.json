@@ -47,6 +47,9 @@
     "imageOG": {
       "icon": "lucide-images"
     },
+    "noIndex": {
+      "icon": "lucide-list-x"
+    },
     "targetKeyword": {
       "icon": "lucide-search-check"
     },

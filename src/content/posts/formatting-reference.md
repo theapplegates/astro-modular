@@ -206,7 +206,9 @@ Here's an [external link](https://obsidian.md).
 
 ### Internal Links
 
-You can create internal links using double brackets or with standard markdown: [[getting-started|Getting Started]] or [Markdown Features](formatting-reference.md).
+You can create internal links using double brackets or with standard markdown: [[getting-started|Getting Started]] or [Markdown Features](formatting-reference.md). 
+
+
 
 ### Reference Links
 

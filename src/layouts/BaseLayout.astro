@@ -28,6 +28,11 @@ const { seoData, bodyClass = '' } = Astro.props;
   <meta name="description" content={seoData.description}>
   <link rel="canonical" href={seoData.canonical}>
 
+  <!-- Robots meta tag -->  
+  {seoData.noIndex && (  
+  <meta name="robots" content="noindex, nofollow">  
+  )}
+
   <!-- Open Graph -->
   <meta property="og:title" content={seoData.title}>
   <meta property="og:description" content={seoData.description}>
