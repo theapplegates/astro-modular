@@ -3,9 +3,6 @@ import { siteConfig } from '../config.ts';
 import ThemeToggle from './ThemeToggle.astro';
 import Icon from './Icon.astro';
 
-const { pathname } = Astro.url;
-const isHome = pathname === '/';
-
 // Check if shortcut is defined and not empty
 const hasShortcut = siteConfig.commandPalette.shortcut && siteConfig.commandPalette.shortcut.trim();
 
@@ -44,16 +41,8 @@ const paletteIcon = allSectionsDisabled ? 'search' : 'command';
                 href={page.url}
                 class={
                   siteConfig.navigation.style === 'minimal' 
-                    ? `flex items-center space-x-1 text-xs font-normal transition-colors hover:text-highlight-600 dark:hover:text-highlight-400 ${
-                        pathname === page.url 
-                          ? 'text-highlight-600 dark:text-highlight-400' 
-                          : 'text-primary-500 dark:text-primary-400'
-                      }`
-                    : `flex items-center space-x-1 text-sm font-medium transition-colors hover:text-highlight-600 dark:hover:text-highlight-400 ${
-                        pathname === page.url 
-                          ? 'text-highlight-600 dark:text-highlight-400' 
-                          : 'text-primary-600 dark:text-primary-300'
-                      }`
+                    ? `flex items-center space-x-1 text-xs font-normal transition-colors hover:text-highlight-600 dark:hover:text-highlight-400 text-primary-500 dark:text-primary-400`
+                    : `flex items-center space-x-1 text-sm font-medium transition-colors hover:text-highlight-600 dark:hover:text-highlight-400 text-primary-600 dark:text-primary-300`
                 }
                 target={page.url.startsWith('http') ? '_blank' : undefined}
                 aria-label={`Navigate to ${page.title}`}
@@ -120,11 +109,7 @@ const paletteIcon = allSectionsDisabled ? 'search' : 'command';
           {siteConfig.navigation.pages.map(page => (
             <a 
               href={page.url}
-              class={`flex items-center justify-between px-3 py-2 text-primary-600 dark:text-primary-300 hover:text-highlight-600 dark:hover:text-highlight-400 hover:bg-primary-50 dark:hover:bg-primary-800 transition-colors font-medium rounded-md ${
-                pathname === page.url 
-                  ? 'text-highlight-600 dark:text-highlight-400 bg-highlight-50 dark:bg-highlight-900/20' 
-                  : ''
-              }`}
+              class="flex items-center justify-between px-3 py-2 text-primary-600 dark:text-primary-300 hover:text-highlight-600 dark:hover:text-highlight-400 hover:bg-primary-50 dark:hover:bg-primary-800 transition-colors font-medium rounded-md"
               target={page.url.startsWith('http') ? '_blank' : undefined}
               aria-label={`Navigate to ${page.title}`}
             >

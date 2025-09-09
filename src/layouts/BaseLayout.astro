@@ -189,8 +189,68 @@ const { seoData, bodyClass = '' } = Astro.props;
   <!-- Scroll to Top -->
   {siteConfig.features.scrollToTop && <ScrollToTop />}
 
+
   <!-- Global scripts -->
   <script>
+    // Update navigation highlighting based on current page
+    function updateNavigationHighlighting(targetPath?: string) {
+      const currentPath = targetPath || window.location.pathname;
+      
+      // Target both desktop and mobile navigation links
+      const navLinks = document.querySelectorAll('header nav a, #mobile-menu nav a');
+      
+      navLinks.forEach((link) => {
+        const linkPath = (link as HTMLAnchorElement).getAttribute('href');
+        
+        if (linkPath) {
+          // Remove ALL existing classes that could conflict
+          link.classList.remove('active', 'current', 'bg-highlight-100', 'dark:bg-highlight-900', 'text-highlight-600', 'dark:text-highlight-400', 'bg-highlight-50', 'dark:bg-highlight-900/20', 'text-primary-600', 'dark:text-primary-300', 'text-primary-500', 'dark:text-primary-400');
+          
+          // Check if this link matches the current page
+          const isActive = linkPath === currentPath || 
+                          (linkPath !== '/' && currentPath.startsWith(linkPath)) ||
+                          (linkPath === '/' && currentPath === '/');
+          
+          if (isActive) {
+            // Add appropriate active classes based on navigation style
+            const isMobile = link.closest('#mobile-menu');
+            
+            if (isMobile) {
+              // Mobile navigation active classes
+              link.classList.add('text-highlight-600', 'dark:text-highlight-400', 'bg-highlight-50', 'dark:bg-highlight-900/20');
+            } else {
+              // Desktop navigation active classes
+              link.classList.add('text-highlight-600', 'dark:text-highlight-400');
+            }
+          } else {
+            // Ensure inactive state classes are applied
+            const isMobile = link.closest('#mobile-menu');
+            
+            if (isMobile) {
+              // Mobile navigation inactive classes
+              link.classList.add('text-primary-600', 'dark:text-primary-300');
+            } else {
+              // Desktop navigation inactive classes - check if it's minimal style
+              const nav = link.closest('nav');
+              const isMinimal = nav && Array.from(nav.classList).some(cls => cls.includes('space-x-4'));
+              
+              if (isMinimal) {
+                link.classList.add('text-primary-500', 'dark:text-primary-400');
+              } else {
+                link.classList.add('text-primary-600', 'dark:text-primary-300');
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Make function globally accessible
+    (window as any).updateNavigationHighlighting = updateNavigationHighlighting;
+    
+    // Test the function immediately
+    updateNavigationHighlighting();
+
     // Global image preloader to prevent reloading across navigation
     class ImagePreloader {
       loadedImages: Set<string>;
@@ -268,6 +328,9 @@ const { seoData, bodyClass = '' } = Astro.props;
        if (!(window as any).swup) {
          handleAnchorsOnLoad();
        }
+
+        // Initialize navigation highlighting on page load
+        (window as any).updateNavigationHighlighting();
 
        // Preload all images on initial page load
        (window as any).imagePreloader.preloadAllImages();
@@ -351,7 +414,7 @@ const { seoData, bodyClass = '' } = Astro.props;
         updateBodyClass: true,
         globalInstance: true,
         animateHistoryBrowsing: true,
-        resolveUrl: (url) => url,
+        resolveUrl: (url: string) => url,
         scroll: false,
         parallelRequests: false,
         timeout: 2000,
@@ -388,17 +451,22 @@ const { seoData, bodyClass = '' } = Astro.props;
       // Intercept and prevent any scroll restoration
       const originalScrollTo = window.scrollTo;
       
-      window.scrollTo = function(x, y) {
-        if (isForwardNavigation && y === 0) {
-          // Allow scroll to top for forward navigation
-          return originalScrollTo.call(this, x, y);
-        } else if (isForwardNavigation) {
-          // Block any other scroll during forward navigation
-          console.log('Blocked scroll during forward navigation:', x, y);
-          return;
+      (window as any).scrollTo = function(x: number | ScrollToOptions, y?: number) {
+        if (typeof x === 'number' && typeof y === 'number') {
+          if (isForwardNavigation && y === 0) {
+            // Allow scroll to top for forward navigation
+            return originalScrollTo.call(window, x, y);
+          } else if (isForwardNavigation) {
+            // Block any other scroll during forward navigation
+            console.log('Blocked scroll during forward navigation:', x, y);
+            return;
+          }
+          return originalScrollTo.call(window, x, y);
+        } else {
+          // Handle ScrollToOptions case
+          return (originalScrollTo as any).call(window, x as ScrollToOptions);
         }
-        return originalScrollTo.call(this, x, y);
-      };
+      } as typeof window.scrollTo;
 
       // Let Swup handle all history management natively
 
@@ -423,7 +491,7 @@ const { seoData, bodyClass = '' } = Astro.props;
       let backNavigationScrollHandled = false;
       
       // Store the target anchor for back navigation
-      let pendingBackAnchor = null;
+      let pendingBackAnchor: string | null = null;
       
       // Store scroll position on link click (only for back navigation)
       swup.hooks.on('link:click', (event: any) => {
@@ -447,6 +515,26 @@ const { seoData, bodyClass = '' } = Astro.props;
         if (commandPalette && !commandPalette.classList.contains('hidden')) {
           commandPalette.classList.add('hidden');
         }
+        
+        // Update navigation highlighting immediately when navigation starts
+        let targetPath = window.location.pathname;
+        
+        // Extract pathname from visit.to.url if available
+        if (visit.to?.url) {
+          try {
+            // If it's already a full URL, use it directly
+            if (visit.to.url.startsWith('http')) {
+              targetPath = new URL(visit.to.url).pathname;
+            } else {
+              // If it's just a pathname, use it directly
+              targetPath = visit.to.url;
+            }
+          } catch (e) {
+            targetPath = window.location.pathname;
+          }
+        }
+        
+        (window as any).updateNavigationHighlighting(targetPath);
         
         // Set flag for forward navigation
         isForwardNavigation = !visit.trigger || !visit.trigger.event || visit.trigger.event.type !== 'popstate';
@@ -549,14 +637,16 @@ const { seoData, bodyClass = '' } = Astro.props;
                console.log('Element not found for pending anchor, will retry');
                // Retry after a short delay
                setTimeout(() => {
-                 const retryElement = document.getElementById(pendingBackAnchor);
-                 if (retryElement) {
-                   console.log('Found element on retry for pending anchor, scrolling to it');
-                   retryElement.scrollIntoView({ behavior: 'instant', block: 'start' });
-                   pendingBackAnchor = null;
-                 } else {
-                   console.log('Element still not found after retry, clearing pending anchor');
-                   pendingBackAnchor = null;
+                 if (pendingBackAnchor) {
+                   const retryElement = document.getElementById(pendingBackAnchor);
+                   if (retryElement) {
+                     console.log('Found element on retry for pending anchor, scrolling to it');
+                     retryElement.scrollIntoView({ behavior: 'instant', block: 'start' });
+                     pendingBackAnchor = null;
+                   } else {
+                     console.log('Element still not found after retry, clearing pending anchor');
+                     pendingBackAnchor = null;
+                   }
                  }
                }, 100);
                return;
@@ -587,7 +677,9 @@ const { seoData, bodyClass = '' } = Astro.props;
                } else {
                  console.log('Element not found, trying alternative approach');
                  // Try scrolling to the hash directly
-                 window.location.hash = '#' + hash;
+                 if (hash) {
+                   window.location.hash = '#' + hash;
+                 }
                }
              }, 350); // Wait for Swup transition to complete
            } else {
@@ -621,7 +713,9 @@ const { seoData, bodyClass = '' } = Astro.props;
                } else {
                  console.log('Element not found, trying alternative approach');
                  // Try scrolling to the hash directly
-                 window.location.hash = '#' + hash;
+                 if (hash) {
+                   window.location.hash = '#' + hash;
+                 }
                }
              }, 350); // Wait for Swup transition to complete
            } else {
@@ -641,8 +735,8 @@ const { seoData, bodyClass = '' } = Astro.props;
            }, 100);
          }
          
-         // Reinitialize components
-         updateNavigationHighlighting();
+        // Reinitialize components
+        (window as any).updateNavigationHighlighting();
          initializeImageGrids();
          initializeTOC();
          initializeExternalLinks();
@@ -662,7 +756,7 @@ const { seoData, bodyClass = '' } = Astro.props;
       paragraphs.forEach(p => {
         const images = p.querySelectorAll('img, picture');
         const textNodes = Array.from(p.childNodes).filter(node => 
-          node.nodeType === Node.TEXT_NODE && node.textContent.trim() !== ''
+          node.nodeType === Node.TEXT_NODE && node.textContent && node.textContent.trim() !== ''
         );
         const otherElements = Array.from(p.childNodes).filter(node => 
           node.nodeType === Node.ELEMENT_NODE && !['IMG', 'PICTURE', 'BR'].includes((node as Element).tagName)
@@ -730,9 +824,9 @@ const { seoData, bodyClass = '' } = Astro.props;
     // Initialize anchor links
     function initializeAnchorLinks() {
       document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
+        anchor.addEventListener('click', function (this: HTMLAnchorElement, e: Event) {
           e.preventDefault();
-          const target = document.querySelector((this as HTMLAnchorElement).getAttribute('href') || '');
+          const target = document.querySelector(this.getAttribute('href') || '');
           if (target) {
             target.scrollIntoView({
               behavior: 'smooth',
@@ -740,27 +834,6 @@ const { seoData, bodyClass = '' } = Astro.props;
             });
           }
         });
-      });
-    }
-
-    // Update navigation highlighting based on current page
-    function updateNavigationHighlighting() {
-      const currentPath = window.location.pathname;
-      const navLinks = document.querySelectorAll('nav a, .nav a, [role="navigation"] a, header a');
-      
-      navLinks.forEach(link => {
-        const linkPath = (link as HTMLAnchorElement).getAttribute('href');
-        if (linkPath) {
-          // Remove existing active classes
-          link.classList.remove('active', 'current', 'bg-highlight-100', 'dark:bg-highlight-900', 'text-highlight-600', 'dark:text-highlight-400');
-          
-          // Check if this link matches the current page
-          if (linkPath === currentPath || 
-              (linkPath !== '/' && currentPath.startsWith(linkPath)) ||
-              (linkPath === '/' && currentPath === '/')) {
-            link.classList.add('active');
-          }
-        }
       });
     }
 
@@ -773,6 +846,7 @@ const { seoData, bodyClass = '' } = Astro.props;
         (card as HTMLElement).offsetHeight;
       });
     }
+
   </script>
 
   <!-- Additional body scripts -->
