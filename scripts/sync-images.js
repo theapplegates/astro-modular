@@ -26,8 +26,6 @@ async function ensureDir(dir) {
 }
 
 async function syncImagesForConfig(config) {
-  console.log(`🖼️ Syncing ${config.name} images...`);
-
   // Ensure target directory exists
   await ensureDir(config.target);
 
@@ -38,11 +36,13 @@ async function syncImagesForConfig(config) {
       sourceFiles = await fs.readdir(config.source);
     } catch (error) {
       if (error.code === 'ENOENT') {
-        console.log(`📁 Source directory ${config.source} doesn't exist, skipping...`);
-        return;
+        return { synced: 0, skipped: 0, removed: 0 };
       }
       throw error;
     }
+
+    let synced = 0;
+    let skipped = 0;
 
     for (const file of sourceFiles) {
       const sourcePath = path.join(config.source, file);
@@ -63,24 +63,26 @@ async function syncImagesForConfig(config) {
 
       if (needsUpdate) {
         await fs.copyFile(sourcePath, targetPath);
-        console.log(`✅ Synced ${config.name}: ${file}`);
+        synced++;
       } else {
-        console.log(`⏭️ Skipped ${config.name}: ${file} (up to date)`);
+        skipped++;
       }
     }
 
     // Cleanup: Remove files from target that no longer exist in source
-    console.log(`🧹 Cleaning up orphaned ${config.name} files...`);
     const targetFiles = await fs.readdir(config.target);
     const sourceFileSet = new Set(sourceFiles);
+    let removed = 0;
 
     for (const file of targetFiles) {
       if (!sourceFileSet.has(file)) {
         const targetPath = path.join(config.target, file);
         await fs.unlink(targetPath);
-        console.log(`🗑️ Removed ${config.name}: ${file} (no longer exists in source)`);
+        removed++;
       }
     }
+
+    return { synced, skipped, removed };
   } catch (error) {
     console.error(`❌ Error syncing ${config.name} images:`, error);
     process.exit(1);
@@ -91,7 +93,13 @@ async function syncAllImages() {
   console.log('🖼️ Syncing images from content to public directory...');
 
   for (const config of IMAGE_SYNC_CONFIGS) {
-    await syncImagesForConfig(config);
+    const result = await syncImagesForConfig(config);
+    if (result.synced > 0 || result.skipped > 0 || result.removed > 0) {
+      console.log(`📁 Syncing ${config.name} images...`);
+      if (result.synced > 0) console.log(`   Synced ${result.synced} files`);
+      if (result.skipped > 0) console.log(`   Skipped ${result.skipped} files that were unchanged`);
+      if (result.removed > 0) console.log(`   Cleaned up ${result.removed} orphaned ${config.name} files`);
+    }
   }
 
   console.log('🎉 Image sync complete!');

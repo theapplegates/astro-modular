@@ -38,31 +38,24 @@
 # Generated redirects from content aliases
 # Generated redirects from content aliases
 # Generated redirects from content aliases
-# Generated redirects from content aliases
-# Generated redirects from content aliases
-# Generated redirects from content aliases
-# Generated redirects from content aliases
-# Generated redirects from content aliases
-# Generated redirects from content aliases
-# Generated redirects from content aliases
-# Generated redirects from content aliases
-# Generated redirects from content aliases
-# Generated redirects from content aliases
-# Generated redirects from content aliases
-# Generated redirects from content aliases
 [[redirects]]
-  from = "/test-page"
-  to = "/unrelated"
+  from = "/about-me"
+  to = "/about"
   status = 301
 
 [[redirects]]
-  from = "/test-page-rename"
-  to = "/unrelated"
+  from = "/about-us"
+  to = "/about"
   status = 301
 
 [[redirects]]
-  from = "/test-post"
-  to = "/unrelated"
+  from = "/contact-me"
+  to = "/contact"
+  status = 301
+
+[[redirects]]
+  from = "/contact-us"
+  to = "/contact"
   status = 301
 
 [[redirects]]

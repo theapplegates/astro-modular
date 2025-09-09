@@ -124,10 +124,6 @@ async function processMarkdownFile(filePath) {
     const content = await fs.readFile(filePath, 'utf-8');
     const { frontmatter, content: body } = parseFrontmatter(content);
     
-    console.log(`🔍 Processing: ${path.basename(filePath)}`);
-    console.log(`   Frontmatter keys: ${frontmatter ? Object.keys(frontmatter).join(', ') : 'none'}`);
-    console.log(`   Has aliases: ${frontmatter && frontmatter.aliases ? 'yes' : 'no'}`);
-    
     if (!frontmatter || !frontmatter.aliases) {
       return false; // No aliases to process
     }
@@ -148,13 +144,10 @@ async function processMarkdownFile(filePath) {
     // Write back to file
     await fs.writeFile(filePath, newContent, 'utf-8');
     
-    console.log(`✅ Processed aliases in: ${path.relative(process.cwd(), filePath)}`);
-    console.log(`   Redirects: ${redirectFrom.join(', ')}`);
-    
-    return true;
+    return { processed: true, aliases: redirectFrom.length };
   } catch (error) {
     console.error(`❌ Error processing ${filePath}:`, error.message);
-    return false;
+    return { processed: false, aliases: 0 };
   }
 }
 
@@ -165,19 +158,21 @@ async function processDirectory(dirPath) {
     const markdownFiles = files.filter(file => file.endsWith('.md'));
     
     let processedCount = 0;
+    let totalAliases = 0;
     
     for (const file of markdownFiles) {
       const filePath = path.join(dirPath, file);
-      const wasProcessed = await processMarkdownFile(filePath);
-      if (wasProcessed) {
+      const result = await processMarkdownFile(filePath);
+      if (result.processed) {
         processedCount++;
+        totalAliases += result.aliases;
       }
     }
     
-    return processedCount;
+    return { processedCount, totalAliases };
   } catch (error) {
     console.error(`❌ Error processing directory ${dirPath}:`, error.message);
-    return 0;
+    return { processedCount: 0, totalAliases: 0 };
   }
 }
 
@@ -187,23 +182,27 @@ async function processAllAliases() {
   
   const projectRoot = path.join(__dirname, '..');
   let totalProcessed = 0;
+  let totalAliases = 0;
   
   for (const dir of CONTENT_DIRS) {
     const fullPath = path.join(projectRoot, dir);
     
     try {
       await fs.access(fullPath);
-      console.log(`📁 Processing directory: ${dir}`);
-      const processed = await processDirectory(fullPath);
-      totalProcessed += processed;
-      console.log(`   Processed ${processed} files with aliases\n`);
+      const result = await processDirectory(fullPath);
+      totalProcessed += result.processedCount;
+      totalAliases += result.totalAliases;
     } catch (error) {
-      if (error.code === 'ENOENT') {
-        console.log(`📁 Directory ${dir} doesn't exist, skipping...\n`);
-      } else {
+      if (error.code !== 'ENOENT') {
         console.error(`❌ Error accessing directory ${dir}:`, error.message);
       }
     }
+  }
+  
+  if (totalProcessed > 0) {
+    console.log(`📁 Processing pages directory...`);
+    console.log(`📁 Processing posts directory...`);
+    console.log(`   Processed ${totalProcessed} files with ${totalAliases} aliases`);
   }
   
   console.log(`🎉 Alias processing complete! Processed ${totalProcessed} files.`);

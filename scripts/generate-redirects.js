@@ -122,10 +122,6 @@ async function processMarkdownFile(filePath, isPost = false) {
     const content = await fs.readFile(filePath, 'utf-8');
     const { frontmatter } = parseFrontmatter(content);
     
-    console.log(`🔍 Processing: ${path.basename(filePath)}`);
-    console.log(`   Frontmatter keys: ${frontmatter ? Object.keys(frontmatter).join(', ') : 'none'}`);
-    console.log(`   Has redirect_from: ${frontmatter && frontmatter.redirect_from ? 'yes' : 'no'}`);
-    
     if (!frontmatter || !frontmatter.redirect_from) {
       return []; // No redirects to process
     }
@@ -133,20 +129,14 @@ async function processMarkdownFile(filePath, isPost = false) {
     const targetUrl = getContentUrl(filePath, isPost);
     const redirects = [];
     
-    console.log(`   Processing ${frontmatter.redirect_from.length} aliases:`, frontmatter.redirect_from);
-    
     for (const alias of frontmatter.redirect_from) {
       const cleanAlias = alias.startsWith('/') ? alias.substring(1) : alias;
-      
-      console.log(`   Processing alias: ${alias} → ${cleanAlias}`);
       
       redirects.push({
         from: `/${cleanAlias}`,
         to: targetUrl,
         alias: cleanAlias
       });
-      
-      console.log(`✅ Created redirect: /${cleanAlias} → ${targetUrl}`);
     }
     
     return redirects;
@@ -163,17 +153,21 @@ async function processDirectory(dirPath, isPost = false) {
     const markdownFiles = files.filter(file => file.endsWith('.md'));
     
     let allRedirects = [];
+    let processedFiles = 0;
     
     for (const file of markdownFiles) {
       const filePath = path.join(dirPath, file);
       const redirects = await processMarkdownFile(filePath, isPost);
       allRedirects = allRedirects.concat(redirects);
+      if (redirects.length > 0) {
+        processedFiles++;
+      }
     }
     
-    return allRedirects;
+    return { redirects: allRedirects, processedFiles };
   } catch (error) {
     console.error(`❌ Error processing directory ${dirPath}:`, error.message);
-    return [];
+    return { redirects: [], processedFiles: 0 };
   }
 }
 
@@ -217,45 +211,44 @@ async function updateNetlifyToml(redirects) {
   try {
     let netlifyContent = await fs.readFile(netlifyTomlPath, 'utf-8');
     
-    // Remove existing redirects (keep the catch-all 404 redirect)
+    // Find the end of the file before any redirects
     const lines = netlifyContent.split('\n');
-    const filteredLines = [];
-    let inRedirectsSection = false;
+    let endOfConfig = lines.length;
     
-    for (const line of lines) {
-      if (line.trim().startsWith('[[redirects]]')) {
-        inRedirectsSection = true;
-        continue;
-      }
-      if (inRedirectsSection && line.trim().startsWith('[') && !line.trim().startsWith('[[redirects]]')) {
-        inRedirectsSection = false;
-      }
-      if (!inRedirectsSection) {
-        filteredLines.push(line);
+    // Find where redirects start
+    for (let i = 0; i < lines.length; i++) {
+      if (lines[i].trim().startsWith('[[redirects]]')) {
+        endOfConfig = i;
+        break;
       }
     }
     
-    // Add new redirects
-    const redirectLines = [
-      '',
-      '# Generated redirects from content aliases'
-    ];
+    // Keep everything before redirects
+    const configLines = lines.slice(0, endOfConfig);
     
-    for (const redirect of redirects) {
-      redirectLines.push('[[redirects]]');
-      redirectLines.push(`  from = "${redirect.from}"`);
-      redirectLines.push(`  to = "${redirect.to}"`);
-      redirectLines.push(`  status = 301`);
+    // Build new redirects section
+    const redirectLines = [];
+    
+    if (redirects.length > 0) {
       redirectLines.push('');
+      redirectLines.push('# Generated redirects from content aliases');
+      
+      for (const redirect of redirects) {
+        redirectLines.push('[[redirects]]');
+        redirectLines.push(`  from = "${redirect.from}"`);
+        redirectLines.push(`  to = "${redirect.to}"`);
+        redirectLines.push(`  status = 301`);
+        redirectLines.push('');
+      }
     }
     
-    // Add back the catch-all 404 redirect
+    // Always add the catch-all 404 redirect at the end
     redirectLines.push('[[redirects]]');
     redirectLines.push('  from = "/*"');
     redirectLines.push('  to = "/404"');
     redirectLines.push('  status = 404');
     
-    const newContent = filteredLines.join('\n') + redirectLines.join('\n');
+    const newContent = configLines.join('\n') + redirectLines.join('\n');
     await fs.writeFile(netlifyTomlPath, newContent, 'utf-8');
     
     console.log(`📝 Updated netlify.toml with ${redirects.length} redirects`);
@@ -270,31 +263,34 @@ async function generateRedirects() {
   
   const projectRoot = path.join(__dirname, '..');
   let allRedirects = [];
+  let totalProcessedFiles = 0;
   
   // Process pages
   const pagesPath = path.join(projectRoot, 'src/content/pages');
   try {
     await fs.access(pagesPath);
-    console.log(`📁 Processing pages directory...`);
-    const pageRedirects = await processDirectory(pagesPath, false);
-    allRedirects = allRedirects.concat(pageRedirects);
+    const pageResult = await processDirectory(pagesPath, false);
+    allRedirects = allRedirects.concat(pageResult.redirects);
+    totalProcessedFiles += pageResult.processedFiles;
   } catch (error) {
-    console.log(`📁 Pages directory doesn't exist, skipping...`);
+    // Pages directory doesn't exist, skipping
   }
   
   // Process posts
   const postsPath = path.join(projectRoot, 'src/content/posts');
   try {
     await fs.access(postsPath);
-    console.log(`📁 Processing posts directory...`);
-    const postRedirects = await processDirectory(postsPath, true);
-    allRedirects = allRedirects.concat(postRedirects);
+    const postResult = await processDirectory(postsPath, true);
+    allRedirects = allRedirects.concat(postResult.redirects);
+    totalProcessedFiles += postResult.processedFiles;
   } catch (error) {
-    console.log(`📁 Posts directory doesn't exist, skipping...`);
+    // Posts directory doesn't exist, skipping
   }
   
-  // Update both astro.config.mjs and netlify.toml
   if (allRedirects.length > 0) {
+    console.log(`📁 Processing pages directory...`);
+    console.log(`📁 Processing posts directory...`);
+    console.log(`   Processed ${totalProcessedFiles} files with redirects`);
     await updateAstroConfig(allRedirects);
     await updateNetlifyToml(allRedirects);
   }

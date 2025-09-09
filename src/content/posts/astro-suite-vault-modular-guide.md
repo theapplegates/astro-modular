@@ -55,6 +55,7 @@ Here's a guide for some important hotkeys set especially for this theme:
 - Toggle Zen mode: `CTRL + SHIFT + Z`
 - Insert image: `CTRL + '`
 - Insert callout: `CTRL + SHIFT + C`
+- Rename current note: `CTRL + R` 
 - Start Terminal: `CTRL + SHIFT + D`
 - Open config file: `CTRL + SHIFT + ,`
 - Git: Commit and Sync `CTRL + SHIFT + S`
