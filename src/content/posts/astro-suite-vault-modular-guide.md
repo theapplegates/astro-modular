@@ -54,6 +54,7 @@ Here's a guide for some important hotkeys set especially for this theme:
 - Toggle reading view: `CTRL + E`
 - Toggle Zen mode: `CTRL + SHIFT + Z`
 - Insert image: `CTRL + '`
+- Insert callout: `CTRL + SHIFT + C`
 - Start Terminal: `CTRL + SHIFT + D`
 - Open config file: `CTRL + SHIFT + ,`
 - Git: Commit and Sync `CTRL + SHIFT + S`
@@ -80,6 +81,7 @@ Community plugins enabled:
 - Minimal Theme Settings
 - mdx as md
 - Paste image rename
+- Property Over Filename
 - ProZen
 - Shell commands
 - Style Settings
@@ -121,6 +123,12 @@ Pull in images from Unsplash or other sources easily with just a few keystrokes.
 
 Pulls from the `title` property instead of using the filename for any tab. With the tab bar hidden, you won't see this unless you unhide it.
 
+### Property Over Filename
+
+When linking or searching notes, you can use the `title` property as its primary identifier, which is more helpful semantically for linking between and searching for posts and pages, since note filenames are post/page slugs in kebab case instead of titles. 
+
+When you link to another note, its `title` is automatically set as the hyperlinked text, but you can easily change it to something else after it's been inserted.
+
 ### ProZen
 
 Zen mode offers another quick option to focus on your writing. Pressing `CTRL + SHIFT + Z` will enter Zen mode: automatic full-screen, all elements removed except for your content. This is a great alternative if you don't prefer to use Hider to remove the UI, and prefer to toggle it all on or off at once as needed. Alternatively, you can use the Focus Mode included in the Minimal theme.
@@ -135,7 +143,8 @@ To open your `config.ts` file quickly, simply use the `Astro Configuration` comm
 
 Commander helps us place a button for each of these actions on the file explorer UI.
 
-(**Please note:** On Linux, the Flatpak  (via Flathub) uses non-trivial sandboxing and it seems there lacks a standard way to open the default terminal on Linux in-general. Both commands use FreeDesktop's `xdg-open` -- one to... well open the config file, the other to launch the file-manager.  Most file-managers support a right-click and something along the lines of `Open In Terminal`.)
+> [!warning] Linux User Warning
+> On Linux, there isn't a universal method to open the default terminal. Additionally, the widely used Flatpak (via Flathub) employs non-trivial sandboxing, which introduces further challenges. To address this, both commands utilize FreeDesktop's `xdg-open` to access the configuration file and launch the file manager. Most file managers offer a right-click option like `Open in Terminal`, so if you're using a Linux distribution, you can rely on that feature.
 
 ### BRAT (Temporary)
 

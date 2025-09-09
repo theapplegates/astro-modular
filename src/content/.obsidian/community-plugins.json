@@ -16,6 +16,5 @@
   "cmdr",
   "obsidian-shellcommands",
   "obsidian-git",
-  "obsidian-front-matter-title-plugin",
-  "link-title-from-property"
+  "property-over-filename"
 ]

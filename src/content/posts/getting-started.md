@@ -153,15 +153,15 @@ Create posts in `src/content/posts/` with this frontmatter:
 title: "Your Post Title"
 date: 2024-01-20
 description: "Meta & open graph description"
+tags:
+  - tutorial
+  - astro
 image: "images/cover.jpg"
 imageAlt: "Alt text"
 imageOG: true
 hideCoverImage: false
-tags:
-  - tutorial
-  - astro
-draft: true
 targetKeyword: "keyword"
+draft: true
 ---
 
 ## Start with H2 Headings
@@ -174,19 +174,44 @@ Use [[wikilinks]] to connect posts.
 > Work exactly like in Obsidian!
 ```
 
+## Creating Pages 
+
+The About page represents a standard page you can duplicate easily. Its frontmatter looks like this: 
+
+```markdown
+---
+title: "Your Post Title"
+description: "Meta & open graph description"
+noIndex: false
+---
+
+# Start with H1 Headings
+
+Write using markdown with enhanced features.
+```
+
+Use the `noIndex` frontmatter Boolean to decide whether or not `<meta name="robots" content="noindex, nofollow">` gets placed on the page. This will tell search engines not to index the page. 
+
+The Contact page has an optional form embedded into it, which leads to the Thank You page when filled out. It's preconfigured to work with Netlify out of the box, you just have to [enable form detection](https://docs.netlify.com/manage/forms/setup/) on your project.
+
+Optional Privacy Policy page can be edited or removed by deleting it if you don't want it. 
+
+`index.md` controls what goes on the homepage blurb. Adding content to `404.md` will display on any "not found" page.
 ## Obsidian Integration
 
 ### Using the Included Vault
 
-1. **Open `src/content/` in Obsidian**
-2. **Trust author and enable plugins** (Astro Composer, Minimal theme)
-3. **Write using your normal workflow**
-4. **Publish directly by enabling the Git community plugin**
+1. Open `src/content/` in Obsidian
+2. Trust author and enable plugins (Astro Composer, Minimal theme)
+3. Start writing
 
 The vault provides:
-- **Minimal theme** for distraction-free writing
+- **Preconfigured plugins** optimized for this Astro blog
+- **Adjustable theme** for distraction-free writing
 - **Optional CSS snippets** to customize your experience
 - **Custom hotkeys** for accelerating post creation and publishing
+
+Read [the guide](posts/astro-suite-vault-modular-guide.md) for more detailed information.
 
 To remove Obsidian, simply delete the `.obsidian` folder.
 
