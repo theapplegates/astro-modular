@@ -72,6 +72,7 @@ Disabled default core plugins:
 - Sync
 
 Community plugins enabled: 
+- Alias Filename History
 - Astro Composer
 - Default New Tab Page
 - Git
@@ -89,11 +90,11 @@ Community plugins enabled:
 
 ### Astro Composer 
 
-Handy for easily creating new notes as Astro blog posts. Just create a new note with `CTRL + N`, type in a title in Title case or with special characters, and the note or folder name generated is a kebab-case version of the title without special characters. This is ideal for automating post slugs. 
+Handy for easily creating new notes as Astro blog posts. Just create a new note with `CTRL + N`, type in a title in Title case or with special characters, and the note or folder name generated is a kebab-case version of the title without special characters. This is ideal for automating post slugs. `CTRL + R` allows you to easily rename blog posts, and note filenames get updated in kebab-case automatically.
 
 You can also define and set default properties that can be generated automatically or manually set for any open note as well.
 
-Unlike other themes, you can use Wikilinks or standard markdown links, ***without*** having to convert those to internal links for Astro with the "Convert internal links for Astro" command. This theme supports any internal link that works with Obsidian.
+Unlike other themes, you can use wikilinks or standard markdown links, ***without*** having to convert those to internal links for Astro with the "Convert internal links for Astro" command. This theme supports any internal link that works with Obsidian.
 
 ### Homepage and Default New Tab Page
 
@@ -128,6 +129,10 @@ Pulls from the `title` property instead of using the filename for any tab. With 
 When linking or searching notes, you can use the `title` property as its primary identifier, which is more helpful semantically for linking between and searching for posts and pages, since note filenames are post/page slugs in kebab case instead of titles. 
 
 When you link to another note, its `title` is automatically set as the hyperlinked text, but you can easily change it to something else after it's been inserted.
+
+### Alias Filename History
+
+When changing the filename of a blog post note, the old filename will be stored as an alias by default. This means redirects of the old post or page URL will go to the current post's slug, which is configured in Astro. You can adjust lots of settings including regex for ignoring names (like `Untitled` or a `_` prefix), timeout in seconds to store the name, or looking for changes in the parent folder name as well.
 
 ### ProZen
 

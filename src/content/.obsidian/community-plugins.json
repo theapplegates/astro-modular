@@ -16,5 +16,6 @@
   "cmdr",
   "obsidian-shellcommands",
   "obsidian-git",
-  "property-over-filename"
+  "property-over-filename",
+  "alias-filename-history"
 ]

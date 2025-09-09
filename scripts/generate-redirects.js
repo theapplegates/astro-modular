@@ -1,0 +1,306 @@
+#!/usr/bin/env node
+
+import { promises as fs } from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Define content directories to process
+const CONTENT_DIRS = [
+  'src/content/pages',
+  'src/content/posts'
+];
+
+// Function to parse frontmatter from markdown content
+function parseFrontmatter(content) {
+  const frontmatterRegex = /^---\s*\n([\s\S]*?)\n---\s*\n([\s\S]*)$/;
+  const match = content.match(frontmatterRegex);
+  
+  if (!match) {
+    return { frontmatter: null, content: content };
+  }
+  
+  const frontmatterText = match[1];
+  const body = match[2];
+  
+  // Parse YAML-like frontmatter (simple parser)
+  const frontmatter = {};
+  const lines = frontmatterText.split('\n');
+  let currentKey = null;
+  let currentValue = [];
+  let inArray = false;
+  
+  for (const line of lines) {
+    const trimmed = line.trim();
+    
+    if (trimmed === '' || trimmed.startsWith('#')) {
+      continue;
+    }
+    
+    if (trimmed.includes(':') && !inArray) {
+      // Save previous key-value pair
+      if (currentKey) {
+        if (currentValue.length === 1) {
+          frontmatter[currentKey] = currentValue[0];
+        } else {
+          frontmatter[currentKey] = currentValue;
+        }
+      }
+      
+      // Start new key-value pair
+      const colonIndex = trimmed.indexOf(':');
+      currentKey = trimmed.substring(0, colonIndex).trim();
+      const value = trimmed.substring(colonIndex + 1).trim();
+      
+      if (value.startsWith('[')) {
+        // Array value
+        inArray = true;
+        currentValue = [];
+        if (value !== '[') {
+          // Single line array
+          const arrayContent = value.substring(1, value.endsWith(']') ? value.length - 1 : value.length);
+          if (arrayContent.trim()) {
+            currentValue = arrayContent.split(',').map(item => item.trim().replace(/^["']|["']$/g, ''));
+          }
+          inArray = false;
+        }
+      } else if (value) {
+        // Single value
+        currentValue = [value.replace(/^["']|["']$/g, '')];
+      } else {
+        // Empty value, might be start of array
+        currentValue = [];
+        inArray = true;
+      }
+    } else if (inArray && trimmed.startsWith('-')) {
+      // Array item
+      const item = trimmed.substring(1).trim().replace(/^["']|["']$/g, '');
+      currentValue.push(item);
+    } else if (inArray && trimmed === ']') {
+      // End of array
+      inArray = false;
+    } else if (currentKey && !inArray) {
+      // Continuation of single value
+      currentValue = [currentValue[0] + ' ' + trimmed];
+    }
+  }
+  
+  // Save last key-value pair
+  if (currentKey) {
+    if (currentValue.length === 1) {
+      frontmatter[currentKey] = currentValue[0];
+    } else {
+      frontmatter[currentKey] = currentValue;
+    }
+  }
+  
+  return { frontmatter, content: body };
+}
+
+// Function to get the final URL for a content file
+function getContentUrl(filePath, isPost = false) {
+  const relativePath = path.relative(process.cwd(), filePath);
+  const fileName = path.basename(filePath, '.md');
+  
+  if (isPost) {
+    return `/posts/${fileName}`;
+  } else {
+    if (fileName === 'index') {
+      return '/';
+    }
+    return `/${fileName}`;
+  }
+}
+
+
+
+// Function to process a single markdown file
+async function processMarkdownFile(filePath, isPost = false) {
+  try {
+    const content = await fs.readFile(filePath, 'utf-8');
+    const { frontmatter } = parseFrontmatter(content);
+    
+    console.log(`🔍 Processing: ${path.basename(filePath)}`);
+    console.log(`   Frontmatter keys: ${frontmatter ? Object.keys(frontmatter).join(', ') : 'none'}`);
+    console.log(`   Has redirect_from: ${frontmatter && frontmatter.redirect_from ? 'yes' : 'no'}`);
+    
+    if (!frontmatter || !frontmatter.redirect_from) {
+      return []; // No redirects to process
+    }
+    
+    const targetUrl = getContentUrl(filePath, isPost);
+    const redirects = [];
+    
+    console.log(`   Processing ${frontmatter.redirect_from.length} aliases:`, frontmatter.redirect_from);
+    
+    for (const alias of frontmatter.redirect_from) {
+      const cleanAlias = alias.startsWith('/') ? alias.substring(1) : alias;
+      
+      console.log(`   Processing alias: ${alias} → ${cleanAlias}`);
+      
+      redirects.push({
+        from: `/${cleanAlias}`,
+        to: targetUrl,
+        alias: cleanAlias
+      });
+      
+      console.log(`✅ Created redirect: /${cleanAlias} → ${targetUrl}`);
+    }
+    
+    return redirects;
+  } catch (error) {
+    console.error(`❌ Error processing ${filePath}:`, error.message);
+    return [];
+  }
+}
+
+// Function to process all markdown files in a directory
+async function processDirectory(dirPath, isPost = false) {
+  try {
+    const files = await fs.readdir(dirPath);
+    const markdownFiles = files.filter(file => file.endsWith('.md'));
+    
+    let allRedirects = [];
+    
+    for (const file of markdownFiles) {
+      const filePath = path.join(dirPath, file);
+      const redirects = await processMarkdownFile(filePath, isPost);
+      allRedirects = allRedirects.concat(redirects);
+    }
+    
+    return allRedirects;
+  } catch (error) {
+    console.error(`❌ Error processing directory ${dirPath}:`, error.message);
+    return [];
+  }
+}
+
+// Function to update astro.config.mjs with redirects
+async function updateAstroConfig(redirects) {
+  const astroConfigPath = 'astro.config.mjs';
+  
+  try {
+    let astroContent = await fs.readFile(astroConfigPath, 'utf-8');
+    
+    // Create redirects object
+    const redirectsObj = {};
+    for (const redirect of redirects) {
+      redirectsObj[redirect.from] = redirect.to;
+    }
+    
+    // Find and replace the redirects section
+    const redirectsRegex = /redirects:\s*\{[^}]*\}/s;
+    const newRedirectsSection = `redirects: ${JSON.stringify(redirectsObj, null, 2).replace(/"/g, "'")}`;
+    
+    if (redirectsRegex.test(astroContent)) {
+      // Replace existing redirects
+      astroContent = astroContent.replace(redirectsRegex, newRedirectsSection);
+    } else {
+      // Add redirects after site config
+      const siteRegex = /(site:\s*siteConfig\.site,)/;
+      astroContent = astroContent.replace(siteRegex, `$1\n  ${newRedirectsSection},`);
+    }
+    
+    await fs.writeFile(astroConfigPath, astroContent, 'utf-8');
+    console.log(`📝 Updated astro.config.mjs with ${redirects.length} redirects`);
+  } catch (error) {
+    console.error(`❌ Error updating astro.config.mjs:`, error.message);
+  }
+}
+
+// Function to update netlify.toml with redirects
+async function updateNetlifyToml(redirects) {
+  const netlifyTomlPath = 'netlify.toml';
+  
+  try {
+    let netlifyContent = await fs.readFile(netlifyTomlPath, 'utf-8');
+    
+    // Remove existing redirects (keep the catch-all 404 redirect)
+    const lines = netlifyContent.split('\n');
+    const filteredLines = [];
+    let inRedirectsSection = false;
+    
+    for (const line of lines) {
+      if (line.trim().startsWith('[[redirects]]')) {
+        inRedirectsSection = true;
+        continue;
+      }
+      if (inRedirectsSection && line.trim().startsWith('[') && !line.trim().startsWith('[[redirects]]')) {
+        inRedirectsSection = false;
+      }
+      if (!inRedirectsSection) {
+        filteredLines.push(line);
+      }
+    }
+    
+    // Add new redirects
+    const redirectLines = [
+      '',
+      '# Generated redirects from content aliases'
+    ];
+    
+    for (const redirect of redirects) {
+      redirectLines.push('[[redirects]]');
+      redirectLines.push(`  from = "${redirect.from}"`);
+      redirectLines.push(`  to = "${redirect.to}"`);
+      redirectLines.push(`  status = 301`);
+      redirectLines.push('');
+    }
+    
+    // Add back the catch-all 404 redirect
+    redirectLines.push('[[redirects]]');
+    redirectLines.push('  from = "/*"');
+    redirectLines.push('  to = "/404"');
+    redirectLines.push('  status = 404');
+    
+    const newContent = filteredLines.join('\n') + redirectLines.join('\n');
+    await fs.writeFile(netlifyTomlPath, newContent, 'utf-8');
+    
+    console.log(`📝 Updated netlify.toml with ${redirects.length} redirects`);
+  } catch (error) {
+    console.error(`❌ Error updating netlify.toml:`, error.message);
+  }
+}
+
+// Main function
+async function generateRedirects() {
+  console.log('🔄 Generating redirects from content aliases...');
+  
+  const projectRoot = path.join(__dirname, '..');
+  let allRedirects = [];
+  
+  // Process pages
+  const pagesPath = path.join(projectRoot, 'src/content/pages');
+  try {
+    await fs.access(pagesPath);
+    console.log(`📁 Processing pages directory...`);
+    const pageRedirects = await processDirectory(pagesPath, false);
+    allRedirects = allRedirects.concat(pageRedirects);
+  } catch (error) {
+    console.log(`📁 Pages directory doesn't exist, skipping...`);
+  }
+  
+  // Process posts
+  const postsPath = path.join(projectRoot, 'src/content/posts');
+  try {
+    await fs.access(postsPath);
+    console.log(`📁 Processing posts directory...`);
+    const postRedirects = await processDirectory(postsPath, true);
+    allRedirects = allRedirects.concat(postRedirects);
+  } catch (error) {
+    console.log(`📁 Posts directory doesn't exist, skipping...`);
+  }
+  
+  // Update both astro.config.mjs and netlify.toml
+  if (allRedirects.length > 0) {
+    await updateAstroConfig(allRedirects);
+    await updateNetlifyToml(allRedirects);
+  }
+  
+  console.log(`🎉 Redirect generation complete! Created ${allRedirects.length} redirects.`);
+}
+
+// Run the script
+generateRedirects();

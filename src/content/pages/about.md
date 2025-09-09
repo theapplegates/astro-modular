@@ -22,3 +22,5 @@ If you use Obsidian for note-taking and content creation, this theme feels like 
 
 ### Modular Design
 Every feature can be toggled on or off through a single configuration file. Enable only what you need, keeping your site fast and focused on your specific use case.
+
+![Photograph of a lush, green cove.](images/water.jpg)

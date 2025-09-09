@@ -13,6 +13,11 @@ import { siteConfig } from './src/config.ts';
 
 export default defineConfig({
   site: siteConfig.site,
+  redirects: {
+  '/test-page': '/unrelated',
+  '/test-page-rename': '/unrelated',
+  '/test-post': '/unrelated'
+},
   image: {
     service: {
       entrypoint: 'astro/assets/services/sharp',

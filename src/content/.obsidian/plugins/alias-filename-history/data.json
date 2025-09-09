@@ -1,0 +1,18 @@
+{
+  "ignoreRegexes": [
+    "^_",
+    "^Untitled$"
+  ],
+  "timeoutSeconds": 5,
+  "caseSensitive": false,
+  "autoCreateFrontmatter": true,
+  "includeFolders": [
+    "posts",
+    "pages"
+  ],
+  "excludeFolders": [],
+  "fileExtensions": [
+    "md"
+  ],
+  "trackFolderRenames": false
+}
