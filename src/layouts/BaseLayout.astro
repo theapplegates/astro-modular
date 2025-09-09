@@ -472,8 +472,10 @@ const { seoData, bodyClass = '' } = Astro.props;
         }
       });
 
-      // Handle when leaving animation completes
+      // Handle when content is about to be replaced
       swup.hooks.on('content:replace', (visit: any) => {
+        // Ensure CSS is loaded before content replacement
+        ensurePostCardStyles();
         // Check if this is forward navigation by looking at the trigger
         const isForwardNavigation = visit.trigger && visit.trigger.event && visit.trigger.event.type === 'click';
         
@@ -645,6 +647,9 @@ const { seoData, bodyClass = '' } = Astro.props;
          initializeTOC();
          initializeExternalLinks();
          initializeAnchorLinks();
+         
+         // Ensure PostCard styles are applied after content replacement
+         ensurePostCardStyles();
        });
       
       console.log('Swup hooks setup complete!');
@@ -756,6 +761,16 @@ const { seoData, bodyClass = '' } = Astro.props;
             link.classList.add('active');
           }
         }
+      });
+    }
+
+    // Ensure PostCard styles are properly applied after content replacement
+    function ensurePostCardStyles() {
+      // Force re-application of PostCard styles by triggering a reflow
+      const postCards = document.querySelectorAll('.post-card, .featured-post');
+      postCards.forEach(card => {
+        // Force a reflow to ensure styles are applied
+        (card as HTMLElement).offsetHeight;
       });
     }
   </script>
