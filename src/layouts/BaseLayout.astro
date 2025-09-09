@@ -101,6 +101,9 @@ const { seoData, bodyClass = '' } = Astro.props;
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css">
 
+  <!-- Swup -->
+  <script src="https://unpkg.com/swup@4"></script>
+
   <!-- Theme initialization script -->
   <script is:inline>
     // Initialize theme before page renders to prevent flash
@@ -172,7 +175,9 @@ const { seoData, bodyClass = '' } = Astro.props;
 
   <!-- Main content -->
   <main id="main-content" class="container mx-auto py-8 relative flex-grow" style={`max-width: ${siteConfig.layout.contentWidth}`}>
-    <slot />
+    <div id="swup-container" class="transition-swup-fade">
+      <slot />
+    </div>
   </main>
 
   <!-- Footer -->
@@ -188,20 +193,23 @@ const { seoData, bodyClass = '' } = Astro.props;
   <script>
     // Global image preloader to prevent reloading across navigation
     class ImagePreloader {
+      loadedImages: Set<string>;
+      preloadedImages: Map<string, HTMLImageElement>;
+      
       constructor() {
         this.loadedImages = new Set();
         this.preloadedImages = new Map();
       }
 
-      preloadImage(src, priority = 'low') {
+      preloadImage(src: string, priority: string = 'low'): Promise<void> {
         return new Promise((resolve, reject) => {
           if (this.loadedImages.has(src)) {
-            resolve();
+            resolve(undefined);
             return;
           }
 
           if (this.preloadedImages.has(src)) {
-            resolve();
+            resolve(undefined);
             return;
           }
 
@@ -212,7 +220,7 @@ const { seoData, bodyClass = '' } = Astro.props;
           img.onload = () => {
             this.loadedImages.add(src);
             this.preloadedImages.set(src, img);
-            resolve();
+            resolve(undefined);
           };
 
           img.onerror = () => {
@@ -223,7 +231,7 @@ const { seoData, bodyClass = '' } = Astro.props;
         });
       }
 
-      preloadAllImages() {
+      preloadAllImages(): void {
         const images = document.querySelectorAll('img[src*="/_image"]');
         images.forEach((img, index) => {
           if (img instanceof HTMLImageElement) {
@@ -235,7 +243,7 @@ const { seoData, bodyClass = '' } = Astro.props;
     }
 
     // Initialize global preloader
-    window.imagePreloader = new ImagePreloader();
+    (window as any).imagePreloader = new ImagePreloader();
 
     // Smooth scrolling for anchor links
     document.addEventListener('DOMContentLoaded', () => {
@@ -243,30 +251,7 @@ const { seoData, bodyClass = '' } = Astro.props;
       document.documentElement.style.scrollBehavior = 'smooth';
 
       // Preload all images on initial page load
-      window.imagePreloader.preloadAllImages();
-
-      // Handle anchor links
-      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-          e.preventDefault();
-          const target = document.querySelector(this.getAttribute('href'));
-          if (target) {
-            target.scrollIntoView({
-              behavior: 'smooth',
-              block: 'start'
-            });
-          }
-        });
-      });
-
-      // Icons are now static SVG - no initialization needed
-
-      // Handle external links
-      document.querySelectorAll('a[href^="http"]').forEach(link => {
-        if (link.hostname !== window.location.hostname) {
-          link.target = '_blank';
-        }
-      });
+      (window as any).imagePreloader.preloadAllImages();
 
       // Global keyboard shortcuts
       document.addEventListener('keydown', (e) => {
@@ -297,6 +282,220 @@ const { seoData, bodyClass = '' } = Astro.props;
         });
       });
     });
+
+  </script>
+
+  <!-- Swup Initialization -->
+  <script>
+    // Initialize Swup when DOM is ready
+    document.addEventListener('DOMContentLoaded', () => {
+      // Wait for Swup to be available
+      if (typeof (window as any).Swup === 'undefined') {
+        setTimeout(() => {
+          initializeSwup();
+        }, 100);
+        return;
+      }
+      
+      initializeSwup();
+    });
+
+    function initializeSwup() {
+      // Check if required container exists
+      const swupContainer = document.getElementById('swup-container');
+      if (!swupContainer) {
+        console.warn('Swup container not found, skipping initialization');
+        return;
+      }
+
+      // Initialize Swup with optimized configuration
+      const swup = new (window as any).Swup({
+        containers: ['#swup-container'], // Only target the main content container
+        animationSelector: '[class*="transition-swup-"]',
+        cache: true,
+        preload: true,
+        accessibility: true,
+        updateHead: true,
+        updateBodyClass: false,
+        globalInstance: true,
+        skipPopStateHandling: false,
+        animateHistoryBrowsing: true,
+        resolveUrl: (url) => url,
+        scroll: false,
+        parallelRequests: false,
+        timeout: 5000, // Reduced timeout for snappier response
+        animationDuration: 150, // Match our CSS transition
+        // Prevent flashing by ensuring smooth transitions
+        plugins: [],
+        // Add error handling
+        onError: (error: any) => {
+          console.warn('Swup error (non-critical):', error);
+          // Don't let Swup errors break the page
+          return true;
+        }
+      });
+
+      // Make swup globally available
+      (window as any).swup = swup;
+
+      // Setup hooks
+      setupSwupHooks(swup);
+    }
+
+    function setupSwupHooks(swup: any) {
+      // Store scroll position
+      let scrollPosition = 0;
+      
+      // Link click handler
+      swup.hooks.on('link:click', (event: any) => {
+        // Store scroll position
+        scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+      });
+
+      // Visit start handler
+      swup.hooks.on('visit:start', (visit: any) => {
+        // Handle TOC if it exists
+        const toc = document.getElementById('toc');
+        if (toc) {
+          toc.classList.add('toc-not-ready');
+        }
+      });
+
+      // Visit end handler
+      swup.hooks.on('visit:end', () => {
+        // Restore scroll position
+        setTimeout(() => {
+          window.scrollTo(0, scrollPosition);
+          
+          // Handle TOC if it exists
+          const toc = document.getElementById('toc');
+          if (toc) {
+            toc.classList.remove('toc-not-ready');
+          }
+        }, 50); // Reduced delay for snappier response
+      });
+
+      // Content replace handler
+      swup.hooks.on('content:replace', () => {
+        // Update navigation highlighting
+        updateNavigationHighlighting();
+        
+        // Reinitialize components
+        initializeImageGrids();
+        initializeTOC();
+        initializeExternalLinks();
+        initializeAnchorLinks();
+      });
+    }
+
+    // Initialize image grids
+    function initializeImageGrids() {
+      const paragraphs = document.querySelectorAll('.prose p');
+      
+      paragraphs.forEach(p => {
+        const images = p.querySelectorAll('img, picture');
+        const textNodes = Array.from(p.childNodes).filter(node => 
+          node.nodeType === Node.TEXT_NODE && node.textContent.trim() !== ''
+        );
+        const otherElements = Array.from(p.childNodes).filter(node => 
+          node.nodeType === Node.ELEMENT_NODE && !['IMG', 'PICTURE', 'BR'].includes((node as Element).tagName)
+        );
+        
+        if (images.length >= 2 && textNodes.length === 0 && otherElements.length === 0) {
+          p.classList.remove('image-grid', 'image-grid-2', 'image-grid-3', 'image-grid-4', 'image-grid-5', 'image-grid-6');
+          const gridClass = `image-grid-${Math.min(images.length, 6)}`;
+          p.classList.add('image-grid', gridClass);
+        }
+      });
+    }
+
+    // Initialize TOC highlighting
+    function initializeTOC() {
+      const tocLinks = document.querySelectorAll('.toc-link');
+      const headings = document.querySelectorAll('h2, h3, h4, h5, h6');
+      
+      if (!tocLinks.length || !headings.length) return;
+      
+      function highlightTOC() {
+        let current = '';
+        
+        headings.forEach(heading => {
+          const rect = heading.getBoundingClientRect();
+          if (rect.top <= 100) {
+            current = heading.id;
+          }
+        });
+        
+        tocLinks.forEach(link => {
+          const href = link.getAttribute('href')?.slice(1);
+          if (href === current) {
+            link.classList.add('active');
+          } else {
+            link.classList.remove('active');
+          }
+        });
+      }
+      
+      // Update active link on scroll
+      let ticking = false;
+      window.addEventListener('scroll', () => {
+        if (!ticking) {
+          requestAnimationFrame(() => {
+            highlightTOC();
+            ticking = false;
+          });
+          ticking = true;
+        }
+      });
+      
+      highlightTOC();
+    }
+
+    // Initialize external links
+    function initializeExternalLinks() {
+      document.querySelectorAll('a[href^="http"]').forEach(link => {
+        if ((link as HTMLAnchorElement).hostname !== window.location.hostname) {
+          (link as HTMLAnchorElement).target = '_blank';
+        }
+      });
+    }
+
+    // Initialize anchor links
+    function initializeAnchorLinks() {
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          const target = document.querySelector((this as HTMLAnchorElement).getAttribute('href') || '');
+          if (target) {
+            target.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            });
+          }
+        });
+      });
+    }
+
+    // Update navigation highlighting based on current page
+    function updateNavigationHighlighting() {
+      const currentPath = window.location.pathname;
+      const navLinks = document.querySelectorAll('nav a, .nav a, [role="navigation"] a, header a');
+      
+      navLinks.forEach(link => {
+        const linkPath = (link as HTMLAnchorElement).getAttribute('href');
+        if (linkPath) {
+          // Remove existing active classes
+          link.classList.remove('active', 'current', 'bg-highlight-100', 'dark:bg-highlight-900', 'text-highlight-600', 'dark:text-highlight-400');
+          
+          // Check if this link matches the current page
+          if (linkPath === currentPath || 
+              (linkPath !== '/' && currentPath.startsWith(linkPath)) ||
+              (linkPath === '/' && currentPath === '/')) {
+            link.classList.add('active');
+          }
+        }
+      });
+    }
   </script>
 
   <!-- Additional body scripts -->

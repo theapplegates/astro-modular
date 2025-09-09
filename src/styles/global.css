@@ -542,6 +542,210 @@ textarea {
   html { scroll-behavior: auto; }
 }
 
+/* Swup Transitions - Subtle fade with slide */
+.transition-swup-fade {
+  transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
+}
+
+.transition-swup-fade.transition-swup-fade-out {
+  opacity: 0;
+}
+
+.transition-swup-fade.transition-swup-fade-in {
+  opacity: 1;
+}
+
+/* Swup slide theme styles with subtle fade */
+html.is-changing .transition-swup-fade {
+  transition: transform 0.4s ease-in-out, opacity 0.4s ease-in-out;
+}
+
+html.is-leaving .transition-swup-fade {
+  transform: translateX(-20px);
+  opacity: 0;
+}
+
+html.is-rendering .transition-swup-fade {
+  transform: translateX(20px);
+  opacity: 0;
+}
+
+html.is-popstate .transition-swup-fade {
+  transition: transform 0.4s ease-in-out, opacity 0.4s ease-in-out;
+}
+
+/* Smooth fade-in for new content */
+html.is-rendering .transition-swup-fade {
+  animation: subtleFadeIn 0.4s ease-out forwards;
+}
+
+@keyframes subtleFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Snappy slide transition for content area */
+.transition-swup-fade {
+  transition: opacity 0.15s ease-out, transform 0.15s ease-out;
+  will-change: opacity, transform;
+}
+
+/* Prevent flash during transitions */
+html.is-changing .transition-swup-fade {
+  opacity: 0;
+  transform: translateX(20px);
+}
+
+html.is-rendering .transition-swup-fade {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Ensure smooth transitions with hardware acceleration */
+#swup-container {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* TOC handling */
+#toc.toc-not-ready {
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+/* Smooth transitions for main content */
+main {
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Smooth page transitions */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Prevent flash of unstyled content */
+body {
+  opacity: 1;
+}
+
+/* Subtle fade-in for initial page load */
+body {
+  animation: pageLoadFade 0.3s ease-out;
+}
+
+@keyframes pageLoadFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Simple page transitions */
+html.is-changing {
+  overflow: hidden;
+}
+
+/* Prevent header and footer flashing */
+header, footer, nav {
+  will-change: auto;
+  transform: translateZ(0); /* Force hardware acceleration */
+}
+
+/* Ensure header and footer stay stable during transitions */
+html.is-changing header,
+html.is-changing footer,
+html.is-leaving header,
+html.is-leaving footer,
+html.is-rendering header,
+html.is-rendering footer {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none !important;
+}
+
+/* Ensure smooth transitions for interactive elements only */
+a, button, .btn, .card, .callout, nav a {
+  transition: all 0.2s ease-out;
+}
+
+/* Smooth scroll behavior during transitions */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Navigation active states - more subtle */
+nav a.active,
+.nav a.active,
+[role="navigation"] a.active {
+  @apply text-highlight-600 dark:text-highlight-400 font-medium;
+}
+
+/* Remove any background highlighting for nav links */
+nav a,
+.nav a,
+[role="navigation"] a {
+  @apply no-underline;
+}
+
+nav a:hover,
+.nav a:hover,
+[role="navigation"] a:hover {
+  @apply text-highlight-700 dark:text-highlight-300;
+}
+
+/* Prevent layout shift during transitions */
+main {
+  min-height: 50vh;
+}
+
+/* TOC transition states */
+#toc.toc-not-ready {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease-in-out;
+}
+
+#toc:not(.toc-not-ready) {
+  opacity: 1;
+  transition: opacity 0.2s ease-in-out;
+}
+
+/* Page height extension during transitions */
+#page-height-extend {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 200vh;
+  pointer-events: none;
+  z-index: -1;
+}
+
+#page-height-extend.hidden {
+  display: none;
+}
+
+/* Smooth transitions for all interactive elements */
+a, button, .btn, .card, .callout {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Enhanced focus states for better accessibility during transitions */
+a:focus-visible, button:focus-visible, .btn:focus-visible {
+  @apply outline-2 outline-highlight-500 dark:outline-highlight-400 outline-offset-2;
+  transition: outline 0.2s ease-in-out;
+}
+
 /* Print Styles */
 @media print {
   .no-print { display: none !important; }

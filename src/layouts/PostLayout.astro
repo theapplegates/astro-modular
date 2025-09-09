@@ -243,7 +243,7 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
       <!-- Desktop TOC - floats to the right of the content container -->
       {shouldShowTOC && (
         <div class="hidden xl:block absolute top-0 left-full ml-8 w-64">
-          <div class="top-24">
+          <div class="top-24" id="toc">
             <TableOfContents headings={toc} />
           </div>
         </div>
