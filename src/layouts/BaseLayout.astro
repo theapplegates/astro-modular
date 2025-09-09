@@ -401,6 +401,12 @@ const { seoData, bodyClass = '' } = Astro.props;
       // Simple scroll position storage
       const scrollPositions = new Map();
       
+      // Flag to track if we've already handled scroll for back navigation
+      let backNavigationScrollHandled = false;
+      
+      // Store the target anchor for back navigation
+      let pendingBackAnchor = null;
+      
       // Store scroll position on link click (only for back navigation)
       swup.hooks.on('link:click', (event: any) => {
         console.log('Link clicked - storing scroll position for potential back navigation');
@@ -435,13 +441,15 @@ const { seoData, bodyClass = '' } = Astro.props;
       });
 
       // Handle when leaving animation completes
-      swup.hooks.on('content:replace', () => {
-        // If this is forward navigation, handle scroll positioning
-        if (document.documentElement.classList.contains('force-scroll-top')) {
+      swup.hooks.on('content:replace', (visit: any) => {
+        // Check if this is forward navigation by looking at the trigger
+        const isForwardNavigation = visit.trigger && visit.trigger.event && visit.trigger.event.type === 'click';
+        
+        if (isForwardNavigation && document.documentElement.classList.contains('force-scroll-top')) {
           console.log('Content replaced - handling scroll for forward navigation');
           
-          // Check if there's an anchor in the URL
-          if (window.location.href.includes('#')) {
+          // Check if there's an anchor in the target URL
+          if (visit.to && visit.to.url && visit.to.url.includes('#')) {
             console.log('Forward navigation with anchor - will scroll to anchor after transition');
             // Don't scroll to top, let the anchor handling in visit:end take care of it
           } else {
@@ -452,6 +460,52 @@ const { seoData, bodyClass = '' } = Astro.props;
               document.documentElement.scrollTop = 0;
               document.body.scrollTop = 0;
             }, 10);
+          }
+        } else {
+          // For back navigation, handle scroll positioning immediately
+          console.log('Content replaced - back navigation, handling scroll positioning');
+          
+          // Check the actual current URL for the anchor, not visit.to.url
+          if (window.location.href.includes('#')) {
+            console.log('Back navigation with anchor - storing anchor for later scroll');
+            // Extract the anchor from the current URL
+            const hash = window.location.href.split('#')[1];
+            console.log('Storing anchor for later scroll:', hash);
+            pendingBackAnchor = hash;
+            
+            // Prevent any scroll to top during the transition
+            console.log('Preventing scroll to top during back navigation with anchor');
+            const preventScroll = (e: Event) => {
+              e.preventDefault();
+              e.stopPropagation();
+              return false;
+            };
+            
+            // Add scroll prevention listeners
+            window.addEventListener('scroll', preventScroll, { passive: false, once: false });
+            document.addEventListener('scroll', preventScroll, { passive: false, once: false });
+            
+            // Remove the listeners after a short delay
+            setTimeout(() => {
+              window.removeEventListener('scroll', preventScroll);
+              document.removeEventListener('scroll', preventScroll);
+              console.log('Removed scroll prevention listeners');
+            }, 500);
+          } else {
+            console.log('Back navigation without anchor - using saved position');
+            // For back navigation without anchor, use the saved position
+            const savedPosition = scrollPositions.get(visit.to.url);
+            if (savedPosition !== undefined) {
+              console.log('Restoring saved position:', savedPosition);
+              window.scrollTo(0, savedPosition);
+              // Mark that we've handled the scroll
+              backNavigationScrollHandled = true;
+            } else {
+              console.log('No saved position found, staying at top');
+              window.scrollTo(0, 0);
+              // Mark that we've handled the scroll
+              backNavigationScrollHandled = true;
+            }
           }
         }
       });
@@ -466,6 +520,43 @@ const { seoData, bodyClass = '' } = Astro.props;
          console.log('Trigger check:', visit.trigger, 'Event:', visit.trigger?.event);
          if (visit.trigger && visit.trigger.event && visit.trigger.event.type === 'popstate') {
            console.log('Back navigation detected');
+           
+           // Check if we have a pending anchor to scroll to
+           if (pendingBackAnchor) {
+             console.log('Back navigation with pending anchor:', pendingBackAnchor);
+             const element = document.getElementById(pendingBackAnchor);
+             if (element) {
+               console.log('Found element for pending anchor, scrolling to it');
+               element.scrollIntoView({ behavior: 'instant', block: 'start' });
+               // Clear the pending anchor
+               pendingBackAnchor = null;
+               return;
+             } else {
+               console.log('Element not found for pending anchor, will retry');
+               // Retry after a short delay
+               setTimeout(() => {
+                 const retryElement = document.getElementById(pendingBackAnchor);
+                 if (retryElement) {
+                   console.log('Found element on retry for pending anchor, scrolling to it');
+                   retryElement.scrollIntoView({ behavior: 'instant', block: 'start' });
+                   pendingBackAnchor = null;
+                 } else {
+                   console.log('Element still not found after retry, clearing pending anchor');
+                   pendingBackAnchor = null;
+                 }
+               }, 100);
+               return;
+             }
+           }
+           
+           // Check if we've already handled the scroll in content:replace
+           if (backNavigationScrollHandled) {
+             console.log('Scroll already handled in content:replace, skipping visit:end scroll');
+             // Reset the flag for next navigation
+             backNavigationScrollHandled = false;
+             return;
+           }
+           
            // Back navigation - check the actual current URL for hash
            if (window.location.href.includes('#')) {
              // URL has anchor - scroll to it after Swup finishes
