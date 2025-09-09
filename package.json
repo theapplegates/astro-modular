@@ -19,7 +19,6 @@
     "@astrojs/rss": "^4.0.12",
     "@astrojs/sitemap": "^3.5.1",
     "@astrojs/tailwind": "^6.0.2",
-    "@swup/theme": "^2.1.0",
     "@tailwindcss/typography": "^0.5.16",
     "astro": "^5.13.4",
     "lucide": "^0.542.0",

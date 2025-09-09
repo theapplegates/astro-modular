@@ -542,69 +542,44 @@ textarea {
   html { scroll-behavior: auto; }
 }
 
-/* Swup Transitions - Subtle fade with slide */
+/* Swup Transitions */
 .transition-swup-fade {
-  transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
-}
-
-.transition-swup-fade.transition-swup-fade-out {
-  opacity: 0;
-}
-
-.transition-swup-fade.transition-swup-fade-in {
-  opacity: 1;
-}
-
-/* Swup slide theme styles with subtle fade */
-html.is-changing .transition-swup-fade {
-  transition: transform 0.4s ease-in-out, opacity 0.4s ease-in-out;
-}
-
-html.is-leaving .transition-swup-fade {
-  transform: translateX(-20px);
-  opacity: 0;
-}
-
-html.is-rendering .transition-swup-fade {
-  transform: translateX(20px);
-  opacity: 0;
-}
-
-html.is-popstate .transition-swup-fade {
-  transition: transform 0.4s ease-in-out, opacity 0.4s ease-in-out;
-}
-
-/* Smooth fade-in for new content */
-html.is-rendering .transition-swup-fade {
-  animation: subtleFadeIn 0.4s ease-out forwards;
-}
-
-@keyframes subtleFadeIn {
-  from {
-    opacity: 0;
-    transform: translateX(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-/* Snappy slide transition for content area */
-.transition-swup-fade {
-  transition: opacity 0.15s ease-out, transform 0.15s ease-out;
+  transition: opacity 0.3s ease-out, transform 0.3s ease-out;
   will-change: opacity, transform;
 }
 
-/* Prevent flash during transitions */
-html.is-changing .transition-swup-fade {
+/* Page leaving - fade out and move down */
+html.is-leaving .transition-swup-fade {
   opacity: 0;
-  transform: translateX(20px);
+  transform: translateY(20px) !important;
 }
 
-html.is-rendering .transition-swup-fade {
+/* Page entering - start above and fade in */
+html.is-animating .transition-swup-fade {
+  opacity: 0;
+  transform: translateY(-20px) !important;
+}
+
+/* Page ready - final state */
+html.is-ready .transition-swup-fade {
   opacity: 1;
-  transform: translateX(0);
+  transform: translateY(0) !important;
+}
+
+/* Force scroll to top during forward navigation */
+html.force-scroll-top {
+  scroll-behavior: auto !important;
+}
+
+/* Only apply overflow hidden after content is replaced */
+html.force-scroll-top.is-ready body {
+  overflow: hidden !important;
+}
+
+html.force-scroll-top.is-ready .transition-swup-fade {
+  position: relative;
+  top: 0 !important;
+  transform: translateY(0) !important;
 }
 
 /* Ensure smooth transitions with hardware acceleration */

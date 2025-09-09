@@ -429,7 +429,24 @@ import Icon from './Icon.astro';
       // If an item is selected, navigate to its URL
       if (this.selectedIndex >= 0 && items[this.selectedIndex]) {
         const item = items[this.selectedIndex] as HTMLAnchorElement;
-        window.location.href = item.href;
+        
+        // Close the command palette first
+        this.close();
+        
+        // Check if it's an external link
+        const isExternal = item.href.startsWith('http') && !item.href.includes(window.location.hostname);
+        
+        if (isExternal) {
+          // For external links, use regular navigation
+          window.location.href = item.href;
+        } else {
+          // For internal links, use Swup if available, otherwise fallback to regular navigation
+          if ((window as any).swup) {
+            (window as any).swup.navigate(item.href);
+          } else {
+            window.location.href = item.href;
+          }
+        }
       }
     }
 

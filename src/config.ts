@@ -115,14 +115,14 @@ export const siteConfig: SiteConfig = {
     ],
     social: [
       {
+        title: "X",
+        url: "https://x.com/davidvkimball",
+        icon: "x-twitter",
+      },
+      {
         title: "GitHub",
         url: "https://github.com/davidvkimball",
         icon: "github",
-      },
-      {
-        title: "Twitter",
-        url: "https://x.com/davidvkimball",
-        icon: "x-twitter",
       },
     ],
   },

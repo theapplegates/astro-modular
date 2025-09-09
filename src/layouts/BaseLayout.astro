@@ -245,13 +245,32 @@ const { seoData, bodyClass = '' } = Astro.props;
     // Initialize global preloader
     (window as any).imagePreloader = new ImagePreloader();
 
-    // Smooth scrolling for anchor links
-    document.addEventListener('DOMContentLoaded', () => {
-      // Enable smooth scrolling
-      document.documentElement.style.scrollBehavior = 'smooth';
+     // Handle anchors on page load/refresh
+     function handleAnchorsOnLoad() {
+       if (window.location.hash) {
+         console.log('Page has anchor on load:', window.location.hash);
+         setTimeout(() => {
+           const hash = window.location.hash.slice(1);
+           const element = document.getElementById(hash);
+           if (element) {
+             element.scrollIntoView({ behavior: 'smooth' });
+           }
+         }, 100);
+       }
+     }
 
-      // Preload all images on initial page load
-      (window as any).imagePreloader.preloadAllImages();
+     // Smooth scrolling for anchor links
+     document.addEventListener('DOMContentLoaded', () => {
+       // Enable smooth scrolling
+       document.documentElement.style.scrollBehavior = 'smooth';
+
+       // Handle anchors on initial page load only (not on Swup transitions)
+       if (!(window as any).swup) {
+         handleAnchorsOnLoad();
+       }
+
+       // Preload all images on initial page load
+       (window as any).imagePreloader.preloadAllImages();
 
       // Global keyboard shortcuts
       document.addEventListener('keydown', (e) => {
@@ -287,6 +306,9 @@ const { seoData, bodyClass = '' } = Astro.props;
 
   <!-- Swup Initialization -->
   <script>
+    // Global variable for tracking navigation type
+    let isForwardNavigation = false;
+
     // Initialize Swup when DOM is ready
     document.addEventListener('DOMContentLoaded', () => {
       // Wait for Swup to be available
@@ -301,6 +323,8 @@ const { seoData, bodyClass = '' } = Astro.props;
     });
 
     function initializeSwup() {
+      console.log('Initializing Swup...');
+      
       // Check if required container exists
       const swupContainer = document.getElementById('swup-container');
       if (!swupContainer) {
@@ -308,84 +332,219 @@ const { seoData, bodyClass = '' } = Astro.props;
         return;
       }
 
-      // Initialize Swup with optimized configuration
+      console.log('Swup container found, creating Swup instance...');
+
+      // Explicitly set scroll restoration to manual
+      if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'manual';
+        console.log('history.scrollRestoration set to manual');
+      }
+
+      // Initialize Swup with scroll completely disabled
       const swup = new (window as any).Swup({
-        containers: ['#swup-container'], // Only target the main content container
+        containers: ['#swup-container'],
         animationSelector: '[class*="transition-swup-"]',
         cache: true,
         preload: true,
         accessibility: true,
         updateHead: true,
-        updateBodyClass: false,
+        updateBodyClass: true,
         globalInstance: true,
-        skipPopStateHandling: false,
         animateHistoryBrowsing: true,
         resolveUrl: (url) => url,
         scroll: false,
         parallelRequests: false,
-        timeout: 5000, // Reduced timeout for snappier response
-        animationDuration: 150, // Match our CSS transition
-        // Prevent flashing by ensuring smooth transitions
+        timeout: 2000,
+        animationDuration: 300,
         plugins: [],
-        // Add error handling
         onError: (error: any) => {
-          console.warn('Swup error (non-critical):', error);
-          // Don't let Swup errors break the page
+          console.warn('Swup error:', error);
           return true;
         }
       });
+      
+      // Override Swup's scroll behavior completely
+      swup.scrollToElement = () => {};
+      swup.scrollToTop = () => {};
+      
+      // Intercept and prevent any scroll restoration
+      const originalScrollTo = window.scrollTo;
+      
+      window.scrollTo = function(x, y) {
+        if (isForwardNavigation && y === 0) {
+          // Allow scroll to top for forward navigation
+          return originalScrollTo.call(this, x, y);
+        } else if (isForwardNavigation) {
+          // Block any other scroll during forward navigation
+          console.log('Blocked scroll during forward navigation:', x, y);
+          return;
+        }
+        return originalScrollTo.call(this, x, y);
+      };
+
+      // Let Swup handle all history management natively
 
       // Make swup globally available
       (window as any).swup = swup;
 
+      console.log('Swup instance created, setting up hooks...');
+
       // Setup hooks
       setupSwupHooks(swup);
+      
+      console.log('Swup initialization complete!');
     }
 
     function setupSwupHooks(swup: any) {
-      // Store scroll position
-      let scrollPosition = 0;
+      console.log('Setting up Swup hooks...');
       
-      // Link click handler
+      // Simple scroll position storage
+      const scrollPositions = new Map();
+      
+      // Store scroll position on link click (only for back navigation)
       swup.hooks.on('link:click', (event: any) => {
-        // Store scroll position
-        scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
-      });
-
-      // Visit start handler
-      swup.hooks.on('visit:start', (visit: any) => {
-        // Handle TOC if it exists
-        const toc = document.getElementById('toc');
-        if (toc) {
-          toc.classList.add('toc-not-ready');
+        console.log('Link clicked - storing scroll position for potential back navigation');
+        const url = window.location.href;
+        const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+        scrollPositions.set(url, scrollY);
+        console.log('Stored position for', url, 'at', scrollY);
+        
+        // For forward navigation, just add a class to track it
+        if (!event.trigger || event.trigger.type !== 'popstate') {
+          console.log('Forward navigation - marking for scroll to top after leaving animation');
+          document.documentElement.classList.add('force-scroll-top');
         }
       });
 
-      // Visit end handler
-      swup.hooks.on('visit:end', () => {
-        // Restore scroll position
-        setTimeout(() => {
-          window.scrollTo(0, scrollPosition);
-          
-          // Handle TOC if it exists
-          const toc = document.getElementById('toc');
-          if (toc) {
-            toc.classList.remove('toc-not-ready');
-          }
-        }, 50); // Reduced delay for snappier response
+      // Close command palette and set navigation flag
+      swup.hooks.on('visit:start', (visit: any) => {
+        console.log('Visit start - closing command palette');
+        const commandPalette = document.getElementById('command-palette-overlay');
+        if (commandPalette && !commandPalette.classList.contains('hidden')) {
+          commandPalette.classList.add('hidden');
+        }
+        
+        // Set flag for forward navigation
+        isForwardNavigation = !visit.trigger || !visit.trigger.event || visit.trigger.event.type !== 'popstate';
+        console.log('isForwardNavigation:', isForwardNavigation);
+        
+        // For forward navigation, just log - we'll handle scroll in content:replace
+        if (isForwardNavigation) {
+          console.log('Forward navigation - will scroll to top after content replacement');
+        }
       });
 
-      // Content replace handler
+      // Handle when leaving animation completes
       swup.hooks.on('content:replace', () => {
-        // Update navigation highlighting
-        updateNavigationHighlighting();
-        
-        // Reinitialize components
-        initializeImageGrids();
-        initializeTOC();
-        initializeExternalLinks();
-        initializeAnchorLinks();
+        // If this is forward navigation, handle scroll positioning
+        if (document.documentElement.classList.contains('force-scroll-top')) {
+          console.log('Content replaced - handling scroll for forward navigation');
+          
+          // Check if there's an anchor in the URL
+          if (window.location.href.includes('#')) {
+            console.log('Forward navigation with anchor - will scroll to anchor after transition');
+            // Don't scroll to top, let the anchor handling in visit:end take care of it
+          } else {
+            console.log('Forward navigation without anchor - scrolling to top');
+            // Small delay to ensure the new content is ready
+            setTimeout(() => {
+              window.scrollTo(0, 0);
+              document.documentElement.scrollTop = 0;
+              document.body.scrollTop = 0;
+            }, 10);
+          }
+        }
       });
+
+       // Handle page changes
+       swup.hooks.on('visit:end', (visit: any) => {
+         console.log('Visit end - trigger:', visit.trigger, 'to:', visit.to.url);
+         console.log('Current URL after visit:', window.location.href);
+         console.log('URL includes hash?', window.location.href.includes('#'));
+         
+         // Handle scroll behavior
+         console.log('Trigger check:', visit.trigger, 'Event:', visit.trigger?.event);
+         if (visit.trigger && visit.trigger.event && visit.trigger.event.type === 'popstate') {
+           console.log('Back navigation detected');
+           // Back navigation - check the actual current URL for hash
+           if (window.location.href.includes('#')) {
+             // URL has anchor - scroll to it after Swup finishes
+             console.log('URL has anchor, scrolling to it after Swup transition');
+             const hash = window.location.href.split('#')[1];
+             console.log('Looking for element with ID:', hash);
+             
+             setTimeout(() => {
+               const element = document.getElementById(hash);
+               console.log('Found element:', element);
+               if (element) {
+                 console.log('Scrolling to element');
+                 element.scrollIntoView({ behavior: 'smooth' });
+               } else {
+                 console.log('Element not found, trying alternative approach');
+                 // Try scrolling to the hash directly
+                 window.location.hash = '#' + hash;
+               }
+             }, 350); // Wait for Swup transition to complete
+           } else {
+             console.log('No anchor in URL, restoring saved position');
+             // No anchor - restore saved position
+             const savedPosition = scrollPositions.get(visit.to.url);
+             if (savedPosition !== undefined && savedPosition > 0) {
+               setTimeout(() => window.scrollTo(0, savedPosition), 100);
+             } else {
+               window.scrollTo(0, 0);
+             }
+           }
+         } else {
+           console.log('Forward navigation - handling scroll positioning');
+           // Forward navigation - handle scroll positioning
+           // Clear any stored positions for this URL
+           scrollPositions.delete(visit.to.url);
+           
+           // Check if there's an anchor in the URL
+           if (window.location.href.includes('#')) {
+             console.log('Forward navigation with anchor - scrolling to anchor');
+             const hash = window.location.hash.slice(1);
+             console.log('Looking for element with ID:', hash);
+             
+             setTimeout(() => {
+               const element = document.getElementById(hash);
+               console.log('Found element:', element);
+               if (element) {
+                 console.log('Scrolling to element');
+                 element.scrollIntoView({ behavior: 'smooth' });
+               } else {
+                 console.log('Element not found, trying alternative approach');
+                 // Try scrolling to the hash directly
+                 window.location.hash = '#' + hash;
+               }
+             }, 350); // Wait for Swup transition to complete
+           } else {
+             console.log('Forward navigation without anchor - ensuring at top');
+             // Ensure we're at the top
+             window.scrollTo(0, 0);
+             document.documentElement.scrollTop = 0;
+             document.body.scrollTop = 0;
+           }
+           
+           // Remove the force scroll class
+           document.documentElement.classList.remove('force-scroll-top');
+           
+           // Reset the flag after a short delay
+           setTimeout(() => {
+             isForwardNavigation = false;
+           }, 100);
+         }
+         
+         // Reinitialize components
+         updateNavigationHighlighting();
+         initializeImageGrids();
+         initializeTOC();
+         initializeExternalLinks();
+         initializeAnchorLinks();
+       });
+      
+      console.log('Swup hooks setup complete!');
     }
 
     // Initialize image grids
