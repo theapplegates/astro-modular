@@ -55,7 +55,18 @@ const shouldShowCoverImage = (() => {
       <div class="aspect-video overflow-hidden rounded-lg mb-4 bg-primary-100 dark:bg-primary-800">
         <ImageWrapper
           src={image}
-          basePath="/posts/images/"
+          basePath={(() => {
+            // Check if this is a folder-based post with relative image
+            if (image.startsWith('./')) {
+              return `/posts/${post.slug}/`;
+            }
+            // Check if this is Obsidian bracket syntax for folder-based post
+            if (image.startsWith('[[') && image.endsWith(']]') && !image.includes('/')) {
+              return `/posts/${post.slug}/`;
+            }
+            // Default to global images directory
+            return "/posts/images/";
+          })()}
           alt={imageAlt || title}
           class="w-full h-full group-hover:scale-102 dark:group-hover:brightness-100 transition-all duration-300"
           width={800}

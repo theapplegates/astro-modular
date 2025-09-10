@@ -73,6 +73,9 @@ const filteredHeadings = headings.filter(h => h.depth >= 2 && h.depth <= 4);
           // Update the URL with the hash
           history.pushState(null, '', href);
           
+          // Ensure smooth scrolling is enabled
+          document.documentElement.style.scrollBehavior = 'smooth';
+          
           // Scroll to the target
           target.scrollIntoView({
             behavior: 'smooth',

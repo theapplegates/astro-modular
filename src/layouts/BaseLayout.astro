@@ -973,20 +973,19 @@ const { seoData, bodyClass = '' } = Astro.props;
             document.documentElement.scrollTop = 999999;
             document.body.scrollTop = 999999;
           } else {
-            logger.dev('Back navigation without anchor - using saved position');
-            // For back navigation without anchor, use the saved position
+            logger.dev('Back navigation without anchor - delaying scroll restoration until after transition');
+            // For back navigation without anchor, delay scroll restoration until after transition
             const savedPosition = scrollPositions.get(visit.to.url);
             if (savedPosition !== undefined) {
-              logger.dev('Restoring saved position:', savedPosition);
-              window.scrollTo(0, savedPosition);
-              // Mark that we've handled the scroll
-              backNavigationScrollHandled = true;
+              logger.dev('Will restore saved position after transition:', savedPosition);
+              // Store the position to restore after transition
+              (window as any).pendingScrollRestore = savedPosition;
             } else {
-              logger.dev('No saved position found, staying at top');
-              window.scrollTo(0, 0);
-              // Mark that we've handled the scroll
-              backNavigationScrollHandled = true;
+              logger.dev('No saved position found, will stay at top after transition');
+              (window as any).pendingScrollRestore = 0;
             }
+            // Mark that we've handled the scroll
+            backNavigationScrollHandled = true;
           }
         }
       });
@@ -1030,6 +1029,36 @@ const { seoData, bodyClass = '' } = Astro.props;
                }, 100);
                return;
              }
+           }
+           
+           // Check if we have a pending scroll restoration
+           if ((window as any).pendingScrollRestore !== undefined) {
+             logger.dev('Restoring pending scroll position after transition:', (window as any).pendingScrollRestore);
+             const position = (window as any).pendingScrollRestore;
+             // Clear the pending restoration
+             (window as any).pendingScrollRestore = undefined;
+             
+             // Restore scroll position after transition is complete
+             // Wait for the transition to finish by checking for transition classes
+             const waitForTransitionEnd = () => {
+               const html = document.documentElement;
+               const isTransitioning = html.classList.contains('is-changing') || 
+                                      html.classList.contains('is-leaving') || 
+                                      html.classList.contains('is-animating');
+               
+               if (isTransitioning) {
+                 // Still transitioning, wait for next frame
+                 requestAnimationFrame(waitForTransitionEnd);
+               } else {
+                 // Transition complete, restore scroll position
+                 window.scrollTo(0, position);
+                 logger.dev('Scroll position restored to:', position);
+               }
+             };
+             
+             // Start waiting for transition to end
+             requestAnimationFrame(waitForTransitionEnd);
+             return;
            }
            
            // Check if we've already handled the scroll in content:replace
@@ -1217,6 +1246,9 @@ const { seoData, bodyClass = '' } = Astro.props;
           if (target) {
             // Update the URL with the hash
             history.pushState(null, '', href);
+            
+            // Ensure smooth scrolling is enabled
+            document.documentElement.style.scrollBehavior = 'smooth';
             
             // Scroll to the target
             target.scrollIntoView({

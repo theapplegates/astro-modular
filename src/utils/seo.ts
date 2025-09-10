@@ -26,7 +26,7 @@ export function generatePostSEO(post: Post, url: string): SEOData {
       imageUrl = image;
     } else {
       // Use optimizePostImagePath for proper path resolution
-      const imagePath = optimizePostImagePath(image);
+      const imagePath = optimizePostImagePath(image, post.slug);
       imageUrl = `${siteConfig.site}${imagePath}`;
     }
     ogImage = {

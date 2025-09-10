@@ -1,6 +1,7 @@
 ---
 import path from "node:path";
 import { Image } from "astro:assets";
+import { devConfig, isDev } from "@/config/dev";
 
 interface Props {
   id?: string;
@@ -48,6 +49,9 @@ const isPublic = src.startsWith("/");
 
 // Dynamic import for local images
 let img: any = null;
+let fallbackSrc: string | null = null;
+let isImageMissing = false;
+
 if (isLocal) {
   try {
     const files = import.meta.glob<ImageMetadata>("/public/**", {
@@ -60,8 +64,14 @@ if (isLocal) {
       cleanSrc = cleanSrc.slice(2, -2);
     }
     
+    // Remove leading "./" if present for folder-based posts
+    if (cleanSrc.startsWith('./')) {
+      cleanSrc = cleanSrc.slice(2);
+    }
+    
     // Remove leading "images/" if present since basePath already includes it
-    if (cleanSrc.startsWith('images/')) {
+    // But only for global images, not folder-based images
+    if (cleanSrc.startsWith('images/') && basePath === '/posts/images/') {
       cleanSrc = cleanSrc.slice(7);
     }
     
@@ -79,10 +89,37 @@ if (isLocal) {
     if (file) {
       img = await file();
     } else {
-      console.warn(`[ImageWrapper] Image file not found: ${normalizedPath}`);
+      isImageMissing = true;
+      // Determine appropriate fallback based on basePath
+      if (basePath.includes('/posts/')) {
+        fallbackSrc = devConfig.images.fallbacks.posts;
+      } else if (basePath.includes('/pages/')) {
+        fallbackSrc = devConfig.images.fallbacks.pages;
+      } else {
+        fallbackSrc = devConfig.images.fallbacks.default;
+      }
+      
+      // Only warn in development mode if logging is enabled
+      if (isDev && devConfig.images.logMissingImages) {
+        console.warn(`[ImageWrapper] Image file not found: ${normalizedPath}`);
+        console.warn(`[ImageWrapper] Using fallback: ${fallbackSrc}`);
+      }
     }
   } catch (error) {
-    console.warn(`[ImageWrapper] Failed to import image: ${src}`, error);
+    isImageMissing = true;
+    // Determine appropriate fallback based on basePath
+    if (basePath.includes('/posts/')) {
+      fallbackSrc = devConfig.images.fallbacks.posts;
+    } else if (basePath.includes('/pages/')) {
+      fallbackSrc = devConfig.images.fallbacks.pages;
+    } else {
+      fallbackSrc = devConfig.images.fallbacks.default;
+    }
+    
+    if (isDev && devConfig.images.logMissingImages) {
+      console.warn(`[ImageWrapper] Failed to import image: ${src}`, error);
+      console.warn(`[ImageWrapper] Using fallback: ${fallbackSrc}`);
+    }
   }
 }
 
@@ -108,8 +145,8 @@ const imageStyle = `object-position: ${position}`;
     />
   ) : (
     <img 
-      src={isPublic ? src : src} 
-      alt={alt} 
+      src={isPublic ? src : (fallbackSrc || src)} 
+      alt={isImageMissing ? `Missing image: ${alt}` : alt} 
       class={imageClass} 
       style={imageStyle}
       loading={loading}
@@ -117,6 +154,7 @@ const imageStyle = `object-position: ${position}`;
       fetchpriority={fetchpriority}
       width={width}
       height={height}
+      title={isImageMissing ? `Original path: ${src}` : undefined}
     />
   )}
 </div>

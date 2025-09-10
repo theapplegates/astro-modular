@@ -2,7 +2,7 @@ import { defineConfig } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
 import sitemap from '@astrojs/sitemap';
 import mdx from '@astrojs/mdx';
-import { remarkWikilinks } from './src/utils/wikilinks.ts';
+import { remarkWikilinks, remarkFolderImages } from './src/utils/wikilinks.ts';
 import remarkCallouts from './src/utils/remark-callouts.ts';
 import remarkReadingTime from 'remark-reading-time';
 import remarkToc from 'remark-toc';
@@ -44,6 +44,7 @@ export default defineConfig({
   markdown: {
     remarkPlugins: [
       remarkWikilinks,
+      remarkFolderImages,
       remarkCallouts,
       [remarkReadingTime, {}],
       [remarkToc, { 
@@ -71,13 +72,13 @@ export default defineConfig({
   vite: {
     server: {
       host: 'localhost',
-      port: 5003,
+      port: 5000,
       allowedHosts: [],
       middlewareMode: false,
       hmr: {
-        port: 5003,
+        port: 5000,
         host: 'localhost',
-        clientPort: 5003
+        clientPort: 5000
       },
       headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate'

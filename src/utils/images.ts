@@ -174,7 +174,7 @@ export function stripObsidianBrackets(imagePath: string): string {
 }
 
 // Optimize image path specifically for posts
-export function optimizePostImagePath(imagePath: string): string {
+export function optimizePostImagePath(imagePath: string, postSlug?: string): string {
   // Handle null, undefined, or empty strings
   if (!imagePath || typeof imagePath !== 'string') {
     console.warn('Invalid image path provided:', imagePath);
@@ -204,6 +204,12 @@ export function optimizePostImagePath(imagePath: string): string {
     return cleanPath;
   }
 
+  // Handle folder-based posts - if postSlug is provided and image is relative
+  if (postSlug && (cleanPath.startsWith('./') || (!cleanPath.startsWith('/') && !cleanPath.includes('/')))) {
+    const imageName = cleanPath.startsWith('./') ? cleanPath.slice(2) : cleanPath;
+    return `/posts/${postSlug}/${imageName}`;
+  }
+
   // Handle Obsidian-style relative paths from markdown content
   if (cleanPath.startsWith('./images/')) {
     return cleanPath.replace('./images/', '/posts/images/');
@@ -215,6 +221,10 @@ export function optimizePostImagePath(imagePath: string): string {
 
   // Handle case where filename is provided without path
   if (!cleanPath.includes('/')) {
+    // For folder-based posts, check if the image exists in the post folder first
+    if (postSlug) {
+      return `/posts/${postSlug}/${cleanPath}`;
+    }
     return `/posts/images/${cleanPath}`;
   }
 

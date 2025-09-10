@@ -85,7 +85,18 @@ const { Content, toc, readingTime, wordCount } = post;
           <div class="aspect-video overflow-hidden rounded-xl mb-8">
             <ImageWrapper
               src={post.data.image}
-              basePath="/posts/images/"
+              basePath={(() => {
+                // Check if this is a folder-based post with relative image
+                if (post.data.image.startsWith('./')) {
+                  return `/posts/${post.slug}/`;
+                }
+                // Check if this is Obsidian bracket syntax for folder-based post
+                if (post.data.image.startsWith('[[') && post.data.image.endsWith(']]') && !post.data.image.includes('/')) {
+                  return `/posts/${post.slug}/`;
+                }
+                // Default to global images directory
+                return "/posts/images/";
+              })()}
               alt={post.data.imageAlt || post.data.title}
               class="w-full h-full"
               width={1200}

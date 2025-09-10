@@ -25,6 +25,80 @@ const IMAGE_SYNC_CONFIGS = [
   }
 ];
 
+// Function to find folder-based posts and sync their images
+async function syncFolderBasedImages() {
+  const postsDir = 'src/content/posts';
+  const publicPostsDir = 'public/posts';
+  
+  try {
+    const posts = await fs.readdir(postsDir);
+    let totalSynced = 0;
+    let totalSkipped = 0;
+    
+    for (const post of posts) {
+      const postPath = path.join(postsDir, post);
+      const stat = await fs.stat(postPath);
+      
+      // Check if it's a directory (folder-based post)
+      if (stat.isDirectory()) {
+        const postImagesDir = path.join(postPath);
+        const targetDir = path.join(publicPostsDir, post);
+        
+        // Ensure target directory exists
+        await ensureDir(targetDir);
+        
+        try {
+          const files = await fs.readdir(postImagesDir);
+          const imageFiles = files.filter(file => 
+            /\.(jpg|jpeg|png|gif|webp|svg|bmp|tiff|tif|ico)$/i.test(file)
+          );
+          
+          for (const file of imageFiles) {
+            const sourcePath = path.join(postImagesDir, file);
+            const targetPath = path.join(targetDir, file);
+            
+            // Check if file needs updating
+            let needsUpdate = true;
+            try {
+              const sourceStats = await fs.stat(sourcePath);
+              const targetStats = await fs.stat(targetPath);
+              
+              // Only update if source is newer or different size
+              needsUpdate = sourceStats.mtime > targetStats.mtime || sourceStats.size !== targetStats.size;
+            } catch {
+              // Target doesn't exist, definitely needs update
+              needsUpdate = true;
+            }
+            
+            if (needsUpdate) {
+              await fs.copyFile(sourcePath, targetPath);
+              totalSynced++;
+            } else {
+              totalSkipped++;
+            }
+          }
+        } catch (error) {
+          // Directory might not have images, continue
+          if (error.code !== 'ENOENT') {
+            log.warn(`Warning: Could not read directory ${postImagesDir}:`, error.message);
+          }
+        }
+      }
+    }
+    
+    if (totalSynced > 0 || totalSkipped > 0) {
+      log.info(`📁 Syncing folder-based post images...`);
+      if (totalSynced > 0) log.info(`   Synced ${totalSynced} files`);
+      if (totalSkipped > 0) log.info(`   Skipped ${totalSkipped} files that were unchanged`);
+    }
+    
+    return { synced: totalSynced, skipped: totalSkipped };
+  } catch (error) {
+    log.error('❌ Error syncing folder-based images:', error);
+    return { synced: 0, skipped: 0 };
+  }
+}
+
 async function ensureDir(dir) {
   try {
     await fs.access(dir);
@@ -109,6 +183,9 @@ async function syncAllImages() {
       if (result.removed > 0) log.info(`   Cleaned up ${result.removed} orphaned ${config.name} files`);
     }
   }
+
+  // Sync folder-based post images
+  await syncFolderBasedImages();
 
   log.info('🎉 Image sync complete!');
 }

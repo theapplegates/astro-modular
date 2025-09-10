@@ -13,6 +13,8 @@ A powerful, modular blog theme for Astro specifically designed for Obsidian user
 - **Obsidian callouts** - Full support for `> [!note]`, `> [!tip]`, `> [!warning]` and more
 - **Tag compatibility** - Your Obsidian tags become blog tags automatically
 - **Frontmatter sync** - Compatible metadata structure between Obsidian and Astro
+- **Folder-based organization** - Keep content and assets together in dedicated folders
+- **Obsidian bracket syntax** - Support for `[[image.jpg]]` syntax in image references
 - **[Astro Suite Obsidian Vault](https://github.com/davidvkimball/obsidian-astro-suite) built-in** - Includes Obsidian vault configuration for streamlined publishing including [Astro Composer](https://github.com/davidvkimball/obsidian-astro-composer)
 
 ### Flexible & Customizeable 
@@ -28,6 +30,7 @@ A powerful, modular blog theme for Astro specifically designed for Obsidian user
 
 ### Content Management
 - **Markdown-first** with enhanced processing and reading time estimation
+- **Folder-based posts** - Organize content and assets in dedicated folders (like Fuwari)
 - **Draft support** - Show drafts in development, hide in production
 - **Image optimization** with WebP format priority and responsive layouts
 - **Table of contents** auto-generation from headings

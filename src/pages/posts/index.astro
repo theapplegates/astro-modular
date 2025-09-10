@@ -96,7 +96,7 @@ const pagination = {
         <link 
           rel="preload" 
           as="image" 
-          href={optimizePostImagePath(post.data.image)}
+          href={optimizePostImagePath(post.data.image, post.slug)}
           fetchpriority="high"
         />
       );

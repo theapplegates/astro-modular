@@ -16,15 +16,18 @@ export function remarkWikilinks() {
         return;
       }
 
-      const wikilinkRegex = /\[\[([^\]]+)\]\]/g;
+      // Process both link wikilinks [[...]] and image wikilinks ![[...]]
+      const wikilinkRegex = /!?\[\[([^\]]+)\]\]/g;
       let match;
       const newChildren: any[] = [];
       let lastIndex = 0;
       let hasWikilinks = false;
+      
 
       while ((match = wikilinkRegex.exec(node.value)) !== null) {
         hasWikilinks = true;
         const [fullMatch, content] = match;
+        const isImageWikilink = fullMatch.startsWith('!');
         const [link, displayText] = content.includes('|')
           ? content.split('|', 2)
           : [content, null]; // null means we'll resolve it later
@@ -39,27 +42,51 @@ export function remarkWikilinks() {
 
         const linkText = link.trim();
         const finalDisplayText = displayText ? displayText.trim() : linkText;
-        const slugifiedLink = createSlugFromTitle(linkText);
 
-        // Add the wikilink as a link node
-        // We'll use the link text as placeholder - the actual resolution happens in PostLayout
-        newChildren.push({
-          type: 'link',
-          url: `/posts/${slugifiedLink}`,
-          title: null,
-          data: {
-            hName: 'a',
-            hProperties: {
-              className: ['wikilink'],
-              'data-wikilink': link.trim(),
-              'data-display-override': displayText
+        if (isImageWikilink) {
+          // Process image wikilink - convert to markdown image syntax
+          // Use the image path as-is (Obsidian doesn't use ./ by default)
+          const imagePath = linkText;
+          const altText = displayText || linkText;
+          
+          // Create a proper image node that Astro can process
+          newChildren.push({
+            type: 'image',
+            url: imagePath,
+            alt: altText,
+            title: null,
+            data: {
+              hName: 'img',
+              hProperties: {
+                src: imagePath,
+                alt: altText
+              }
             }
-          },
-          children: [{
-            type: 'text',
-            value: displayText || link.trim()
-          }]
-        });
+          });
+        } else {
+          // Process link wikilink
+          const slugifiedLink = createSlugFromTitle(linkText);
+
+          // Add the wikilink as a link node
+          // We'll use the link text as placeholder - the actual resolution happens in PostLayout
+          newChildren.push({
+            type: 'link',
+            url: `/posts/${slugifiedLink}`,
+            title: null,
+            data: {
+              hName: 'a',
+              hProperties: {
+                className: ['wikilink'],
+                'data-wikilink': link.trim(),
+                'data-display-override': displayText
+              }
+            },
+            children: [{
+              type: 'text',
+              value: displayText || link.trim()
+            }]
+          });
+        }
 
         lastIndex = wikilinkRegex.lastIndex;
       }
@@ -130,27 +157,31 @@ function createSlugFromTitle(title: string): string {
 export function extractWikilinks(content: string): WikilinkMatch[] {
   const matches: WikilinkMatch[] = [];
 
-  // Extract wikilinks [[...]]
-  const wikilinkRegex = /\[\[([^\]]+)\]\]/g;
+  // Extract wikilinks [[...]] and image wikilinks ![[...]]
+  const wikilinkRegex = /!?\[\[([^\]]+)\]\]/g;
   let wikilinkMatch;
 
   while ((wikilinkMatch = wikilinkRegex.exec(content)) !== null) {
     const [fullMatch, linkContent] = wikilinkMatch;
+    const isImageWikilink = fullMatch.startsWith('!');
 
     // Skip if wikilink is inside backticks (code)
     if (isWikilinkInCode(content, wikilinkMatch.index)) {
       continue;
     }
 
-    const [link, displayText] = linkContent.includes('|')
-      ? linkContent.split('|', 2)
-      : [linkContent, linkContent];
+    // Only process link wikilinks for linked mentions, not image wikilinks
+    if (!isImageWikilink) {
+      const [link, displayText] = linkContent.includes('|')
+        ? linkContent.split('|', 2)
+        : [linkContent, linkContent];
 
-    matches.push({
-      link: link.trim(),
-      display: displayText.trim(),
-      slug: createSlugFromTitle(link.trim())
-    });
+      matches.push({
+        link: link.trim(),
+        display: displayText.trim(),
+        slug: createSlugFromTitle(link.trim())
+      });
+    }
   }
 
   // Extract standard markdown links [text](url) that point to internal posts
@@ -400,4 +431,29 @@ function extractLinkTextFromUrl(url: string): string | null {
 export function processWikilinksInHTML(posts: Post[], html: string): string {
   // Just return the HTML unchanged - let client-side handle all display text logic
   return html;
+}
+
+// Custom remark plugin to handle folder-based post images
+export function remarkFolderImages() {
+  return function transformer(tree: any, file: any) {
+    visit(tree, 'image', (node: any) => {
+      // Check if this is a folder-based post by looking at the file path
+      const isFolderPost = file.path && file.path.includes('/posts/') && file.path.endsWith('/index.md');
+      
+      if (isFolderPost && node.url && !node.url.startsWith('/') && !node.url.startsWith('http')) {
+        // Extract the post slug from the file path
+        const pathParts = file.path.split('/');
+        const postsIndex = pathParts.indexOf('posts');
+        const postSlug = pathParts[postsIndex + 1];
+        
+        // Update the image URL to point to the correct folder
+        node.url = `/posts/${postSlug}/${node.url}`;
+        
+        // Also update the hProperties if they exist (for wikilink images)
+        if (node.data && node.data.hProperties) {
+          node.data.hProperties.src = node.url;
+        }
+      }
+    });
+  };
 }

@@ -73,7 +73,7 @@ const structuredData = {
       <link 
         rel="preload" 
         as="image" 
-        href={optimizePostImagePath(featuredPost.data.image)}
+        href={optimizePostImagePath(featuredPost.data.image, featuredPost.slug)}
         fetchpriority="high"
       />
     )}
