@@ -239,12 +239,12 @@ import Icon from './Icon.astro';
         if (response.ok) {
           this.items = await response.json();
         } else {
-          console.error('Failed to fetch posts:', response.statusText);
+          logger.error('Failed to fetch posts:', response.statusText);
           // Fallback to empty array
           this.items = [];
         }
       } catch (error) {
-        console.error('Failed to load posts:', error);
+        logger.error('Failed to load posts:', error);
         // Fallback to empty array
         this.items = [];
       }

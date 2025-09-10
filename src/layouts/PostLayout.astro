@@ -21,8 +21,10 @@ const { post } = Astro.props;
 // Generate SEO data
 const seoData = generatePostSEO(post, Astro.site!);
 
-// Debug OG image URL
-console.log('Post OG Image URL:', seoData.ogImage?.url);
+// Debug OG image URL (only in development)
+if (import.meta.env.DEV) {
+  console.log('Post OG Image URL:', seoData.ogImage?.url);
+}
 
 // Dynamic image import for local images
 let localImage: any = null;

@@ -4,6 +4,14 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+// Simple logging utility
+const isDev = process.env.NODE_ENV !== 'production';
+const log = {
+  info: (...args) => isDev && console.log(...args),
+  error: (...args) => console.error(...args),
+  warn: (...args) => console.warn(...args)
+};
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -146,7 +154,7 @@ async function processMarkdownFile(filePath) {
     
     return { processed: true, aliases: redirectFrom.length };
   } catch (error) {
-    console.error(`❌ Error processing ${filePath}:`, error.message);
+    log.error(`❌ Error processing ${filePath}:`, error.message);
     return { processed: false, aliases: 0 };
   }
 }
@@ -171,14 +179,14 @@ async function processDirectory(dirPath) {
     
     return { processedCount, totalAliases };
   } catch (error) {
-    console.error(`❌ Error processing directory ${dirPath}:`, error.message);
+    log.error(`❌ Error processing directory ${dirPath}:`, error.message);
     return { processedCount: 0, totalAliases: 0 };
   }
 }
 
 // Main function
 async function processAllAliases() {
-  console.log('🔄 Processing aliases and converting to redirect_from...');
+  log.info('🔄 Processing aliases and converting to redirect_from...');
   
   const projectRoot = path.join(__dirname, '..');
   let totalProcessed = 0;
@@ -194,18 +202,18 @@ async function processAllAliases() {
       totalAliases += result.totalAliases;
     } catch (error) {
       if (error.code !== 'ENOENT') {
-        console.error(`❌ Error accessing directory ${dir}:`, error.message);
+        log.error(`❌ Error accessing directory ${dir}:`, error.message);
       }
     }
   }
   
   if (totalProcessed > 0) {
-    console.log(`📁 Processing pages directory...`);
-    console.log(`📁 Processing posts directory...`);
-    console.log(`   Processed ${totalProcessed} files with ${totalAliases} aliases`);
+    log.info(`📁 Processing pages directory...`);
+    log.info(`📁 Processing posts directory...`);
+    log.info(`   Processed ${totalProcessed} files with ${totalAliases} aliases`);
   }
   
-  console.log(`🎉 Alias processing complete! Processed ${totalProcessed} files.`);
+  log.info(`🎉 Alias processing complete! Processed ${totalProcessed} files.`);
 }
 
 // Run the script

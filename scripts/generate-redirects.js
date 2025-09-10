@@ -4,6 +4,14 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+// Simple logging utility
+const isDev = process.env.NODE_ENV !== 'production';
+const log = {
+  info: (...args) => isDev && console.log(...args),
+  error: (...args) => console.error(...args),
+  warn: (...args) => console.warn(...args)
+};
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -141,7 +149,7 @@ async function processMarkdownFile(filePath, isPost = false) {
     
     return redirects;
   } catch (error) {
-    console.error(`❌ Error processing ${filePath}:`, error.message);
+    log.error(`❌ Error processing ${filePath}:`, error.message);
     return [];
   }
 }
@@ -166,7 +174,7 @@ async function processDirectory(dirPath, isPost = false) {
     
     return { redirects: allRedirects, processedFiles };
   } catch (error) {
-    console.error(`❌ Error processing directory ${dirPath}:`, error.message);
+    log.error(`❌ Error processing directory ${dirPath}:`, error.message);
     return { redirects: [], processedFiles: 0 };
   }
 }
@@ -198,9 +206,9 @@ async function updateAstroConfig(redirects) {
     }
     
     await fs.writeFile(astroConfigPath, astroContent, 'utf-8');
-    console.log(`📝 Updated astro.config.mjs with ${redirects.length} redirects`);
+    log.info(`📝 Updated astro.config.mjs with ${redirects.length} redirects`);
   } catch (error) {
-    console.error(`❌ Error updating astro.config.mjs:`, error.message);
+    log.error(`❌ Error updating astro.config.mjs:`, error.message);
   }
 }
 
@@ -253,15 +261,15 @@ async function updateNetlifyToml(redirects) {
     const newContent = configLines.join('\n') + redirectLines.join('\n');
     await fs.writeFile(netlifyTomlPath, newContent, 'utf-8');
     
-    console.log(`📝 Updated netlify.toml with ${redirects.length} redirects`);
+    log.info(`📝 Updated netlify.toml with ${redirects.length} redirects`);
   } catch (error) {
-    console.error(`❌ Error updating netlify.toml:`, error.message);
+    log.error(`❌ Error updating netlify.toml:`, error.message);
   }
 }
 
 // Main function
 async function generateRedirects() {
-  console.log('🔄 Generating redirects from content aliases...');
+  log.info('🔄 Generating redirects from content aliases...');
   
   const projectRoot = path.join(__dirname, '..');
   let allRedirects = [];
@@ -290,14 +298,14 @@ async function generateRedirects() {
   }
   
   if (allRedirects.length > 0) {
-    console.log(`📁 Processing pages directory...`);
-    console.log(`📁 Processing posts directory...`);
-    console.log(`   Processed ${totalProcessedFiles} files with redirects`);
+    log.info(`📁 Processing pages directory...`);
+    log.info(`📁 Processing posts directory...`);
+    log.info(`   Processed ${totalProcessedFiles} files with redirects`);
     await updateAstroConfig(allRedirects);
     await updateNetlifyToml(allRedirects);
   }
   
-  console.log(`🎉 Redirect generation complete! Created ${allRedirects.length} redirects.`);
+  log.info(`🎉 Redirect generation complete! Created ${allRedirects.length} redirects.`);
 }
 
 // Run the script

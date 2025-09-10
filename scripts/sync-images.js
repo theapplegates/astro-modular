@@ -3,6 +3,14 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 
+// Simple logging utility
+const isDev = process.env.NODE_ENV !== 'production';
+const log = {
+  info: (...args) => isDev && console.log(...args),
+  error: (...args) => console.error(...args),
+  warn: (...args) => console.warn(...args)
+};
+
 // Define source and target directories for both posts and pages
 const IMAGE_SYNC_CONFIGS = [
   {
@@ -84,25 +92,25 @@ async function syncImagesForConfig(config) {
 
     return { synced, skipped, removed };
   } catch (error) {
-    console.error(`❌ Error syncing ${config.name} images:`, error);
+    log.error(`❌ Error syncing ${config.name} images:`, error);
     process.exit(1);
   }
 }
 
 async function syncAllImages() {
-  console.log('🖼️ Syncing images from content to public directory...');
+  log.info('🖼️ Syncing images from content to public directory...');
 
   for (const config of IMAGE_SYNC_CONFIGS) {
     const result = await syncImagesForConfig(config);
     if (result.synced > 0 || result.skipped > 0 || result.removed > 0) {
-      console.log(`📁 Syncing ${config.name} images...`);
-      if (result.synced > 0) console.log(`   Synced ${result.synced} files`);
-      if (result.skipped > 0) console.log(`   Skipped ${result.skipped} files that were unchanged`);
-      if (result.removed > 0) console.log(`   Cleaned up ${result.removed} orphaned ${config.name} files`);
+      log.info(`📁 Syncing ${config.name} images...`);
+      if (result.synced > 0) log.info(`   Synced ${result.synced} files`);
+      if (result.skipped > 0) log.info(`   Skipped ${result.skipped} files that were unchanged`);
+      if (result.removed > 0) log.info(`   Cleaned up ${result.removed} orphaned ${config.name} files`);
     }
   }
 
-  console.log('🎉 Image sync complete!');
+  log.info('🎉 Image sync complete!');
 }
 
 syncAllImages();

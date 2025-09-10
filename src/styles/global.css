@@ -545,6 +545,13 @@ textarea {
 /* Swup Transitions */
 .transition-swup-fade {
   transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+  /* Only apply will-change during transitions to reduce memory usage */
+}
+
+/* Apply will-change only when transitioning */
+html.is-changing .transition-swup-fade,
+html.is-leaving .transition-swup-fade,
+html.is-animating .transition-swup-fade {
   will-change: opacity, transform;
 }
 

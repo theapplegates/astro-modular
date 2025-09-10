@@ -61,7 +61,7 @@ if (image && !image.startsWith('http')) {
       localImage = await images[imageKey]();
     }
   } catch (error) {
-    console.warn('Failed to import image:', image, error);
+    logger.warn('Failed to import image:', image, error);
   }
 }
 ---

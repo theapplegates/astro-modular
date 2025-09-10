@@ -7,6 +7,7 @@ import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
 import CommandPalette from '@/components/CommandPalette.astro';
 import ScrollToTop from '@/components/ScrollToTop.astro';
+import { logger } from '@/utils/logger';
 import '@/styles/global.css';
 
 export interface Props {
@@ -192,14 +193,23 @@ const { seoData, bodyClass = '' } = Astro.props;
 
   <!-- Global scripts -->
   <script>
+    // Simple client-side logger
+    const isDev = window.location.hostname === 'localhost' && window.location.port === '5000';
+    const logger = {
+      dev: (...args: any[]) => isDev && console.log(...args),
+      info: (...args: any[]) => isDev && console.info(...args),
+      warn: (...args: any[]) => console.warn(...args),
+      error: (...args: any[]) => console.error(...args)
+    };
+
     // Update navigation highlighting based on current page
     function updateNavigationHighlighting(targetPath?: string) {
       const currentPath = targetPath || window.location.pathname;
-      console.log('🔍 Navigation highlighting - Current path:', currentPath);
+      logger.dev('🔍 Navigation highlighting - Current path:', currentPath);
       
       // Target both desktop and mobile navigation links
       const navLinks = document.querySelectorAll('header nav a, #mobile-menu nav a');
-      console.log('🔍 Found navigation links:', navLinks.length);
+      logger.dev('🔍 Found navigation links:', navLinks.length);
       
       navLinks.forEach((link) => {
         const linkPath = (link as HTMLAnchorElement).getAttribute('href');
@@ -214,18 +224,18 @@ const { seoData, bodyClass = '' } = Astro.props;
                           (linkPath === '/' && currentPath === '/');
           
           if (isActive) {
-            console.log('✅ Link is active:', linkPath);
+            logger.dev('✅ Link is active:', linkPath);
             // Add appropriate active classes based on navigation style
             const isMobile = link.closest('#mobile-menu');
             
             if (isMobile) {
               // Mobile navigation active classes
               link.classList.add('text-highlight-600', 'dark:text-highlight-400', 'bg-highlight-50', 'dark:bg-highlight-900/20');
-              console.log('✅ Added mobile active classes to:', linkPath);
+              logger.dev('✅ Added mobile active classes to:', linkPath);
             } else {
               // Desktop navigation active classes
               link.classList.add('text-highlight-600', 'dark:text-highlight-400');
-              console.log('✅ Added desktop active classes to:', linkPath);
+              logger.dev('✅ Added desktop active classes to:', linkPath);
             }
           } else {
             // Ensure inactive state classes are applied
@@ -301,7 +311,9 @@ const { seoData, bodyClass = '' } = Astro.props;
         images.forEach((img, index) => {
           if (img instanceof HTMLImageElement) {
             const priority = index < 3 ? 'high' : 'low';
-            this.preloadImage(img.src, priority).catch(console.warn);
+            this.preloadImage(img.src, priority).catch((error) => {
+              logger.warn('Failed to preload image:', error);
+            });
           }
         });
       }
@@ -313,7 +325,7 @@ const { seoData, bodyClass = '' } = Astro.props;
      // Handle anchors on page load/refresh
      function handleAnchorsOnLoad() {
        if (window.location.hash) {
-         console.log('Page has anchor on load:', window.location.hash);
+         logger.dev('Page has anchor on load:', window.location.hash);
          setTimeout(() => {
            const hash = window.location.hash.slice(1);
            const element = document.getElementById(hash);
@@ -374,6 +386,15 @@ const { seoData, bodyClass = '' } = Astro.props;
 
   <!-- Swup Initialization -->
   <script>
+    // Simple client-side logger (redefine for this script block)
+    const isDev = window.location.hostname === 'localhost' && window.location.port === '5000';
+    const logger = {
+      dev: (...args: any[]) => isDev && console.log(...args),
+      info: (...args: any[]) => isDev && console.info(...args),
+      warn: (...args: any[]) => console.warn(...args),
+      error: (...args: any[]) => console.error(...args)
+    };
+
     // Global variable for tracking navigation type
     let isForwardNavigation = false;
 
@@ -391,24 +412,24 @@ const { seoData, bodyClass = '' } = Astro.props;
     });
 
     function initializeSwup() {
-      console.log('Initializing Swup...');
+      logger.info('Initializing Swup...');
       
       // Check if required container exists
       const swupContainer = document.getElementById('swup-container');
       if (!swupContainer) {
-        console.warn('Swup container not found, skipping initialization');
+        logger.warn('Swup container not found, skipping initialization');
         return;
       }
 
-      console.log('Swup container found, creating Swup instance...');
+      logger.dev('Swup container found, creating Swup instance...');
 
       // Explicitly set scroll restoration to manual
       if ('scrollRestoration' in history) {
         history.scrollRestoration = 'manual';
-        console.log('history.scrollRestoration set to manual');
+        logger.dev('history.scrollRestoration set to manual');
       }
 
-      // Initialize Swup with scroll completely disabled
+      // Initialize Swup with basic configuration
       const swup = new (window as any).Swup({
         containers: ['#swup-container'],
         animationSelector: '[class*="transition-swup-"]',
@@ -419,32 +440,30 @@ const { seoData, bodyClass = '' } = Astro.props;
         updateBodyClass: true,
         globalInstance: true,
         animateHistoryBrowsing: true,
-        resolveUrl: (url: string) => url,
         scroll: false,
         parallelRequests: false,
         timeout: 2000,
         animationDuration: 300,
-        plugins: [],
         onError: (error: any) => {
-          console.warn('Swup error:', error);
+          logger.warn('Swup error:', error);
           return true;
         }
       });
       
       // Handle initial page load with anchor
       if (window.location.href.includes('#')) {
-        console.log('Initial page load with anchor detected');
+        logger.dev('Initial page load with anchor detected');
         const hash = window.location.href.split('#')[1];
-        console.log('Looking for element with ID:', hash);
+        logger.dev('Looking for element with ID:', hash);
         
         // Wait a bit for the page to fully load, then scroll to anchor
         setTimeout(() => {
           const element = document.getElementById(hash);
           if (element) {
-            console.log('Found element for initial load, scrolling to it');
+            logger.dev('Found element for initial load, scrolling to it');
             element.scrollIntoView({ behavior: 'instant', block: 'start' });
           } else {
-            console.log('Element not found for initial load');
+            logger.dev('Element not found for initial load');
           }
         }, 100);
       }
@@ -463,7 +482,7 @@ const { seoData, bodyClass = '' } = Astro.props;
             return originalScrollTo.call(window, x, y);
           } else if (isForwardNavigation) {
             // Block any other scroll during forward navigation
-            console.log('Blocked scroll during forward navigation:', x, y);
+            logger.dev('Blocked scroll during forward navigation:', x, y);
             return;
           }
           return originalScrollTo.call(window, x, y);
@@ -478,16 +497,16 @@ const { seoData, bodyClass = '' } = Astro.props;
       // Make swup globally available
       (window as any).swup = swup;
 
-      console.log('Swup instance created, setting up hooks...');
+      logger.dev('Swup instance created, setting up hooks...');
 
       // Setup hooks
       setupSwupHooks(swup);
       
-      console.log('Swup initialization complete!');
+      logger.info('Swup initialization complete!');
     }
 
     function setupSwupHooks(swup: any) {
-      console.log('Setting up Swup hooks...');
+      logger.dev('Setting up Swup hooks...');
       
       // Simple scroll position storage
       const scrollPositions = new Map();
@@ -500,22 +519,22 @@ const { seoData, bodyClass = '' } = Astro.props;
       
       // Store scroll position on link click (only for back navigation)
       swup.hooks.on('link:click', (event: any) => {
-        console.log('Link clicked - storing scroll position for potential back navigation');
+        logger.dev('Link clicked - storing scroll position for potential back navigation');
         const url = window.location.href;
         const scrollY = window.pageYOffset || document.documentElement.scrollTop;
         scrollPositions.set(url, scrollY);
-        console.log('Stored position for', url, 'at', scrollY);
+        logger.dev('Stored position for', url, 'at', scrollY);
         
         // For forward navigation, just add a class to track it
         if (!event.trigger || event.trigger.type !== 'popstate') {
-          console.log('Forward navigation - marking for scroll to top after leaving animation');
+          logger.dev('Forward navigation - marking for scroll to top after leaving animation');
           document.documentElement.classList.add('force-scroll-top');
         }
       });
 
       // Close command palette and set navigation flag
       swup.hooks.on('visit:start', (visit: any) => {
-        console.log('Visit start - closing command palette');
+        logger.dev('Visit start - closing command palette');
         const commandPalette = document.getElementById('command-palette-overlay');
         if (commandPalette && !commandPalette.classList.contains('hidden')) {
           commandPalette.classList.add('hidden');
@@ -543,16 +562,16 @@ const { seoData, bodyClass = '' } = Astro.props;
         
         // Set flag for forward navigation
         isForwardNavigation = !visit.trigger || !visit.trigger.event || visit.trigger.event.type !== 'popstate';
-        console.log('isForwardNavigation:', isForwardNavigation);
+        logger.dev('isForwardNavigation:', isForwardNavigation);
         
         // For forward navigation, just log - we'll handle scroll in content:replace
         if (isForwardNavigation) {
-          console.log('Forward navigation - will scroll to top after content replacement');
+          logger.dev('Forward navigation - will scroll to top after content replacement');
         } else {
           // For back navigation, check if there's an anchor in the current URL
           // (The hash might not be in visit.to.url yet for back navigation)
           if (window.location.href.includes('#')) {
-            console.log('Back navigation with anchor detected in visit:start - preventing scroll to top');
+            logger.dev('Back navigation with anchor detected in visit:start - preventing scroll to top');
             // Store the anchor for later use
             const hash = window.location.href.split('#')[1];
             pendingBackAnchor = hash;
@@ -573,14 +592,14 @@ const { seoData, bodyClass = '' } = Astro.props;
         const isForwardNavigation = visit.trigger && visit.trigger.event && visit.trigger.event.type === 'click';
         
         if (isForwardNavigation && document.documentElement.classList.contains('force-scroll-top')) {
-          console.log('Content replaced - handling scroll for forward navigation');
+          logger.dev('Content replaced - handling scroll for forward navigation');
           
           // Check if there's an anchor in the target URL
           if (visit.to && visit.to.url && visit.to.url.includes('#')) {
-            console.log('Forward navigation with anchor - will scroll to anchor after transition');
+            logger.dev('Forward navigation with anchor - will scroll to anchor after transition');
             // Don't scroll to top, let the anchor handling in visit:end take care of it
           } else {
-            console.log('Forward navigation without anchor - scrolling to top');
+            logger.dev('Forward navigation without anchor - scrolling to top');
             // Small delay to ensure the new content is ready
             setTimeout(() => {
               window.scrollTo(0, 0);
@@ -590,25 +609,25 @@ const { seoData, bodyClass = '' } = Astro.props;
           }
         } else {
           // For back navigation, handle scroll positioning
-          console.log('Content replaced - back navigation, handling scroll positioning');
+          logger.dev('Content replaced - back navigation, handling scroll positioning');
           
           if (pendingBackAnchor) {
-            console.log('Back navigation with pending anchor - keeping scroll position high');
+            logger.dev('Back navigation with pending anchor - keeping scroll position high');
             // Keep the scroll position high to prevent scroll to top
             window.scrollTo(0, 999999);
             document.documentElement.scrollTop = 999999;
             document.body.scrollTop = 999999;
           } else {
-            console.log('Back navigation without anchor - using saved position');
+            logger.dev('Back navigation without anchor - using saved position');
             // For back navigation without anchor, use the saved position
             const savedPosition = scrollPositions.get(visit.to.url);
             if (savedPosition !== undefined) {
-              console.log('Restoring saved position:', savedPosition);
+              logger.dev('Restoring saved position:', savedPosition);
               window.scrollTo(0, savedPosition);
               // Mark that we've handled the scroll
               backNavigationScrollHandled = true;
             } else {
-              console.log('No saved position found, staying at top');
+              logger.dev('No saved position found, staying at top');
               window.scrollTo(0, 0);
               // Mark that we've handled the scroll
               backNavigationScrollHandled = true;
@@ -619,37 +638,37 @@ const { seoData, bodyClass = '' } = Astro.props;
 
        // Handle page changes
        swup.hooks.on('visit:end', (visit: any) => {
-         console.log('Visit end - trigger:', visit.trigger, 'to:', visit.to.url);
-         console.log('Current URL after visit:', window.location.href);
-         console.log('URL includes hash?', window.location.href.includes('#'));
+         logger.dev('Visit end - trigger:', visit.trigger, 'to:', visit.to.url);
+         logger.dev('Current URL after visit:', window.location.href);
+         logger.dev('URL includes hash?', window.location.href.includes('#'));
          
          // Handle scroll behavior
-         console.log('Trigger check:', visit.trigger, 'Event:', visit.trigger?.event);
+         logger.dev('Trigger check:', visit.trigger, 'Event:', visit.trigger?.event);
          if (visit.trigger && visit.trigger.event && visit.trigger.event.type === 'popstate') {
-           console.log('Back navigation detected');
+           logger.dev('Back navigation detected');
            
            // Check if we have a pending anchor to scroll to
            if (pendingBackAnchor) {
-             console.log('Back navigation with pending anchor:', pendingBackAnchor);
+             logger.dev('Back navigation with pending anchor:', pendingBackAnchor);
              const element = document.getElementById(pendingBackAnchor);
              if (element) {
-               console.log('Found element for pending anchor, scrolling to it');
+               logger.dev('Found element for pending anchor, scrolling to it');
                element.scrollIntoView({ behavior: 'instant', block: 'start' });
                // Clear the pending anchor
                pendingBackAnchor = null;
                return;
              } else {
-               console.log('Element not found for pending anchor, will retry');
+               logger.dev('Element not found for pending anchor, will retry');
                // Retry after a short delay
                setTimeout(() => {
                  if (pendingBackAnchor) {
                    const retryElement = document.getElementById(pendingBackAnchor);
                    if (retryElement) {
-                     console.log('Found element on retry for pending anchor, scrolling to it');
+                     logger.dev('Found element on retry for pending anchor, scrolling to it');
                      retryElement.scrollIntoView({ behavior: 'instant', block: 'start' });
                      pendingBackAnchor = null;
                    } else {
-                     console.log('Element still not found after retry, clearing pending anchor');
+                     logger.dev('Element still not found after retry, clearing pending anchor');
                      pendingBackAnchor = null;
                    }
                  }
@@ -660,7 +679,7 @@ const { seoData, bodyClass = '' } = Astro.props;
            
            // Check if we've already handled the scroll in content:replace
            if (backNavigationScrollHandled) {
-             console.log('Scroll already handled in content:replace, skipping visit:end scroll');
+             logger.dev('Scroll already handled in content:replace, skipping visit:end scroll');
              // Reset the flag for next navigation
              backNavigationScrollHandled = false;
              return;
@@ -669,18 +688,18 @@ const { seoData, bodyClass = '' } = Astro.props;
            // Back navigation - check the actual current URL for hash
            if (window.location.href.includes('#')) {
              // URL has anchor - scroll to it after Swup finishes
-             console.log('URL has anchor, scrolling to it after Swup transition');
+             logger.dev('URL has anchor, scrolling to it after Swup transition');
              const hash = window.location.href.split('#')[1];
-             console.log('Looking for element with ID:', hash);
+             logger.dev('Looking for element with ID:', hash);
              
              setTimeout(() => {
                const element = document.getElementById(hash);
-               console.log('Found element:', element);
+               logger.dev('Found element:', element);
                if (element) {
-                 console.log('Scrolling to element');
+                 logger.dev('Scrolling to element');
                  element.scrollIntoView({ behavior: 'smooth' });
                } else {
-                 console.log('Element not found, trying alternative approach');
+                 logger.dev('Element not found, trying alternative approach');
                  // Try scrolling to the hash directly
                  if (hash) {
                    window.location.hash = '#' + hash;
@@ -688,7 +707,7 @@ const { seoData, bodyClass = '' } = Astro.props;
                }
              }, 350); // Wait for Swup transition to complete
            } else {
-             console.log('No anchor in URL, restoring saved position');
+             logger.dev('No anchor in URL, restoring saved position');
              // No anchor - restore saved position
              const savedPosition = scrollPositions.get(visit.to.url);
              if (savedPosition !== undefined && savedPosition > 0) {
@@ -698,25 +717,25 @@ const { seoData, bodyClass = '' } = Astro.props;
              }
            }
          } else {
-           console.log('Forward navigation - handling scroll positioning');
+           logger.dev('Forward navigation - handling scroll positioning');
            // Forward navigation - handle scroll positioning
            // Clear any stored positions for this URL
            scrollPositions.delete(visit.to.url);
            
            // Check if there's an anchor in the URL
            if (window.location.href.includes('#')) {
-             console.log('Forward navigation with anchor - scrolling to anchor');
+             logger.dev('Forward navigation with anchor - scrolling to anchor');
              const hash = window.location.hash.slice(1);
-             console.log('Looking for element with ID:', hash);
+             logger.dev('Looking for element with ID:', hash);
              
              setTimeout(() => {
                const element = document.getElementById(hash);
-               console.log('Found element:', element);
+               logger.dev('Found element:', element);
                if (element) {
-                 console.log('Scrolling to element');
+                 logger.dev('Scrolling to element');
                  element.scrollIntoView({ behavior: 'smooth' });
                } else {
-                 console.log('Element not found, trying alternative approach');
+                 logger.dev('Element not found, trying alternative approach');
                  // Try scrolling to the hash directly
                  if (hash) {
                    window.location.hash = '#' + hash;
@@ -724,7 +743,7 @@ const { seoData, bodyClass = '' } = Astro.props;
                }
              }, 350); // Wait for Swup transition to complete
            } else {
-             console.log('Forward navigation without anchor - ensuring at top');
+             logger.dev('Forward navigation without anchor - ensuring at top');
              // Ensure we're at the top
              window.scrollTo(0, 0);
              document.documentElement.scrollTop = 0;
@@ -751,7 +770,7 @@ const { seoData, bodyClass = '' } = Astro.props;
          ensurePostCardStyles();
        });
       
-      console.log('Swup hooks setup complete!');
+      logger.dev('Swup hooks setup complete!');
     }
 
     // Initialize image grids
