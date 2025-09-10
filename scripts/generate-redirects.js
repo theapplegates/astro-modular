@@ -215,9 +215,10 @@ async function updateNetlifyToml(redirects) {
     const lines = netlifyContent.split('\n');
     let endOfConfig = lines.length;
     
-    // Find where redirects start
+    // Find where redirects start (look for the first redirect or the heading)
     for (let i = 0; i < lines.length; i++) {
-      if (lines[i].trim().startsWith('[[redirects]]')) {
+      if (lines[i].trim().startsWith('[[redirects]]') || 
+          lines[i].trim().startsWith('# Generated redirects from content aliases')) {
         endOfConfig = i;
         break;
       }
@@ -238,6 +239,7 @@ async function updateNetlifyToml(redirects) {
         redirectLines.push(`  from = "${redirect.from}"`);
         redirectLines.push(`  to = "${redirect.to}"`);
         redirectLines.push(`  status = 301`);
+        redirectLines.push(`  force = true`);
         redirectLines.push('');
       }
     }

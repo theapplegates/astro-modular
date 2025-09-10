@@ -195,9 +195,11 @@ const { seoData, bodyClass = '' } = Astro.props;
     // Update navigation highlighting based on current page
     function updateNavigationHighlighting(targetPath?: string) {
       const currentPath = targetPath || window.location.pathname;
+      console.log('🔍 Navigation highlighting - Current path:', currentPath);
       
       // Target both desktop and mobile navigation links
       const navLinks = document.querySelectorAll('header nav a, #mobile-menu nav a');
+      console.log('🔍 Found navigation links:', navLinks.length);
       
       navLinks.forEach((link) => {
         const linkPath = (link as HTMLAnchorElement).getAttribute('href');
@@ -212,15 +214,18 @@ const { seoData, bodyClass = '' } = Astro.props;
                           (linkPath === '/' && currentPath === '/');
           
           if (isActive) {
+            console.log('✅ Link is active:', linkPath);
             // Add appropriate active classes based on navigation style
             const isMobile = link.closest('#mobile-menu');
             
             if (isMobile) {
               // Mobile navigation active classes
               link.classList.add('text-highlight-600', 'dark:text-highlight-400', 'bg-highlight-50', 'dark:bg-highlight-900/20');
+              console.log('✅ Added mobile active classes to:', linkPath);
             } else {
               // Desktop navigation active classes
               link.classList.add('text-highlight-600', 'dark:text-highlight-400');
+              console.log('✅ Added desktop active classes to:', linkPath);
             }
           } else {
             // Ensure inactive state classes are applied
