@@ -82,6 +82,11 @@ export function calculateReadingTime(content: string): ReadingTime {
   };
 }
 
+// Get mobile-friendly reading time text
+export function getReadingTimeMobile(readingTime: ReadingTime): string {
+  return `${readingTime.minutes} min`;
+}
+
 // Extract reading time from remark plugin or calculate manually
 export function getReadingTime(remarkData: any, content?: string): ReadingTime | null {
   // Validate remark plugin reading time data
@@ -147,6 +152,15 @@ export function formatDate(date: Date): string {
   return date.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
+    day: 'numeric'
+  });
+}
+
+// Format date for mobile display (shorter format)
+export function formatDateMobile(date: Date): string {
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
     day: 'numeric'
   });
 }

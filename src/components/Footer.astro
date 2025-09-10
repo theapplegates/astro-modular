@@ -11,12 +11,15 @@ const footerContent = siteConfig.footer.content.replace('{author}', siteConfig.a
 
 <footer class="bg-white dark:bg-primary-950 mt-auto">
   <div class="mx-auto px-4 sm:px-6 lg:px-8 py-8" style={`max-width: ${siteConfig.layout.contentWidth}`}>
-    <div class={showSocialIcons && socialLinks.length > 0 ? "flex justify-between items-center" : "text-center"}>
+    <!-- Footer content -->
+    <div class="text-center">
       <p class="text-xs text-primary-500 dark:text-primary-400" set:html={footerContent}>
       </p>
-      
-      {showSocialIcons && socialLinks.length > 0 && (
-        <!-- Social Icons -->
+    </div>
+    
+    <!-- Social Icons - positioned below footer content -->
+    {showSocialIcons && socialLinks.length > 0 && (
+      <div class="mt-4 flex justify-center md:justify-end">
         <div class="flex items-center space-x-4">
           {socialLinks.map((social) => (
             <a
@@ -30,7 +33,7 @@ const footerContent = siteConfig.footer.content.replace('{author}', siteConfig.a
             </a>
           ))}
         </div>
-      )}
-    </div>
+      </div>
+    )}
   </div>
 </footer>

@@ -37,6 +37,7 @@
   publish = "dist"
 
 # Generated redirects from content aliases
+
 [[redirects]]
   from = "/about-me"
   to = "/about"

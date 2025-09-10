@@ -156,6 +156,17 @@ const { seoData, bodyClass = '' } = Astro.props;
 
     // Make toggle function globally accessible
     window.toggleTheme = toggleTheme;
+
+    // Global function to restore scroll functionality
+    function restoreScroll() {
+      document.body.style.overflow = '';
+      document.documentElement.classList.remove('force-scroll-top');
+      // Force a reflow to ensure changes take effect
+      document.body.offsetHeight;
+    }
+
+    // Make restoreScroll globally accessible
+    window.restoreScroll = restoreScroll;
   </script>
 
   <!-- View Transitions - temporarily disabled to fix compiler issues -->
@@ -322,6 +333,27 @@ const { seoData, bodyClass = '' } = Astro.props;
     // Initialize global preloader
     (window as any).imagePreloader = new ImagePreloader();
 
+    // Initialize table wrappers for responsive tables
+    function initializeTableWrappers() {
+      const tables = document.querySelectorAll('.prose table');
+      tables.forEach(table => {
+        if (!table.parentElement?.classList.contains('table-wrapper')) {
+          const wrapper = document.createElement('div');
+          wrapper.className = 'table-wrapper';
+          wrapper.style.cssText = 'overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 1.5rem 0; border-radius: 0.5rem; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);';
+          
+          table.parentNode?.insertBefore(wrapper, table);
+          wrapper.appendChild(table);
+          
+          // Reset table margin since wrapper handles it
+          (table as HTMLElement).style.margin = '0';
+        }
+      });
+    }
+
+    // Make initializeTableWrappers globally accessible
+    (window as any).initializeTableWrappers = initializeTableWrappers;
+
      // Handle anchors on page load/refresh
      function handleAnchorsOnLoad() {
        if (window.location.hash) {
@@ -336,8 +368,18 @@ const { seoData, bodyClass = '' } = Astro.props;
        }
      }
 
+     // Cleanup any leftover scroll-blocking state on page load
+     function cleanupScrollState() {
+       document.body.style.overflow = '';
+       document.documentElement.classList.remove('force-scroll-top');
+       logger.dev('Cleaned up scroll state on page load');
+     }
+
      // Smooth scrolling for anchor links
      document.addEventListener('DOMContentLoaded', () => {
+       // Cleanup any leftover scroll-blocking state first
+       cleanupScrollState();
+       
        // Enable smooth scrolling
        document.documentElement.style.scrollBehavior = 'smooth';
 
@@ -351,6 +393,9 @@ const { seoData, bodyClass = '' } = Astro.props;
 
        // Preload all images on initial page load
        (window as any).imagePreloader.preloadAllImages();
+
+       // Initialize table wrappers on initial page load
+       initializeTableWrappers();
 
       // Global keyboard shortcuts
       document.addEventListener('keydown', (e) => {
@@ -532,12 +577,21 @@ const { seoData, bodyClass = '' } = Astro.props;
         }
       });
 
-      // Close command palette and set navigation flag
+      // Close command palette and mobile menu, set navigation flag
       swup.hooks.on('visit:start', (visit: any) => {
-        logger.dev('Visit start - closing command palette');
+        logger.dev('Visit start - closing command palette and mobile menu');
         const commandPalette = document.getElementById('command-palette-overlay');
         if (commandPalette && !commandPalette.classList.contains('hidden')) {
           commandPalette.classList.add('hidden');
+          
+          // Ensure proper cleanup when command palette closes during navigation
+          document.body.style.overflow = '';
+          document.documentElement.classList.remove('force-scroll-top');
+        }
+
+        // Close mobile menu if open
+        if ((window as any).closeMobileMenu) {
+          (window as any).closeMobileMenu();
         }
         
         // Update navigation highlighting immediately when navigation starts
@@ -762,6 +816,7 @@ const { seoData, bodyClass = '' } = Astro.props;
         // Reinitialize components
         (window as any).updateNavigationHighlighting();
          initializeImageGrids();
+         (window as any).initializeTableWrappers();
          initializeTOC();
          initializeExternalLinks();
          initializeAnchorLinks();

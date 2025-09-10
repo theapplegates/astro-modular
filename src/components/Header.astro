@@ -1,5 +1,5 @@
 ---
-import { siteConfig } from '../config.ts';
+import { siteConfig } from '../config';
 import ThemeToggle from './ThemeToggle.astro';
 import Icon from './Icon.astro';
 
@@ -151,6 +151,45 @@ const paletteIcon = allSectionsDisabled ? 'search' : 'command';
         }
       });
     }
+
+    // Function to close mobile menu
+    function closeMobileMenu() {
+      if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+        mobileMenu.classList.add('hidden');
+        
+        // Update menu icon and ARIA attribute
+        const menuIcon = menuToggle.querySelector('.menu-icon');
+        const closeIcon = menuToggle.querySelector('.close-icon');
+        if (menuIcon && closeIcon) {
+          menuIcon.classList.remove('hidden');
+          closeIcon.classList.add('hidden');
+          menuToggle.setAttribute('aria-expanded', 'false');
+        }
+      }
+    }
+
+    // Close mobile menu when navigation links are clicked
+    const mobileMenuLinks = mobileMenu?.querySelectorAll('nav a');
+    mobileMenuLinks?.forEach(link => {
+      link.addEventListener('click', () => {
+        closeMobileMenu();
+      });
+    });
+
+    // Make closeMobileMenu globally accessible for other components
+    (window as any).closeMobileMenu = closeMobileMenu;
+
+    // Close mobile menu when clicking outside of it
+    document.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      const isMenuToggle = target.closest('#mobile-menu-toggle');
+      const isMobileMenu = target.closest('#mobile-menu');
+      
+      // If clicking outside the menu and toggle button, close the menu
+      if (!isMenuToggle && !isMobileMenu && mobileMenu && !mobileMenu.classList.contains('hidden')) {
+        closeMobileMenu();
+      }
+    });
 
     // Command palette triggers
     const triggers = [

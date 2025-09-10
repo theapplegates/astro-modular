@@ -2,6 +2,7 @@
 import type { Post } from '@/types';
 import { processImagesForLightbox } from '@/utils/images';
 import { siteConfig } from '@/config';
+import { formatDateMobile, getReadingTimeMobile } from '@/utils/markdown';
 import ImageGallery from './ImageGallery.astro';
 import TableOfContents from './TableOfContents.astro';
 import Button from './Button.astro';
@@ -30,20 +31,27 @@ const { Content, toc, readingTime, wordCount } = post;
           {post.data.title}
         </h1>
         
-        <div class="flex flex-wrap items-center gap-4 text-sm text-primary-600 dark:text-primary-300 mb-6">
+        <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-primary-600 dark:text-primary-300 mb-6">
           <time datetime={post.data.date.toISOString()} class="font-medium">
-            {post.data.date.toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
-            })}
+            <span class="hidden sm:inline">
+              {post.data.date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              })}
+            </span>
+            <span class="sm:hidden">
+              {formatDateMobile(post.data.date)}
+            </span>
           </time>
           
           {siteConfig.features.readingTime && readingTime && (
             <>
               <span class="hidden sm:inline">•</span>
-              <span class={siteConfig.features.mobileHideFeatures.includes('readingTime') ? 'hidden sm:inline' : ''}>
-                {readingTime.text}
+              <span class="sm:hidden">•</span>
+              <span>
+                <span class="hidden sm:inline">{readingTime.text}</span>
+                <span class="sm:hidden">{getReadingTimeMobile(readingTime)}</span>
               </span>
             </>
           )}
@@ -51,8 +59,10 @@ const { Content, toc, readingTime, wordCount } = post;
           {siteConfig.features.wordCount && wordCount && (
             <>
               <span class="hidden sm:inline">•</span>
-              <span class={siteConfig.features.mobileHideFeatures.includes('wordCount') ? 'hidden sm:inline' : ''}>
-                {wordCount.toLocaleString()} words
+              <span class="sm:hidden">•</span>
+              <span class="min-w-0">
+                <span class="hidden sm:inline">{wordCount.toLocaleString()} words</span>
+                <span class="sm:hidden">{wordCount.toLocaleString()} words</span>
               </span>
             </>
           )}
@@ -158,7 +168,7 @@ const { Content, toc, readingTime, wordCount } = post;
         wrapper.appendChild(table);
         
         // Reset table margin since wrapper handles it
-        table.style.margin = '0';
+        (table as HTMLElement).style.margin = '0';
       }
     });
 
