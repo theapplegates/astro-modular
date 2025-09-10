@@ -67,8 +67,13 @@ const filteredHeadings = headings.filter(h => h.depth >= 2 && h.depth <= 4);
     tocLinks.forEach(link => {
       link.addEventListener('click', (e) => {
         e.preventDefault();
-        const target = document.querySelector(link.getAttribute('href') || '');
+        const href = link.getAttribute('href') || '';
+        const target = document.querySelector(href);
         if (target) {
+          // Update the URL with the hash
+          history.pushState(null, '', href);
+          
+          // Scroll to the target
           target.scrollIntoView({
             behavior: 'smooth',
             block: 'start'

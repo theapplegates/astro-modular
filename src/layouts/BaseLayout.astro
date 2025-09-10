@@ -362,9 +362,9 @@ const { seoData, bodyClass = '' } = Astro.props;
        
        logger.dev('🔍 SCROLL DEBUG - Backup restoration check for:', currentUrl);
        
-       // Check if this is a page refresh by looking at performance.navigation.type
-       const isPageRefresh = performance.navigation?.type === 1 || 
-                            (performance.getEntriesByType && performance.getEntriesByType('navigation')[0]?.type === 'reload');
+      // Check if this is a page refresh by looking at performance.navigation.type
+      const isPageRefresh = performance.navigation?.type === 1 || 
+                           (performance.getEntriesByType && (performance.getEntriesByType('navigation')[0] as any)?.type === 'reload');
        
        // Only restore on page refresh, not on Swup navigation
        if (isPageRefresh && !window.location.hash) {
@@ -374,17 +374,19 @@ const { seoData, bodyClass = '' } = Astro.props;
            const position = parseInt(savedPosition, 10);
            const currentScroll = window.pageYOffset;
            
-           // Only restore if we're not already at the correct position
-           if (Math.abs(currentScroll - position) > 50) {
-             logger.dev('🔄 SCROLL DEBUG - Backup restoration needed:', currentScroll, '->', position);
-             
-             // Single attempt to restore position
-             window.scrollTo(0, position);
-             document.documentElement.scrollTop = position;
-             document.body.scrollTop = position;
-           } else {
-             logger.dev('✅ SCROLL DEBUG - Position already correct:', currentScroll);
-           }
+          // Only restore if we're significantly off from the correct position
+          const difference = Math.abs(currentScroll - position);
+          if (difference > 100) {
+            logger.dev('🔄 SCROLL DEBUG - Backup restoration needed:', currentScroll, '->', position, '(difference:', difference, ')');
+            
+            // Single attempt to restore position
+            window.scrollTo(0, position);
+            document.documentElement.scrollTop = position;
+            document.body.scrollTop = position;
+            logger.dev('✅ SCROLL DEBUG - Backup restoration completed');
+          } else {
+            logger.dev('✅ SCROLL DEBUG - Position already correct:', currentScroll, '(difference:', difference, ')');
+          }
          }
        }
      }
@@ -449,10 +451,19 @@ const { seoData, bodyClass = '' } = Astro.props;
 
        // Note: Scroll position restoration is now handled after Swup initialization
 
-       // Handle anchors on initial page load only (not on Swup transitions)
-       if (!(window as any).swup) {
-         handleAnchorsOnLoad();
-       }
+      // Handle anchors on initial page load only (not on Swup transitions)
+      if (!(window as any).swup) {
+        if (window.location.hash) {
+          logger.dev('Page has anchor on load:', window.location.hash);
+          setTimeout(() => {
+            const hash = window.location.hash.slice(1);
+            const element = document.getElementById(hash);
+            if (element) {
+              element.scrollIntoView({ behavior: 'smooth' });
+            }
+          }, 100);
+        }
+      }
 
         // Initialize navigation highlighting on page load
         (window as any).updateNavigationHighlighting();
@@ -515,13 +526,13 @@ const { seoData, bodyClass = '' } = Astro.props;
 
     // Check if this is a page refresh - if so, don't initialize Swup
     const isPageRefresh = performance.navigation?.type === 1 || 
-                         (performance.getEntriesByType && performance.getEntriesByType('navigation')[0]?.type === 'reload');
+                         (performance.getEntriesByType && (performance.getEntriesByType('navigation')[0] as any)?.type === 'reload');
     
     if (isPageRefresh) {
       logger.dev('🔄 SCROLL DEBUG - Page refresh detected, skipping Swup initialization');
-      // Let the browser handle scroll restoration naturally
+      // Temporarily disable browser scroll restoration for this refresh only
       if ('scrollRestoration' in history) {
-        history.scrollRestoration = 'auto';
+        history.scrollRestoration = 'manual';
       }
       
       // For page refreshes, restore scroll position manually since browser won't do it
@@ -529,55 +540,112 @@ const { seoData, bodyClass = '' } = Astro.props;
       const scrollKey = `scrollPosition_${currentUrl}`;
       const savedPosition = sessionStorage.getItem(scrollKey);
       
-      if (savedPosition !== null && !window.location.hash) {
+      // Handle scroll restoration for page refreshes
+      if (savedPosition !== null) {
         const position = parseInt(savedPosition, 10);
-        logger.dev('🎯 SCROLL DEBUG - Restoring scroll position for refresh:', position);
         
-        // More robust restoration strategy
+        // If there's a hash, let the anchor handling take care of scrolling
+        if (window.location.hash) {
+          logger.dev('🎯 SCROLL DEBUG - Page has anchor, letting anchor handling manage scroll');
+          // Re-enable scroll restoration for anchor links
+          if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'auto';
+          }
+          // Handle the anchor scrolling
+          if (window.location.hash) {
+            logger.dev('Page has anchor on load:', window.location.hash);
+            setTimeout(() => {
+              const hash = window.location.hash.slice(1);
+              const element = document.getElementById(hash);
+              if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+              }
+            }, 100);
+          }
+        } else {
+          logger.dev('🎯 SCROLL DEBUG - Restoring scroll position for refresh:', position);
+          
+          // Disable browser's scroll restoration to prevent conflicts
+          if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+          }
+        
         let restored = false;
         const restoreScroll = () => {
           if (restored) return; // Prevent multiple restorations
           
           const currentScroll = window.pageYOffset;
-          if (Math.abs(currentScroll - position) > 50) {
-            window.scrollTo(0, position);
-            document.documentElement.scrollTop = position;
-            document.body.scrollTop = position;
-            logger.dev('✅ SCROLL DEBUG - Scroll position restored from', currentScroll, 'to', position);
+          const difference = Math.abs(currentScroll - position);
+          
+          // Only restore if we're significantly off from the saved position
+          if (difference > 50) {
+            logger.dev('🔄 SCROLL DEBUG - Restoring scroll from', currentScroll, 'to', position, '(difference:', difference, ')');
+            
+            // Use requestAnimationFrame for smooth restoration
+            requestAnimationFrame(() => {
+              window.scrollTo({
+                top: position,
+                left: 0,
+                behavior: 'instant'
+              });
+              logger.dev('✅ SCROLL DEBUG - Scroll position restored from', currentScroll, 'to', position);
+            });
+            restored = true;
+          } else {
+            logger.dev('✅ SCROLL DEBUG - Scroll position already correct:', currentScroll, '(difference:', difference, ')');
+            restored = true; // Mark as handled even if no restoration needed
+          }
+        };
+        
+        // Strategy 1: Immediate restoration with multiple attempts
+        const attemptRestoration = (attempt = 1) => {
+          if (restored) return;
+          
+          const currentScroll = window.pageYOffset;
+          const difference = Math.abs(currentScroll - position);
+          
+          if (difference > 50) {
+            logger.dev(`🔄 SCROLL DEBUG - Restoration attempt ${attempt}, current: ${currentScroll}, target: ${position}`);
+            restoreScroll();
+          } else {
+            logger.dev('✅ SCROLL DEBUG - Position already correct on attempt', attempt, ':', currentScroll);
             restored = true;
           }
         };
         
-        // Strategy 1: Immediate restoration
-        restoreScroll();
+        // Multiple restoration attempts at different times
+        attemptRestoration(1); // Immediate
+        setTimeout(() => attemptRestoration(2), 50); // Very quick
+        setTimeout(() => attemptRestoration(3), 150); // After initial load
+        setTimeout(() => attemptRestoration(4), 300); // After DOM settles
+        setTimeout(() => attemptRestoration(5), 500); // After everything loads
         
-        // Strategy 2: After DOM is ready
-        document.addEventListener('DOMContentLoaded', restoreScroll);
-        
-        // Strategy 3: After everything loads
-        window.addEventListener('load', restoreScroll);
-        
-        // Strategy 4: Wait for page to be stable (no layout shifts)
-        let stableCount = 0;
-        const checkStability = () => {
-          const currentScroll = window.pageYOffset;
-          if (Math.abs(currentScroll - position) > 50) {
-            restoreScroll();
-          }
-          
-          // If we're still not at the right position, keep trying
-          if (Math.abs(window.pageYOffset - position) > 50) {
-            stableCount++;
-            if (stableCount < 10) { // Try up to 10 times
-              setTimeout(checkStability, 100);
-            }
-          }
-        };
-        
-        // Start stability checking after a delay
-        setTimeout(checkStability, 100);
+          // Final attempt after window load
+          window.addEventListener('load', () => {
+            setTimeout(() => {
+              attemptRestoration(6);
+              // Re-enable scroll restoration for future navigation
+              if ('scrollRestoration' in history) {
+                history.scrollRestoration = 'auto';
+              }
+              logger.dev('🔄 SCROLL DEBUG - Re-enabled scroll restoration for future navigation');
+            }, 100);
+          });
+        }
+      } else {
+        // No saved position, re-enable scroll restoration immediately
+        if ('scrollRestoration' in history) {
+          history.scrollRestoration = 'auto';
+        }
+        logger.dev('🔄 SCROLL DEBUG - No saved position, re-enabled scroll restoration');
       }
     } else {
+      // For normal navigation, ensure scroll restoration is enabled
+      if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'auto';
+      }
+      logger.dev('🔄 SCROLL DEBUG - Normal navigation, scroll restoration enabled');
+      
       // Initialize Swup when DOM is ready (only for normal navigation)
       document.addEventListener('DOMContentLoaded', () => {
         // Wait for Swup to be available
@@ -655,14 +723,20 @@ const { seoData, bodyClass = '' } = Astro.props;
       
       // For page refreshes, use native browser scroll restoration
       const isPageRefresh = performance.navigation?.type === 1 || 
-                           (performance.getEntriesByType && performance.getEntriesByType('navigation')[0]?.type === 'reload');
+                           (performance.getEntriesByType && (performance.getEntriesByType('navigation')[0] as any)?.type === 'reload');
       
       if (isPageRefresh) {
-        logger.dev('🔄 SCROLL DEBUG - Page refresh detected, enabling native scroll restoration');
-        // Re-enable native scroll restoration for page refreshes
+        logger.dev('🔄 SCROLL DEBUG - Page refresh detected in Swup, keeping manual scroll restoration');
+        // Keep manual scroll restoration since we handle it ourselves
+        if ('scrollRestoration' in history) {
+          history.scrollRestoration = 'manual';
+        }
+      } else {
+        // For normal Swup navigation, ensure scroll restoration is enabled
         if ('scrollRestoration' in history) {
           history.scrollRestoration = 'auto';
         }
+        logger.dev('🔄 SCROLL DEBUG - Swup navigation, scroll restoration enabled');
       }
       
       // Intercept and prevent any scroll restoration
