@@ -1,11 +1,11 @@
 ---
 import type { Post } from '@/types';
-import { processImagesForLightbox, optimizePostImagePath } from '@/utils/images';
+import { processImagesForLightbox } from '@/utils/images';
 import { siteConfig } from '@/config';
-import { Image } from 'astro:assets';
 import ImageGallery from './ImageGallery.astro';
 import TableOfContents from './TableOfContents.astro';
 import Button from './Button.astro';
+import ImageWrapper from './ImageWrapper.astro';
 
 export interface Props {
   post: Post & {
@@ -73,30 +73,19 @@ const { Content, toc, readingTime, wordCount } = post;
         
         {post.data.image && (
           <div class="aspect-video overflow-hidden rounded-xl mb-8">
-            {post.data.image.startsWith('http') ? (
-              <img 
-                src={post.data.image} 
-                alt={post.data.imageAlt || post.data.title}
-                class="w-full h-full object-cover"
-                loading="eager"
-                decoding="async"
-                fetchpriority="high"
-              />
-            ) : (
-              <Image
-                src={optimizePostImagePath(post.data.image)}
-                alt={post.data.imageAlt || post.data.title}
-                width={1200}
-                height={675}
-                class="w-full h-full object-cover"
-                loading="eager"
-                decoding="async"
-                fetchpriority="high"
-                format={post.data.image.endsWith('.svg') ? undefined : "webp"}
-                quality={90}
-                densities={[1, 2]}
-              />
-            )}
+            <ImageWrapper
+              src={post.data.image}
+              basePath="/posts/images/"
+              alt={post.data.imageAlt || post.data.title}
+              class="w-full h-full"
+              width={1200}
+              height={675}
+              format={post.data.image.endsWith('.svg') ? undefined : "webp"}
+              quality={90}
+              densities={[1, 2]}
+              loading="eager"
+              fetchpriority="high"
+            />
           </div>
         )}
       </header>

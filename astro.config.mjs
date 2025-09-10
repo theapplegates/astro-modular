@@ -11,8 +11,14 @@ import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import { siteConfig } from './src/config.ts';
 
+// Deployment platform configuration
+const DEPLOYMENT_PLATFORM = process.env.DEPLOYMENT_PLATFORM || 'netlify';
+
 export default defineConfig({
   site: siteConfig.site,
+  deployment: {
+    platform: DEPLOYMENT_PLATFORM
+  },
   redirects: {
   '/about-me': '/about',
   '/about-us': '/about',
@@ -81,7 +87,8 @@ export default defineConfig({
     },
     optimizeDeps: {
       exclude: ['astro:content']
-    }
+    },
+    exclude: ['**/_redirects']
   },
   build: {
     assets: '_assets'

@@ -3,11 +3,10 @@
 import type { Page } from '@/types';
 import { siteConfig } from '@/config';
 import { generatePageSEO } from '@/utils/seo';
-import { optimizePageImagePath } from '@/utils/images';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import TableOfContents from '@/components/TableOfContents.astro';
 import Lightbox from '@/components/Lightbox.astro';
-import { Image } from 'astro:assets';
+import ImageWrapper from '@/components/ImageWrapper.astro';
 
 export interface Props {
   page: Page;
@@ -15,21 +14,7 @@ export interface Props {
 
 const { page } = Astro.props;
 
-// Dynamic image import for local images
-let localImage: any = null;
-if (page.data.image && !page.data.image.startsWith('http')) {
-  try {
-    const imagePath = optimizePageImagePath(page.data.image);
-    const images = import.meta.glob('/public/pages/images/*');
-    const imageKey = `/public${imagePath}`;
-    
-    if (images[imageKey]) {
-      localImage = await images[imageKey]();
-    }
-  } catch (error) {
-    console.warn('Failed to import page image:', page.data.image, error);
-  }
-}
+// No need for dynamic image import - ImageWrapper handles this
 
 // Render the page content
 const { Content, headings } = await page.render();
@@ -73,7 +58,7 @@ const structuredData = {
       <link 
         rel="preload" 
         as="image" 
-        href={optimizePageImagePath(page.data.image)}
+        href={`/pages/images/${page.data.image}`}
         fetchpriority="high"
       />
     )}
@@ -91,41 +76,18 @@ const structuredData = {
 
           {page.data.image && (
             <div class="aspect-video overflow-hidden rounded-xl mt-8">
-              {page.data.image.startsWith('http') ? (
-                <img
-                  src={page.data.image}
-                  alt={page.data.imageAlt || page.data.title}
-                  class="w-full h-full object-cover"
-                  width="800"
-                  height="450"
-                  loading="eager"
-                  decoding="async"
-                  fetchpriority="high"
-                />
-              ) : localImage ? (
-                <Image
-                  src={localImage.default}
-                  alt={page.data.imageAlt || page.data.title}
-                  width={800}
-                  height={450}
-                  format="webp"
-                  class="w-full h-full object-cover"
-                  loading="eager"
-                  decoding="async"
-                  fetchpriority="high"
-                />
-              ) : (
-                <img
-                  src={optimizePageImagePath(page.data.image)}
-                  alt={page.data.imageAlt || page.data.title}
-                  class="w-full h-full object-cover"
-                  width="800"
-                  height="450"
-                  loading="eager"
-                  decoding="async"
-                  fetchpriority="high"
-                />
-              )}
+              <ImageWrapper
+                src={page.data.image}
+                basePath="/pages/images/"
+                alt={page.data.imageAlt || page.data.title}
+                class="w-full h-full"
+                width={800}
+                height={450}
+                format="webp"
+                quality={85}
+                loading="eager"
+                fetchpriority="high"
+              />
             </div>
           )}
         </header>

@@ -1,8 +1,8 @@
 ---
 import type { ImageInfo } from '@/types';
-import { Image } from 'astro:assets';
 import { processImageLayout } from '@/utils/images';
 import Icon from './Icon.astro';
+import ImageWrapper from './ImageWrapper.astro';
 
 export interface Props {
   images: ImageInfo[];
@@ -26,27 +26,17 @@ const { layout: finalLayout, images: finalImages } = processedLayout;
           data-lightbox="gallery"
           aria-label={`View ${image.alt} in full size`}
         >
-          {image.src.startsWith('http') ? (
-            <img 
-              src={image.src}
-              alt={image.alt}
-              class="w-full h-full object-cover rounded-lg transition-all duration-300 group-hover:shadow-lg group-hover:scale-[1.02]"
-              loading="lazy"
-              decoding="async"
-            />
-          ) : (
-            <Image 
-              src={image.src}
-              alt={image.alt}
-              width={600}
-              height={400}
-              class="w-full h-full object-cover rounded-lg transition-all duration-300 group-hover:shadow-lg group-hover:scale-[1.02]"
-              loading="lazy"
-              decoding="async"
-              format="webp"
-              quality={85}
-            />
-          )}
+          <ImageWrapper
+            src={image.src}
+            basePath="/posts/images/"
+            alt={image.alt}
+            class="w-full h-full rounded-lg transition-all duration-300 group-hover:shadow-lg group-hover:scale-[1.02]"
+            width={600}
+            height={400}
+            format="webp"
+            quality={85}
+            loading="lazy"
+          />
           <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 rounded-lg flex items-center justify-center">
             <Icon name="zoom-in" class="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </div>

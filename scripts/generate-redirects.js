@@ -12,6 +12,11 @@ const log = {
   warn: (...args) => console.warn(...args)
 };
 
+// Deployment platform configuration
+const DEPLOYMENT_PLATFORM = process.env.DEPLOYMENT_PLATFORM || 'netlify';
+const DRY_RUN = process.argv.includes('--dry-run');
+const VALIDATE_ONLY = process.argv.includes('--validate');
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -212,53 +217,133 @@ async function updateAstroConfig(redirects) {
   }
 }
 
-// Function to update netlify.toml with redirects
-async function updateNetlifyToml(redirects) {
-  const netlifyTomlPath = 'netlify.toml';
+
+// Platform-specific configuration generators
+function generateVercelConfig(redirects) {
+  const config = {
+    redirects: redirects.map(redirect => ({
+      source: redirect.from,
+      destination: redirect.to,
+      permanent: (redirect.status || 301) === 301
+    })),
+    headers: [
+      {
+        source: "/_assets/(.*)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable"
+          }
+        ]
+      },
+      {
+        source: "/(.*\\.(webp|jpg|jpeg|png|gif|svg))",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable"
+          }
+        ]
+      }
+    ]
+  };
+  
+  return JSON.stringify(config, null, 2);
+}
+
+function generateGitHubPagesConfig(redirects) {
+  const redirectLines = redirects.map(redirect => 
+    `${redirect.from}    ${redirect.to}    ${redirect.status || 301}!`
+  );
+  
+  return redirectLines.join('\n') + '\n';
+}
+
+function generateNetlifyConfig(redirects) {
+  const redirectLines = [];
+  
+  for (const redirect of redirects) {
+    redirectLines.push('[[redirects]]');
+    redirectLines.push(`  from = "${redirect.from}"`);
+    redirectLines.push(`  to = "${redirect.to}"`);
+    redirectLines.push(`  status = ${redirect.status || 301}`);
+    redirectLines.push('  force = true');
+    redirectLines.push('');
+  }
+  
+  // Always add the catch-all 404 redirect at the end
+  redirectLines.push('[[redirects]]');
+  redirectLines.push('  from = "/*"');
+  redirectLines.push('  to = "/404"');
+  redirectLines.push('  status = 404');
+  
+  return redirectLines.join('\n');
+}
+
+// Platform-specific file writers
+async function writeVercelConfig(redirects) {
+  const projectRoot = path.join(__dirname, '..');
+  const vercelJsonPath = path.join(projectRoot, 'vercel.json');
+  
+  if (DRY_RUN) {
+    log.info('📝 [DRY RUN] Would generate vercel.json:');
+    console.log(generateVercelConfig(redirects));
+    return;
+  }
   
   try {
-    let netlifyContent = await fs.readFile(netlifyTomlPath, 'utf-8');
-    
-    // Find the end of the file before any redirects
-    const lines = netlifyContent.split('\n');
-    let endOfConfig = lines.length;
-    
-    // Find where redirects start (look for the first redirect or the heading)
-    for (let i = 0; i < lines.length; i++) {
-      if (lines[i].trim().startsWith('[[redirects]]') || 
-          lines[i].trim().startsWith('# Generated redirects from content aliases')) {
-        endOfConfig = i;
-        break;
-      }
+    const config = generateVercelConfig(redirects);
+    await fs.writeFile(vercelJsonPath, config, 'utf-8');
+    log.info(`📝 Updated vercel.json with ${redirects.length} redirects`);
+  } catch (error) {
+    log.error(`❌ Error updating vercel.json:`, error.message);
+  }
+}
+
+async function writeGitHubPagesConfig(redirects) {
+  const projectRoot = path.join(__dirname, '..');
+  const redirectsPath = path.join(projectRoot, 'public', 'redirects.txt');
+  
+  if (DRY_RUN) {
+    log.info('📝 [DRY RUN] Would generate public/redirects.txt:');
+    console.log(generateGitHubPagesConfig(redirects));
+    return;
+  }
+  
+  try {
+    const config = generateGitHubPagesConfig(redirects);
+    await fs.writeFile(redirectsPath, config, 'utf-8');
+    log.info(`📝 Updated public/redirects.txt with ${redirects.length} redirects`);
+    log.info('📝 Note: Rename redirects.txt to _redirects for GitHub Pages deployment');
+  } catch (error) {
+    log.error(`❌ Error updating public/redirects.txt:`, error.message);
+  }
+}
+
+async function writeNetlifyConfig(redirects) {
+  const projectRoot = path.join(__dirname, '..');
+  const netlifyTomlPath = path.join(projectRoot, 'netlify.toml');
+  
+  if (DRY_RUN) {
+    log.info('📝 [DRY RUN] Would generate netlify.toml:');
+    console.log(generateNetlifyConfig(redirects));
+    return;
+  }
+  
+  try {
+    // Read existing netlify.toml to preserve other settings
+    let existingContent = '';
+    try {
+      existingContent = await fs.readFile(netlifyTomlPath, 'utf-8');
+    } catch (error) {
+      // File doesn't exist, create new one
     }
     
-    // Keep everything before redirects
-    const configLines = lines.slice(0, endOfConfig);
+    // Split content at redirects section
+    const configLines = existingContent.split('[[redirects]]')[0].trim();
+    const redirectConfig = generateNetlifyConfig(redirects);
     
-    // Build new redirects section
-    const redirectLines = [];
-    
-    if (redirects.length > 0) {
-      redirectLines.push('');
-      redirectLines.push('# Generated redirects from content aliases');
-      
-      for (const redirect of redirects) {
-        redirectLines.push('[[redirects]]');
-        redirectLines.push(`  from = "${redirect.from}"`);
-        redirectLines.push(`  to = "${redirect.to}"`);
-        redirectLines.push(`  status = 301`);
-        redirectLines.push(`  force = true`);
-        redirectLines.push('');
-      }
-    }
-    
-    // Always add the catch-all 404 redirect at the end
-    redirectLines.push('[[redirects]]');
-    redirectLines.push('  from = "/*"');
-    redirectLines.push('  to = "/404"');
-    redirectLines.push('  status = 404');
-    
-    const newContent = configLines.join('\n') + redirectLines.join('\n');
+    const newContent = configLines + '\n\n' + redirectConfig;
     await fs.writeFile(netlifyTomlPath, newContent, 'utf-8');
     
     log.info(`📝 Updated netlify.toml with ${redirects.length} redirects`);
@@ -267,9 +352,55 @@ async function updateNetlifyToml(redirects) {
   }
 }
 
+// Validation functions
+function validateVercelConfig(redirects) {
+  const config = JSON.parse(generateVercelConfig(redirects));
+  
+  // Validate redirects
+  for (const redirect of config.redirects) {
+    if (!redirect.source || !redirect.destination) {
+      throw new Error(`Invalid Vercel redirect: ${JSON.stringify(redirect)}`);
+    }
+  }
+  
+  log.info('✅ Vercel configuration is valid');
+  return true;
+}
+
+function validateGitHubPagesConfig(redirects) {
+  const config = generateGitHubPagesConfig(redirects);
+  
+  // Basic validation - check format
+  const lines = config.trim().split('\n');
+  for (const line of lines) {
+    if (line.trim() && !line.match(/^[^\s]+\s+[^\s]+\s+\d+!$/)) {
+      throw new Error(`Invalid GitHub Pages redirect format: ${line}`);
+    }
+  }
+  
+  log.info('✅ GitHub Pages configuration is valid');
+  return true;
+}
+
+function validateNetlifyConfig(redirects) {
+  const config = generateNetlifyConfig(redirects);
+  
+  // Basic validation - check TOML-like format
+  if (!config.includes('[[redirects]]')) {
+    throw new Error('Invalid Netlify configuration format');
+  }
+  
+  log.info('✅ Netlify configuration is valid');
+  return true;
+}
+
 // Main function
 async function generateRedirects() {
-  log.info('🔄 Generating redirects from content aliases...');
+  log.info(`🔄 Generating redirects from content aliases for ${DEPLOYMENT_PLATFORM}...`);
+  
+  if (VALIDATE_ONLY) {
+    log.info('🔍 Validation mode - checking all platform configurations...');
+  }
   
   const projectRoot = path.join(__dirname, '..');
   let allRedirects = [];
@@ -301,11 +432,40 @@ async function generateRedirects() {
     log.info(`📁 Processing pages directory...`);
     log.info(`📁 Processing posts directory...`);
     log.info(`   Processed ${totalProcessedFiles} files with redirects`);
+    
+    // Update Astro config (platform-agnostic)
     await updateAstroConfig(allRedirects);
-    await updateNetlifyToml(allRedirects);
+    
+    // Generate platform-specific configs
+    if (VALIDATE_ONLY) {
+      // Validate all platforms
+      validateVercelConfig(allRedirects);
+      validateGitHubPagesConfig(allRedirects);
+      validateNetlifyConfig(allRedirects);
+      log.info('🎉 All platform configurations are valid!');
+      return;
+    }
+    
+    // Write platform-specific config
+    switch (DEPLOYMENT_PLATFORM) {
+      case 'vercel':
+        await writeVercelConfig(allRedirects);
+        break;
+      case 'github-pages':
+        await writeGitHubPagesConfig(allRedirects);
+        break;
+      case 'netlify':
+      default:
+        await writeNetlifyConfig(allRedirects);
+        break;
+    }
   }
   
-  log.info(`🎉 Redirect generation complete! Created ${allRedirects.length} redirects.`);
+  if (DRY_RUN) {
+    log.info('🎉 [DRY RUN] Redirect generation complete! No files were modified.');
+  } else {
+    log.info(`🎉 Redirect generation complete! Created ${allRedirects.length} redirects for ${DEPLOYMENT_PLATFORM}.`);
+  }
 }
 
 // Run the script
