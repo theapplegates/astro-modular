@@ -11,15 +11,9 @@ const footerContent = siteConfig.footer.content.replace('{author}', siteConfig.a
 
 <footer class="bg-white dark:bg-primary-950 mt-auto">
   <div class="mx-auto px-4 sm:px-6 lg:px-8 py-8" style={`max-width: ${siteConfig.layout.contentWidth}`}>
-    <!-- Footer content -->
-    <div class="text-center">
-      <p class="text-xs text-primary-500 dark:text-primary-400" set:html={footerContent}>
-      </p>
-    </div>
-    
-    <!-- Social Icons - positioned below footer content -->
+    <!-- Mobile: Social icons above footer content, centered -->
     {showSocialIcons && socialLinks.length > 0 && (
-      <div class="mt-4 flex justify-center md:justify-end">
+      <div class="flex justify-center md:hidden mb-4">
         <div class="flex items-center space-x-4">
           {socialLinks.map((social) => (
             <a
@@ -35,5 +29,28 @@ const footerContent = siteConfig.footer.content.replace('{author}', siteConfig.a
         </div>
       </div>
     )}
+    
+    <!-- Desktop: Footer content and social icons on same line -->
+    <div class={`text-center ${showSocialIcons && socialLinks.length > 0 ? 'md:flex md:justify-between md:items-center' : ''}`}>
+      <p class="text-xs text-primary-500 dark:text-primary-400" set:html={footerContent}>
+      </p>
+      
+      <!-- Desktop: Social icons on same line as footer content -->
+      {showSocialIcons && socialLinks.length > 0 && (
+        <div class="hidden md:flex items-center space-x-4">
+          {socialLinks.map((social) => (
+            <a
+              href={social.url}
+              title={social.title}
+              class="text-primary-500 hover:text-highlight-600 dark:text-primary-400 dark:hover:text-highlight-400 transition-colors duration-200"
+              target="_blank"
+            >
+              <i class={`fab fa-${social.icon} text-lg`}></i>
+              <span class="sr-only">{social.title}</span>
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
   </div>
 </footer>
