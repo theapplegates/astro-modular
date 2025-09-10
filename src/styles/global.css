@@ -574,10 +574,10 @@ html.is-leaving .transition-swup-fade {
   transform: translateY(20px) !important;
 }
 
-/* Page entering - start above and fade in */
+/* Page entering - start below and slide up while fading in */
 html.is-animating .transition-swup-fade {
   opacity: 0;
-  transform: translateY(-20px) !important;
+  transform: translateY(20px) !important;
 }
 
 /* Page ready - final state */
