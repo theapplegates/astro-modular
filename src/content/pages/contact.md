@@ -2,9 +2,9 @@
 title: Contact
 description: Contact me.
 noIndex: false
-redirect_from:
-  - /contact-me
-  - /contact-us
+aliases:
+  - contact-me
+  - contact-us
 ---
 # Contact
 

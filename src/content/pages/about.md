@@ -2,9 +2,9 @@
 title: About
 description: Learn more about Astro Modular and the philosophy behind its design approach.
 noIndex: false
-redirect_from:
-  - /about-me
-  - /about-us
+aliases:
+  - about-me
+  - about-us
 ---
 # About
 

@@ -136,14 +136,13 @@ async function processMarkdownFile(filePath) {
       return false; // No aliases to process
     }
     
-    // Convert aliases to redirect_from format
-    const redirectFrom = frontmatter.aliases.map(alias => 
-      alias.startsWith('/') ? alias : `/${alias}`
+    // Ensure aliases are in the correct format (no leading slash)
+    const cleanAliases = frontmatter.aliases.map(alias => 
+      alias.startsWith('/') ? alias.substring(1) : alias
     );
     
-    // Update frontmatter
-    frontmatter.redirect_from = redirectFrom;
-    delete frontmatter.aliases;
+    // Update frontmatter with cleaned aliases
+    frontmatter.aliases = cleanAliases;
     
     // Rebuild the file content
     const newFrontmatter = frontmatterToString(frontmatter);
@@ -152,7 +151,7 @@ async function processMarkdownFile(filePath) {
     // Write back to file
     await fs.writeFile(filePath, newContent, 'utf-8');
     
-    return { processed: true, aliases: redirectFrom.length };
+    return { processed: true, aliases: cleanAliases.length };
   } catch (error) {
     log.error(`❌ Error processing ${filePath}:`, error.message);
     return { processed: false, aliases: 0 };
