@@ -174,6 +174,7 @@ const { seoData, bodyClass = '' } = Astro.props;
 
   <!-- Additional head content -->
   <slot name="head" />
+  
 </head>
 
 <body class={`min-h-screen bg-white dark:bg-primary-950 text-primary-900 dark:text-primary-50 text-selection-highlight transition-colors duration-200 flex flex-col ${bodyClass}`}>
@@ -205,7 +206,7 @@ const { seoData, bodyClass = '' } = Astro.props;
   <!-- Global scripts -->
   <script>
     // Simple client-side logger
-    const isDev = window.location.hostname === 'localhost' && window.location.port === '5000';
+    const isDev = window.location.hostname === 'localhost';
     const logger = {
       dev: (...args: any[]) => isDev && console.log(...args),
       info: (...args: any[]) => isDev && console.info(...args),
@@ -354,6 +355,40 @@ const { seoData, bodyClass = '' } = Astro.props;
     // Make initializeTableWrappers globally accessible
     (window as any).initializeTableWrappers = initializeTableWrappers;
 
+     // Handle scroll position restoration on page refresh (backup method)
+     function handleScrollPositionOnRefresh() {
+       const currentUrl = window.location.href;
+       const scrollKey = `scrollPosition_${currentUrl}`;
+       
+       logger.dev('🔍 SCROLL DEBUG - Backup restoration check for:', currentUrl);
+       
+       // Check if this is a page refresh by looking at performance.navigation.type
+       const isPageRefresh = performance.navigation?.type === 1 || 
+                            (performance.getEntriesByType && performance.getEntriesByType('navigation')[0]?.type === 'reload');
+       
+       // Only restore on page refresh, not on Swup navigation
+       if (isPageRefresh && !window.location.hash) {
+         const savedPosition = sessionStorage.getItem(scrollKey);
+         
+         if (savedPosition !== null) {
+           const position = parseInt(savedPosition, 10);
+           const currentScroll = window.pageYOffset;
+           
+           // Only restore if we're not already at the correct position
+           if (Math.abs(currentScroll - position) > 50) {
+             logger.dev('🔄 SCROLL DEBUG - Backup restoration needed:', currentScroll, '->', position);
+             
+             // Single attempt to restore position
+             window.scrollTo(0, position);
+             document.documentElement.scrollTop = position;
+             document.body.scrollTop = position;
+           } else {
+             logger.dev('✅ SCROLL DEBUG - Position already correct:', currentScroll);
+           }
+         }
+       }
+     }
+
      // Handle anchors on page load/refresh
      function handleAnchorsOnLoad() {
        if (window.location.hash) {
@@ -375,6 +410,35 @@ const { seoData, bodyClass = '' } = Astro.props;
        logger.dev('Cleaned up scroll state on page load');
      }
 
+     // Store scroll position on page unload/refresh
+     function storeScrollPositionOnUnload() {
+       const currentUrl = window.location.href;
+       const scrollKey = `scrollPosition_${currentUrl}`;
+       const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+       
+      logger.dev('🔄 SCROLL DEBUG - Attempting to store scroll position:', scrollY, 'for', currentUrl);
+      
+      // Only store if we've scrolled down significantly
+      if (scrollY > 50) {
+        sessionStorage.setItem(scrollKey, scrollY.toString());
+        logger.dev('✅ SCROLL DEBUG - Stored scroll position on unload:', scrollY, 'for', currentUrl);
+        
+        // Clean up old scroll positions to prevent sessionStorage from growing indefinitely
+        // Keep only the last 10 scroll positions
+        const scrollKeys = Object.keys(sessionStorage).filter(key => key.startsWith('scrollPosition_'));
+        if (scrollKeys.length > 10) {
+          // Sort by timestamp (if we had one) or just remove the oldest ones
+          // For simplicity, we'll just remove the first few
+          scrollKeys.slice(0, scrollKeys.length - 10).forEach(key => {
+            sessionStorage.removeItem(key);
+          });
+        }
+      } else {
+        logger.dev('❌ SCROLL DEBUG - Scroll position too low, not storing:', scrollY);
+      }
+     }
+
+
      // Smooth scrolling for anchor links
      document.addEventListener('DOMContentLoaded', () => {
        // Cleanup any leftover scroll-blocking state first
@@ -382,6 +446,8 @@ const { seoData, bodyClass = '' } = Astro.props;
        
        // Enable smooth scrolling
        document.documentElement.style.scrollBehavior = 'smooth';
+
+       // Note: Scroll position restoration is now handled after Swup initialization
 
        // Handle anchors on initial page load only (not on Swup transitions)
        if (!(window as any).swup) {
@@ -427,12 +493,16 @@ const { seoData, bodyClass = '' } = Astro.props;
       });
     });
 
+    // Store scroll position on page unload/refresh
+    window.addEventListener('beforeunload', storeScrollPositionOnUnload);
+    window.addEventListener('pagehide', storeScrollPositionOnUnload);
+
   </script>
 
   <!-- Swup Initialization -->
   <script>
     // Simple client-side logger (redefine for this script block)
-    const isDev = window.location.hostname === 'localhost' && window.location.port === '5000';
+    const isDev = window.location.hostname === 'localhost';
     const logger = {
       dev: (...args: any[]) => isDev && console.log(...args),
       info: (...args: any[]) => isDev && console.info(...args),
@@ -443,18 +513,84 @@ const { seoData, bodyClass = '' } = Astro.props;
     // Global variable for tracking navigation type
     let isForwardNavigation = false;
 
-    // Initialize Swup when DOM is ready
-    document.addEventListener('DOMContentLoaded', () => {
-      // Wait for Swup to be available
-      if (typeof (window as any).Swup === 'undefined') {
-        setTimeout(() => {
-          initializeSwup();
-        }, 100);
-        return;
+    // Check if this is a page refresh - if so, don't initialize Swup
+    const isPageRefresh = performance.navigation?.type === 1 || 
+                         (performance.getEntriesByType && performance.getEntriesByType('navigation')[0]?.type === 'reload');
+    
+    if (isPageRefresh) {
+      logger.dev('🔄 SCROLL DEBUG - Page refresh detected, skipping Swup initialization');
+      // Let the browser handle scroll restoration naturally
+      if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'auto';
       }
       
-      initializeSwup();
-    });
+      // For page refreshes, restore scroll position manually since browser won't do it
+      const currentUrl = window.location.href;
+      const scrollKey = `scrollPosition_${currentUrl}`;
+      const savedPosition = sessionStorage.getItem(scrollKey);
+      
+      if (savedPosition !== null && !window.location.hash) {
+        const position = parseInt(savedPosition, 10);
+        logger.dev('🎯 SCROLL DEBUG - Restoring scroll position for refresh:', position);
+        
+        // More robust restoration strategy
+        let restored = false;
+        const restoreScroll = () => {
+          if (restored) return; // Prevent multiple restorations
+          
+          const currentScroll = window.pageYOffset;
+          if (Math.abs(currentScroll - position) > 50) {
+            window.scrollTo(0, position);
+            document.documentElement.scrollTop = position;
+            document.body.scrollTop = position;
+            logger.dev('✅ SCROLL DEBUG - Scroll position restored from', currentScroll, 'to', position);
+            restored = true;
+          }
+        };
+        
+        // Strategy 1: Immediate restoration
+        restoreScroll();
+        
+        // Strategy 2: After DOM is ready
+        document.addEventListener('DOMContentLoaded', restoreScroll);
+        
+        // Strategy 3: After everything loads
+        window.addEventListener('load', restoreScroll);
+        
+        // Strategy 4: Wait for page to be stable (no layout shifts)
+        let stableCount = 0;
+        const checkStability = () => {
+          const currentScroll = window.pageYOffset;
+          if (Math.abs(currentScroll - position) > 50) {
+            restoreScroll();
+          }
+          
+          // If we're still not at the right position, keep trying
+          if (Math.abs(window.pageYOffset - position) > 50) {
+            stableCount++;
+            if (stableCount < 10) { // Try up to 10 times
+              setTimeout(checkStability, 100);
+            }
+          }
+        };
+        
+        // Start stability checking after a delay
+        setTimeout(checkStability, 100);
+      }
+    } else {
+      // Initialize Swup when DOM is ready (only for normal navigation)
+      document.addEventListener('DOMContentLoaded', () => {
+        // Wait for Swup to be available
+        if (typeof (window as any).Swup === 'undefined') {
+          setTimeout(() => {
+            initializeSwup();
+          }, 100);
+          return;
+        }
+        
+        initializeSwup();
+      });
+    }
 
     function initializeSwup() {
       logger.info('Initializing Swup...');
@@ -517,6 +653,18 @@ const { seoData, bodyClass = '' } = Astro.props;
       swup.scrollToElement = () => {};
       swup.scrollToTop = () => {};
       
+      // For page refreshes, use native browser scroll restoration
+      const isPageRefresh = performance.navigation?.type === 1 || 
+                           (performance.getEntriesByType && performance.getEntriesByType('navigation')[0]?.type === 'reload');
+      
+      if (isPageRefresh) {
+        logger.dev('🔄 SCROLL DEBUG - Page refresh detected, enabling native scroll restoration');
+        // Re-enable native scroll restoration for page refreshes
+        if ('scrollRestoration' in history) {
+          history.scrollRestoration = 'auto';
+        }
+      }
+      
       // Intercept and prevent any scroll restoration
       const originalScrollTo = window.scrollTo;
       
@@ -549,6 +697,7 @@ const { seoData, bodyClass = '' } = Astro.props;
       
       logger.info('Swup initialization complete!');
     }
+
 
     function setupSwupHooks(swup: any) {
       logger.dev('Setting up Swup hooks...');

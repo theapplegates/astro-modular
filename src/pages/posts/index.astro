@@ -70,17 +70,37 @@ const pagination = {
 
 <BaseLayout seoData={seoData}>
   <Fragment slot="head">
-    <!-- Preload critical images from first 2 posts -->
-    {paginatedPosts.slice(0, 2).map(post => 
-      post.data.image && siteConfig.features.showCoverImages && !post.data.hideCoverImage && !post.data.image.startsWith('http') && (
+    <!-- Preload critical images from first 2 posts - only if they will be displayed -->
+    {paginatedPosts.slice(0, 2).map(post => {
+      // Use same logic as PostCard to determine if cover image should be shown
+      const shouldShowCoverImage = (() => {
+        if (!post.data.image) return false;
+        
+        const showCoverImages = siteConfig.features.showCoverImages;
+        switch (showCoverImages) {
+          case 'all':
+            return true;
+          case 'posts':
+            return true;
+          case 'latest-and-posts':
+            return true;
+          case 'latest':
+          case 'home':
+          case 'none':
+          default:
+            return false;
+        }
+      })();
+      
+      return shouldShowCoverImage && !post.data.image.startsWith('http') && (
         <link 
           rel="preload" 
           as="image" 
           href={optimizePostImagePath(post.data.image)}
           fetchpriority="high"
         />
-      )
-    )}
+      );
+    })}
   </Fragment>
 
   <div class="py-2">

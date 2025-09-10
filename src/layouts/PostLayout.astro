@@ -90,12 +90,12 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
     <!-- Structured Data -->
     <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
 
-    <!-- Preload post cover image -->
-    {siteConfig.features.showCoverImages && post.data.image && !post.data.hideCoverImage && !post.data.image.startsWith('http') && (
+    <!-- Preload post cover image - only if it will actually be displayed -->
+    {siteConfig.features.showCoverImages && post.data.image && !post.data.hideCoverImage && (
       <link 
         rel="preload" 
         as="image" 
-        href={optimizePostImagePath(post.data.image)}
+        href={post.data.image.startsWith('http') ? post.data.image : optimizePostImagePath(post.data.image)}
         fetchpriority="high"
       />
     )}

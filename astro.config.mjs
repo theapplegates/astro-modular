@@ -70,13 +70,14 @@ export default defineConfig({
   },
   vite: {
     server: {
-      host: '0.0.0.0',
-      port: 5000,
+      host: 'localhost',
+      port: 5003,
       allowedHosts: [],
       middlewareMode: false,
       hmr: {
-        port: 5000,
-        host: '0.0.0.0'
+        port: 5003,
+        host: 'localhost',
+        clientPort: 5003
       },
       headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate'
