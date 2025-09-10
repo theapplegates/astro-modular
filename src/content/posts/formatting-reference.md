@@ -76,6 +76,19 @@ Our theme supports Obsidian-style callouts with proper icons and styling. Each c
 > [!tip] Pro Tip
 > Custom titles help you provide more context for your callouts.
 
+### Collapsible Callouts
+
+You can make callouts collapsible by adding `+` (expanded by default) or `-` (collapsed by default) after the callout type:
+
+> [!note]+ Expanded by Default
+> This callout starts expanded and can be collapsed by clicking the toggle button or the title.
+
+> [!warning]- Collapsed by Default
+> This callout starts collapsed and can be expanded by clicking the toggle button or the title.
+
+> [!tip]+ Collapsible with Custom Title
+> You can combine collapsible functionality with custom titles for more control over your content organization.
+
 ### Extended Callout Types
 
 > [!info] Info

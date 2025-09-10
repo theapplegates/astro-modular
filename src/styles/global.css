@@ -339,6 +339,32 @@ textarea {
 .callout-caution .callout-title { @apply text-red-700 dark:text-red-300; }
 .callout-caution .callout-content { @apply text-red-800 dark:text-red-200; }
 
+/* Collapsible Callout Styles */
+.callout-collapsible .callout-title {
+  @apply cursor-pointer select-none;
+}
+
+.callout-toggle {
+  @apply ml-auto p-1 rounded hover:bg-black/5 dark:hover:bg-white/5 transition-colors duration-200;
+  @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900;
+}
+
+.callout-toggle-icon {
+  @apply transition-transform duration-200;
+}
+
+.callout-collapsed .callout-toggle-icon {
+  @apply rotate-180;
+}
+
+.callout-content {
+  @apply transition-all duration-300 ease-in-out;
+}
+
+.callout-collapsed .callout-content {
+  @apply overflow-hidden;
+}
+
 /* Image Grid Layouts */
 .prose .image-grid {
   display: grid;

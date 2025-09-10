@@ -87,9 +87,10 @@ const { seoData, bodyClass = '' } = Astro.props;
   )}
 
   <!-- Theme-aware favicons -->
-    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="icon" type="image/png" href="/favicon-light.png" />
     <link rel="icon" type="image/png" href="/favicon-light.png" media="(prefers-color-scheme: light)" />
     <link rel="icon" type="image/png" href="/favicon-dark.png" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
 
   <!-- Command Palette Config for Client Script -->
   <meta name="command-palette-shortcut" content={siteConfig.commandPalette.shortcut || ''}>
@@ -116,7 +117,33 @@ const { seoData, bodyClass = '' } = Astro.props;
       document.documentElement.classList.remove('light', 'dark');
       document.documentElement.classList.add(theme);
 
-      // Update favicon - this is now handled by media attributes on the link tags
+      // Update favicon based on theme
+      updateFavicon(theme);
+    }
+
+    // Function to update favicon based on theme
+    function updateFavicon(theme) {
+      const faviconLinks = document.querySelectorAll('link[rel="icon"]');
+      faviconLinks.forEach(link => {
+        if (link.getAttribute('media')) {
+          // Remove media attribute from all favicon links
+          link.removeAttribute('media');
+        }
+      });
+
+      // Add media attribute based on current theme
+      const lightFavicon = document.querySelector('link[href="/favicon-light.png"]');
+      const darkFavicon = document.querySelector('link[href="/favicon-dark.png"]');
+      
+      if (lightFavicon && darkFavicon) {
+        if (theme === 'dark') {
+          lightFavicon.setAttribute('media', '(prefers-color-scheme: light)');
+          darkFavicon.removeAttribute('media');
+        } else {
+          darkFavicon.setAttribute('media', '(prefers-color-scheme: dark)');
+          lightFavicon.removeAttribute('media');
+        }
+      }
     }
 
     // Initialize immediately
@@ -144,7 +171,8 @@ const { seoData, bodyClass = '' } = Astro.props;
       html.classList.remove('light', 'dark');
       html.classList.add(newTheme);
 
-      // Update favicon - this is now handled by media attributes on the link tags
+      // Update favicon based on new theme
+      updateFavicon(newTheme);
 
       // Icons are now static SVG - no re-initialization needed
 
@@ -167,6 +195,56 @@ const { seoData, bodyClass = '' } = Astro.props;
 
     // Make restoreScroll globally accessible
     window.restoreScroll = restoreScroll;
+
+    // Collapsible callouts functionality
+    function initializeCollapsibleCallouts() {
+      const collapsibleCallouts = document.querySelectorAll('.callout-collapsible');
+      
+      collapsibleCallouts.forEach(callout => {
+        const toggleButton = callout.querySelector('.callout-toggle');
+        const content = callout.querySelector('.callout-content');
+        
+        if (!toggleButton || !content) return;
+        
+        // Add click handler to toggle button
+        toggleButton.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          const isCollapsed = callout.classList.contains('callout-collapsed');
+          
+          if (isCollapsed) {
+            // Expand
+            callout.classList.remove('callout-collapsed');
+            content.style.display = '';
+            toggleButton.setAttribute('aria-expanded', 'true');
+          } else {
+            // Collapse
+            callout.classList.add('callout-collapsed');
+            content.style.display = 'none';
+            toggleButton.setAttribute('aria-expanded', 'false');
+          }
+        });
+        
+        // Add click handler to title for easier interaction
+        const title = callout.querySelector('.callout-title');
+        if (title) {
+          title.addEventListener('click', (e) => {
+            // Only trigger if not clicking the toggle button
+            if (!e.target.closest('.callout-toggle')) {
+              toggleButton.click();
+            }
+          });
+        }
+      });
+    }
+
+    // Initialize collapsible callouts when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeCollapsibleCallouts);
+    } else {
+      initializeCollapsibleCallouts();
+    }
   </script>
 
   <!-- View Transitions - temporarily disabled to fix compiler issues -->
@@ -969,6 +1047,12 @@ const { seoData, bodyClass = '' } = Astro.props;
              const hash = window.location.href.split('#')[1];
              logger.dev('Looking for element with ID:', hash);
              
+             // Clear any saved scroll position for this URL since we're going to an anchor
+             scrollPositions.delete(visit.to.url);
+             
+             // Remove force scroll class to ensure smooth scrolling works
+             document.documentElement.classList.remove('force-scroll-top');
+             
              setTimeout(() => {
                const element = document.getElementById(hash);
                logger.dev('Found element:', element);
@@ -1123,13 +1207,18 @@ const { seoData, bodyClass = '' } = Astro.props;
       });
     }
 
-    // Initialize anchor links
+    // Initialize anchor links (excluding TOC links which have their own handler)
     function initializeAnchorLinks() {
-      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      document.querySelectorAll('a[href^="#"]:not(.toc-link)').forEach(anchor => {
         anchor.addEventListener('click', function (this: HTMLAnchorElement, e: Event) {
           e.preventDefault();
-          const target = document.querySelector(this.getAttribute('href') || '');
+          const href = this.getAttribute('href') || '';
+          const target = document.querySelector(href);
           if (target) {
+            // Update the URL with the hash
+            history.pushState(null, '', href);
+            
+            // Scroll to the target
             target.scrollIntoView({
               behavior: 'smooth',
               block: 'start'

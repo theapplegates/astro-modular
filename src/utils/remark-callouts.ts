@@ -59,11 +59,11 @@ const remarkCallouts: Plugin<[], Root> = () => {
       if (!firstTextNode || firstTextNode.type !== 'text') return;
       
       const text = (firstTextNode as Text).value;
-      const calloutMatch = text.match(/^\[!([\w-]+)\](?:\s+(.+))?/);
+      const calloutMatch = text.match(/^\[!([\w-]+)\]([+\-]?)(?:\s+(.+))?/);
       
       if (!calloutMatch) return;
       
-      const [fullMatch, calloutType, customTitle] = calloutMatch;
+      const [fullMatch, calloutType, collapseState, customTitle] = calloutMatch;
       const calloutKey = calloutType.toLowerCase();
       const mapping = calloutMappings[calloutKey] || {
         type: 'note',
@@ -77,6 +77,10 @@ const remarkCallouts: Plugin<[], Root> = () => {
       // Create HTML for the callout with icon
       const calloutTitle = customTitle || mapping.title;
       
+      // Determine if callout should be collapsible and its initial state
+      const isCollapsible = collapseState === '+' || collapseState === '-';
+      const isCollapsed = collapseState === '-';
+      
       // Process the remaining content
       let contentChildren = [...node.children];
       
@@ -88,15 +92,24 @@ const remarkCallouts: Plugin<[], Root> = () => {
         contentChildren = contentChildren.slice(1);
       }
       
+      // Generate toggle button HTML if collapsible
+      const toggleButton = isCollapsible ? 
+        `<button class="callout-toggle" aria-expanded="${!isCollapsed}" aria-label="Toggle callout content">
+          <svg class="callout-toggle-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6,9 12,15 18,9"></polyline>
+          </svg>
+        </button>` : '';
+      
       // Transform the blockquote into a callout HTML structure
       const calloutHtml: any = {
         type: 'html',
-        value: `<div class="callout callout-${mapping.type}">
+        value: `<div class="callout callout-${mapping.type}${isCollapsible ? ' callout-collapsible' : ''}${isCollapsed ? ' callout-collapsed' : ''}">
           <div class="callout-title">
             ${getIconSVG(mapping.icon)}
             <span>${calloutTitle}</span>
+            ${toggleButton}
           </div>
-          <div class="callout-content">`
+          <div class="callout-content"${isCollapsed ? ' style="display: none;"' : ''}>`
       };
       
       const closeHtml: any = {
