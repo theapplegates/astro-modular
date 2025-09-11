@@ -32,8 +32,7 @@ export function setTheme(theme: Theme) {
   document.documentElement.classList.remove('light', 'dark');
   document.documentElement.classList.add(theme);
   
-  // Update favicon based on theme
-  updateFavicon(theme);
+  // Favicon is handled by system theme detection, not manual theme changes
   
   // Dispatch custom event for theme change
   window.dispatchEvent(new CustomEvent('themechange', { 
@@ -55,7 +54,7 @@ export function initializeTheme() {
   
   const theme = getCurrentTheme();
   document.documentElement.classList.add(theme);
-  updateFavicon(theme);
+  // Favicon is handled by system theme detection, not manual theme changes
   
   // Listen for system theme changes
   window.matchMedia('(prefers-color-scheme: dark)')
@@ -67,15 +66,8 @@ export function initializeTheme() {
     });
 }
 
-// Update favicon based on theme
-function updateFavicon(theme: Theme) {
-  const favicon = document.querySelector('link[rel="icon"]') as HTMLLinkElement;
-  if (favicon) {
-    favicon.href = theme === 'dark' 
-      ? '/favicon-dark.ico' 
-      : '/favicon-light.ico';
-  }
-}
+// Favicon is now handled by system theme detection in BaseLayout.astro
+// This ensures favicon matches browser's system preference, not user's manual theme choice
 
 // Generate theme-based CSS custom properties
 export function generateThemeCSS(theme: Theme): string {

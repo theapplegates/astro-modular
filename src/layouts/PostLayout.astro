@@ -9,6 +9,7 @@ import { shouldShowPost, processPost, calculateReadingTime, generateTOC, getAdja
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import TableOfContents from '@/components/TableOfContents.astro';
 import LinkedMentions from '@/components/LinkedMentions.astro';
+import GiscusComments from '@/components/GiscusComments.astro';
 import Icon from '@/components/Icon.astro';
 import { Image } from 'astro:assets';
 import { devConfig } from '@/config/dev';
@@ -271,6 +272,17 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
             </div>
           </nav>
         )}
+
+        <!-- Giscus Comments -->
+        {siteConfig.features.comments && (
+          <div class="mt-16">
+            <GiscusComments
+              postTitle={post.data.title}
+              postSlug={post.slug}
+              postUrl={Astro.url.href}
+            />
+          </div>
+        )}
       </article>
 
       <!-- Desktop TOC - floats to the right of the content container -->
@@ -285,7 +297,14 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
   </div>
 
   <Fragment slot="scripts">
-    <script define:vars={{ posts: visiblePosts }}>
+    <script define:vars={{ posts: visiblePosts, commentsEnabled: siteConfig.features.comments, postTitle: post.data.title, postSlug: post.slug }}>
+      // Debug: Comments section
+      console.log('🔧 PostLayout comments check:', {
+        commentsEnabled,
+        postTitle,
+        postSlug
+      });
+
       // Process wikilinks and initialize layouts after content loads
       document.addEventListener('DOMContentLoaded', () => {
 
@@ -360,6 +379,31 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
             link.title = 'Link not found';
           }
         });
+      });
+
+      // Handle Swup page transitions for comments
+      document.addEventListener('swup:contentReplaced', () => {
+        // Re-initialize image grids after content replacement
+        setTimeout(() => {
+          const paragraphs = document.querySelectorAll('.prose p');
+          paragraphs.forEach(p => {
+            const images = p.querySelectorAll('img, picture');
+            const textNodes = Array.from(p.childNodes).filter(node => 
+              node.nodeType === Node.TEXT_NODE && node.textContent.trim() !== ''
+            );
+            const otherElements = Array.from(p.childNodes).filter(node => 
+              node.nodeType === Node.ELEMENT_NODE && !['IMG', 'PICTURE', 'BR'].includes(node.tagName)
+            );
+
+            if (images.length >= 2 && textNodes.length === 0 && otherElements.length === 0) {
+              p.classList.remove('image-grid', 'image-grid-2', 'image-grid-3', 'image-grid-4', 'image-grid-5', 'image-grid-6');
+              const gridClass = `image-grid-${Math.min(images.length, 6)}`;
+              p.classList.add('image-grid', gridClass);
+            }
+          });
+
+          // Comments are now handled globally by BaseLayout Swup hooks
+        }, 100);
       });
     </script>
   </Fragment>

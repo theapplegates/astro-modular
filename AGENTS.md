@@ -81,6 +81,81 @@ pnpm run process-aliases  # Process content aliases
 pnpm run generate-redirects # Generate redirects
 ```
 
+## 🚨 CRITICAL: Production Logging Guidelines
+
+### **MANDATORY: Use the Logger Utility for All Logging**
+
+**⚠️ AI AGENTS MUST READ THIS SECTION CAREFULLY ⚠️**
+
+This project has a **dedicated logger utility** (`src/utils/logger.ts`) that **MUST** be used for all logging instead of raw `console.log()` statements. This is **CRITICAL** for production deployments.
+
+#### **Why This Matters**
+- **Production Performance**: Raw console logs slow down production sites
+- **Security**: Console logs can leak sensitive information in production
+- **User Experience**: Console spam degrades user experience
+- **Professional Standards**: Production sites should have clean console output
+
+#### **How to Use the Logger**
+
+```typescript
+// ✅ CORRECT - Use the logger utility
+import { logger } from '@/utils/logger';
+
+logger.debug('Debug information');  // Only shows in development
+logger.info('General information'); // Shows in dev, warnings+ in production
+logger.warn('Warning message');     // Shows in dev and production
+logger.error('Error message');      // Always shows
+logger.dev('Dev-only message');     // Only shows in development
+```
+
+```typescript
+// ❌ WRONG - Never use raw console in production code
+console.log('This will show in production!');     // BAD
+console.info('This will show in production!');    // BAD
+console.warn('This will show in production!');    // BAD
+console.error('This will show in production!');   // BAD
+```
+
+#### **Logger Behavior by Environment**
+
+| Environment | Debug | Info | Warn | Error | Dev |
+|-------------|-------|------|------|-------|-----|
+| **Development** | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Production** | ❌ | ❌ | ✅ | ✅ | ❌ |
+
+#### **Current Code Issues**
+The current codebase has **extensive console.log statements** that will appear in production. These **MUST** be replaced with the logger utility:
+
+- **BaseLayout.astro**: Multiple console.log statements for navigation highlighting
+- **GiscusComments.astro**: Debug logging for comments initialization
+- **PostLayout.astro**: Debug logging for comments and image grids
+- **Various components**: Raw console statements throughout
+
+#### **Action Required for AI Agents**
+1. **ALWAYS** import and use `logger` from `@/utils/logger`
+2. **NEVER** use raw `console.log()`, `console.info()`, `console.warn()`, or `console.error()`
+3. **Replace existing console statements** with appropriate logger methods
+4. **Use `logger.dev()`** for development-only debugging
+5. **Use `logger.warn()`** or `logger.error()`** for production-visible messages
+
+#### **Example Conversion**
+
+```typescript
+// Before (BAD - shows in production)
+console.log('🔄 Initializing comments...');
+console.warn('Failed to load comments');
+console.error('Critical error occurred');
+
+// After (GOOD - respects environment)
+import { logger } from '@/utils/logger';
+
+logger.dev('🔄 Initializing comments...');  // Dev only
+logger.warn('Failed to load comments');     // Production visible
+logger.error('Critical error occurred');    // Production visible
+```
+
+**This is a CRITICAL requirement for maintaining professional production standards.**
+
 ## Content Organization
 
 ### Folder-Based Posts Structure
@@ -776,21 +851,39 @@ All SEO features work with folder-based posts:
 
 ### Critical Distinctions to Remember
 
-#### 1. **Image System Confusion (Most Common)**
+#### 1. **🚨 PRODUCTION LOGGING (MOST CRITICAL)**
+- **NEVER use raw `console.log()`** - Use `logger` from `@/utils/logger` instead
+- **Development**: All logs show (debug, info, warn, error)
+- **Production**: Only warnings and errors show
+- **Current codebase has extensive console.log statements that MUST be replaced**
+- **This is CRITICAL for professional production deployments**
+
+#### 2. **Image System Confusion (Most Common)**
 - **Post cards** show images based on `showCoverImages` config, NOT `hideCoverImage` frontmatter
 - **Post content** shows images based on `hideCoverImage` frontmatter, NOT config
 - These are completely separate systems - don't mix them up!
 
-#### 2. **H1 Title Handling**
+#### 3. **H1 Title Handling**
 - **Posts**: NO H1 in markdown content - title comes from frontmatter
 - **Pages**: MUST have H1 in markdown content - no hardcoded title in layout
 - Never add H1 to post markdown or remove H1 from page markdown
 
-#### 3. **Package Manager**
+#### 4. **🚨 FAVICON THEME BEHAVIOR (CRITICAL)**
+- **Favicon should NOT change with manual theme toggle** - it should only change with browser system theme
+- **System theme detection**: Use `window.matchMedia('(prefers-color-scheme: dark)')` to detect browser preference
+- **Favicon logic**: 
+  - `prefers-color-scheme: dark` → use `favicon-dark.png`
+  - `prefers-color-scheme: light` → use `favicon-light.png`
+  - Unknown/unsupported → use default `favicon.ico`
+- **Swup compatibility**: Reinitialize favicon after page transitions based on SYSTEM theme, not user's manual theme choice
+- **NEVER update favicon** when user manually toggles theme - only when system theme changes
+- **Implementation**: Use CSS media queries + JavaScript system theme detection, not manual theme state
+
+#### 5. **Package Manager**
 - Always use `pnpm` instead of `npm` for all commands
 - Scripts: `pnpm run <script-name>`, not `npm run <script-name>`
 
-#### 4. **Development vs Production Behavior**
+#### 6. **Development vs Production Behavior**
 - **Development**: Missing images show placeholders, warnings are logged
 - **Production**: Missing images cause build failures
 - Always run `pnpm run check-images` before deploying

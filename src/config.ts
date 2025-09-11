@@ -34,6 +34,7 @@ export interface SiteConfig {
     commandPalette: boolean;
     postNavigation: boolean;
     showLatestPost: boolean;
+    comments: boolean;
   };
   commandPalette: {
     shortcut: string;
@@ -50,6 +51,21 @@ export interface SiteConfig {
     showMobileMenu: boolean;
     pages: Array<{ title: string; url: string }>;
     social: Array<{ title: string; url: string; icon: string }>;
+  };
+  comments: {
+    provider: string;
+    repo: string;
+    repoId: string;
+    category: string;
+    categoryId: string;
+    mapping: string;
+    strict: string;
+    reactions: string;
+    metadata: string;
+    inputPosition: string;
+    theme: string;
+    lang: string;
+    loading: string;
   };
 }
 
@@ -91,6 +107,7 @@ export const siteConfig: SiteConfig = {
     showLatestPost: true,
     showSocialIconsInFooter: true,
     showCoverImages: "latest-and-posts", // "all" | "latest" | "home" | "posts" | "latest-and-posts" | "none"
+    comments: false,
   },
 
   commandPalette: {
@@ -101,6 +118,22 @@ export const siteConfig: SiteConfig = {
       pages: true,
       social: true,
     },
+  },
+
+  comments: {
+    provider: "giscus",
+    repo: "davidvkimball/astro-modular",
+    repoId: "R_kgDOPllfKw",
+    category: "General",
+    categoryId: "DIC_kwDOPllfK84CvUpx",
+    mapping: "pathname",
+    strict: "0",
+    reactions: "1",
+    metadata: "0",
+    inputPosition: "bottom",
+    theme: "preferred_color_scheme",
+    lang: "en",
+    loading: "lazy",
   },
 
   navigation: {

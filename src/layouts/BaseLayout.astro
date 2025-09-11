@@ -89,33 +89,8 @@ const { seoData, bodyClass = '' } = Astro.props;
   <!-- Browser theme-aware favicons -->
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-light.png" media="(prefers-color-scheme: light)" />
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-dark.png" media="(prefers-color-scheme: dark)" />
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
-  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" id="favicon" />
   <link rel="shortcut icon" href="/favicon.ico" />
-  
-  <!-- Force favicon refresh for Firefox -->
-  <script>
-    // Force favicon refresh based on system theme
-    function updateFaviconForTheme() {
-      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const faviconLink = document.querySelector('link[rel="icon"][sizes="32x32"]:not([media])');
-      
-      if (faviconLink && faviconLink.setAttribute) {
-        const timestamp = new Date().getTime();
-        if (isDark) {
-          faviconLink.setAttribute('href', `/favicon-dark.png?v=${timestamp}`);
-        } else {
-          faviconLink.setAttribute('href', `/favicon-light.png?v=${timestamp}`);
-        }
-      }
-    }
-    
-    // Update favicon on page load
-    updateFaviconForTheme();
-    
-    // Listen for system theme changes
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateFaviconForTheme);
-  </script>
 
   <!-- Command Palette Config for Client Script -->
   <meta name="command-palette-shortcut" content={siteConfig.commandPalette.shortcut || ''}>
@@ -190,6 +165,148 @@ const { seoData, bodyClass = '' } = Astro.props;
 
     // Make restoreScroll globally accessible
     window.restoreScroll = restoreScroll;
+
+    // Global comments initialization function - Swup compatible
+    function initializeGiscusComments() {
+      console.log('🔄 Global: Initializing Giscus comments...');
+      
+      // Check if comments are enabled in config
+      if (!commentsEnabled) {
+        console.log('❌ Global: Comments are disabled in config');
+        return;
+      }
+      
+      // Check if comments container exists
+      const commentsContainer = document.querySelector('#giscus-comments');
+      console.log('📦 Global: Comments container found:', !!commentsContainer);
+      
+      if (!commentsContainer) {
+        console.log('❌ Global: No comments container found');
+        return;
+      }
+
+      // CRITICAL: Clear the entire container content first
+      commentsContainer.innerHTML = '';
+      
+      // Remove any existing Giscus scripts from the entire document
+      const existingScripts = document.querySelectorAll('script[src*="giscus.app"]');
+      existingScripts.forEach(script => {
+        console.log('🗑️ Global: Removing existing Giscus script');
+        script.remove();
+      });
+
+      // Remove any existing Giscus iframes from the entire document
+      const existingIframes = document.querySelectorAll('iframe[src*="giscus"]');
+      existingIframes.forEach(iframe => {
+        console.log('🗑️ Global: Removing existing Giscus iframe');
+        iframe.remove();
+      });
+
+      console.log('✅ Global: Setting up comments loading');
+      
+      // Clear any error state
+      commentsContainer.removeAttribute('data-error');
+      
+      // Create a fresh Giscus script
+      const script = document.createElement('script');
+      script.src = 'https://giscus.app/client.js';
+      script.async = true;
+      script.crossOrigin = 'anonymous';
+      
+      // Get configuration from data attributes
+      const containerElement = commentsContainer;
+      const repo = containerElement.dataset.repo || '';
+      const repoId = containerElement.dataset.repoId || '';
+      const category = containerElement.dataset.category || '';
+      const categoryId = containerElement.dataset.categoryId || '';
+      const mapping = containerElement.dataset.mapping || 'pathname';
+      const strict = containerElement.dataset.strict || '0';
+      const reactionsEnabled = containerElement.dataset.reactionsEnabled || '1';
+      const metadata = containerElement.dataset.metadata || '0';
+      const inputPosition = containerElement.dataset.inputPosition || 'bottom';
+      const theme = containerElement.dataset.theme || 'preferred_color_scheme';
+      const lang = containerElement.dataset.lang || 'en';
+      const loading = containerElement.dataset.loading || 'lazy';
+      
+      script.setAttribute('data-repo', repo);
+      script.setAttribute('data-repo-id', repoId);
+      script.setAttribute('data-category', category);
+      script.setAttribute('data-category-id', categoryId);
+      script.setAttribute('data-mapping', mapping);
+      script.setAttribute('data-strict', strict);
+      script.setAttribute('data-reactions-enabled', reactionsEnabled);
+      script.setAttribute('data-emit-metadata', metadata);
+      script.setAttribute('data-input-position', inputPosition);
+      script.setAttribute('data-theme', theme);
+      script.setAttribute('data-lang', lang);
+      script.setAttribute('data-loading', loading);
+      
+      script.onload = function() {
+        console.log('✅ Global: Giscus script loaded successfully');
+        
+        // Auto-scroll to comments section after GitHub sign-in
+        // This helps users find the comments after authentication
+        setTimeout(() => {
+          const commentsContainer = document.querySelector('#giscus-comments');
+          if (commentsContainer) {
+            // Check if we're returning from GitHub OAuth (common pattern)
+            const urlParams = new URLSearchParams(window.location.search);
+            const isOAuthReturn = urlParams.has('code') || urlParams.has('state') || 
+                                 window.location.hash.includes('giscus') ||
+                                 document.referrer.includes('github.com');
+            
+            if (isOAuthReturn) {
+              console.log('🔄 Detected GitHub OAuth return, scrolling to comments');
+              commentsContainer.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+              });
+            }
+          }
+        }, 1000); // Delay to allow Giscus to fully load
+        
+        // Also listen for Giscus iframe load events (more reliable)
+        const checkForGiscusIframe = () => {
+          const giscusIframe = document.querySelector('iframe[src*="giscus"]');
+          if (giscusIframe) {
+            giscusIframe.addEventListener('load', () => {
+              // Check if this is likely a post-authentication load
+              const urlParams = new URLSearchParams(window.location.search);
+              const isOAuthReturn = urlParams.has('code') || urlParams.has('state') || 
+                                   window.location.hash.includes('giscus') ||
+                                   document.referrer.includes('github.com');
+              
+              if (isOAuthReturn) {
+                console.log('🔄 Giscus iframe loaded after OAuth, scrolling to comments');
+                const commentsContainer = document.querySelector('#giscus-comments');
+                if (commentsContainer) {
+                  commentsContainer.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start' 
+                  });
+                }
+              }
+            });
+          } else {
+            // If iframe not ready yet, check again in a bit
+            setTimeout(checkForGiscusIframe, 500);
+          }
+        };
+        
+        checkForGiscusIframe();
+      };
+      
+      script.onerror = function() {
+        console.error('❌ Global: Failed to load Giscus script');
+        commentsContainer.setAttribute('data-error', 'true');
+      };
+      
+      // Append to the container
+      commentsContainer.appendChild(script);
+    };
+
+    // Make the function globally accessible
+    window.initializeGiscusComments = initializeGiscusComments;
 
     // Collapsible callouts functionality
     function initializeCollapsibleCallouts() {
@@ -277,7 +394,7 @@ const { seoData, bodyClass = '' } = Astro.props;
 
 
   <!-- Global scripts -->
-  <script>
+  <script define:vars={{ commentsEnabled: siteConfig.features.comments }}>
     // Simple client-side logger
     const isDev = window.location.hostname === 'localhost';
     const logger = {
@@ -314,9 +431,13 @@ const { seoData, bodyClass = '' } = Astro.props;
             // Homepage exact match
             isActive = true;
           } else if (linkPath !== '/' && linkPath !== '#' && !linkPath.startsWith('http')) {
-            // For internal links, check if current path starts with the link path followed by a slash
-            // This handles cases like /about matching /about/ or /about/something
-            isActive = currentPath.startsWith(linkPath + '/');
+            // For internal links, only match exact paths or paths with trailing slash
+            // This prevents /posts from matching /posts/something
+            const normalizedLinkPath = linkPath.endsWith('/') ? linkPath : linkPath + '/';
+            const normalizedCurrentPath = currentPath.endsWith('/') ? currentPath : currentPath + '/';
+            
+            // Only match if it's an exact match (including trailing slash normalization)
+            isActive = normalizedLinkPath === normalizedCurrentPath;
           }
           
           logger.dev('🔍 Link', linkPath, 'isActive:', isActive);
@@ -363,6 +484,135 @@ const { seoData, bodyClass = '' } = Astro.props;
     
     // Test the function immediately
     updateNavigationHighlighting();
+
+    // Initialize comments on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('🔄 BaseLayout: DOM loaded - checking for comments');
+      if (document.querySelector('#giscus-comments')) {
+        console.log('✅ BaseLayout: Comments container found, initializing');
+        (window as any).initializeGiscusComments();
+      }
+    });
+
+    // CRITICAL: Listen for Swup page transitions using hooks API
+    // Wait for Swup to be available
+    function setupSwupHooks() {
+      if ((window as any).swup) {
+        console.log('✅ Swup instance found, setting up hooks');
+        
+        // Use the correct Swup hooks API
+        (window as any).swup.hooks.on('content:replace', () => {
+          console.log('🔄 Swup: content:replace hook - reinitializing comments');
+          setTimeout(() => {
+            if (document.querySelector('#giscus-comments')) {
+              (window as any).initializeGiscusComments();
+            }
+          }, 100);
+        });
+
+        (window as any).swup.hooks.on('page:view', () => {
+          console.log('🔄 Swup: page:view hook - reinitializing comments');
+          setTimeout(() => {
+            if (document.querySelector('#giscus-comments')) {
+              (window as any).initializeGiscusComments();
+            }
+          }, 100);
+        });
+
+        // Also reinitialize favicon on Swup transitions (based on system theme)
+        (window as any).swup.hooks.on('content:replace', () => {
+          setTimeout(reinitializeFavicon, 50);
+        });
+
+        (window as any).swup.hooks.on('page:view', () => {
+          setTimeout(reinitializeFavicon, 50);
+        });
+      } else {
+        console.log('⏳ Swup not ready, retrying in 100ms');
+        setTimeout(setupSwupHooks, 100);
+      }
+    }
+
+    // Start setting up Swup hooks
+    setupSwupHooks();
+
+    // CRITICAL: Reinitialize favicon after Swup page transitions based on SYSTEM theme
+    function reinitializeFavicon() {
+      console.log('🔄 Reinitializing favicon after Swup transition');
+      const isSystemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const favicon = document.getElementById('favicon') as HTMLLinkElement;
+      if (favicon) {
+        const timestamp = new Date().getTime();
+        favicon.href = isSystemDark 
+          ? `/favicon-dark.ico?v=${timestamp}` 
+          : `/favicon-light.ico?v=${timestamp}`;
+        console.log('✅ Favicon updated for system theme:', isSystemDark ? 'dark' : 'light');
+      }
+    }
+
+    // Listen for Swup page transitions to reinitialize favicon
+    document.addEventListener('swup:contentReplaced', () => {
+      setTimeout(reinitializeFavicon, 50);
+    });
+
+    document.addEventListener('swup:pageView', () => {
+      setTimeout(reinitializeFavicon, 50);
+    });
+
+    // Listen for system theme changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+      console.log('🔄 System theme changed, updating favicon');
+      setTimeout(reinitializeFavicon, 50);
+    });
+
+    // FALLBACK: Use MutationObserver to detect when comments container appears
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'childList') {
+          mutation.addedNodes.forEach((node) => {
+            if (node.nodeType === Node.ELEMENT_NODE) {
+              const element = node as Element;
+              // Check if the added node or its children contain the comments container
+              if (element.id === 'giscus-comments' || element.querySelector('#giscus-comments')) {
+                console.log('🔄 MutationObserver: Comments container detected, initializing');
+                setTimeout(() => {
+                  (window as any).initializeGiscusComments();
+                }, 200);
+              }
+            }
+          });
+        }
+      });
+    });
+
+    // Start observing the swup container for changes
+    const swupContainer = document.querySelector('#swup-container');
+    if (swupContainer) {
+      observer.observe(swupContainer, {
+        childList: true,
+        subtree: true
+      });
+      console.log('✅ MutationObserver: Started observing swup-container');
+    }
+
+    // AGGRESSIVE FALLBACK: Check for comments on every navigation click
+    document.addEventListener('click', (event) => {
+      const target = event.target as HTMLElement | null;
+      if (!target) return;
+      
+      // Check if it's a navigation link
+      const href = target.getAttribute('href');
+      if (target.tagName === 'A' && href && !href.startsWith('#')) {
+        console.log('🔄 Click detected on navigation link, will check for comments');
+        // Delay to allow Swup to process the navigation
+        setTimeout(() => {
+          if (document.querySelector('#giscus-comments')) {
+            console.log('🔄 Navigation click: Comments container found, initializing');
+            (window as any).initializeGiscusComments();
+          }
+        }, 500);
+      }
+    });
 
     // Global image preloader to prevent reloading across navigation
     class ImagePreloader {

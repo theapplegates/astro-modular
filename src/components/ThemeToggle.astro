@@ -23,11 +23,7 @@ import Icon from './Icon.astro';
     html.classList.remove('light', 'dark');
     html.classList.add(newTheme);
 
-    // Update favicon
-    const favicon = document.getElementById('favicon');
-    if (favicon) {
-      favicon.href = newTheme === 'dark' ? '/favicon-dark.ico' : '/favicon-light.ico';
-    }
+    // Favicon is handled by system theme detection, not manual theme changes
 
     // Icons are now static SVG - no re-initialization needed
 
@@ -38,7 +34,7 @@ import Icon from './Icon.astro';
   }
 
   // Make toggle function globally accessible
-  window.toggleTheme = toggleTheme;
+  (window as any).toggleTheme = toggleTheme;
 
   function initThemeToggle() {
     const themeToggle = document.getElementById('theme-toggle');
