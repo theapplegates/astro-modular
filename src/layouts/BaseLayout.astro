@@ -428,25 +428,35 @@ const { seoData, bodyClass = '' } = Astro.props;
     // Make initializeTableWrappers globally accessible
     (window as any).initializeTableWrappers = initializeTableWrappers;
 
-    // Scroll to top DURING transition, not before
+    // Smart scroll behavior: instant for page navigation, smooth for anchors only
     function setupSwupScrollBehavior() {
       if (typeof window !== 'undefined' && (window as any).swup) {
         const swup = (window as any).swup;
         
-        // Disable smooth scrolling globally
+        // Start with instant scrolling globally
         document.documentElement.style.scrollBehavior = 'auto';
         document.body.style.scrollBehavior = 'auto';
         
-        // Override Swup's scroll methods to do nothing
+        // Override Swup's scroll methods to always use instant scrolling
         if (swup.scrollToElement) {
-          swup.scrollToElement = () => {};
+          swup.scrollToElement = () => {
+            window.scrollTo(0, 0);
+          };
         }
         
         if (swup.scrollToTop) {
-          swup.scrollToTop = () => {};
+          swup.scrollToTop = () => {
+            window.scrollTo(0, 0);
+          };
         }
         
-        // Only scroll to top when content is being replaced (during transition)
+        // Handle page navigation with instant scroll
+        swup.hooks.on('visit:start', () => {
+          // Disable smooth scrolling during page navigation
+          document.documentElement.style.scrollBehavior = 'auto';
+          document.body.style.scrollBehavior = 'auto';
+        });
+        
         swup.hooks.on('content:replace', () => {
           // This happens during the transition when content is being swapped
           window.scrollTo(0, 0);
@@ -455,6 +465,35 @@ const { seoData, bodyClass = '' } = Astro.props;
         // Ensure we're at top when new page is ready
         swup.hooks.on('page:view', () => {
           window.scrollTo(0, 0);
+        });
+        
+        swup.hooks.on('visit:end', () => {
+          // Re-enable smooth scrolling only for anchor links after page is loaded
+          setTimeout(() => {
+            document.documentElement.style.scrollBehavior = 'smooth';
+            document.body.style.scrollBehavior = 'smooth';
+          }, 100);
+        });
+        
+        // Handle anchor link clicks (headings, TOC) with smooth scrolling
+        document.addEventListener('click', (e) => {
+          const target = e.target as HTMLElement;
+          const link = target.closest('a[href^="#"]');
+          
+          if (link) {
+            const href = link.getAttribute('href');
+            // Only handle anchor links that start with # and have content after #
+            if (href && href.startsWith('#') && href.length > 1) {
+              const targetElement = document.querySelector(href);
+              if (targetElement) {
+                e.preventDefault();
+                // Temporarily enable smooth scrolling for this anchor click
+                document.documentElement.style.scrollBehavior = 'smooth';
+                document.body.style.scrollBehavior = 'smooth';
+                targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }
+            }
+          }
         });
       }
     }
