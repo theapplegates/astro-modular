@@ -13,25 +13,27 @@ const filteredHeadings = headings.filter(h => h.depth >= 2 && h.depth <= 4);
 ---
 
 {filteredHeadings.length > 0 && (
-  <nav class="toc-nav p-4 bg-white dark:bg-primary-900 rounded-xl border border-primary-200 dark:border-primary-700 shadow-lg backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95">
+  <nav class="toc-nav toc-container p-4 bg-white dark:bg-primary-900 rounded-xl border border-primary-200 dark:border-primary-700 shadow-lg backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95">
+    <div class="toc-content pr-2">
     <h3 class="font-semibold text-primary-900 dark:text-primary-50 mb-3 flex items-center text-sm">
       <Icon name="list" class="w-4 h-4 mr-2" />
       Contents
     </h3>
     
-    <ul class="space-y-2">
-      {filteredHeadings.map(heading => (
-        <li class={`toc-item toc-level-${heading.depth}`}>
-          <a 
-            href={`#${heading.slug}`}
-            class="toc-link block text-sm text-primary-600 dark:text-primary-300 hover:text-highlight-600 dark:hover:text-highlight-400 transition-colors py-1"
-            data-heading={heading.slug}
-          >
-            {heading.text}
-          </a>
-        </li>
-      ))}
-    </ul>
+      <ul class="space-y-2">
+        {filteredHeadings.map(heading => (
+          <li class={`toc-item toc-level-${heading.depth}`}>
+            <a 
+              href={`#${heading.slug}`}
+              class="toc-link block text-sm text-primary-600 dark:text-primary-300 hover:text-highlight-600 dark:hover:text-highlight-400 transition-colors py-1"
+              data-heading={heading.slug}
+            >
+              {heading.text}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
   </nav>
 )}
 
@@ -99,6 +101,15 @@ const filteredHeadings = headings.filter(h => h.depth >= 2 && h.depth <= 4);
     
     // Initial highlight
     highlightTOC();
+    
+    // Force scrollbar style refresh
+    const tocNav = document.querySelector('.toc-container');
+    if (tocNav) {
+      // Trigger a reflow to force style recalculation
+      tocNav.style.display = 'none';
+      tocNav.offsetHeight; // Trigger reflow
+      tocNav.style.display = '';
+    }
   });
 </script>
 
@@ -129,8 +140,11 @@ const filteredHeadings = headings.filter(h => h.depth >= 2 && h.depth <= 4);
   }
   
   .toc-nav {
-    max-height: calc(100vh - 300px);
-    overflow-y: auto;
+    /* No height restrictions - let it flow naturally */
+  }
+  
+  .toc-content {
+    /* No scrolling needed - content flows naturally */
   }
   
   /* Desktop floating TOC */
@@ -146,23 +160,8 @@ const filteredHeadings = headings.filter(h => h.depth >= 2 && h.depth <= 4);
     .toc-nav {
       width: 100%;
       max-width: 100%;
-      max-height: none;
     }
   }
   
-  .toc-nav::-webkit-scrollbar {
-    width: 4px;
-  }
-  
-  .toc-nav::-webkit-scrollbar-track {
-    @apply bg-primary-100 dark:bg-primary-800 rounded-full;
-  }
-  
-  .toc-nav::-webkit-scrollbar-thumb {
-    @apply bg-primary-300 dark:bg-primary-600 rounded-full;
-  }
-  
-  .toc-nav::-webkit-scrollbar-thumb:hover {
-    @apply bg-primary-400 dark:bg-primary-500;
-  }
+  /* No scrollbar needed - content flows naturally */
 </style>

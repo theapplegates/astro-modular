@@ -113,6 +113,80 @@ features: {
 - `"latest-and-posts"` - Show on latest post section AND posts pages/tags (but not recent posts section)
 - `"none"` - Never show cover images
 
+### Comments System
+
+The theme includes a Giscus-powered commenting system that uses GitHub Discussions. Here's how to set it up:
+
+#### Enable Comments
+
+In your `src/config.ts`, enable comments:
+
+```typescript
+features: {
+  comments: true,  // Enable/disable comments
+}
+```
+
+#### GitHub Setup
+
+1. **Enable Discussions on Your Repository**:
+   - Go to your GitHub repository
+   - Click **Settings** → **General**
+   - Scroll to **"Features"** section
+   - Check **"Discussions"** and click **"Set up discussions"**
+
+2. **Create a Discussion Category**:
+   - Go to **Discussions** tab in your repository
+   - Click **"New category"**
+   - Name it **"General"**
+   - Set format to **"Announcement"** (prevents random users from creating new discussions)
+   - Description: "Comments on blog posts"
+
+3. **Get Giscus Configuration**:
+   - Visit [giscus.app](https://giscus.app)
+   - Enter your repository: `username/repo-name`
+   - Select **"General"** as the discussion category
+   - Copy the generated **Repository ID** and **Category ID**
+
+4. **Update Your Config**:
+   ```typescript
+   comments: {
+     provider: "giscus",
+     repo: "username/repo-name",        // Your GitHub repository
+     repoId: "R_kgDO...",              // Repository ID from Giscus
+     category: "General",               // Discussion category
+     categoryId: "DIC_kwDO...",        // Category ID from Giscus
+     mapping: "pathname",               // How posts map to discussions
+     strict: "0",                      // Allow comments on any post
+     reactions: "1",                   // Enable reactions
+     metadata: "0",                    // Hide discussion metadata
+     inputPosition: "bottom",          // Comment input position
+     theme: "preferred_color_scheme",  // Follows user's theme preference
+     lang: "en",                       // Language
+     loading: "lazy",                  // Lazy load comments
+   }
+   ```
+
+#### How It Works
+
+- **Each blog post** automatically creates a GitHub discussion
+- **Visitors need GitHub accounts** to comment
+- **Comments appear** both on your blog and in GitHub Discussions
+- **You moderate** through GitHub's interface
+- **"Announcement" format** prevents random discussion creation
+
+#### Moderation & Control
+
+- **Delete comments** directly in GitHub Discussions
+- **Block users** through GitHub's user management
+- **Lock discussions** to prevent new comments
+- **Pin important comments** to the top
+- **Use GitHub's content policies** for automatic moderation
+
+#### Privacy Considerations
+
+Comments are publicly visible and associated with users' GitHub profiles. Consider adding a privacy policy section about comments (see the included Privacy Policy page for reference).
+
 ### Navigtation
 
 Navigation is also set in the config:

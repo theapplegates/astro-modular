@@ -140,6 +140,40 @@ The security of Your Personal Data is important to Us, but remember that no meth
 Our Service may contain links to other websites that are not operated by Us. If You click on a third party link, You will be directed to that third party's site. We strongly advise You to review the Privacy Policy of every site You visit.
 
 We have no control over and assume no responsibility for the content, privacy policies or practices of any third party sites or services.
+
+## Comments and Community Interaction
+
+### Giscus Comments System
+
+This website uses Giscus, a GitHub Discussions-based commenting system, to enable community interaction on blog posts. When you comment on our blog posts, the following applies:
+
+#### Data Collection and Processing
+- **GitHub Account Required**: To comment, you must have a GitHub account and be signed in
+- **Comment Data**: Your comments, along with your GitHub username and profile information, are stored as GitHub Discussions
+- **Public Visibility**: Comments are publicly visible and associated with your GitHub profile
+- **Data Storage**: Comments are stored on GitHub's servers, not on our website
+
+#### Third-Party Integration
+- **GitHub Integration**: Comments are powered by GitHub Discussions and subject to GitHub's Terms of Service and Privacy Policy
+- **Authentication**: User authentication is handled entirely by GitHub
+- **Data Processing**: GitHub processes comment data according to their privacy policies
+
+#### Your Rights and Controls
+- **Comment Management**: You can edit or delete your own comments through GitHub
+- **Profile Control**: You can control what information is visible on your GitHub profile
+- **Account Deletion**: Deleting your GitHub account will remove your comments from public view
+
+#### Our Moderation Rights
+- **Content Moderation**: We reserve the right to moderate, edit, or remove comments that violate our community guidelines
+- **Spam Prevention**: We may block users who engage in spam or abusive behavior
+- **Content Standards**: Comments should be respectful, relevant, and constructive
+
+#### Data Retention
+- **Comment Persistence**: Comments may be retained indefinitely as part of the public record
+- **Deletion Requests**: Contact us if you need assistance with comment removal requests
+
+By commenting on this website, you acknowledge that your comments will be publicly visible and associated with your GitHub account.
+
 ## Changes to this Privacy Policy
 
 We may update Our Privacy Policy from time to time. We will notify You of any changes by posting the new Privacy Policy on this page.

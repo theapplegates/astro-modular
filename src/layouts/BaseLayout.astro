@@ -314,7 +314,7 @@ const { seoData, bodyClass = '' } = Astro.props;
       script.setAttribute('data-loading', loading);
       
       script.onload = function() {
-        console.log('✅ Global: Giscus script loaded successfully');
+        logger.dev('✅ Global: Giscus script loaded successfully');
         
         // Auto-scroll to comments section after GitHub sign-in
         // This helps users find the comments after authentication
@@ -325,10 +325,20 @@ const { seoData, bodyClass = '' } = Astro.props;
             const urlParams = new URLSearchParams(window.location.search);
             const isOAuthReturn = urlParams.has('code') || urlParams.has('state') || 
                                  window.location.hash.includes('giscus') ||
-                                 document.referrer.includes('github.com');
+                                 document.referrer.includes('github.com') ||
+                                 document.referrer.includes('giscus.app');
+            
+            logger.dev('🔍 OAuth detection:', {
+              hasCode: urlParams.has('code'),
+              hasState: urlParams.has('state'),
+              hashIncludesGiscus: window.location.hash.includes('giscus'),
+              referrerIncludesGithub: document.referrer.includes('github.com'),
+              referrerIncludesGiscus: document.referrer.includes('giscus.app'),
+              isOAuthReturn
+            });
             
             if (isOAuthReturn) {
-              console.log('🔄 Detected GitHub OAuth return, scrolling to comments');
+              logger.dev('🔄 Detected GitHub OAuth return, scrolling to comments');
               commentsContainer.scrollIntoView({ 
                 behavior: 'smooth', 
                 block: 'start' 
@@ -337,27 +347,12 @@ const { seoData, bodyClass = '' } = Astro.props;
           }
         }, 1000); // Delay to allow Giscus to fully load
         
-        // Also listen for Giscus iframe load events (more reliable)
+        // Simple iframe load detection (no auto-scroll)
         const checkForGiscusIframe = () => {
           const giscusIframe = document.querySelector('iframe[src*="giscus"]');
           if (giscusIframe) {
             giscusIframe.addEventListener('load', () => {
-              // Check if this is likely a post-authentication load
-              const urlParams = new URLSearchParams(window.location.search);
-              const isOAuthReturn = urlParams.has('code') || urlParams.has('state') || 
-                                   window.location.hash.includes('giscus') ||
-                                   document.referrer.includes('github.com');
-              
-              if (isOAuthReturn) {
-                console.log('🔄 Giscus iframe loaded after OAuth, scrolling to comments');
-                const commentsContainer = document.querySelector('#giscus-comments');
-                if (commentsContainer) {
-                  commentsContainer.scrollIntoView({ 
-                    behavior: 'smooth', 
-                    block: 'start' 
-                  });
-                }
-              }
+              logger.dev('🔄 Giscus iframe loaded successfully');
             });
           } else {
             // If iframe not ready yet, check again in a bit
@@ -475,6 +470,9 @@ const { seoData, bodyClass = '' } = Astro.props;
       warn: (...args) => console.warn(...args),
       error: (...args) => console.error(...args)
     };
+
+    // Set window.commentsEnabled for client-side access
+    window.commentsEnabled = commentsEnabled;
 
     // Update navigation highlighting based on current page
     function updateNavigationHighlighting(targetPath) {
