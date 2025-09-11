@@ -9,10 +9,13 @@ if (!siteConfig.features.comments) {
 const { comments } = siteConfig;
 
 // Debug logging
-console.log('🔧 GiscusComments component rendering...', { 
-  commentsEnabled: siteConfig.features.comments,
-  commentsConfig: comments 
-});
+if (import.meta.env.DEV) {
+  const { logger } = await import('@/utils/logger');
+  logger.dev('🔧 GiscusComments component rendering...', { 
+    commentsEnabled: siteConfig.features.comments,
+    commentsConfig: comments 
+  });
+}
 ---
 
 <div class="giscus-comments-container">

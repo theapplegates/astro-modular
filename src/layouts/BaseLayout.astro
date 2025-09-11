@@ -119,13 +119,15 @@ const { seoData, bodyClass = '' } = Astro.props;
     // Initialize immediately
     initTheme();
 
-    // Debug favicon theme detection
+    // Debug favicon theme detection (only in development)
     function debugFaviconTheme() {
+      if (window.location.hostname !== 'localhost' && !window.location.hostname.includes('localhost')) return;
+      
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
       const noPreference = window.matchMedia('(prefers-color-scheme: no-preference)').matches;
       
-      // Use console.log for debugging (will be replaced with logger in production)
+      // Use console.log for debugging since logger might not be available yet
       console.log('🎨 Favicon Theme Debug:');
       console.log('  - prefers-color-scheme: dark =', prefersDark);
       console.log('  - prefers-color-scheme: light =', prefersLight);
@@ -147,7 +149,7 @@ const { seoData, bodyClass = '' } = Astro.props;
       });
     }
 
-    // Debug favicon on page load
+    // Debug favicon on page load (only in development)
     debugFaviconTheme();
 
     // Force favicon update based on system theme (browsers don't always respect media queries)
@@ -164,8 +166,10 @@ const { seoData, bodyClass = '' } = Astro.props;
         faviconUrl = '/favicon.png';
       }
       
-      // Use console.log for debugging (will be replaced with logger in production)
-      console.log('🔧 Force updating favicon to:', faviconUrl);
+      // Use console.log for debugging since logger might not be available yet
+      if (window.location.hostname === 'localhost' || window.location.hostname.includes('localhost')) {
+        console.log('🔧 Force updating favicon to:', faviconUrl);
+      }
       
       // Remove all existing favicon links
       const existingFavicons = document.querySelectorAll('link[rel="icon"]');
@@ -192,8 +196,9 @@ const { seoData, bodyClass = '' } = Astro.props;
 
     // Listen for system theme changes
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-      // Use console.log for debugging (will be replaced with logger in production)
-      console.log('🔄 System theme changed:', e.matches ? 'dark' : 'light');
+      if (window.location.hostname === 'localhost' || window.location.hostname.includes('localhost')) {
+        console.log('🔄 System theme changed:', e.matches ? 'dark' : 'light');
+      }
       if (!localStorage.getItem('theme')) {
         const newTheme = e.matches ? 'dark' : 'light';
         localStorage.setItem('theme', newTheme);
@@ -201,7 +206,9 @@ const { seoData, bodyClass = '' } = Astro.props;
         debugFaviconTheme();
         forceFaviconUpdate();
       } else {
-        console.log('  - User has manual theme set, not updating');
+        if (window.location.hostname === 'localhost' || window.location.hostname.includes('localhost')) {
+          console.log('  - User has manual theme set, not updating');
+        }
         // Still update favicon based on system theme even if user has manual theme
         forceFaviconUpdate();
       }
@@ -463,7 +470,7 @@ const { seoData, bodyClass = '' } = Astro.props;
   <!-- Global scripts -->
   <script define:vars={{ commentsEnabled: siteConfig.features.comments }}>
     // Simple client-side logger
-    const isDev = window.location.hostname === 'localhost';
+    const isDev = window.location.hostname === 'localhost' || window.location.hostname.includes('localhost');
     const logger = {
       dev: (...args) => isDev && console.log(...args),
       info: (...args) => isDev && console.info(...args),
@@ -471,23 +478,23 @@ const { seoData, bodyClass = '' } = Astro.props;
       error: (...args) => console.error(...args)
     };
 
+    // Make logger globally available for all scripts
+    window.logger = logger;
+
     // Set window.commentsEnabled for client-side access
     window.commentsEnabled = commentsEnabled;
 
     // Update navigation highlighting based on current page
     function updateNavigationHighlighting(targetPath) {
       const currentPath = targetPath || window.location.pathname;
-      logger.dev('🔍 Navigation highlighting - Current path:', currentPath);
       
       // Target both desktop and mobile navigation links
       const navLinks = document.querySelectorAll('header nav a, #mobile-menu nav a');
-      logger.dev('🔍 Found navigation links:', navLinks.length);
       
       navLinks.forEach((link) => {
         const linkPath = link.getAttribute('href');
         
         if (linkPath) {
-          logger.dev('🔍 Checking link:', linkPath, 'against current path:', currentPath);
           // Remove ALL existing classes that could conflict
           link.classList.remove('active', 'current', 'bg-highlight-100', 'dark:bg-highlight-900', 'text-highlight-600', 'dark:text-highlight-400', 'bg-highlight-50', 'dark:bg-highlight-900/20', 'text-primary-600', 'dark:text-primary-300', 'text-primary-500', 'dark:text-primary-400');
           
@@ -510,21 +517,16 @@ const { seoData, bodyClass = '' } = Astro.props;
             isActive = normalizedLinkPath === normalizedCurrentPath;
           }
           
-          logger.dev('🔍 Link', linkPath, 'isActive:', isActive);
-          
           if (isActive) {
-            logger.dev('✅ Link is active:', linkPath);
             // Add appropriate active classes based on navigation style
             const isMobile = link.closest('#mobile-menu');
             
             if (isMobile) {
               // Mobile navigation active classes
               link.classList.add('text-highlight-600', 'dark:text-highlight-400', 'bg-highlight-50', 'dark:bg-highlight-900/20');
-              logger.dev('✅ Added mobile active classes to:', linkPath);
             } else {
               // Desktop navigation active classes
               link.classList.add('text-highlight-600', 'dark:text-highlight-400');
-              logger.dev('✅ Added desktop active classes to:', linkPath);
             }
           } else {
             // Ensure inactive state classes are applied
@@ -557,22 +559,33 @@ const { seoData, bodyClass = '' } = Astro.props;
 
     // Initialize comments on page load
     document.addEventListener('DOMContentLoaded', () => {
-      console.log('🔄 BaseLayout: DOM loaded - checking for comments');
+      if (isDev) {
+        logger.dev('🔄 BaseLayout: DOM loaded - checking for comments');
+      }
       if (document.querySelector('#giscus-comments')) {
-        console.log('✅ BaseLayout: Comments container found, initializing');
+        if (isDev) {
+          logger.dev('✅ BaseLayout: Comments container found, initializing');
+        }
         window.initializeGiscusComments();
       }
     });
 
     // CRITICAL: Listen for Swup page transitions using hooks API
     // Wait for Swup to be available
+    let swupRetryCount = 0;
+    const maxSwupRetries = 50; // Max 5 seconds of retries
+    
     function setupSwupHooks() {
       if (window.swup) {
-        console.log('✅ Swup instance found, setting up hooks');
+        if (isDev) {
+          logger.dev('✅ Swup instance found, setting up hooks');
+        }
         
         // Use the correct Swup hooks API
         window.swup.hooks.on('content:replace', () => {
-          console.log('🔄 Swup: content:replace hook - reinitializing comments');
+          if (isDev) {
+            logger.dev('🔄 Swup: content:replace hook - reinitializing comments');
+          }
           setTimeout(() => {
             if (document.querySelector('#giscus-comments')) {
               window.initializeGiscusComments();
@@ -581,7 +594,9 @@ const { seoData, bodyClass = '' } = Astro.props;
         });
 
         window.swup.hooks.on('page:view', () => {
-          console.log('🔄 Swup: page:view hook - reinitializing comments');
+          if (isDev) {
+            logger.dev('🔄 Swup: page:view hook - reinitializing comments');
+          }
           setTimeout(() => {
             if (document.querySelector('#giscus-comments')) {
               window.initializeGiscusComments();
@@ -590,9 +605,16 @@ const { seoData, bodyClass = '' } = Astro.props;
         });
 
         // Favicon is handled by CSS media queries - no JavaScript needed
-      } else {
-        console.log('⏳ Swup not ready, retrying in 100ms');
+      } else if (swupRetryCount < maxSwupRetries) {
+        swupRetryCount++;
+        if (isDev) {
+          logger.dev(`⏳ Swup not ready, retrying in 100ms (${swupRetryCount}/${maxSwupRetries})`);
+        }
         setTimeout(setupSwupHooks, 100);
+      } else {
+        if (isDev) {
+          logger.warn('⚠️ Swup not available after maximum retries, continuing without it');
+        }
       }
     }
 
@@ -610,7 +632,9 @@ const { seoData, bodyClass = '' } = Astro.props;
               const element = node;
               // Check if the added node or its children contain the comments container
               if (element.id === 'giscus-comments' || element.querySelector('#giscus-comments')) {
-                console.log('🔄 MutationObserver: Comments container detected, initializing');
+                if (isDev) {
+                  logger.dev('🔄 MutationObserver: Comments container detected, initializing');
+                }
                 setTimeout(() => {
                   window.initializeGiscusComments();
                 }, 200);
@@ -628,7 +652,9 @@ const { seoData, bodyClass = '' } = Astro.props;
         childList: true,
         subtree: true
       });
-      console.log('✅ MutationObserver: Started observing swup-container');
+      if (isDev) {
+        logger.dev('✅ MutationObserver: Started observing swup-container');
+      }
     }
 
     // AGGRESSIVE FALLBACK: Check for comments on every navigation click
@@ -639,11 +665,15 @@ const { seoData, bodyClass = '' } = Astro.props;
       // Check if it's a navigation link
       const href = target.getAttribute('href');
       if (target.tagName === 'A' && href && !href.startsWith('#')) {
-        console.log('🔄 Click detected on navigation link, will check for comments');
+        if (isDev) {
+          logger.dev('🔄 Click detected on navigation link, will check for comments');
+        }
         // Delay to allow Swup to process the navigation
         setTimeout(() => {
           if (document.querySelector('#giscus-comments')) {
-            console.log('🔄 Navigation click: Comments container found, initializing');
+            if (isDev) {
+              logger.dev('🔄 Navigation click: Comments container found, initializing');
+            }
             window.initializeGiscusComments();
           }
         }, 500);
