@@ -64,39 +64,31 @@ const structuredData = {
     )}
   </Fragment>
 
-  <div class="py-2 relative">
+  <div class="relative">
     <!-- TOC is hidden on mobile and tablet, only shown on desktop -->
 
     <div class="mx-auto px-4 sm:px-6 lg:px-8 relative" style={`max-width: ${siteConfig.layout.contentWidth}`}>
-      <!-- Main content -->
-      <article class="max-w-none">
-        <!-- Page header -->
-        <header>
-
-
-          {page.data.image && (
-            <div class="aspect-video overflow-hidden rounded-xl mt-8">
-              <ImageWrapper
-                src={page.data.image}
-                basePath="/pages/images/"
-                alt={page.data.imageAlt || `Featured image for page: ${page.data.title}`}
-                class="w-full h-full"
-                width={800}
-                height={450}
-                format="webp"
-                quality={85}
-                loading="eager"
-                fetchpriority="high"
-              />
-            </div>
-          )}
-        </header>
-
-        <!-- Page content -->
-        <div class="prose prose-sm dark:prose-dark max-w-none">
-          <Content />
+      {page.data.image && (
+        <div class="aspect-video overflow-hidden rounded-xl mb-8">
+          <ImageWrapper
+            src={page.data.image}
+            basePath="/pages/images/"
+            alt={page.data.imageAlt || `Featured image for page: ${page.data.title}`}
+            class="w-full h-full"
+            width={800}
+            height={450}
+            format="webp"
+            quality={85}
+            loading="eager"
+            fetchpriority="high"
+          />
         </div>
-      </article>
+      )}
+
+      <!-- Page content -->
+      <div class="prose prose-sm dark:prose-dark max-w-none">
+        <Content />
+      </div>
 
       <!-- Desktop TOC - floats to the right of the content container -->
       {shouldShowTOC && (

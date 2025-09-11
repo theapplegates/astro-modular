@@ -100,6 +100,28 @@ src/content/posts/
 }
 ```
 
+### H1 Title Handling - CRITICAL DISTINCTION
+
+**IMPORTANT**: Posts and Pages handle H1 titles completely differently:
+
+#### Posts (PostLayout)
+- **H1 is HARDCODED** in the layout using `{post.data.title}` from frontmatter
+- **NO H1 in markdown content** - posts should NOT have `# Title` in their markdown
+- **Layout controls styling** - H1 styling is handled by the PostLayout component
+- **Example**: Post frontmatter has `title: "My Post"` → Layout renders `<h1>My Post</h1>`
+
+#### Pages (PageLayout)  
+- **H1 is in MARKDOWN** - pages MUST have `# Title` in their markdown content
+- **NO hardcoded H1** in the layout - PageLayout does not render the title
+- **Prose classes handle styling** - H1 styling comes from prose typography
+- **Example**: Page markdown starts with `# About` → Prose renders the H1
+
+#### Why This Distinction Matters
+- **Posts**: Title comes from frontmatter, layout handles presentation
+- **Pages**: Title comes from markdown content, prose handles presentation
+- **Consistency**: Both use the same prose classes for content, but different approaches for titles
+- **AI Agents**: Never add H1 to post markdown or remove H1 from page markdown
+
 ## Page Transitions with Swup
 
 ### Swup Integration

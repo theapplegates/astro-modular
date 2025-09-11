@@ -260,7 +260,7 @@ const { seoData, bodyClass = '' } = Astro.props;
   <Header />
 
   <!-- Main content -->
-  <main id="main-content" class="container mx-auto py-8 relative flex-grow" style={`max-width: ${siteConfig.layout.contentWidth}`}>
+  <main id="main-content" class="container mx-auto relative flex-grow" style={`max-width: ${siteConfig.layout.contentWidth}`}>
     <div id="swup-container" class="transition-swup-fade">
       <slot />
     </div>
@@ -300,13 +300,26 @@ const { seoData, bodyClass = '' } = Astro.props;
         const linkPath = (link as HTMLAnchorElement).getAttribute('href');
         
         if (linkPath) {
+          logger.dev('🔍 Checking link:', linkPath, 'against current path:', currentPath);
           // Remove ALL existing classes that could conflict
           link.classList.remove('active', 'current', 'bg-highlight-100', 'dark:bg-highlight-900', 'text-highlight-600', 'dark:text-highlight-400', 'bg-highlight-50', 'dark:bg-highlight-900/20', 'text-primary-600', 'dark:text-primary-300', 'text-primary-500', 'dark:text-primary-400');
           
           // Check if this link matches the current page
-          const isActive = linkPath === currentPath || 
-                          (linkPath !== '/' && currentPath.startsWith(linkPath)) ||
-                          (linkPath === '/' && currentPath === '/');
+          let isActive = false;
+          
+          if (linkPath === currentPath) {
+            // Exact match
+            isActive = true;
+          } else if (linkPath === '/' && currentPath === '/') {
+            // Homepage exact match
+            isActive = true;
+          } else if (linkPath !== '/' && linkPath !== '#' && !linkPath.startsWith('http')) {
+            // For internal links, check if current path starts with the link path followed by a slash
+            // This handles cases like /about matching /about/ or /about/something
+            isActive = currentPath.startsWith(linkPath + '/');
+          }
+          
+          logger.dev('🔍 Link', linkPath, 'isActive:', isActive);
           
           if (isActive) {
             logger.dev('✅ Link is active:', linkPath);
@@ -465,6 +478,8 @@ const { seoData, bodyClass = '' } = Astro.props;
         // Ensure we're at top when new page is ready
         swup.hooks.on('page:view', () => {
           window.scrollTo(0, 0);
+          // Update navigation highlighting after page transition
+          updateNavigationHighlighting();
         });
         
         swup.hooks.on('visit:end', () => {
@@ -472,6 +487,8 @@ const { seoData, bodyClass = '' } = Astro.props;
           setTimeout(() => {
             document.documentElement.style.scrollBehavior = 'smooth';
             document.body.style.scrollBehavior = 'smooth';
+            // Update navigation highlighting after page transition is complete
+            updateNavigationHighlighting();
           }, 100);
         });
         

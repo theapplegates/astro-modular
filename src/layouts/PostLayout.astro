@@ -122,19 +122,18 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
     )}
   </Fragment>
 
-  <div class="py-12 relative">
+  <div class="py-8 relative">
     <div class="mx-auto px-4 sm:px-6 lg:px-8 relative" style={`max-width: ${siteConfig.layout.contentWidth}`}>
       <!-- Main content -->
       <article>
-        <!-- Article header -->
-        <header class="mb-8">
-          {/* Cover image - shown if global config allows and not hidden by frontmatter */}
-          {siteConfig.features.showCoverImages !== 'none' && post.data.image && post.data.hideCoverImage !== true && (
-            post.data.image.startsWith('http') ? (
+        {/* Cover image - shown if global config allows and not hidden by frontmatter */}
+        {siteConfig.features.showCoverImages !== 'none' && post.data.image && post.data.hideCoverImage !== true && (
+          <div class="mb-8">
+            {post.data.image.startsWith('http') ? (
               <img 
                 src={post.data.image}
                 alt={post.data.imageAlt || `Featured image for post: ${post.data.title}`}
-                class="w-full h-64 object-cover rounded-lg shadow-sm mb-6"
+                class="w-full h-64 object-cover rounded-lg shadow-sm"
                 width="800"
                 height="256"
                 loading="eager"
@@ -148,7 +147,7 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
                 width={800}
                 height={256}
                 format="webp"
-                class="w-full h-64 object-cover rounded-lg shadow-sm mb-6"
+                class="w-full h-64 object-cover rounded-lg shadow-sm"
                 loading="eager"
                 decoding="async"
                 fetchpriority="high"
@@ -157,17 +156,20 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
               <img 
                 src={optimizePostImagePath(post.data.image, post.slug)}
                 alt={post.data.imageAlt || `Featured image for post: ${post.data.title}`}
-                class="w-full h-64 object-cover rounded-lg shadow-sm mb-6"
+                class="w-full h-64 object-cover rounded-lg shadow-sm"
                 width="800"
                 height="256"
                 loading="eager"
                 decoding="async"
                 fetchpriority="high"
               />
-            )
-          )}
+            )}
+          </div>
+        )}
 
-          <h1 class="text-2xl font-bold text-primary-900 dark:text-primary-50 mb-6 leading-tight">
+        <!-- Post header -->
+        <header class="mb-4">
+          <h1 class="text-xl font-bold text-primary-900 dark:text-primary-50 mb-6 leading-tight">
             {post.data.title}
           </h1>
 
@@ -223,7 +225,7 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
         </header>
 
         <!-- Article content -->
-        <div class="prose dark:prose-dark max-w-none" id="post-content">
+        <div class="prose prose-sm dark:prose-dark max-w-none" id="post-content">
           <Content />
         </div>
 
