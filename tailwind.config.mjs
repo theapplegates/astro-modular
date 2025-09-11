@@ -48,7 +48,7 @@ export default {
               backgroundColor: 'rgb(248 250 252 / 0.8)',
               borderRadius: '0.375rem',
               padding: '0.125rem 0.375rem',
-              fontSize: '0.875em',
+              fontSize: '1em',
               fontWeight: '400',
             },
             'code::before': {
@@ -62,7 +62,7 @@ export default {
               borderRadius: '0.5rem',
               padding: '1rem',
               overflow: 'auto',
-              fontSize: '0.875em',
+              fontSize: '1em',
               lineHeight: '1.7142857',
             },
             'pre code': {

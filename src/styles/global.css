@@ -110,32 +110,7 @@ a:hover {
   @apply text-red-500 cursor-not-allowed line-through no-underline;
 }
 
-/* Code Styles - Simplified and Theme Independent */
-code {
-  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-  font-size: 0.875em;
-  background-color: rgb(var(--inline-code-bg));
-  color: rgb(var(--inline-code-text));
-  padding: 0.375rem;
-  border-radius: 0.25rem;
-}
-
-pre {
-  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-  background-color: rgb(var(--code-bg));
-  color: rgb(var(--code-text));
-  padding: 1rem;
-  border-radius: 0.5rem;
-  overflow-x: auto;
-}
-
-/* Code inside pre blocks */
-pre code {
-  background-color: transparent;
-  color: inherit;
-  padding: 0;
-  border-radius: 0;
-}
+/* Code Styles - Working with Tailwind prose plugin */
 
 /* Syntax highlighting (astro-code) */
 .astro-code,
@@ -145,7 +120,9 @@ pre.astro-code {
   padding: 1rem !important;
   border-radius: 0.5rem !important;
   overflow-x: auto !important;
+  font-size: 1em !important;
 }
+
 
 .astro-code code,
 pre.astro-code code {
