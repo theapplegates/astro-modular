@@ -158,12 +158,14 @@ const paletteIcon = allSectionsDisabled ? 'search' : 'command';
         mobileMenu.classList.add('hidden');
         
         // Update menu icon and ARIA attribute
-        const menuIcon = menuToggle.querySelector('.menu-icon');
-        const closeIcon = menuToggle.querySelector('.close-icon');
-        if (menuIcon && closeIcon) {
-          menuIcon.classList.remove('hidden');
-          closeIcon.classList.add('hidden');
-          menuToggle.setAttribute('aria-expanded', 'false');
+        if (menuToggle) {
+          const menuIcon = menuToggle.querySelector('.menu-icon');
+          const closeIcon = menuToggle.querySelector('.close-icon');
+          if (menuIcon && closeIcon) {
+            menuIcon.classList.remove('hidden');
+            closeIcon.classList.add('hidden');
+            menuToggle.setAttribute('aria-expanded', 'false');
+          }
         }
       }
     }

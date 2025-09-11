@@ -29,7 +29,7 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
   scroll-padding-top: 2rem;
 }
 
@@ -581,58 +581,30 @@ textarea {
   html { scroll-behavior: auto; }
 }
 
-/* Swup Transitions */
+/* Swup Transitions - Simplified */
 .transition-swup-fade {
-  transition: opacity 0.3s ease-out, transform 0.3s ease-out;
-  /* Only apply will-change during transitions to reduce memory usage */
+  transition: opacity 0.2s ease-out;
 }
 
-/* Apply will-change only when transitioning */
-html.is-changing .transition-swup-fade,
-html.is-leaving .transition-swup-fade,
-html.is-animating .transition-swup-fade {
-  will-change: opacity, transform;
-}
-
-/* Page leaving - fade out and move down */
+/* Page leaving - simple fade out */
 html.is-leaving .transition-swup-fade {
   opacity: 0;
-  transform: translateY(20px) !important;
 }
 
-/* Page entering - start below and slide up while fading in */
+/* Page entering - simple fade in */
 html.is-animating .transition-swup-fade {
   opacity: 0;
-  transform: translateY(20px) !important;
 }
 
 /* Page ready - final state */
 html.is-ready .transition-swup-fade {
   opacity: 1;
-  transform: translateY(0) !important;
-}
-
-/* Force scroll to top during forward navigation */
-html.force-scroll-top {
-  scroll-behavior: auto !important;
-}
-
-/* Only apply overflow hidden after content is replaced */
-html.force-scroll-top.is-ready body {
-  overflow: hidden !important;
-}
-
-html.force-scroll-top.is-ready .transition-swup-fade {
-  position: relative;
-  top: 0 !important;
-  transform: translateY(0) !important;
 }
 
 /* Ensure smooth transitions with hardware acceleration */
 #swup-container {
   transform: translateZ(0);
   backface-visibility: hidden;
-  perspective: 1000px;
 }
 
 /* TOC handling */
@@ -648,9 +620,8 @@ main {
 }
 
 /* Smooth page transitions */
-html {
-  scroll-behavior: smooth;
-}
+/* Keep default scroll-behavior; Swup Scroll Plugin manages smooth scrolling */
+/* html { scroll-behavior: smooth; } */
 
 /* Prevent flash of unstyled content */
 body {
@@ -672,64 +643,14 @@ body {
 }
 
 /* Simple page transitions */
-html.is-changing {
-  overflow: hidden;
-}
+/* Removed global overflow hidden on html during transitions to prevent scroll bugs */
 
 /* Lock scroll during transitions to prevent unwanted movement */
-html.is-changing,
-html.is-leaving,
-html.is-animating {
-  overflow: hidden !important;
-}
+/* Avoid global scroll locking during transitions; let Swup handle scroll */
 
-html.is-changing body,
-html.is-leaving body,
-html.is-animating body {
-  overflow: hidden !important;
-}
-
-/* Ensure header stays visible and stable during transitions */
-html.is-changing header,
-html.is-leaving header,
-html.is-animating header {
-  position: sticky !important;
-  top: 0 !important;
-  z-index: 40 !important;
-  transform: translateZ(0) !important;
-  will-change: auto !important;
-}
-
-/* Prevent header and footer flashing */
+/* Keep header and footer stable during transitions */
 header, footer, nav {
-  will-change: auto;
-  transform: translateZ(0); /* Force hardware acceleration */
-}
-
-/* Ensure header and footer stay stable during transitions */
-html.is-changing header,
-html.is-changing footer,
-html.is-leaving header,
-html.is-leaving footer,
-html.is-rendering header,
-html.is-rendering footer {
-  opacity: 1 !important;
-  transform: none !important;
-  transition: none !important;
-}
-
-/* Additional header stability during scroll restoration */
-html.is-changing header,
-html.is-leaving header,
-html.is-animating header {
-  position: sticky !important;
-  top: 0 !important;
-  z-index: 40 !important;
-  transform: translateZ(0) !important;
-  will-change: auto !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  display: block !important;
+  transform: translateZ(0);
 }
 
 /* Ensure smooth transitions for interactive elements only */
@@ -737,9 +658,9 @@ a, button, .btn, .card, .callout, nav a {
   transition: all 0.2s ease-out;
 }
 
-/* Smooth scroll behavior during transitions */
+/* Disable smooth scroll behavior during transitions */
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
 }
 
 /* Navigation active states - more subtle */
@@ -787,20 +708,6 @@ main {
   @apply p-6 bg-gradient-to-br from-white to-primary-50 dark:from-primary-900 dark:to-primary-800 rounded-xl border border-primary-200 dark:border-primary-700 transition-all duration-200 hover:shadow-xl hover:shadow-primary-900/15 dark:hover:shadow-primary-800/40;
 }
 
-/* Page height extension during transitions */
-#page-height-extend {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 200vh;
-  pointer-events: none;
-  z-index: -1;
-}
-
-#page-height-extend.hidden {
-  display: none;
-}
 
 /* Smooth transitions for all interactive elements */
 a, button, .btn, .card, .callout {

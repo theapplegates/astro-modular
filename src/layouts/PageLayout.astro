@@ -123,12 +123,12 @@ const structuredData = {
           
           paragraphs.forEach(p => {
             const images = p.querySelectorAll('img, picture');
-            const textNodes = Array.from(p.childNodes).filter(node => 
-              node.nodeType === Node.TEXT_NODE && node.textContent.trim() !== ''
-            );
-            const otherElements = Array.from(p.childNodes).filter(node => 
-              node.nodeType === Node.ELEMENT_NODE && !['IMG', 'PICTURE', 'BR'].includes(node.tagName)
-            );
+            const textNodes = Array.from(p.childNodes).filter((node) => {
+              return node.nodeType === Node.TEXT_NODE && (node.textContent || '').trim() !== '';
+            });
+            const otherElements = Array.from(p.childNodes).filter((node) => {
+              return node.nodeType === Node.ELEMENT_NODE && !['IMG', 'PICTURE', 'BR'].includes(((node as Element).tagName || ''));
+            });
             
             // Only process if paragraph contains 2+ images and no other meaningful content
             if (images.length >= 2 && textNodes.length === 0 && otherElements.length === 0) {
@@ -147,17 +147,19 @@ const structuredData = {
         
         // Wrap tables in responsive containers for better mobile experience
         const tables = document.querySelectorAll('.prose table');
-        tables.forEach(table => {
-          if (!table.parentElement.classList.contains('table-wrapper')) {
+        tables.forEach((table) => {
+          if (table.parentElement && !table.parentElement.classList.contains('table-wrapper')) {
             const wrapper = document.createElement('div');
             wrapper.className = 'table-wrapper';
             wrapper.style.cssText = 'overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 1.5rem 0; border-radius: 0.5rem; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);';
             
-            table.parentNode.insertBefore(wrapper, table);
+            if (table.parentNode) {
+              (table.parentNode as Node & ParentNode).insertBefore(wrapper, table);
+            }
             wrapper.appendChild(table);
             
             // Reset table margin since wrapper handles it
-            table.style.margin = '0';
+            (table as unknown as HTMLElement).style.margin = '0';
           }
         });
 

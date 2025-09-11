@@ -10,6 +10,7 @@ import rehypeMark from './src/utils/rehype-mark.ts';
 import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import { siteConfig } from './src/config.ts';
+import swup from '@swup/astro';
 
 // Deployment platform configuration
 const DEPLOYMENT_PLATFORM = process.env.DEPLOYMENT_PLATFORM || 'netlify';
@@ -39,7 +40,19 @@ export default defineConfig({
   integrations: [
     tailwind(),
     sitemap(),
-    mdx()
+    mdx(),
+    swup({
+      theme: false,
+      animationClass: 'transition-swup-',
+      containers: ['#swup-container'],
+      smoothScrolling: false,
+      cache: true,
+      preload: true,
+      accessibility: true,
+      updateHead: true,
+      updateBodyClass: false,
+      globalInstance: true
+    })
   ],
   markdown: {
     remarkPlugins: [

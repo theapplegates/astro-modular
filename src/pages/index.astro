@@ -17,7 +17,7 @@ const sortedPosts = sortPostsByDate(visiblePosts);
 // Process posts for reading time and word count
 const processedPosts = await Promise.all(
   sortedPosts.map(async (post) => await processPost(post))
-);
+) as any[];
 
 // Get featured post (latest) and preview posts based on showLatestPost setting
 const featuredPost = siteConfig.features.showLatestPost ? processedPosts[0] : null;
