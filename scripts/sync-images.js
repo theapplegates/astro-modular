@@ -25,6 +25,39 @@ const IMAGE_SYNC_CONFIGS = [
   }
 ];
 
+// Recursively find all image files in a directory
+async function findImageFiles(dir, relativePath = '') {
+  const imageFiles = [];
+  
+  try {
+    const items = await fs.readdir(dir);
+    
+    for (const item of items) {
+      const itemPath = path.join(dir, item);
+      const itemRelativePath = path.join(relativePath, item);
+      const stat = await fs.stat(itemPath);
+      
+      if (stat.isDirectory()) {
+        // Recursively search subdirectories
+        const subImages = await findImageFiles(itemPath, itemRelativePath);
+        imageFiles.push(...subImages);
+      } else if (/\.(jpg|jpeg|png|gif|webp|svg|bmp|tiff|tif|ico)$/i.test(item)) {
+        imageFiles.push({
+          sourcePath: itemPath,
+          relativePath: itemRelativePath
+        });
+      }
+    }
+  } catch (error) {
+    // Directory might not exist or be readable, continue
+    if (error.code !== 'ENOENT') {
+      log.warn(`Warning: Could not read directory ${dir}:`, error.message);
+    }
+  }
+  
+  return imageFiles;
+}
+
 // Function to find folder-based posts and sync their images
 async function syncFolderBasedImages() {
   const postsDir = 'src/content/posts';
@@ -41,46 +74,36 @@ async function syncFolderBasedImages() {
       
       // Check if it's a directory (folder-based post)
       if (stat.isDirectory()) {
-        const postImagesDir = path.join(postPath);
         const targetDir = path.join(publicPostsDir, post);
         
-        // Ensure target directory exists
-        await ensureDir(targetDir);
+        // Find all image files recursively
+        const imageFiles = await findImageFiles(postPath);
         
-        try {
-          const files = await fs.readdir(postImagesDir);
-          const imageFiles = files.filter(file => 
-            /\.(jpg|jpeg|png|gif|webp|svg|bmp|tiff|tif|ico)$/i.test(file)
-          );
+        for (const imageFile of imageFiles) {
+          const targetPath = path.join(targetDir, imageFile.relativePath);
+          const targetDirForFile = path.dirname(targetPath);
           
-          for (const file of imageFiles) {
-            const sourcePath = path.join(postImagesDir, file);
-            const targetPath = path.join(targetDir, file);
+          // Ensure target directory exists
+          await ensureDir(targetDirForFile);
+          
+          // Check if file needs updating
+          let needsUpdate = true;
+          try {
+            const sourceStats = await fs.stat(imageFile.sourcePath);
+            const targetStats = await fs.stat(targetPath);
             
-            // Check if file needs updating
-            let needsUpdate = true;
-            try {
-              const sourceStats = await fs.stat(sourcePath);
-              const targetStats = await fs.stat(targetPath);
-              
-              // Only update if source is newer or different size
-              needsUpdate = sourceStats.mtime > targetStats.mtime || sourceStats.size !== targetStats.size;
-            } catch {
-              // Target doesn't exist, definitely needs update
-              needsUpdate = true;
-            }
-            
-            if (needsUpdate) {
-              await fs.copyFile(sourcePath, targetPath);
-              totalSynced++;
-            } else {
-              totalSkipped++;
-            }
+            // Only update if source is newer or different size
+            needsUpdate = sourceStats.mtime > targetStats.mtime || sourceStats.size !== targetStats.size;
+          } catch {
+            // Target doesn't exist, definitely needs update
+            needsUpdate = true;
           }
-        } catch (error) {
-          // Directory might not have images, continue
-          if (error.code !== 'ENOENT') {
-            log.warn(`Warning: Could not read directory ${postImagesDir}:`, error.message);
+          
+          if (needsUpdate) {
+            await fs.copyFile(imageFile.sourcePath, targetPath);
+            totalSynced++;
+          } else {
+            totalSkipped++;
           }
         }
       }

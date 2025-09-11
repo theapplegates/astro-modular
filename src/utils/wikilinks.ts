@@ -446,8 +446,16 @@ export function remarkFolderImages() {
         const postsIndex = pathParts.indexOf('posts');
         const postSlug = pathParts[postsIndex + 1];
         
-        // Update the image URL to point to the correct folder
-        node.url = `/posts/${postSlug}/${node.url}`;
+        // Handle both relative paths and subdirectory paths
+        let imagePath = node.url;
+        
+        // Remove leading './' if present
+        if (imagePath.startsWith('./')) {
+          imagePath = imagePath.slice(2);
+        }
+        
+        // Update the image URL to point to the correct folder (preserving subdirectory structure)
+        node.url = `/posts/${postSlug}/${imagePath}`;
         
         // Also update the hProperties if they exist (for wikilink images)
         if (node.data && node.data.hProperties) {

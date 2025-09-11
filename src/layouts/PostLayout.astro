@@ -40,7 +40,7 @@ let localImage: any = null;
 let hasImageError = false;
 if (post.data.image && !post.data.image.startsWith('http')) {
   try {
-    const imagePath = optimizePostImagePath(post.data.image, post.slug);
+    const imagePath = optimizePostImagePath(post.data.image, post.slug, post.id);
     const images = import.meta.glob('/public/**');
     const imageKey = `/public${imagePath}`;
 
@@ -115,7 +115,7 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
       <link 
         rel="preload" 
         as="image" 
-        href={post.data.image.startsWith('http') ? post.data.image : optimizePostImagePath(post.data.image, post.slug)}
+        href={post.data.image.startsWith('http') ? post.data.image : optimizePostImagePath(post.data.image, post.slug, post.id)}
         fetchpriority="high"
       />
     )}
@@ -158,7 +158,7 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
               />
             ) : (
               <img 
-                src={optimizePostImagePath(post.data.image, post.slug)}
+                src={optimizePostImagePath(post.data.image, post.slug, post.id)}
                 alt={post.data.imageAlt || `Featured image for post: ${post.data.title}`}
                 class="w-full h-64 object-cover rounded-lg shadow-sm"
                 width="800"

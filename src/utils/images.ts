@@ -174,7 +174,7 @@ export function stripObsidianBrackets(imagePath: string): string {
 }
 
 // Optimize image path specifically for posts
-export function optimizePostImagePath(imagePath: string, postSlug?: string): string {
+export function optimizePostImagePath(imagePath: string, postSlug?: string, postId?: string): string {
   // Handle null, undefined, or empty strings
   if (!imagePath || typeof imagePath !== 'string') {
     console.warn('Invalid image path provided:', imagePath);
@@ -204,8 +204,11 @@ export function optimizePostImagePath(imagePath: string, postSlug?: string): str
     return cleanPath;
   }
 
-  // Handle folder-based posts - if postSlug is provided and image is relative
-  if (postSlug && (cleanPath.startsWith('./') || (!cleanPath.startsWith('/') && !cleanPath.includes('/')))) {
+  // Handle folder-based posts - check if postId contains '/index.md'
+  // Folder-based posts have their content in a subdirectory with index.md
+  const isFolderBasedPost = postId && postId.includes('/') && postId.endsWith('/index.md');
+  
+  if (isFolderBasedPost && (cleanPath.startsWith('./') || (!cleanPath.startsWith('/') && !cleanPath.startsWith('http')))) {
     const imageName = cleanPath.startsWith('./') ? cleanPath.slice(2) : cleanPath;
     return `/posts/${postSlug}/${imageName}`;
   }
@@ -222,7 +225,7 @@ export function optimizePostImagePath(imagePath: string, postSlug?: string): str
   // Handle case where filename is provided without path
   if (!cleanPath.includes('/')) {
     // For folder-based posts, check if the image exists in the post folder first
-    if (postSlug) {
+    if (isFolderBasedPost && postSlug) {
       return `/posts/${postSlug}/${cleanPath}`;
     }
     return `/posts/images/${cleanPath}`;

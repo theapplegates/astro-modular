@@ -85,6 +85,12 @@ if (isLocal) {
       normalizedPath = `/public${normalizedPath}`;
     }
     
+    // Debug logging
+    if (isDev && devConfig.images.logMissingImages) {
+      console.log(`[ImageWrapper] Looking for image: ${normalizedPath}`);
+      console.log(`[ImageWrapper] Available files:`, Object.keys(files).filter(f => f.includes('sample-folder-post')));
+    }
+    
     const file = files[normalizedPath];
     if (file) {
       img = await file();

@@ -19,6 +19,19 @@ export interface Props {
 
 const { post } = Astro.props;
 const { Content, toc, readingTime, wordCount } = post;
+
+// Process Obsidian bracket syntax in image field
+const processedImage = (() => {
+  if (!post.data.image) return post.data.image;
+  
+  // Check if it's Obsidian bracket syntax
+  if (post.data.image.startsWith('[[') && post.data.image.endsWith(']]')) {
+    // Extract the content inside the brackets
+    return post.data.image.slice(2, -2);
+  }
+  
+  return post.data.image;
+})();
 ---
 
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -81,27 +94,36 @@ const { Content, toc, readingTime, wordCount } = post;
           </div>
         )}
         
-        {post.data.image && (
+        {processedImage && (
           <div class="aspect-video overflow-hidden rounded-xl mb-8">
             <ImageWrapper
-              src={post.data.image}
+              src={processedImage}
               basePath={(() => {
-                // Check if this is a folder-based post with relative image
-                if (post.data.image.startsWith('./')) {
+                // Three simple options:
+                
+                // 1. External URLs - no basePath needed
+                if (processedImage.startsWith('http')) {
+                  return '';
+                }
+                
+                // 2. Folder-based posts - check if post slug contains dashes (folder-based pattern)
+                if (post.slug.includes('-')) {
+                  // Check if image is in subdirectory (images/image.jpg)
+                  if (processedImage.includes('/')) {
+                    return `/posts/${post.slug}/`;
+                  }
+                  // Image in same folder as index.md
                   return `/posts/${post.slug}/`;
                 }
-                // Check if this is Obsidian bracket syntax for folder-based post
-                if (post.data.image.startsWith('[[') && post.data.image.endsWith(']]') && !post.data.image.includes('/')) {
-                  return `/posts/${post.slug}/`;
-                }
-                // Default to global images directory
+                
+                // 3. Regular posts - use global images directory
                 return "/posts/images/";
               })()}
               alt={post.data.imageAlt || `Image in post: ${post.data.title}`}
               class="w-full h-full"
               width={1200}
               height={675}
-              format={post.data.image.endsWith('.svg') ? undefined : "webp"}
+              format={processedImage.endsWith('.svg') ? undefined : "webp"}
               quality={90}
               densities={[1, 2]}
               loading="eager"

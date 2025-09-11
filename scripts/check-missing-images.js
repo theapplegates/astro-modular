@@ -73,16 +73,51 @@ function checkImageExists(imageSrc, filePath) {
     imagePath = imagePath.slice(2, -2);
   }
   
-  // Handle relative paths for folder-based posts
-  if (filePath.includes('/posts/') && filePath.endsWith('/index.md')) {
+  // Determine if this is a posts or pages file
+  const isPostsFile = filePath.includes('posts');
+  const isPagesFile = filePath.includes('pages');
+  const isFolderBasedPost = filePath.endsWith('index.md') && isPostsFile;
+  
+  // 1. Check in the same folder as the markdown file (for folder-based posts)
+  if (isFolderBasedPost) {
     const postDir = path.dirname(filePath);
-    const relativePath = path.join(postDir, imagePath);
-    if (fs.existsSync(relativePath)) {
-      return { exists: true, path: relativePath };
+    const sameFolderPath = path.join(postDir, imagePath);
+    if (fs.existsSync(sameFolderPath)) {
+      return { exists: true, path: sameFolderPath };
+    }
+    
+    // Check in /images/ subfolder within the post folder
+    const imagesSubfolderPath = path.join(postDir, 'images', imagePath);
+    if (fs.existsSync(imagesSubfolderPath)) {
+      return { exists: true, path: imagesSubfolderPath };
     }
   }
   
-  // Handle public directory paths
+  // 2. Check in general images directory (posts/images/ or pages/images/)
+  if (isPostsFile) {
+    const generalImagesPath = path.join(projectRoot, 'src', 'content', 'posts', 'images', imagePath);
+    if (fs.existsSync(generalImagesPath)) {
+      return { exists: true, path: generalImagesPath };
+    }
+  }
+  
+  if (isPagesFile) {
+    const generalImagesPath = path.join(projectRoot, 'src', 'content', 'pages', 'images', imagePath);
+    if (fs.existsSync(generalImagesPath)) {
+      return { exists: true, path: generalImagesPath };
+    }
+  }
+  
+  // 3. Check in public directory (for synced images)
+  if (isFolderBasedPost) {
+    const postSlug = path.basename(path.dirname(filePath));
+    const publicPath = path.join(projectRoot, 'public', 'posts', postSlug, imagePath);
+    if (fs.existsSync(publicPath)) {
+      return { exists: true, path: publicPath };
+    }
+  }
+  
+  // Handle absolute paths (starting with /)
   if (imagePath.startsWith('/')) {
     const publicPath = path.join(projectRoot, 'public', imagePath);
     if (fs.existsSync(publicPath)) {
@@ -94,6 +129,11 @@ function checkImageExists(imageSrc, filePath) {
   const publicPath = path.join(projectRoot, 'public', imagePath);
   if (fs.existsSync(publicPath)) {
     return { exists: true, path: publicPath };
+  }
+  
+  // Handle external URLs (don't check these)
+  if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+    return { exists: true, path: imagePath };
   }
   
   return { exists: false, path: imagePath };

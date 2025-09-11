@@ -18,12 +18,25 @@ const { remarkPluginFrontmatter } = await post.render();
 const { excerpt, wordCount } = processMarkdown(post.body);
 const readingTime = calculateReadingTime(post.body);
 
-const { title, description, date, tags, image, imageAlt } = post.data;
+const { title, description, date, tags, image: rawImage, imageAlt } = post.data;
+
+// Process Obsidian bracket syntax in image field
+const image = (() => {
+  if (!rawImage) return rawImage;
+  
+  // Check if it's Obsidian bracket syntax
+  if (rawImage.startsWith('[[') && rawImage.endsWith(']]')) {
+    // Extract the content inside the brackets
+    return rawImage.slice(2, -2);
+  }
+  
+  return rawImage;
+})();
 
 // Determine if we should show the cover image based on configuration and context
 const shouldShowCoverImage = (() => {
   // Only check if image exists - hideCoverImage only affects post content, not cards
-  if (!post.data.image) {
+  if (!image) {
     return false;
   }
 
@@ -55,17 +68,48 @@ const shouldShowCoverImage = (() => {
       <a href={`/posts/${post.slug}`} class="block" aria-label={`View post: ${title}`}>
         <div class="aspect-video overflow-hidden rounded-lg mb-4 bg-primary-100 dark:bg-primary-800">
           <ImageWrapper
-            src={image}
+            src={(() => {
+              // Clean the image path by removing Obsidian brackets
+              let cleanImagePath = image;
+              if (cleanImagePath.startsWith('[[') && cleanImagePath.endsWith(']]')) {
+                cleanImagePath = cleanImagePath.slice(2, -2);
+              }
+              
+              // For folder-based posts with images in subfolder, remove the images/ prefix
+              // since basePath already includes it
+              const isFolderBasedPost = post.id.includes('/') && post.id.endsWith('/index.md');
+              if (isFolderBasedPost && cleanImagePath.startsWith('images/')) {
+                return cleanImagePath.slice(7); // Remove 'images/' prefix
+              }
+              
+              return cleanImagePath;
+            })()}
             basePath={(() => {
-              // Check if this is a folder-based post with relative image
-              if (image.startsWith('./')) {
+              // 1. External URLs - no basePath needed
+              if (image.startsWith('http')) {
+                return '';
+              }
+              
+              // 2. Check if this is a folder-based post by looking at the file path
+              // Folder-based posts have their content in a subdirectory with index.md
+              const isFolderBasedPost = post.id.includes('/') && post.id.endsWith('/index.md');
+              
+              if (isFolderBasedPost) {
+                // Remove Obsidian brackets to get the actual image path
+                let cleanImagePath = image;
+                if (cleanImagePath.startsWith('[[') && cleanImagePath.endsWith(']]')) {
+                  cleanImagePath = cleanImagePath.slice(2, -2);
+                }
+                
+                // For folder-based posts, check if image is in images/ subfolder
+                if (cleanImagePath.startsWith('images/')) {
+                  return `/posts/${post.slug}/images/`;
+                }
+                // Image in same folder as index.md
                 return `/posts/${post.slug}/`;
               }
-              // Check if this is Obsidian bracket syntax for folder-based post
-              if (image.startsWith('[[') && image.endsWith(']]') && !image.includes('/')) {
-                return `/posts/${post.slug}/`;
-              }
-              // Default to global images directory
+              
+              // 3. Regular posts - use global images directory
               return "/posts/images/";
             })()}
             alt={imageAlt || `Featured image for post: ${title}`}
