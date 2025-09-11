@@ -133,7 +133,7 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
             post.data.image.startsWith('http') ? (
               <img 
                 src={post.data.image}
-                alt={post.data.imageAlt || `Cover image for ${post.data.title}`}
+                alt={post.data.imageAlt || `Featured image for post: ${post.data.title}`}
                 class="w-full h-64 object-cover rounded-lg shadow-sm mb-6"
                 width="800"
                 height="256"
@@ -144,7 +144,7 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
             ) : localImage ? (
               <Image
                 src={localImage.default}
-                alt={post.data.imageAlt || `Cover image for ${post.data.title}`}
+                alt={post.data.imageAlt || `Featured image for post: ${post.data.title}`}
                 width={800}
                 height={256}
                 format="webp"
@@ -156,7 +156,7 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
             ) : (
               <img 
                 src={optimizePostImagePath(post.data.image, post.slug)}
-                alt={post.data.imageAlt || `Cover image for ${post.data.title}`}
+                alt={post.data.imageAlt || `Featured image for post: ${post.data.title}`}
                 class="w-full h-64 object-cover rounded-lg shadow-sm mb-6"
                 width="800"
                 height="256"

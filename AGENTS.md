@@ -100,7 +100,58 @@ src/content/posts/
 }
 ```
 
+## Page Transitions with Swup
+
+### Swup Integration
+
+This project uses **Swup** for client-side page transitions to provide a smooth, app-like navigation experience.
+
+#### Configuration
+- **Location**: `astro.config.mjs` - Swup is configured as an Astro integration
+- **Accessibility**: Currently disabled (`accessibility: false`) to prevent invalid `tabindex` attributes on body elements
+- **Containers**: Uses `#swup-container` as the main content container
+- **Smooth Scrolling**: Disabled (handled by custom implementation)
+- **Caching**: Enabled for better performance
+- **Preloading**: Enabled for faster navigation
+
+#### Important Notes for AI Agents
+- **Accessibility Warnings**: Swup can add `tabindex` attributes to body elements, causing accessibility warnings. This is why `accessibility: false` is set in the config.
+- **Container Structure**: All page content must be wrapped in `#swup-container` for transitions to work
+- **Image Loading**: Swup doesn't interfere with image loading attributes - these are handled by the PostCard and ImageWrapper components
+- **Navigation**: Internal links automatically use Swup transitions when available
+
+#### Swup Hooks and Custom Behavior
+The project includes custom Swup behavior in `BaseLayout.astro`:
+- **Scroll Management**: Custom scroll behavior to prevent unwanted scrolling during transitions
+- **Content Replacement**: Handles content updates after page transitions
+- **Mobile Menu**: Closes mobile menu on navigation
+
 ## Image Handling
+
+### Critical Distinction: Post Cards vs Post Content Images
+
+**IMPORTANT**: There are two completely separate image systems in this project:
+
+#### 1. Post Card Images (Listings, Homepage, Tag Pages)
+- **Controlled by**: `siteConfig.features.showCoverImages` in `config.ts`
+- **Options**: `"all"`, `"latest"`, `"home"`, `"posts"`, `"latest-and-posts"`, `"none"`
+- **Current Setting**: `"latest-and-posts"` (shows on latest posts and posts/tags pages)
+- **Frontmatter**: The `image` field in post frontmatter is used for card images
+- **NOT affected by**: `hideCoverImage` frontmatter field
+- **Loading**: Uses `eager` loading for first post on pages, `lazy` for others
+
+#### 2. Post Content Images (Inside Individual Posts)
+- **Controlled by**: `hideCoverImage` frontmatter field
+- **Purpose**: Controls whether the main post image appears in the post content
+- **Loading**: Always uses `eager` loading and `fetchpriority="high"`
+- **Location**: Rendered by `PostContent.astro` component
+
+#### Key Rules for AI Agents
+- **Never confuse these two systems** - they are completely independent
+- **Post card visibility** is controlled by `showCoverImages` config, not frontmatter
+- **Post content visibility** is controlled by `hideCoverImage` frontmatter
+- **Performance warnings** about "unoptimized loading" typically refer to post card images
+- **Accessibility warnings** about "redundant alt text" can affect both systems
 
 ### Development Mode Graceful Error Handling
 
@@ -316,5 +367,43 @@ All SEO features work with folder-based posts:
 - Meta tags are generated correctly
 - Sitemaps include folder-based posts
 - RSS feeds include folder-based posts
+
+## Common Issues and Solutions for AI Agents
+
+### Accessibility Warnings
+1. **"Invalid tabindex on non-interactive element"**: Usually caused by Swup. Check `astro.config.mjs` - `accessibility: false` should be set.
+2. **"Missing content" warnings**: Check for proper `aria-label` attributes on interactive elements.
+3. **"Redundant text in alt attribute"**: Alt text should describe the image, not repeat visible text. Use descriptive alt text instead of post titles.
+
+### Performance Warnings
+1. **"Unoptimized loading attribute"**: Above-the-fold images should use `loading="eager"`. First post on pages should have `eager={true}` prop.
+2. **Image loading issues**: Check if `eager` prop is being passed correctly to PostCard components.
+
+### Image System Confusion (Common AI Agent Mistake)
+- **Post cards** show images based on `showCoverImages` config, NOT `hideCoverImage` frontmatter
+- **Post content** shows images based on `hideCoverImage` frontmatter, NOT config
+- These are completely separate systems - don't mix them up!
+
+### Development vs Production
+- **Development**: Missing images show placeholders, warnings are logged
+- **Production**: Missing images cause build failures
+- Always run `pnpm run check-images` before deploying
+
+### File Structure Patterns
+- **Folder-based posts**: Use `index.md` as the main content file
+- **Assets**: Co-locate with `index.md` in the same folder
+- **URLs**: Folder name becomes the slug automatically
+
+### Component Hierarchy
+- **BaseLayout.astro**: Main layout with Swup container
+- **PostLayout.astro**: Individual post layout
+- **PostCard.astro**: Post cards for listings (controlled by config)
+- **PostContent.astro**: Post content rendering (controlled by frontmatter)
+- **ImageWrapper.astro**: Handles image optimization and fallbacks
+
+### Key Configuration Files
+- **`src/config.ts`**: Main site configuration including `showCoverImages`
+- **`astro.config.mjs`**: Astro and Swup configuration
+- **`src/config/dev.ts`**: Development-specific settings
 
 This comprehensive guide should help AI agents understand the project structure, development practices, and content organization patterns used in this Astro modular theme.

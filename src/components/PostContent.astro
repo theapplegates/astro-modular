@@ -97,7 +97,7 @@ const { Content, toc, readingTime, wordCount } = post;
                 // Default to global images directory
                 return "/posts/images/";
               })()}
-              alt={post.data.imageAlt || post.data.title}
+              alt={post.data.imageAlt || `Image in post: ${post.data.title}`}
               class="w-full h-full"
               width={1200}
               height={675}

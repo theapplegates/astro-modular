@@ -31,7 +31,7 @@ export function generatePostSEO(post: Post, url: string): SEOData {
     }
     ogImage = {
       url: imageUrl,
-      alt: post.data.imageAlt || `Cover image for ${title}`,
+      alt: post.data.imageAlt || `Featured image for post: ${title}`,
       width: 1200,
       height: 630,
     };
@@ -66,7 +66,7 @@ export function generatePageSEO(page: Page, url: string): SEOData {
   if (image && imageOG) {
     ogImage = {
       url: `${siteConfig.site}${image.startsWith('/') ? '' : '/'}${image}`,
-      alt: page.data.imageAlt || `Cover image for ${title}`,
+      alt: page.data.imageAlt || `Featured image for page: ${title}`,
       width: 1200,
       height: 630
     };

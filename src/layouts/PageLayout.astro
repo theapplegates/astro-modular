@@ -79,7 +79,7 @@ const structuredData = {
               <ImageWrapper
                 src={page.data.image}
                 basePath="/pages/images/"
-                alt={page.data.imageAlt || page.data.title}
+                alt={page.data.imageAlt || `Featured image for page: ${page.data.title}`}
                 class="w-full h-full"
                 width={800}
                 height={450}

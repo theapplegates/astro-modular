@@ -8,7 +8,7 @@ tags:
   - astro
 draft: false
 image: "[[cover.png]]"
-imageAlt: Sample cover image
+imageAlt: A beautiful multi-tiered waterfall cascading into a turquoise lake surrounded by lush green forest
 hideCoverImage: false
 ---
 This is a test post to demonstrate how the folder-based approach works. The folder name `sample-folder-post` should become the slug for this post.

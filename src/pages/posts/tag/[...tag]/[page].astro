@@ -117,8 +117,8 @@ const pagination = {
         <div class="max-w-none">
           <!-- Posts list -->
           <div class="space-y-6 mb-12">
-            {paginatedPosts.map(post => (
-              <PostCard post={post} context="tags" />
+            {paginatedPosts.map((post, index) => (
+              <PostCard post={post} context="tags" eager={index < 2} />
             ))}
           </div>
 
