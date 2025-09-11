@@ -174,6 +174,7 @@ Use [[wikilinks]] to connect posts.
 > Work exactly like in Obsidian!
 ```
 
+You can also create folder-based posts, as you can see here: [Sample Folder-Based Post](posts/sample-folder-post/index.md). The base filename is `index.md` and the parent folder filename serves as the slug of the post.
 ## Creating Pages 
 
 The About page represents a standard page you can duplicate easily. Its frontmatter looks like this: 

@@ -211,21 +211,61 @@ export function getAdjacentPosts(posts: Post[], currentSlug: string) {
 // Extract tags from posts
 export function extractTags(posts: Post[]): string[] {
   const tags = new Set<string>();
+  const isDev = import.meta.env.DEV;
 
-  posts.forEach(post => {
-    if (post.data.tags) {
-      post.data.tags.forEach(tag => tags.add(tag));
+  try {
+    posts.forEach(post => {
+      if (post.data.tags) {
+        // Handle both string and array tags, and filter out invalid values
+        const postTags = Array.isArray(post.data.tags) ? post.data.tags : [post.data.tags];
+        postTags.forEach(tag => {
+          if (tag && typeof tag === 'string' && tag.trim()) {
+            tags.add(tag.trim());
+          } else if (isDev) {
+            console.warn(`[Dev] Invalid tag found in post "${post.slug}":`, tag);
+          }
+        });
+      }
+    });
+  } catch (error) {
+    if (isDev) {
+      console.warn('[Dev] Error extracting tags from posts:', error);
+      console.warn('[Dev] Continuing with empty tag list...');
     }
-  });
+    return [];
+  }
 
   return Array.from(tags).sort();
 }
 
 // Filter posts by tag
 export function filterPostsByTag(posts: Post[], tag: string): Post[] {
-  return posts.filter(post => 
-    post.data.tags && post.data.tags.includes(tag)
-  );
+  const isDev = import.meta.env.DEV;
+  
+  if (!tag || typeof tag !== 'string') {
+    if (isDev) {
+      console.warn('[Dev] Invalid tag provided to filterPostsByTag:', tag);
+    }
+    return [];
+  }
+
+  try {
+    return posts.filter(post => {
+      if (!post.data.tags) return false;
+      
+      // Handle both string and array tags
+      const postTags = Array.isArray(post.data.tags) ? post.data.tags : [post.data.tags];
+      return postTags.some(postTag => 
+        postTag && typeof postTag === 'string' && postTag.trim() === tag.trim()
+      );
+    });
+  } catch (error) {
+    if (isDev) {
+      console.warn('[Dev] Error filtering posts by tag:', error);
+      console.warn('[Dev] Returning empty post list...');
+    }
+    return [];
+  }
 }
 
 // Create post slug from title

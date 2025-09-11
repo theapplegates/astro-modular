@@ -3,7 +3,6 @@ title: Sample Folder-Based Post
 description: This is a test post to demonstrate the folder-based approach
 date: 2025-09-09
 tags:
-  - test
   - folder-based
   - astro
 draft: false

@@ -32,6 +32,16 @@ export const devConfig = {
     showDetails: true,
     // Continue build process even with non-critical errors
     continueOnNonCriticalErrors: true
+  },
+  
+  // Tag handling
+  tags: {
+    // Gracefully handle missing or deleted tags in development
+    handleMissingTags: true,
+    // Log tag-related warnings in development
+    logTagWarnings: true,
+    // Continue processing even if some tags are missing
+    continueOnMissingTags: true
   }
 };
 

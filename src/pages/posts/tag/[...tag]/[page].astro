@@ -10,40 +10,98 @@ import Pagination from '@/components/Pagination.astro';
 import Icon from '@/components/Icon.astro';
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  // Get all posts
-  const allPosts = await getCollection('posts');
   const isDev = import.meta.env.DEV;
-  const visiblePosts = allPosts.filter(post => shouldShowPost(post, isDev));
-  const sortedPosts = sortPostsByDate(visiblePosts);
+  
+  try {
+    // Get all posts
+    const allPosts = await getCollection('posts');
+    const visiblePosts = allPosts.filter(post => shouldShowPost(post, isDev));
+    const sortedPosts = sortPostsByDate(visiblePosts);
 
-  // Extract all unique tags
-  const allTags = extractTags(sortedPosts);
+    // Extract all unique tags with error handling
+    const allTags = extractTags(sortedPosts);
 
-  const postsPerPage = siteConfig.postsPerPage;
-  const paths: any[] = [];
-
-  // Generate paths for each tag and its pagination
-  for (const tag of allTags) {
-    const tagPosts = sortedPosts.filter(post => post.data.tags?.includes(tag));
-    const totalPages = Math.ceil(tagPosts.length / postsPerPage);
-
-    for (let page = 2; page <= totalPages; page++) {
-      paths.push({
-        params: { tag: tag, page: page.toString() },
-        props: { tag, allPosts: sortedPosts, allTags, currentPage: page }
-      });
+    if (isDev && allTags.length === 0) {
+      console.warn('[Dev] No tags found in posts. This might indicate an issue with tag extraction.');
     }
-  }
 
-  return paths;
+    const postsPerPage = siteConfig.postsPerPage;
+    const paths: any[] = [];
+
+    // Generate paths for each tag and its pagination
+    for (const tag of allTags) {
+      try {
+        const tagPosts = sortedPosts.filter(post => {
+          if (!post.data.tags) return false;
+          const postTags = Array.isArray(post.data.tags) ? post.data.tags : [post.data.tags];
+          return postTags.some((postTag: any) => 
+            postTag && typeof postTag === 'string' && postTag.trim() === tag.trim()
+          );
+        });
+        const totalPages = Math.ceil(tagPosts.length / postsPerPage);
+
+        for (let page = 2; page <= totalPages; page++) {
+          paths.push({
+            params: { tag: tag, page: page.toString() },
+            props: { tag, allPosts: sortedPosts, allTags, currentPage: page }
+          });
+        }
+      } catch (error) {
+        if (isDev) {
+          console.warn(`[Dev] Error processing tag "${tag}":`, error);
+        }
+        // Continue with other tags
+      }
+    }
+
+    return paths;
+  } catch (error) {
+    if (isDev) {
+      console.warn('[Dev] Error generating paginated tag paths:', error);
+      console.warn('[Dev] Returning empty paths array...');
+    }
+    return [];
+  }
 };
 
-const { tag, allPosts, allTags, currentPage } = Astro.props;
+const { tag, allPosts, allTags, currentPage } = Astro.props as {
+  tag: string;
+  allPosts: any[];
+  allTags: string[];
+  currentPage: number;
+};
+const isDev = import.meta.env.DEV;
 
-// Filter posts by the current tag
-const filteredPosts = allPosts.filter((post: any) => 
-  post.data.tags?.includes(tag)
-);
+// Validate tag parameter
+if (!tag || typeof tag !== 'string') {
+  if (isDev) {
+    console.warn('[Dev] Invalid tag parameter:', tag);
+  }
+  // Return 404 or redirect in production, show error in dev
+  if (!isDev) {
+    return Astro.redirect('/404');
+  }
+}
+
+// Filter posts by the current tag with error handling
+let filteredPosts: any[] = [];
+try {
+  filteredPosts = allPosts.filter((post: any) => {
+    if (!post.data.tags) return false;
+    
+    // Handle both string and array tags
+    const postTags = Array.isArray(post.data.tags) ? post.data.tags : [post.data.tags];
+    return postTags.some((postTag: any) => 
+      postTag && typeof postTag === 'string' && postTag.trim() === tag.trim()
+    );
+  });
+} catch (error) {
+  if (isDev) {
+    console.warn('[Dev] Error filtering posts by tag:', error);
+    console.warn('[Dev] Using empty post list...');
+  }
+  filteredPosts = [];
+}
 
 // Pagination
 const postsPerPage = siteConfig.postsPerPage;

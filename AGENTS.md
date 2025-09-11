@@ -1,15 +1,63 @@
 # AI Agent Guide for Astro Modular Theme
 
-This document contains essential information for AI agents working with this Astro-based blog theme. It combines development practices, folder-based content organization, and technical implementation details.
+This document contains essential information for AI agents working with this Astro-based blog theme. It combines development practices, folder-based content organization, technical implementation details, and the project's vision for seamless Obsidian-to-web publishing.
 
 ## Table of Contents
 
-1. [Development Environment](#development-environment)
-2. [Content Organization](#content-organization)
-3. [Image Handling](#image-handling)
-4. [Build Process](#build-process)
-5. [Troubleshooting](#troubleshooting)
-6. [Best Practices](#best-practices)
+1. [Project Vision & Philosophy](#project-vision--philosophy)
+2. [Development Environment](#development-environment)
+3. [Content Organization](#content-organization)
+4. [Obsidian Integration](#obsidian-integration)
+5. [Image Handling](#image-handling)
+6. [Build Process](#build-process)
+7. [Configuration & Customization](#configuration--customization)
+8. [Troubleshooting](#troubleshooting)
+9. [Best Practices](#best-practices)
+10. [Common AI Agent Mistakes](#common-ai-agent-mistakes)
+
+## Project Vision & Philosophy
+
+### Core Mission
+Astro Modular is a powerful, modular blog theme for Astro specifically designed for **Obsidian users** who want to seamlessly publish their notes and content to the web with minimal friction. This theme bridges the gap between your Obsidian vault and a production-ready blog.
+
+### Key Design Principles
+
+#### 1. **Built for Obsidian Users**
+- **Direct Obsidian integration** - Write in a dedicated vault, publish to your blog
+- **Wikilinks support** - `[[Internal Links]]` and `[[Link|Custom Text]]` work seamlessly
+- **Obsidian callouts** - Full support for `> [!note]`, `> [!tip]`, `> [!warning]` and more
+- **Tag compatibility** - Your Obsidian tags become blog tags automatically
+- **Frontmatter sync** - Compatible metadata structure between Obsidian and Astro
+- **Folder-based organization** - Keep content and assets together in dedicated folders
+- **Obsidian bracket syntax** - Support for `[[image.jpg]]` syntax in image references
+- **[Astro Suite Obsidian Vault](https://github.com/davidvkimball/obsidian-astro-suite) built-in** - Includes Obsidian vault configuration for streamlined publishing
+
+#### 2. **Flexible & Customizable**
+- **Modular design** - Each feature can be enabled/disabled independently
+- **Multiple color options** - Select from a variety of prebuilt themes (Oxygen, Minimal, Atom, Ayu, Catppuccin, Charcoal, Dracula, Everforest, Flexoki, Gruvbox, macOS, Nord, Obsidian, Rosé Pine, Sky, Solarized, and Things)
+- **95+ Lighthouse scores** across all metrics with TypeScript throughout
+- **Command palette** - Press `Ctrl+K` (or custom hotkey) for instant navigation and search
+- **Responsive image grids** - Automatic layouts for multiple consecutive images
+- **Dark/light themes** - System preference detection with manual toggle
+- **SEO ready** - Automatic sitemaps, RSS feeds, and Open Graph images
+
+#### 3. **Content Management Excellence**
+- **Markdown-first** with enhanced processing and reading time estimation
+- **Folder-based posts** - Organize content and assets in dedicated folders (like Fuwari)
+- **Draft support** - Show drafts in development, hide in production
+- **Image optimization** with WebP format priority and responsive layouts
+- **Table of contents** auto-generation from headings
+
+#### 4. **Navigation & Discovery**
+- **Fuzzy search** through all content via command palette
+- **Linked mentions** - See which posts reference each other
+- **Tag filtering** and next/previous navigation between posts
+
+### Target Audience
+- **Obsidian power users** who want to publish their notes
+- **Content creators** who prefer markdown-first workflows
+- **Developers** who want a customizable, performant blog
+- **Writers** who value seamless editing and publishing experience
 
 ## Development Environment
 
@@ -121,6 +169,98 @@ src/content/posts/
 - **Pages**: Title comes from markdown content, prose handles presentation
 - **Consistency**: Both use the same prose classes for content, but different approaches for titles
 - **AI Agents**: Never add H1 to post markdown or remove H1 from page markdown
+
+## Obsidian Integration
+
+### Astro Suite Vault Philosophy
+The included Obsidian vault follows three core principles:
+1. **Plug-and-play Astro blogging experience**
+2. **Emphasis on modularity**
+3. **Customize your experience to get it just right**
+
+### Vault Setup & Configuration
+
+#### Theme & Visual Experience
+- **Minimal Theme** - Understated color scheme with high contrast options
+- **Minimal Theme Settings** - Complete control over your experience
+- **Hider Plugin** - Remove distracting UI elements
+- **Style Settings** - Fine-tune visual appearance
+- **Custom CSS Snippets** - Optional enhancements for window management and mobile interface
+
+#### Essential Hotkeys for AI Agents
+When working with the Obsidian vault, these hotkeys are crucial:
+- **Toggle left side panel**: `CTRL + ALT + Z`
+- **Toggle right side panel**: `CTRL + ALT + X`
+- **Toggle tab bar**: `CTRL + ALT + S`
+- **Navigate back/forward**: `ALT + ←` / `ALT + →`
+- **Open homepage**: `CTRL + M`
+- **Add property**: `CTRL + ;`
+- **Toggle reading view**: `CTRL + E`
+- **Toggle Zen mode**: `CTRL + SHIFT + Z`
+- **Insert image**: `CTRL + '`
+- **Insert callout**: `CTRL + SHIFT + C`
+- **Rename note**: `CTRL + R`
+- **Start Terminal**: `CTRL + SHIFT + D`
+- **Open config file**: `CTRL + SHIFT + ,`
+- **Git Commit and Sync**: `CTRL + SHIFT + S`
+
+*Note: On Mac, `CTRL` = `CMD`*
+
+### Key Plugins for Content Creation
+
+#### Astro Composer
+- **Purpose**: Easily create new notes as Astro blog posts
+- **Functionality**: 
+  - Creates kebab-case filenames from titles automatically
+  - Supports `CTRL + R` for easy renaming
+  - Generates default properties automatically
+  - Works with both wikilinks and standard markdown links
+- **Critical**: Unlike other themes, this theme supports **any internal link that works with Obsidian** without conversion
+
+#### Homepage and Default New Tab Page
+- **Home Base**: Default screen shows a `.base` file with all blog posts in reverse-chronological order
+- **Location**: Nested in `_bases` folder (underscore prefix prevents Astro processing)
+- **Customization**: Note properties in views can be customized
+
+#### Content Management Plugins
+- **Paste Image Rename**: Quickly rename images with kebab-case, SEO-friendly names
+- **Image Inserter**: Pull images from Unsplash with `CTRL + '`
+- **Title-Only Tab**: Uses `title` property instead of filename for tabs
+- **Property Over Filename**: Use `title` property as primary identifier for linking/searching
+- **Alias Filename History**: Stores old filenames as aliases for URL redirects
+
+#### Focus & Productivity
+- **ProZen**: Full-screen writing mode with `CTRL + SHIFT + Z`
+- **Disable Tabs**: Optional - new tabs replace current ones (great with hidden tab bar)
+- **Shell Commands**: Quick access to terminal and config file
+
+### Git Integration
+- **Git Plugin**: Publish to Astro blog without leaving Obsidian
+- **Command**: `CTRL + SHIFT + S` for commit and sync
+- **Configuration**: Requires git setup to enable
+
+### Content Workflow
+1. **Write in Obsidian** using the configured vault
+2. **Use wikilinks** for internal connections (`[[Post Title]]` or `[[Post Title|Custom Text]]`)
+3. **Add images** with `CTRL + '` and automatic SEO-friendly naming
+4. **Create callouts** with `CTRL + SHIFT + C`
+5. **Publish** with `CTRL + SHIFT + S` (git commit and sync)
+6. **Content appears** on your Astro blog automatically
+
+### Vault Structure
+```
+src/content/
+├── posts/           # Blog posts
+│   ├── images/      # Post images
+│   └── *.md         # Markdown files
+├── pages/           # Static pages
+│   ├── images/      # Page images
+│   └── *.md         # Markdown files
+└── .obsidian/       # Obsidian vault setup
+    ├── plugins/     # Configured plugins
+    ├── themes/      # Minimal theme
+    └── snippets/    # Custom CSS snippets
+```
 
 ## Page Transitions with Swup
 
@@ -297,6 +437,210 @@ Supported platforms with specific configurations:
 - **Vercel**: `pnpm run build:vercel`
 - **GitHub Pages**: `pnpm run build:github-pages`
 
+## Configuration & Customization
+
+### Core Configuration (`src/config.ts`)
+
+The configuration is organized in logical sections for easy customization:
+
+#### Site Information
+```typescript
+export const siteConfig = {
+  site: 'https://yourdomain.com',
+  title: 'Your Blog Title',
+  description: 'Your blog description',
+  author: 'Your Name',
+  language: 'en',
+}
+```
+
+#### Theme & Layout Options
+```typescript
+theme: "oxygen",  // Available: Oxygen, Minimal, Atom, Ayu, Catppuccin, Charcoal, Dracula, Everforest, Flexoki, Gruvbox, macOS, Nord, Obsidian, Rosé Pine, Sky, Solarized, Things
+layout: {
+  contentWidth: "45rem",
+},
+postsPerPage: 5,
+recentPostsCount: 3,
+```
+
+#### Modular Features Configuration
+```typescript
+features: {
+  flags: {
+    readingTime: true,
+    wordCount: true,
+    tableOfContents: true,
+    tags: true,
+    linkedMentions: true,
+    scrollToTop: true,
+    darkModeToggleButton: true,
+    commandPalette: true,
+    postNavigation: true,
+    showLatestPost: true,
+    showSocialIconsInFooter: true,
+  },
+  showCoverImages: "latest-and-posts", // See cover image options below
+}
+```
+
+#### Cover Image Options
+- `"all"` - Show cover images everywhere
+- `"latest"` - Show only on the latest post section and featured posts
+- `"home"` - Show on homepage sections (latest and recent)
+- `"posts"` - Show only on posts pages, tag pages, and post listings
+- `"latest-and-posts"` - Show on latest post section AND posts pages/tags (but not recent posts section)
+- `"none"` - Never show cover images
+
+#### Navigation Configuration
+```typescript
+navigation: {
+  showNavigation: true,
+  style: 'traditional', // or 'minimal'
+  showMobileMenu: true,
+  pages: [
+    { title: 'Posts', url: '/posts' },
+    { title: 'About', url: '/about' }
+  ],
+  social: [
+    { title: 'GitHub', url: 'https://github.com/username', icon: 'github' }
+  ],
+}
+```
+
+#### SEO Configuration
+```typescript
+seo: {
+  defaultOgImageAlt: "Astro Modular logo.",
+},
+homeBlurb: {
+  enabled: true,
+  placement: "below", // 'above' or 'below'
+},
+footer: {
+  content: `© 2025 {author}. Built with Astro Modular.`,
+}
+```
+
+### Content Frontmatter Schemas
+
+#### Posts Frontmatter
+```yaml
+---
+title: "Your Post Title"
+date: 2024-01-20
+description: "Meta & open graph description"
+tags:
+  - tutorial
+  - astro
+image: "images/cover.jpg"  # or "[[images/cover.jpg]]" for Obsidian syntax
+imageAlt: "Alt text"
+imageOG: true
+hideCoverImage: false
+targetKeyword: "keyword"
+author: "Author Name"
+draft: true
+noIndex: false
+---
+```
+
+#### Pages Frontmatter
+```yaml
+---
+title: "Your Page Title"
+description: "Meta & open graph description"
+draft: false
+lastModified: 2024-01-20
+image: "images/page-image.jpg"
+imageAlt: "Alt text"
+hideCoverImage: false
+noIndex: false
+---
+```
+
+### Development Configuration (`src/config/dev.ts`)
+
+#### Image Handling
+```typescript
+images: {
+  showPlaceholders: true,        // Show placeholder images for missing assets
+  logMissingImages: true,        // Log missing images to console
+  fallbacks: {
+    posts: '/posts/images/placeholder.jpg',
+    pages: '/pages/images/placeholder.jpg',
+    default: '/posts/images/placeholder.jpg'
+  }
+}
+```
+
+#### Content Processing
+```typescript
+content: {
+  continueOnMissingAssets: true, // Continue processing with missing assets
+  logWarnings: true              // Log content processing warnings
+}
+```
+
+#### Error Handling
+```typescript
+errors: {
+  showDetails: true,             // Show detailed error information
+  continueOnNonCriticalErrors: true
+}
+```
+
+#### Tag Handling (Recently Added)
+```typescript
+tags: {
+  handleMissingTags: true,       // Gracefully handle missing/deleted tags
+  logTagWarnings: true,          // Log tag-related warnings
+  continueOnMissingTags: true    // Continue processing with missing tags
+}
+```
+
+### Theme Customization
+
+#### Available Themes
+- **Oxygen** (default) - Modern, clean design
+- **Minimal** - Understated with high contrast
+- **Atom** - Dark theme with vibrant accents
+- **Ayu** - Three variants (light, mirage, dark)
+- **Catppuccin** - Pastel color palette
+- **Charcoal** - Dark, professional look
+- **Dracula** - Dark theme with purple accents
+- **Everforest** - Soft, warm colors
+- **Flexoki** - Based on Material Design 3
+- **Gruvbox** - Retro groove color scheme
+- **macOS** - Native macOS appearance
+- **Nord** - Arctic-inspired color palette
+- **Obsidian** - Matches Obsidian's default theme
+- **Rosé Pine** - All natural pine, faux fir, and winter
+- **Sky** - Light, airy design
+- **Solarized** - Precision colors for machines and people
+- **Things** - Clean, minimal design
+
+#### Theme Switching
+- Use the command palette (`Ctrl+K`) for instant theme switching
+- Themes require hard refresh (`Ctrl+Shift+R`) to see changes
+- All themes maintain 95+ Lighthouse scores
+
+### Content Structure Customization
+
+#### Folder-Based Posts
+- Use descriptive kebab-case folder names
+- Keep assets co-located with `index.md`
+- Folder name becomes the URL slug automatically
+
+#### Traditional Posts
+- Single markdown files in `src/content/posts/`
+- Images in `src/content/posts/images/`
+- Use relative paths for images
+
+#### Pages
+- Static pages in `src/content/pages/`
+- Images in `src/content/pages/images/`
+- Use H1 headings in markdown content
+
 ## Troubleshooting
 
 ### Common Image Issues
@@ -428,4 +772,128 @@ All SEO features work with folder-based posts:
 - **`astro.config.mjs`**: Astro and Swup configuration
 - **`src/config/dev.ts`**: Development-specific settings
 
-This comprehensive guide should help AI agents understand the project structure, development practices, and content organization patterns used in this Astro modular theme.
+## Common AI Agent Mistakes
+
+### Critical Distinctions to Remember
+
+#### 1. **Image System Confusion (Most Common)**
+- **Post cards** show images based on `showCoverImages` config, NOT `hideCoverImage` frontmatter
+- **Post content** shows images based on `hideCoverImage` frontmatter, NOT config
+- These are completely separate systems - don't mix them up!
+
+#### 2. **H1 Title Handling**
+- **Posts**: NO H1 in markdown content - title comes from frontmatter
+- **Pages**: MUST have H1 in markdown content - no hardcoded title in layout
+- Never add H1 to post markdown or remove H1 from page markdown
+
+#### 3. **Package Manager**
+- Always use `pnpm` instead of `npm` for all commands
+- Scripts: `pnpm run <script-name>`, not `npm run <script-name>`
+
+#### 4. **Development vs Production Behavior**
+- **Development**: Missing images show placeholders, warnings are logged
+- **Production**: Missing images cause build failures
+- Always run `pnpm run check-images` before deploying
+
+### Accessibility Warnings
+
+#### 1. **"Invalid tabindex on non-interactive element"**
+- Usually caused by Swup
+- Check `astro.config.mjs` - `accessibility: false` should be set
+- This is intentional to prevent Swup from adding invalid tabindex attributes
+
+#### 2. **"Missing content" warnings**
+- Check for proper `aria-label` attributes on interactive elements
+- Ensure all interactive elements have accessible labels
+
+#### 3. **"Redundant text in alt attribute"**
+- Alt text should describe the image, not repeat visible text
+- Use descriptive alt text instead of post titles
+- Avoid generic descriptions like "image" or "photo"
+
+### Performance Warnings
+
+#### 1. **"Unoptimized loading attribute"**
+- Above-the-fold images should use `loading="eager"`
+- First post on pages should have `eager={true}` prop
+- Check if `eager` prop is being passed correctly to PostCard components
+
+#### 2. **Image Loading Issues**
+- Verify `eager` prop is being passed correctly
+- Check image loading attributes in PostCard components
+- Ensure proper `fetchpriority` attributes for critical images
+
+### Content Structure Mistakes
+
+#### 1. **File Structure Patterns**
+- **Folder-based posts**: Use `index.md` as the main content file
+- **Assets**: Co-locate with `index.md` in the same folder
+- **URLs**: Folder name becomes the slug automatically
+
+#### 2. **Obsidian Integration**
+- Wikilinks work without conversion - don't convert them
+- Use `[[image.jpg]]` syntax for Obsidian compatibility
+- Tags sync automatically between Obsidian and blog
+
+#### 3. **Frontmatter Issues**
+- Use proper YAML syntax with correct indentation
+- Include all required fields for posts and pages
+- Validate frontmatter before committing changes
+
+### Development Workflow Mistakes
+
+#### 1. **Not Using Development Tools**
+- Run `pnpm run check-images` regularly
+- Monitor console for development warnings
+- Use placeholder system for missing assets
+
+#### 2. **Ignoring Graceful Error Handling**
+- The system handles missing tags gracefully in development
+- Don't panic about console warnings - they're helpful
+- Continue development with placeholders when needed
+
+#### 3. **Build Process Issues**
+- Always test builds locally before deploying
+- Fix all missing images before production builds
+- Use the correct build commands for your deployment platform
+
+### Component Hierarchy Understanding
+
+#### 1. **Layout Components**
+- **BaseLayout.astro**: Main layout with Swup container
+- **PostLayout.astro**: Individual post layout (hardcoded H1)
+- **PageLayout.astro**: Page layout (no hardcoded H1)
+
+#### 2. **Content Components**
+- **PostCard.astro**: Post cards for listings (controlled by config)
+- **PostContent.astro**: Post content rendering (controlled by frontmatter)
+- **ImageWrapper.astro**: Handles image optimization and fallbacks
+
+#### 3. **Key Configuration Files**
+- **`src/config.ts`**: Main site configuration
+- **`astro.config.mjs`**: Astro and Swup configuration
+- **`src/config/dev.ts`**: Development-specific settings
+
+### Best Practices for AI Agents
+
+#### 1. **Always Check Context**
+- Read the existing code before making changes
+- Understand the component hierarchy
+- Check configuration files for relevant settings
+
+#### 2. **Test Changes Incrementally**
+- Make small, focused changes
+- Test each change before proceeding
+- Use the development server to verify changes
+
+#### 3. **Follow the Project's Philosophy**
+- Respect the Obsidian-first approach
+- Maintain the modular design principles
+- Preserve the seamless publishing workflow
+
+#### 4. **Document Changes**
+- Add comments for complex logic
+- Update configuration documentation
+- Explain non-obvious decisions
+
+This comprehensive guide should help AI agents understand the project structure, development practices, content organization patterns, and common pitfalls when working with this Astro modular theme.
