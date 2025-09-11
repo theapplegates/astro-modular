@@ -34,10 +34,14 @@ import Icon from './Icon.astro';
             id="command-palette-input"
             type="text"
             placeholder={siteConfig.commandPalette.placeholder}
-            class="w-full pl-10 pr-10 py-3 bg-primary-50 dark:bg-primary-800 border border-primary-200 dark:border-primary-600 rounded-lg text-primary-900 dark:text-primary-50 placeholder-primary-500 dark:placeholder-primary-400 focus:outline-none focus:ring-2 focus:ring-highlight-500 focus:border-transparent"
+            class="w-full pl-4 pr-10 py-3 bg-primary-50 dark:bg-primary-800 border border-primary-200 dark:border-primary-600 rounded-lg text-primary-900 dark:text-primary-50 placeholder-primary-500 dark:placeholder-primary-400 focus:outline-none focus:ring-2 focus:ring-highlight-500 focus:border-transparent"
             autocomplete="off"
             spellcheck="false"
           >
+          <!-- Search icon -->
+          <div class="absolute right-3 top-1/2 transform -translate-y-1/2">
+            <Icon name="search" class="w-4 h-4 text-primary-500 dark:text-primary-400" />
+          </div>
           <!-- Inline loading indicator -->
           <div id="command-palette-inline-loading" class="absolute right-3 top-1/2 transform -translate-y-1/2 hidden">
             <div class="animate-spin rounded-full h-4 w-4 border-2 border-primary-300 dark:border-primary-600 border-t-highlight-500"></div>
@@ -148,6 +152,7 @@ import Icon from './Icon.astro';
     url: string;
     type: 'post' | 'page' | 'action';
     score?: number; // Score for search relevance
+    tags?: string[]; // Tags for posts
   }
 
   // Command Palette Class Definition
@@ -164,6 +169,15 @@ import Icon from './Icon.astro';
     private selectedIndex: number = -1;
     private items: CommandPaletteItem[] = []; // Holds all fetched items
     private filteredItems: CommandPaletteItem[] = []; // Holds items after filtering by search query
+    private searchTimeout: number | null = null; // For debouncing
+    private cache: Map<string, CommandPaletteItem[]> = new Map(); // Search result cache
+    private fuse: any = null; // Fuse.js instance for fuzzy search
+    private searchHistory: string[] = []; // Track search history for suggestions
+    private currentContext: string = 'all'; // Current search context
+    private readonly MAX_RESULTS = 50; // Increased for better UX
+    private readonly SEARCH_DEBOUNCE_MS = 100; // Faster debounce for better responsiveness
+    private readonly MAX_CACHE_SIZE = 100; // Limit cache size
+    private readonly VIRTUAL_SCROLL_THRESHOLD = 100; // Enable virtual scrolling for large lists
 
     constructor() {
       // Get references to DOM elements
@@ -176,8 +190,10 @@ import Icon from './Icon.astro';
       this.defaultItems = document.getElementById('command-palette-default')!;
       this.searchResults = document.getElementById('command-palette-search-results')!;
 
-      // Initialize the palette (don't load posts until needed)
+      // Initialize the palette and preload data
       this.init();
+      this.loadSearchHistory();
+      this.preloadData();
     }
 
     private init() {
@@ -228,6 +244,11 @@ import Icon from './Icon.astro';
       // Command+K shortcut is handled globally in BaseLayout
     }
 
+    private async preloadData() {
+      // Preload posts data in the background for faster search
+      this.loadPosts();
+    }
+
     private async loadPosts() {
       // Only load if not already loaded
       if (this.items.length > 0) {
@@ -238,6 +259,7 @@ import Icon from './Icon.astro';
         const response = await fetch('/api/posts.json');
         if (response.ok) {
           this.items = await response.json();
+          this.initializeFuseSearch();
         } else {
           console.error('Failed to fetch posts:', response.statusText);
           // Fallback to empty array
@@ -249,6 +271,114 @@ import Icon from './Icon.astro';
         this.items = [];
       }
     }
+
+    private async initializeFuseSearch() {
+      // Dynamically import Fuse.js to avoid blocking initial load
+      const Fuse = (await import('fuse.js')).default;
+      
+      this.fuse = new Fuse(this.items, {
+        keys: [
+          { name: 'title', weight: 0.5 },
+          { name: 'description', weight: 0.2 },
+          { name: 'tags', weight: 0.3 }
+        ],
+        threshold: 0.3, // Lower threshold for more fuzzy matching
+        includeScore: true,
+        includeMatches: true,
+        minMatchCharLength: 1,
+        shouldSort: true,
+        findAllMatches: true,
+        ignoreLocation: true,
+        useExtendedSearch: true
+      });
+    }
+
+    // Advanced search using Fuse.js with fallback to basic search
+    private searchItems(query: string): CommandPaletteItem[] {
+      if (!query.trim()) return [];
+
+      // Use Fuse.js if available, otherwise fallback to basic search
+      if (this.fuse) {
+        return this.fuzzySearch(query);
+      } else {
+        return this.basicSearch(query);
+      }
+    }
+
+    private fuzzySearch(query: string): CommandPaletteItem[] {
+      const results = this.fuse.search(query);
+      return results
+        .slice(0, this.MAX_RESULTS)
+        .map((result: any) => ({
+          ...result.item,
+          score: result.score ? (1 - result.score) * 1000 : 0, // Convert Fuse score to our scale
+          matches: result.matches
+        }));
+    }
+
+    private basicSearch(query: string): CommandPaletteItem[] {
+      const queryLower = query.toLowerCase();
+      const queryWords = queryLower.split(/\s+/).filter(word => word.length > 0);
+
+      return this.items
+        .map(item => {
+          const title = item.title.toLowerCase();
+          const description = (item.description || '').toLowerCase();
+          const tags = (item.tags || []).join(' ').toLowerCase();
+
+          let score = 0;
+
+          // Exact title match gets highest score
+          if (title === queryLower) {
+            score += 1000;
+          } else if (title.startsWith(queryLower)) {
+            score += 500;
+          } else if (title.includes(queryLower)) {
+            score += 200;
+          }
+
+          // Description match gets medium score
+          if (description.includes(queryLower)) {
+            score += 100;
+          }
+
+          // Tags matching gets high score (similar to title)
+          if (tags.includes(queryLower)) {
+            score += 300;
+          }
+
+          // Word-by-word matching for better fuzzy search
+          queryWords.forEach(word => {
+            if (title.includes(word)) {
+              score += 50;
+            }
+            if (description.includes(word)) {
+              score += 25;
+            }
+            if (tags.includes(word)) {
+              score += 40; // Higher weight for tag matches
+            }
+          });
+
+          // Boost score for matches at word boundaries
+          const wordBoundaryRegex = new RegExp(`\\b${queryLower}`, 'i');
+          if (wordBoundaryRegex.test(title)) {
+            score += 100;
+          }
+          if (wordBoundaryRegex.test(description)) {
+            score += 50;
+          }
+          if (wordBoundaryRegex.test(tags)) {
+            score += 80; // Higher weight for tag word boundary matches
+          }
+
+          return { ...item, score };
+        })
+        .filter(item => item.score > 0)
+        .sort((a, b) => (b.score || 0) - (a.score || 0))
+        .slice(0, this.MAX_RESULTS);
+    }
+
 
     private open() {
       this.isOpen = true;
@@ -266,6 +396,14 @@ import Icon from './Icon.astro';
       this.isOpen = false;
       this.overlay.classList.add('hidden'); // Hide the overlay
       this.input.blur(); // Remove focus from input
+      this.input.value = ''; // Clear search input
+      this.selectedIndex = -1; // Reset selection
+      
+      // Clear search timeout if active
+      if (this.searchTimeout) {
+        clearTimeout(this.searchTimeout);
+        this.searchTimeout = null;
+      }
       
       // Use global scroll restoration function
       if ((window as any).restoreScroll) {
@@ -311,29 +449,106 @@ import Icon from './Icon.astro';
       this.searchResults.classList.remove('hidden');
     }
 
-    private async handleSearch(query: string) {
+    private handleSearch(query: string) {
+      // Clear existing timeout
+      if (this.searchTimeout) {
+        clearTimeout(this.searchTimeout);
+      }
+
       if (!query.trim()) {
         this.showDefault(); // Show default items if query is empty
         return;
       }
 
-      this.showLoading(); // Show loading indicator
+      // Show loading indicator immediately for better UX
+      this.showLoading();
 
-      // Load posts if not already loaded
+      // Debounce the search to avoid excessive processing
+      this.searchTimeout = window.setTimeout(() => {
+        this.performSearch(query);
+      }, this.SEARCH_DEBOUNCE_MS);
+    }
+
+    private async performSearch(query: string) {
+      const trimmedQuery = query.trim();
+      if (!trimmedQuery) {
+        this.showDefault();
+        return;
+      }
+
+      // Track search history
+      this.updateSearchHistory(trimmedQuery);
+
+      // Check cache first
+      const cacheKey = trimmedQuery.toLowerCase();
+      if (this.cache.has(cacheKey)) {
+        this.filteredItems = this.cache.get(cacheKey)!;
+        this.displaySearchResults();
+        return;
+      }
+
+      // Ensure posts are loaded
       await this.loadPosts();
 
-      // Filter items based on the search query (title and description)
-      this.filteredItems = this.items.filter(item => {
-        const searchText = `${item.title} ${item.description || ''}`.toLowerCase();
-        const queryLower = query.toLowerCase();
-        return searchText.includes(queryLower);
-      });
+      // Use improved search algorithm
+      this.filteredItems = this.searchItems(trimmedQuery);
 
+      // Cache the results with size limit
+      this.manageCache(cacheKey, [...this.filteredItems]);
+
+      this.displaySearchResults();
+    }
+
+    private updateSearchHistory(query: string) {
+      // Remove if already exists
+      const index = this.searchHistory.indexOf(query);
+      if (index > -1) {
+        this.searchHistory.splice(index, 1);
+      }
+      
+      // Add to beginning
+      this.searchHistory.unshift(query);
+      
+      // Keep only last 20 searches
+      this.searchHistory = this.searchHistory.slice(0, 20);
+      
+      // Store in localStorage
+      try {
+        localStorage.setItem('command-palette-history', JSON.stringify(this.searchHistory));
+      } catch (e) {
+        // Ignore localStorage errors
+      }
+    }
+
+    private loadSearchHistory() {
+      try {
+        const stored = localStorage.getItem('command-palette-history');
+        if (stored) {
+          this.searchHistory = JSON.parse(stored);
+        }
+      } catch (e) {
+        // Ignore localStorage errors
+      }
+    }
+
+    private manageCache(key: string, results: CommandPaletteItem[]) {
+      // Remove oldest entries if cache is too large
+      if (this.cache.size >= this.MAX_CACHE_SIZE) {
+        const firstKey = this.cache.keys().next().value;
+        if (firstKey) {
+          this.cache.delete(firstKey);
+        }
+      }
+      
+      this.cache.set(key, results);
+    }
+
+    private displaySearchResults() {
       if (this.filteredItems.length === 0) {
-        this.showNoResults(); // Show "no results" message if no items match
+        this.showNoResults();
       } else {
-        this.renderSearchResults(); // Render the filtered results
-        this.showSearchResults(); // Show the search results section
+        this.renderSearchResults();
+        this.showSearchResults();
       }
     }
 
@@ -354,66 +569,164 @@ import Icon from './Icon.astro';
         header.textContent = `Posts (${postItems.length})`;
         postsContainer.appendChild(header);
 
-        // Map through post items and create anchor elements
-        postItems.map((item, index) => {
-          const anchor = document.createElement('a');
-          anchor.href = item.url;
-          anchor.dataset.index = index.toString();
-          anchor.className = `command-palette-item w-full flex items-start space-x-3 px-3 py-3 hover:bg-primary-50 dark:hover:bg-primary-800 rounded-lg transition-colors group ${index === this.selectedIndex ? 'bg-primary-50 dark:bg-primary-800' : ''}`;
-          
-          // Add static SVG icon for file
-          const fileIcon = document.createElement('div');
-          fileIcon.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-primary-500 dark:text-primary-400 group-hover:text-highlight-500 mt-0.5"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>';
-          anchor.appendChild(fileIcon);
-
-          // Add container for title and description
-          const contentDiv = document.createElement('div');
-          contentDiv.className = 'flex-1 min-w-0';
-
-          // Add post title
-          const titleSpan = document.createElement('div');
-          titleSpan.className = 'text-primary-900 dark:text-primary-50 font-medium';
-          titleSpan.textContent = item.title;
-          contentDiv.appendChild(titleSpan);
-
-          // Add post description if it exists (and is not a recent post without description)
-          if (item.description) {
-            const descriptionPara = document.createElement('div');
-            descriptionPara.className = 'text-sm text-primary-600 dark:text-primary-300 mt-1 truncate';
-            descriptionPara.textContent = item.description;
-            contentDiv.appendChild(descriptionPara);
-          }
-
-          anchor.appendChild(contentDiv);
-          postsContainer.appendChild(anchor);
-        });
+        // Use virtual scrolling for large lists
+        if (postItems.length > this.VIRTUAL_SCROLL_THRESHOLD) {
+          this.renderVirtualizedResults(postsContainer, postItems);
+        } else {
+          this.renderStandardResults(postsContainer, postItems);
+        }
       }
       
       this.searchResults.appendChild(postsContainer);
+    }
 
-      // Icons are now static SVG - no re-initialization needed
+    private renderStandardResults(container: HTMLElement, items: CommandPaletteItem[]) {
+      // Use DocumentFragment for better performance
+      const fragment = document.createDocumentFragment();
+
+      items.forEach((item, index) => {
+        const anchor = this.createResultItem(item, index);
+        fragment.appendChild(anchor);
+      });
+
+      container.appendChild(fragment);
+    }
+
+    private renderVirtualizedResults(container: HTMLElement, items: CommandPaletteItem[]) {
+      // Simple virtual scrolling implementation
+      const ITEM_HEIGHT = 60; // Approximate height of each item
+      const VISIBLE_ITEMS = 10; // Number of items visible at once
+      const SCROLL_CONTAINER_HEIGHT = ITEM_HEIGHT * VISIBLE_ITEMS;
+
+      // Create scroll container
+      const scrollContainer = document.createElement('div');
+      scrollContainer.className = 'overflow-y-auto';
+      scrollContainer.style.height = `${SCROLL_CONTAINER_HEIGHT}px`;
+
+      // Create virtual content container
+      const virtualContent = document.createElement('div');
+      virtualContent.style.height = `${items.length * ITEM_HEIGHT}px`;
+      virtualContent.style.position = 'relative';
+
+      // Create viewport container
+      const viewport = document.createElement('div');
+      viewport.style.position = 'absolute';
+      viewport.style.top = '0';
+      viewport.style.left = '0';
+      viewport.style.right = '0';
+
+      // Render initial visible items
+      this.renderVisibleItems(viewport, items, 0, VISIBLE_ITEMS);
+
+      // Add scroll listener for virtual scrolling
+      let scrollTimeout: number;
+      scrollContainer.addEventListener('scroll', () => {
+        clearTimeout(scrollTimeout);
+        scrollTimeout = window.setTimeout(() => {
+          const scrollTop = scrollContainer.scrollTop;
+          const startIndex = Math.floor(scrollTop / ITEM_HEIGHT);
+          const endIndex = Math.min(startIndex + VISIBLE_ITEMS, items.length);
+          
+          // Clear and re-render visible items
+          viewport.innerHTML = '';
+          this.renderVisibleItems(viewport, items, startIndex, endIndex);
+          
+          // Update viewport position
+          viewport.style.transform = `translateY(${startIndex * ITEM_HEIGHT}px)`;
+        }, 16); // ~60fps
+      });
+
+      virtualContent.appendChild(viewport);
+      scrollContainer.appendChild(virtualContent);
+      container.appendChild(scrollContainer);
+    }
+
+    private renderVisibleItems(container: HTMLElement, items: CommandPaletteItem[], startIndex: number, endIndex: number) {
+      const fragment = document.createDocumentFragment();
+      
+      for (let i = startIndex; i < endIndex; i++) {
+        const item = items[i];
+        const anchor = this.createResultItem(item, i);
+        fragment.appendChild(anchor);
+      }
+      
+      container.appendChild(fragment);
+    }
+
+    private createResultItem(item: CommandPaletteItem, index: number): HTMLElement {
+      const anchor = document.createElement('a');
+      anchor.href = item.url;
+      anchor.dataset.index = index.toString();
+      anchor.className = `command-palette-item w-full flex items-start space-x-3 px-3 py-3 hover:bg-primary-50 dark:hover:bg-primary-800 rounded-lg transition-colors group ${index === this.selectedIndex ? 'bg-primary-50 dark:bg-primary-800' : ''}`;
+      
+      // Add static SVG icon for file
+      const fileIcon = document.createElement('div');
+      fileIcon.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-primary-500 dark:text-primary-400 group-hover:text-highlight-500 mt-0.5"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>';
+      anchor.appendChild(fileIcon);
+
+      // Add container for title and description
+      const contentDiv = document.createElement('div');
+      contentDiv.className = 'flex-1 min-w-0';
+
+      // Add post title with highlighting
+      const titleSpan = document.createElement('div');
+      titleSpan.className = 'text-primary-900 dark:text-primary-50 font-medium';
+      titleSpan.innerHTML = this.highlightSearchTerm(item.title, this.input.value);
+      contentDiv.appendChild(titleSpan);
+
+      // Add post description if it exists with highlighting
+      if (item.description) {
+        const descriptionPara = document.createElement('div');
+        descriptionPara.className = 'text-sm text-primary-600 dark:text-primary-300 mt-1 truncate';
+        descriptionPara.innerHTML = this.highlightSearchTerm(item.description, this.input.value);
+        contentDiv.appendChild(descriptionPara);
+      }
+
+      anchor.appendChild(contentDiv);
+      return anchor;
+    }
+
+    // Helper method to highlight search terms in text
+    private highlightSearchTerm(text: string, searchTerm: string): string {
+      if (!searchTerm.trim()) return text;
+      
+      const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+      return text.replace(regex, '<mark class="bg-highlight-200 dark:bg-highlight-800 text-highlight-900 dark:text-highlight-100 px-1 rounded">$1</mark>');
     }
 
     private handleKeyDown(e: KeyboardEvent) {
-      // Get all currently visible command palette items
-      const items = this.searchResults.querySelectorAll('.command-palette-item');
+      // Check if we're showing search results or default items
+      const searchResultsVisible = !this.searchResults.classList.contains('hidden');
+      const defaultItemsVisible = !this.defaultItems.classList.contains('hidden');
+      
+      let items: NodeListOf<Element>;
+      
+      if (searchResultsVisible) {
+        // Get search result items
+        items = this.searchResults.querySelectorAll('.command-palette-item');
+      } else if (defaultItemsVisible) {
+        // Get default items (quick actions, pages, social links)
+        items = this.defaultItems.querySelectorAll('a, button[data-action]');
+      } else {
+        return; // No items to navigate
+      }
 
       switch (e.key) {
         case 'ArrowDown':
           e.preventDefault(); // Prevent default scrolling behavior
           // Move selection down, clamping to the last item
           this.selectedIndex = Math.min(this.selectedIndex + 1, items.length - 1);
-          this.updateSelection(); // Update visual selection
+          this.updateSelection(items); // Update visual selection
           break;
         case 'ArrowUp':
           e.preventDefault(); // Prevent default scrolling behavior
           // Move selection up, clamping to the first item (-1 means no selection)
           this.selectedIndex = Math.max(this.selectedIndex - 1, -1);
-          this.updateSelection(); // Update visual selection
+          this.updateSelection(items); // Update visual selection
           break;
         case 'Enter':
           e.preventDefault(); // Prevent default form submission/navigation
-          this.selectItem(); // Select the highlighted item
+          this.selectItem(items); // Select the highlighted item
           break;
         case 'Escape':
           this.close(); // Close the palette
@@ -421,42 +734,76 @@ import Icon from './Icon.astro';
       }
     }
 
-    private updateSelection() {
-      const items = this.searchResults.querySelectorAll('.command-palette-item');
+    private updateSelection(items: NodeListOf<Element>) {
       items.forEach((item, index) => {
         // Add highlight class to the selected item, remove from others
         if (index === this.selectedIndex) {
           item.classList.add('bg-primary-50', 'dark:bg-primary-800');
+          // Scroll the selected item into view
+          this.scrollIntoView(item);
         } else {
           item.classList.remove('bg-primary-50', 'dark:bg-primary-800');
         }
       });
     }
 
-    private selectItem() {
-      const items = this.searchResults.querySelectorAll('.command-palette-item');
-      // If an item is selected, navigate to its URL
+    private scrollIntoView(element: Element) {
+      // Find the scrollable container
+      const scrollContainer = this.results;
+      
+      if (!scrollContainer) return;
+
+      const containerRect = scrollContainer.getBoundingClientRect();
+      const elementRect = element.getBoundingClientRect();
+      
+      // Check if element is above the visible area
+      if (elementRect.top < containerRect.top) {
+        element.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'nearest',
+          inline: 'nearest'
+        });
+      }
+      // Check if element is below the visible area
+      else if (elementRect.bottom > containerRect.bottom) {
+        element.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'nearest',
+          inline: 'nearest'
+        });
+      }
+    }
+
+    private selectItem(items: NodeListOf<Element>) {
+      // If an item is selected, navigate to its URL or trigger its action
       if (this.selectedIndex >= 0 && items[this.selectedIndex]) {
-        const item = items[this.selectedIndex] as HTMLAnchorElement;
+        const item = items[this.selectedIndex] as HTMLElement;
         
         // Close the command palette first
         this.close();
         
         // Ensure scroll is fully restored before navigation
         setTimeout(() => {
-          // Check if it's an external link
-          const isExternal = item.href.startsWith('http') && !item.href.includes(window.location.hostname);
-          
-          if (isExternal) {
-            // For external links, use regular navigation
-            window.location.href = item.href;
-          } else {
-            // For internal links, use Swup if available, otherwise fallback to regular navigation
-            if ((window as any).swup) {
-              (window as any).swup.navigate(item.href);
+          if (item.tagName === 'A') {
+            // Handle anchor links (pages, social links)
+            const anchor = item as HTMLAnchorElement;
+            const isExternal = anchor.href.startsWith('http') && !anchor.href.includes(window.location.hostname);
+            
+            if (isExternal) {
+              // For external links, use regular navigation
+              window.location.href = anchor.href;
             } else {
-              window.location.href = item.href;
+              // For internal links, use Swup if available, otherwise fallback to regular navigation
+              if ((window as any).swup) {
+                (window as any).swup.navigate(anchor.href);
+              } else {
+                window.location.href = anchor.href;
+              }
             }
+          } else if (item.tagName === 'BUTTON' && item.hasAttribute('data-action')) {
+            // Handle action buttons (like theme toggle)
+            const action = item.getAttribute('data-action');
+            this.executeAction(action!);
           }
         }, 50); // Small delay to ensure cleanup is complete
       }

@@ -18,7 +18,8 @@ export const GET: APIRoute = async () => {
       description: post.data.description,
       url: `/posts/${post.slug}`,
       type: 'post' as const,
-      date: post.data.date
+      date: post.data.date,
+      tags: post.data.tags || []
     }));
 
     // Sort by date (newest first)
@@ -28,7 +29,7 @@ export const GET: APIRoute = async () => {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Cache-Control': 'public, max-age=300' // Cache for 5 minutes
+        'Cache-Control': 'public, max-age=3600, stale-while-revalidate=86400' // Cache for 1 hour, stale for 24 hours
       }
     });
   } catch (error) {
