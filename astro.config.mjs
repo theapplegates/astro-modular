@@ -88,11 +88,7 @@ export default defineConfig({
       port: 5000,
       allowedHosts: [],
       middlewareMode: false,
-      hmr: {
-        port: 5000,
-        host: 'localhost',
-        clientPort: 5000
-      },
+      hmr: false,
       headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate'
       }
