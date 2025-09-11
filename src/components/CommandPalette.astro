@@ -129,7 +129,7 @@ import Icon from './Icon.astro';
         </div>
 
         <!-- Search results will be populated here -->
-        <div id="command-palette-search-results" class="hidden divide-y divide-primary-200 dark:divide-primary-700">
+        <div id="command-palette-search-results" class="hidden divide-y divide-primary-200 dark:divide-primary-700 transition-opacity duration-200">
         </div>
       </div>
 
@@ -450,6 +450,12 @@ import Icon from './Icon.astro';
       this.searchResults.classList.remove('hidden');
     }
 
+    private showInlineLoading() {
+      // Show inline loading indicator while keeping current results visible
+      this.inlineLoading.classList.remove('hidden');
+      // Don't hide other sections - keep current results visible
+    }
+
     private handleSearch(query: string) {
       // Clear existing timeout
       if (this.searchTimeout) {
@@ -461,8 +467,8 @@ import Icon from './Icon.astro';
         return;
       }
 
-      // Show loading indicator immediately for better UX
-      this.showLoading();
+      // Show inline loading indicator while keeping current results visible
+      this.showInlineLoading();
 
       // Debounce the search to avoid excessive processing
       this.searchTimeout = window.setTimeout(() => {
@@ -497,6 +503,8 @@ import Icon from './Icon.astro';
       // Cache the results with size limit
       this.manageCache(cacheKey, [...this.filteredItems]);
 
+      // Hide inline loading and show results
+      this.inlineLoading.classList.add('hidden');
       this.displaySearchResults();
     }
 
@@ -548,8 +556,19 @@ import Icon from './Icon.astro';
       if (this.filteredItems.length === 0) {
         this.showNoResults();
       } else {
-        this.renderSearchResults();
-        this.showSearchResults();
+        // Add a subtle fade effect when updating results
+        this.searchResults.style.opacity = '0.7';
+        
+        // Use requestAnimationFrame for smooth transition
+        requestAnimationFrame(() => {
+          this.renderSearchResults();
+          this.showSearchResults();
+          
+          // Fade back to full opacity
+          requestAnimationFrame(() => {
+            this.searchResults.style.opacity = '1';
+          });
+        });
       }
     }
 

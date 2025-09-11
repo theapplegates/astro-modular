@@ -35,7 +35,7 @@ Astro Modular is a powerful, modular blog theme for Astro specifically designed 
 #### 2. **Flexible & Customizable**
 - **Modular design** - Each feature can be enabled/disabled independently
 - **Multiple color options** - Select from a variety of prebuilt themes (Oxygen, Minimal, Atom, Ayu, Catppuccin, Charcoal, Dracula, Everforest, Flexoki, Gruvbox, macOS, Nord, Obsidian, Rosé Pine, Sky, Solarized, and Things)
-- **95+ Lighthouse scores** across all metrics with TypeScript throughout
+- **TypeScript throughout** for type safety and better development experience
 - **Command palette** - Press `Ctrl+K` (or custom hotkey) for instant navigation and search
 - **Responsive image grids** - Automatic layouts for multiple consecutive images
 - **Dark/light themes** - System preference detection with manual toggle
@@ -154,80 +154,6 @@ pnpm run process-aliases  # Process content aliases
 pnpm run generate-redirects # Generate redirects
 ```
 
-## 🚨 CRITICAL: Production Logging Guidelines
-
-### **MANDATORY: Use the Logger Utility for All Logging**
-
-**⚠️ AI AGENTS MUST READ THIS SECTION CAREFULLY ⚠️**
-
-This project has a **dedicated logger utility** (`src/utils/logger.ts`) that **MUST** be used for all logging instead of raw `console.log()` statements. This is **CRITICAL** for production deployments.
-
-#### **Why This Matters**
-- **Production Performance**: Raw console logs slow down production sites
-- **Security**: Console logs can leak sensitive information in production
-- **User Experience**: Console spam degrades user experience
-- **Professional Standards**: Production sites should have clean console output
-
-#### **How to Use the Logger**
-
-```typescript
-// ✅ CORRECT - Use the logger utility
-import { logger } from '@/utils/logger';
-
-logger.debug('Debug information');  // Only shows in development
-logger.info('General information'); // Shows in dev, warnings+ in production
-logger.warn('Warning message');     // Shows in dev and production
-logger.error('Error message');      // Always shows
-logger.dev('Dev-only message');     // Only shows in development
-```
-
-```typescript
-// ❌ WRONG - Never use raw console in production code
-console.log('This will show in production!');     // BAD
-console.info('This will show in production!');    // BAD
-console.warn('This will show in production!');    // BAD
-console.error('This will show in production!');   // BAD
-```
-
-#### **Logger Behavior by Environment**
-
-| Environment | Debug | Info | Warn | Error | Dev |
-|-------------|-------|------|------|-------|-----|
-| **Development** | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Production** | ❌ | ❌ | ✅ | ✅ | ❌ |
-
-#### **Current Code Issues**
-The current codebase has **extensive console.log statements** that will appear in production. These **MUST** be replaced with the logger utility:
-
-- **BaseLayout.astro**: Multiple console.log statements for navigation highlighting
-- **GiscusComments.astro**: Debug logging for comments initialization
-- **PostLayout.astro**: Debug logging for comments and image grids
-- **Various components**: Raw console statements throughout
-
-#### **Action Required for AI Agents**
-1. **ALWAYS** import and use `logger` from `@/utils/logger`
-2. **NEVER** use raw `console.log()`, `console.info()`, `console.warn()`, or `console.error()`
-3. **Replace existing console statements** with appropriate logger methods
-4. **Use `logger.dev()`** for development-only debugging
-5. **Use `logger.warn()`** or `logger.error()`** for production-visible messages
-
-#### **Example Conversion**
-
-```typescript
-// Before (BAD - shows in production)
-console.log('🔄 Initializing comments...');
-console.warn('Failed to load comments');
-console.error('Critical error occurred');
-
-// After (GOOD - respects environment)
-import { logger } from '@/utils/logger';
-
-logger.dev('🔄 Initializing comments...');  // Dev only
-logger.warn('Failed to load comments');     // Production visible
-logger.error('Critical error occurred');    // Production visible
-```
-
-**This is a CRITICAL requirement for maintaining professional production standards.**
 
 ## Content Organization
 
@@ -277,8 +203,8 @@ src/content/posts/
   imageAlt?: string;
   hideCoverImage?: boolean;
   targetKeyword?: string;
-  author?: string;
-  noIndex?: boolean;
+  // Note: author is global via siteConfig.author, not per-post
+  // Note: noIndex is available but typically used for pages only
 }
 ```
 
@@ -292,7 +218,7 @@ src/content/posts/
   image?: string;
   imageAlt?: string;
   hideCoverImage?: boolean;
-  noIndex?: boolean;
+  noIndex?: boolean;  // Commonly used for pages
 }
 ```
 
@@ -394,6 +320,9 @@ When working with the Obsidian vault, these hotkeys are crucial:
 4. **Create callouts** with `CTRL + SHIFT + C`
 5. **Publish** with `CTRL + SHIFT + S` (git commit and sync)
 6. **Content appears** on your Astro blog automatically
+
+### Automatic Aliases & Redirects
+When you rename a post or page in Obsidian, the old filename is automatically stored as an alias. Astro processes these aliases and creates redirect rules, so old URLs continue to work. You don't need to add aliases manually - they appear automatically when you use Obsidian's rename functionality.
 
 ### Vault Structure
 ```
@@ -675,33 +604,24 @@ footer: {
 #### Posts Frontmatter
 ```yaml
 ---
-title: "Your Post Title"
-date: 2024-01-20
-description: "Meta & open graph description"
-tags:
-  - tutorial
-  - astro
-image: "images/cover.jpg"  # or "[[images/cover.jpg]]" for Obsidian syntax
-imageAlt: "Alt text"
-imageOG: true
+title: "{{title}}"
+date: {{date}}
+description: ""
+tags: []
+image: ""
+imageAlt: ""
+imageOG: false
 hideCoverImage: false
-targetKeyword: "keyword"
-author: "Author Name"
+targetKeyword: ""
 draft: true
-noIndex: false
 ---
 ```
 
 #### Pages Frontmatter
 ```yaml
 ---
-title: "Your Page Title"
-description: "Meta & open graph description"
-draft: false
-lastModified: 2024-01-20
-image: "images/page-image.jpg"
-imageAlt: "Alt text"
-hideCoverImage: false
+title: "{{title}}"
+description: ""
 noIndex: false
 ---
 ```
@@ -770,7 +690,7 @@ tags: {
 #### Theme Switching
 - Use the command palette (`Ctrl+K`) for instant theme switching
 - Themes require hard refresh (`Ctrl+Shift+R`) to see changes
-- All themes maintain 95+ Lighthouse scores
+- All themes are optimized for performance and accessibility
 
 ### Content Structure Customization
 
@@ -919,6 +839,95 @@ All SEO features work with folder-based posts:
 - **`src/config.ts`**: Main site configuration including `showCoverImages`
 - **`astro.config.mjs`**: Astro and Swup configuration
 - **`src/config/dev.ts`**: Development-specific settings
+
+## Comments System (Giscus Integration)
+
+### Overview
+The theme includes a Giscus-powered commenting system that uses GitHub Discussions for storing and managing comments.
+
+### Configuration
+Comments are controlled by a single setting in `src/config.ts`:
+
+```typescript
+features: {
+  comments: true,  // Enable/disable comments (ONLY setting that matters)
+}
+```
+
+### Giscus Setup Process
+
+#### 1. Enable GitHub Discussions
+1. Go to your GitHub repository
+2. Click **Settings** → **General**
+3. Scroll to **"Features"** section
+4. Check **"Discussions"** and click **"Set up discussions"**
+
+#### 2. Create Discussion Category
+1. Go to **Discussions** tab in your repository
+2. Click **"New category"**
+3. Name it **"General"**
+4. Set format to **"Announcement"** (prevents random users from creating discussions)
+5. Description: "Comments on blog posts"
+
+#### 3. Get Giscus Configuration
+1. Visit [giscus.app](https://giscus.app)
+2. Enter your repository: `username/repo-name`
+3. Select **"General"** as the discussion category
+4. Copy the generated **Repository ID** and **Category ID**
+
+#### 4. Update Configuration
+```typescript
+comments: {
+  provider: "giscus",               // Currently only Giscus supported
+  repo: "username/repo-name",       // Your GitHub repository
+  repoId: "R_kgDO...",             // Repository ID from Giscus
+  category: "General",              // Discussion category
+  categoryId: "DIC_kwDO...",       // Category ID from Giscus
+  mapping: "pathname",              // How posts map to discussions
+  strict: "0",                      // Allow comments on any post
+  reactions: "1",                   // Enable reactions (1) or disable (0)
+  metadata: "0",                    // Hide discussion metadata (1) or show (0)
+  inputPosition: "bottom",          // Comment input position
+  theme: "preferred_color_scheme",  // Theme (light/dark/preferred_color_scheme)
+  lang: "en",                       // Language code
+  loading: "lazy",                  // Loading strategy
+}
+```
+
+### How It Works
+- **Each blog post** automatically creates a GitHub discussion
+- **Visitors need GitHub accounts** to comment
+- **Comments appear** both on your blog and in GitHub Discussions
+- **You moderate** through GitHub's interface
+- **"Announcement" format** prevents random discussion creation
+
+### Troubleshooting
+
+#### Comments Not Appearing
+1. **Check configuration**: Verify all Giscus IDs are set correctly
+2. **Verify discussions enabled**: Repository must have discussions enabled
+3. **Check repository visibility**: Repository must be public
+4. **Verify Giscus app**: Make sure the Giscus app is installed
+
+#### Redirect to Homepage After Sign-in
+This usually means the Giscus configuration is incorrect. Check:
+- Repository ID is correct
+- Category ID is correct
+- Discussions are enabled on your repository
+
+#### Styling Issues
+The comments are styled to match your theme automatically. If you see styling issues:
+1. Check your theme configuration
+2. Verify the `theme` setting matches your site theme
+3. Clear browser cache and reload
+
+### Security & Performance
+- **No server-side code** required
+- **GitHub handles authentication** and authorization
+- **Comments are stored** in your GitHub repository
+- **Lazy loading**: Comments only load when scrolled into view
+- **Minimal JavaScript**: Uses the lightweight Giscus script
+- **No database**: Comments are stored as GitHub discussions
 
 ## Common AI Agent Mistakes
 

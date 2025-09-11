@@ -18,7 +18,7 @@ Great content deserves great presentation without complexity. This blog theme is
 Content should be the star, not the design. Every element is carefully crafted to enhance readability and focus attention on what matters most - your ideas and writing.
 
 ### Performance Matters
-Fast loading times and smooth interactions are not optional. Every aspect of this theme has been optimized to deliver exceptional performance across all devices with 95+ Lighthouse scores.
+Fast loading times and smooth interactions are not optional. Every aspect of this theme has been optimized to deliver exceptional performance across all devices.
 
 ### Obsidian Compatibility
 If you use Obsidian for note-taking and content creation, this theme feels like a natural extension of your workflow. Wikilinks, markdown formatting, and hotkeys work seamlessly between your vault and published site.

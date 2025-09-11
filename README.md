@@ -4,41 +4,15 @@ A powerful, modular blog theme for Astro specifically designed for Obsidian user
 
 <img width="1920" height="1200" alt="Astro Modular with the Oxygen theme applied, homepage." src="https://github.com/user-attachments/assets/6222d307-6c49-4337-8097-1e1ba08ad0f2" />
 
+## Features
 
-## What Makes Astro Modular Special
+**Built for Obsidian Users** - Write in a dedicated vault, publish to your blog with wikilinks, callouts, and seamless integration.
 
-### Built for Obsidian Users
-- **Direct Obsidian integration** - Write in a dedicated vault, publish to your blog
-- **Wikilinks support** - `[[Internal Links]]` and `[[Link|Custom Text]]` work seamlessly
-- **Obsidian callouts** - Full support for `> [!note]`, `> [!tip]`, `> [!warning]` and more
-- **Tag compatibility** - Your Obsidian tags become blog tags automatically
-- **Frontmatter sync** - Compatible metadata structure between Obsidian and Astro
-- **Folder-based organization** - Keep content and assets together in dedicated folders
-- **Obsidian bracket syntax** - Support for `[[image.jpg]]` syntax in image references
-- **[Astro Suite Obsidian Vault](https://github.com/davidvkimball/obsidian-astro-suite) built-in** - Includes Obsidian vault configuration for streamlined publishing including [Astro Composer](https://github.com/davidvkimball/obsidian-astro-composer)
+**Modular & Customizable** - Each feature can be enabled/disabled independently with 10+ themes.
 
-### Flexible & Customizeable 
-- **Modular design** - Each feature can be enabled/disabled independently
-- **Multiple color options** - Select from a variety of prebuilt themes
-- **95+ Lighthouse scores** across all metrics with TypeScript throughout
-- **Command palette** - Press `Ctrl+K` (or custom hotkey) for instant navigation and search
-- **Responsive image grids** - Automatic layouts for multiple consecutive images
-- **Dark/light themes** - System preference detection with manual toggle
-- **SEO ready** - Automatic sitemaps, RSS feeds, and Open Graph images
+**Content-First** - Markdown-first with folder-based posts, image optimization, and automatic SEO features.
 
-## Core Features
-
-### Content Management
-- **Markdown-first** with enhanced processing and reading time estimation
-- **Folder-based posts** - Organize content and assets in dedicated folders (like Fuwari)
-- **Draft support** - Show drafts in development, hide in production
-- **Image optimization** with WebP format priority and responsive layouts
-- **Table of contents** auto-generation from headings
-
-### Navigation & Discovery
-- **Fuzzy search** through all content via command palette
-- **Linked mentions** - See which posts reference each other
-- **Tag filtering** and next/previous navigation between posts
+**Developer-Friendly** - TypeScript throughout, command palette navigation, and comprehensive documentation.
 
 ## Quick Start
 
@@ -95,12 +69,14 @@ pnpm preview
 
 <img width="1920" height="1200" alt="Astro Modular with Minimal theme applied, post example." src="https://github.com/user-attachments/assets/e6a6a560-924e-43c7-8b46-d03a9cbee4a1" />
 
-## Documentation
+## 📚 Documentation
 
 For detailed guides, see the included blog posts:
-- **Getting Started** - Complete setup and workflow guide
-- **Markdown Features** - Comprehensive formatting reference
-- **Astro Suite Vault (Modular) Guide** - Walkthrough of the included Obsidian vault and configuration
+- **[Getting Started](posts/getting-started.md)** - Complete setup and workflow guide
+- **[Markdown Features](posts/formatting-reference.md)** - Comprehensive formatting reference  
+- **[Astro Suite Vault Guide](posts/astro-suite-vault-modular-guide.md)** - Obsidian vault walkthrough
+
+**For AI Agents & Developers:** See [AGENTS.md](AGENTS.md) for comprehensive technical documentation.
 
 ## Contributing
 

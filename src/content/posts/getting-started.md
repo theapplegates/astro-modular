@@ -51,10 +51,11 @@ export const siteConfig = {
   site: 'https://yourdomain.com',
   title: 'Your Blog Title',
   description: 'Your blog description',
-  author: 'Your Name',
+  author: 'Your Name',  // Global author for all posts
   language: 'en',
 }
 ```
+
 ## Customization
 
 ### Theme & Layout
@@ -187,7 +188,7 @@ features: {
 
 Comments are publicly visible and associated with users' GitHub profiles. Consider adding a privacy policy section about comments (see the included Privacy Policy page for reference).
 
-### Navigtation
+### Navigation
 
 Navigation is also set in the config:
 
@@ -224,17 +225,15 @@ Create posts in `src/content/posts/` with this frontmatter:
 
 ```markdown
 ---
-title: "Your Post Title"
-date: 2024-01-20
-description: "Meta & open graph description"
-tags:
-  - tutorial
-  - astro
-image: "images/cover.jpg"
-imageAlt: "Alt text"
-imageOG: true
+title: "{{title}}"
+date: {{date}}
+description: ""
+tags: []
+image: ""
+imageAlt: ""
+imageOG: false
 hideCoverImage: false
-targetKeyword: "keyword"
+targetKeyword: ""
 draft: true
 ---
 
@@ -255,8 +254,8 @@ The About page represents a standard page you can duplicate easily. Its frontmat
 
 ```markdown
 ---
-title: "Your Post Title"
-description: "Meta & open graph description"
+title: "{{title}}"
+description: ""
 noIndex: false
 ---
 
@@ -264,6 +263,10 @@ noIndex: false
 
 Write using markdown with enhanced features.
 ```
+
+### Automatic Aliases & Redirects
+
+When you rename a post or page in Obsidian, the old filename is automatically stored as an alias. Astro processes these aliases and creates redirect rules, so old URLs continue to work. You don't need to add aliases manually - they appear automatically when you use Obsidian's rename functionality.
 
 Use the `noIndex` frontmatter Boolean to decide whether or not `<meta name="robots" content="noindex, nofollow">` gets placed on the page. This will tell search engines not to index the page. 
 
@@ -308,7 +311,7 @@ Press `Ctrl+K` (or custom hotkey) for instant navigation, search, and theme swit
 ### SEO & Performance
 - **Automatic sitemaps** and RSS feeds
 - **Open Graph** meta tags
-- **95+ Lighthouse scores**
+- **Optimized for performance and accessibility**
 - **Static generation**
 
 ## Content Organization
