@@ -1,5 +1,6 @@
 import type { ImageInfo, OpenGraphImage } from '@/types';
 import { siteConfig } from '@/config';
+import { logger } from '@/utils/logger';
 
 // Process images for responsive layouts
 export function processImageLayout(images: ImageInfo[]): {
@@ -23,15 +24,17 @@ export function processImageLayout(images: ImageInfo[]): {
 
 // Extract images from markdown content
 export function extractImagesFromContent(content: string): ImageInfo[] {
-  const imageRegex = /!\[([^\]]*)\]\(([^)]+)\)/g;
+  // Updated regex to capture title/caption: ![alt](src "title")
+  const imageRegex = /!\[([^\]]*)\]\(([^)]+?)(?:\s+"([^"]*)")?\)/g;
   const images: ImageInfo[] = [];
   let match;
 
   while ((match = imageRegex.exec(content)) !== null) {
-    const [, alt, src] = match;
+    const [, alt, src, title] = match;
     images.push({
       src: src.trim(),
       alt: alt.trim() || 'Image',
+      caption: title ? title.trim() : undefined,
     });
   }
 
@@ -116,7 +119,7 @@ export function optimizeImagePath(imagePath: string): string {
 export function optimizePageImagePath(imagePath: string): string {
   // Handle null, undefined, or empty strings
   if (!imagePath || typeof imagePath !== 'string') {
-    console.warn('Invalid page image path provided:', imagePath);
+    logger.warn('Invalid page image path provided:', imagePath);
     return '/pages/images/placeholder.jpg'; // Fallback to placeholder
   }
 
@@ -125,7 +128,7 @@ export function optimizePageImagePath(imagePath: string): string {
   
   // Handle empty path after cleaning
   if (!cleanPath) {
-    console.warn('Empty page image path after cleaning:', imagePath);
+    logger.warn('Empty page image path after cleaning:', imagePath);
     return '/pages/images/placeholder.jpg';
   }
 
@@ -177,7 +180,7 @@ export function stripObsidianBrackets(imagePath: string): string {
 export function optimizePostImagePath(imagePath: string, postSlug?: string, postId?: string): string {
   // Handle null, undefined, or empty strings
   if (!imagePath || typeof imagePath !== 'string') {
-    console.warn('Invalid image path provided:', imagePath);
+    logger.warn('Invalid image path provided:', imagePath);
     return '/posts/images/placeholder.jpg'; // Fallback to placeholder
   }
 
@@ -186,7 +189,7 @@ export function optimizePostImagePath(imagePath: string, postSlug?: string, post
   
   // Handle empty path after cleaning
   if (!cleanPath) {
-    console.warn('Empty image path after cleaning:', imagePath);
+    logger.warn('Empty image path after cleaning:', imagePath);
     return '/posts/images/placeholder.jpg';
   }
 

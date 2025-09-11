@@ -10,6 +10,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import TableOfContents from '@/components/TableOfContents.astro';
 import LinkedMentions from '@/components/LinkedMentions.astro';
 import GiscusComments from '@/components/GiscusComments.astro';
+import Lightbox from '@/components/Lightbox.astro';
 import Icon from '@/components/Icon.astro';
 import { Image } from 'astro:assets';
 import { devConfig } from '@/config/dev';
@@ -409,7 +410,33 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
 
           // Comments are now handled globally by BaseLayout Swup hooks
         }, 100);
+
+        // Initialize lightbox functionality for images
+        function initializeLightbox() {
+          const images = document.querySelectorAll('img');
+          images.forEach((img, index) => {
+            // Skip images that are already clickable (like in galleries)
+            if (img.closest('a') || img.closest('.image-grid')) {
+              return;
+            }
+
+            // Make image clickable
+            img.style.cursor = 'pointer';
+            img.addEventListener('click', () => {
+              // Dispatch custom event to open lightbox
+              window.dispatchEvent(new CustomEvent('openLightbox', {
+                detail: { index }
+              }));
+            });
+          });
+        }
+
+        // Initialize lightbox after a short delay to ensure images are loaded
+        setTimeout(initializeLightbox, 200);
       });
     </script>
   </Fragment>
+
+  <!-- Lightbox for images -->
+  <Lightbox />
 </BaseLayout>

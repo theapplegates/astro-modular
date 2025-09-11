@@ -2,12 +2,14 @@
 import path from "node:path";
 import { Image } from "astro:assets";
 import { devConfig, isDev } from "@/config/dev";
+import { logger } from "@/utils/logger";
 
 interface Props {
   id?: string;
   src: string;
   class?: string;
   alt?: string;
+  caption?: string;
   position?: string;
   basePath?: string;
   width?: number;
@@ -24,6 +26,7 @@ const {
   id, 
   src, 
   alt = "", 
+  caption,
   position = "center", 
   basePath = "/",
   width = 800,
@@ -87,8 +90,8 @@ if (isLocal) {
     
     // Debug logging
     if (isDev && devConfig.images.logMissingImages) {
-      console.log(`[ImageWrapper] Looking for image: ${normalizedPath}`);
-      console.log(`[ImageWrapper] Available files:`, Object.keys(files).filter(f => f.includes('sample-folder-post')));
+      logger.dev(`[ImageWrapper] Looking for image: ${normalizedPath}`);
+      logger.dev(`[ImageWrapper] Available files:`, Object.keys(files).filter(f => f.includes('sample-folder-post')));
     }
     
     const file = files[normalizedPath];
@@ -107,8 +110,8 @@ if (isLocal) {
       
       // Only warn in development mode if logging is enabled
       if (isDev && devConfig.images.logMissingImages) {
-        console.warn(`[ImageWrapper] Image file not found: ${normalizedPath}`);
-        console.warn(`[ImageWrapper] Using fallback: ${fallbackSrc}`);
+        logger.warn(`[ImageWrapper] Image file not found: ${normalizedPath}`);
+        logger.warn(`[ImageWrapper] Using fallback: ${fallbackSrc}`);
       }
     }
   } catch (error) {
@@ -123,8 +126,8 @@ if (isLocal) {
     }
     
     if (isDev && devConfig.images.logMissingImages) {
-      console.warn(`[ImageWrapper] Failed to import image: ${src}`, error);
-      console.warn(`[ImageWrapper] Using fallback: ${fallbackSrc}`);
+      logger.warn(`[ImageWrapper] Failed to import image: ${src}`, error);
+      logger.warn(`[ImageWrapper] Using fallback: ${fallbackSrc}`);
     }
   }
 }
@@ -162,5 +165,11 @@ const imageStyle = `object-position: ${position}`;
       height={height}
       title={isImageMissing ? `Original path: ${src}` : undefined}
     />
+  )}
+  
+  {caption && (
+    <figcaption class="mt-2 text-sm text-primary-600 dark:text-primary-400 text-center italic">
+      {caption}
+    </figcaption>
   )}
 </div>

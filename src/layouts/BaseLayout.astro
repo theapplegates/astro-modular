@@ -86,10 +86,8 @@ const { seoData, bodyClass = '' } = Astro.props;
     </>
   )}
 
-  <!-- Browser theme-aware favicons -->
-  <link rel="icon" href="/favicon-dark.png" media="(prefers-color-scheme: dark)" />
-  <link rel="icon" href="/favicon-light.png" media="(prefers-color-scheme: light)" />
-  <link rel="icon" href="/favicon.png" media="(prefers-color-scheme: no-preference)" />
+  <!-- Default favicon (will be updated by JavaScript) -->
+  <link rel="icon" href="/favicon.png" />
 
   <!-- Command Palette Config for Client Script -->
   <meta name="command-palette-shortcut" content={siteConfig.commandPalette.shortcut || ''}>
@@ -119,41 +117,8 @@ const { seoData, bodyClass = '' } = Astro.props;
     // Initialize immediately
     initTheme();
 
-    // Debug favicon theme detection (only in development)
-    function debugFaviconTheme() {
-      if (window.location.hostname !== 'localhost' && !window.location.hostname.includes('localhost')) return;
-      
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
-      const noPreference = window.matchMedia('(prefers-color-scheme: no-preference)').matches;
-      
-      // Use console.log for debugging since logger might not be available yet
-      console.log('🎨 Favicon Theme Debug:');
-      console.log('  - prefers-color-scheme: dark =', prefersDark);
-      console.log('  - prefers-color-scheme: light =', prefersLight);
-      console.log('  - prefers-color-scheme: no-preference =', noPreference);
-      
-      if (prefersDark) {
-        console.log('  - Expected favicon: /favicon-dark.png');
-      } else if (prefersLight) {
-        console.log('  - Expected favicon: /favicon-light.png');
-      } else {
-        console.log('  - Expected favicon: /favicon.png (fallback)');
-      }
-      
-      // Check which favicon links are actually present
-      const faviconLinks = document.querySelectorAll('link[rel="icon"]');
-      console.log('  - Favicon links found:', faviconLinks.length);
-      faviconLinks.forEach((link, index) => {
-        console.log(`    ${index + 1}. href="${link.href}" media="${link.media || 'none'}"`);
-      });
-    }
-
-    // Debug favicon on page load (only in development)
-    debugFaviconTheme();
-
-    // Force favicon update based on system theme (browsers don't always respect media queries)
-    function forceFaviconUpdate() {
+    // Set favicon based on system theme
+    function setFavicon() {
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
       
@@ -166,52 +131,43 @@ const { seoData, bodyClass = '' } = Astro.props;
         faviconUrl = '/favicon.png';
       }
       
-      // Use console.log for debugging since logger might not be available yet
-      if (window.location.hostname === 'localhost' || window.location.hostname.includes('localhost')) {
-        console.log('🔧 Force updating favicon to:', faviconUrl);
-      }
-      
-      // Remove all existing favicon links
+      // Remove ALL existing favicon links
       const existingFavicons = document.querySelectorAll('link[rel="icon"]');
       existingFavicons.forEach(link => link.remove());
       
-      // Add the correct favicon with cache-busting
+      // Create new favicon link
       const faviconLink = document.createElement('link');
       faviconLink.rel = 'icon';
       faviconLink.type = 'image/png';
       faviconLink.href = `${faviconUrl}?v=${Date.now()}`;
       document.head.appendChild(faviconLink);
       
-      // Also update the page title to force favicon refresh (some browsers need this)
+      // Force favicon refresh by updating page title
       const originalTitle = document.title;
       document.title = originalTitle;
-      
-      // No fallback icon needed - theme-aware favicons handle all cases
     }
 
-    // Force favicon update on page load
-    forceFaviconUpdate();
+    // Set favicon on page load
+    setFavicon();
 
     // View Transitions disabled - no need for astro:page-load
 
     // Listen for system theme changes
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
       if (window.location.hostname === 'localhost' || window.location.hostname.includes('localhost')) {
-        console.log('🔄 System theme changed:', e.matches ? 'dark' : 'light');
+        logger.dev('🔄 System theme changed:', e.matches ? 'dark' : 'light');
       }
       if (!localStorage.getItem('theme')) {
         const newTheme = e.matches ? 'dark' : 'light';
         localStorage.setItem('theme', newTheme);
         initTheme();
-        debugFaviconTheme();
-        forceFaviconUpdate();
       } else {
         if (window.location.hostname === 'localhost' || window.location.hostname.includes('localhost')) {
-          console.log('  - User has manual theme set, not updating');
+          logger.dev('  - User has manual theme set, not updating theme');
         }
-        // Still update favicon based on system theme even if user has manual theme
-        forceFaviconUpdate();
       }
+      // Always update favicon based on system theme, regardless of user's manual theme choice
+      setFavicon();
     });
 
     // Global theme toggle function - always available regardless of button visibility
@@ -247,20 +203,20 @@ const { seoData, bodyClass = '' } = Astro.props;
 
     // Global comments initialization function - Swup compatible
     function initializeGiscusComments() {
-      console.log('🔄 Global: Initializing Giscus comments...');
+      logger.dev('🔄 Global: Initializing Giscus comments...');
       
       // Check if comments are enabled in config
       if (!window.commentsEnabled) {
-        console.log('❌ Global: Comments are disabled in config');
+        logger.dev('❌ Global: Comments are disabled in config');
         return;
       }
       
       // Check if comments container exists
       const commentsContainer = document.querySelector('#giscus-comments');
-      console.log('📦 Global: Comments container found:', !!commentsContainer);
+      logger.dev('📦 Global: Comments container found:', !!commentsContainer);
       
       if (!commentsContainer) {
-        console.log('❌ Global: No comments container found');
+        logger.dev('❌ Global: No comments container found');
         return;
       }
 
@@ -270,18 +226,18 @@ const { seoData, bodyClass = '' } = Astro.props;
       // Remove any existing Giscus scripts from the entire document
       const existingScripts = document.querySelectorAll('script[src*="giscus.app"]');
       existingScripts.forEach(script => {
-        console.log('🗑️ Global: Removing existing Giscus script');
+        logger.dev('🗑️ Global: Removing existing Giscus script');
         script.remove();
       });
 
       // Remove any existing Giscus iframes from the entire document
       const existingIframes = document.querySelectorAll('iframe[src*="giscus"]');
       existingIframes.forEach(iframe => {
-        console.log('🗑️ Global: Removing existing Giscus iframe');
+        logger.dev('🗑️ Global: Removing existing Giscus iframe');
         iframe.remove();
       });
 
-      console.log('✅ Global: Setting up comments loading');
+      logger.dev('✅ Global: Setting up comments loading');
       
       // Clear any error state
       commentsContainer.removeAttribute('data-error');
@@ -371,7 +327,7 @@ const { seoData, bodyClass = '' } = Astro.props;
       };
       
       script.onerror = function() {
-        console.error('❌ Global: Failed to load Giscus script');
+        logger.error('❌ Global: Failed to load Giscus script');
         commentsContainer.setAttribute('data-error', 'true');
       };
       
@@ -584,8 +540,10 @@ const { seoData, bodyClass = '' } = Astro.props;
         // Use the correct Swup hooks API
         window.swup.hooks.on('content:replace', () => {
           if (isDev) {
-            logger.dev('🔄 Swup: content:replace hook - reinitializing comments');
+            logger.dev('🔄 Swup: content:replace hook - reinitializing comments and favicon');
           }
+          // Reinitialize favicon after page transition
+          setFavicon();
           setTimeout(() => {
             if (document.querySelector('#giscus-comments')) {
               window.initializeGiscusComments();

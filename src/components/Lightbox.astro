@@ -67,6 +67,7 @@ import Icon from './Icon.astro';
   interface LightboxImage {
     src: string;
     alt: string;
+    caption?: string;
   }
 
   class Lightbox {
@@ -138,10 +139,22 @@ import Icon from './Icon.astro';
     private collectImages() {
       // Collect all images from the page
       const imageElements = document.querySelectorAll('img');
-      this.images = Array.from(imageElements).map(img => ({
-        src: img.src,
-        alt: img.alt || 'Image'
-      }));
+      this.images = Array.from(imageElements).map(img => {
+        // Try to find caption from figcaption or title attribute
+        let caption = img.getAttribute('title');
+        
+        // Look for figcaption element
+        const figcaption = img.closest('figure')?.querySelector('figcaption');
+        if (figcaption) {
+          caption = figcaption.textContent?.trim() || caption;
+        }
+        
+        return {
+          src: img.src,
+          alt: img.alt || 'Image',
+          caption: caption || undefined
+        };
+      });
     }
 
     private open(index: number) {
@@ -192,7 +205,7 @@ import Icon from './Icon.astro';
       
       img.onerror = () => {
         this.loading.classList.add('hidden');
-        logger.error('Failed to load image:', currentImage.src);
+        console.error('Failed to load image:', currentImage.src);
       };
       
       img.src = currentImage.src;
@@ -202,8 +215,8 @@ import Icon from './Icon.astro';
       const currentImage = this.images[this.currentIndex];
       if (!currentImage) return;
 
-      // Update caption
-      this.caption.textContent = currentImage.alt;
+      // Update caption - show caption if available, otherwise show alt text
+      this.caption.textContent = currentImage.caption || currentImage.alt;
       
       // Update counter
       this.counter.textContent = `${this.currentIndex + 1} of ${this.images.length}`;

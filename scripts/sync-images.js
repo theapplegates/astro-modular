@@ -146,17 +146,23 @@ async function syncImagesForConfig(config) {
       throw error;
     }
 
+    // Find all image files recursively (including subdirectories)
+    const imageFiles = await findImageFiles(config.source);
+    
     let synced = 0;
     let skipped = 0;
 
-    for (const file of sourceFiles) {
-      const sourcePath = path.join(config.source, file);
-      const targetPath = path.join(config.target, file);
+    for (const imageFile of imageFiles) {
+      const targetPath = path.join(config.target, imageFile.relativePath);
+      const targetDirForFile = path.dirname(targetPath);
+      
+      // Ensure target directory exists (including subdirectories)
+      await ensureDir(targetDirForFile);
 
       // Check if file needs updating
       let needsUpdate = true;
       try {
-        const sourceStats = await fs.stat(sourcePath);
+        const sourceStats = await fs.stat(imageFile.sourcePath);
         const targetStats = await fs.stat(targetPath);
 
         // Only update if source is newer or different size
@@ -167,7 +173,7 @@ async function syncImagesForConfig(config) {
       }
 
       if (needsUpdate) {
-        await fs.copyFile(sourcePath, targetPath);
+        await fs.copyFile(imageFile.sourcePath, targetPath);
         synced++;
       } else {
         skipped++;
@@ -175,23 +181,59 @@ async function syncImagesForConfig(config) {
     }
 
     // Cleanup: Remove files from target that no longer exist in source
-    const targetFiles = await fs.readdir(config.target);
-    const sourceFileSet = new Set(sourceFiles);
-    let removed = 0;
+    // We need to recursively clean up the target directory
+    await cleanupTargetDirectory(config.target, imageFiles);
 
-    for (const file of targetFiles) {
-      if (!sourceFileSet.has(file)) {
-        const targetPath = path.join(config.target, file);
-        await fs.unlink(targetPath);
-        removed++;
-      }
-    }
-
-    return { synced, skipped, removed };
+    return { synced, skipped, removed: 0 }; // removed count handled in cleanup function
   } catch (error) {
     log.error(`❌ Error syncing ${config.name} images:`, error);
     process.exit(1);
   }
+}
+
+// Recursively clean up target directory, removing files that no longer exist in source
+async function cleanupTargetDirectory(targetDir, sourceImageFiles) {
+  const sourceFileSet = new Set(sourceImageFiles.map(f => f.relativePath));
+  let removed = 0;
+
+  try {
+    const items = await fs.readdir(targetDir);
+    
+    for (const item of items) {
+      const itemPath = path.join(targetDir, item);
+      const stat = await fs.stat(itemPath);
+      
+      if (stat.isDirectory()) {
+        // Recursively clean subdirectories
+        const subRemoved = await cleanupTargetDirectory(itemPath, sourceImageFiles);
+        removed += subRemoved;
+        
+        // Remove empty directories
+        try {
+          const remainingItems = await fs.readdir(itemPath);
+          if (remainingItems.length === 0) {
+            await fs.rmdir(itemPath);
+          }
+        } catch {
+          // Directory might not be empty or might have been removed already
+        }
+      } else {
+        // Check if this file exists in source
+        const relativePath = path.relative(targetDir, itemPath).replace(/\\/g, '/');
+        if (!sourceFileSet.has(relativePath)) {
+          await fs.unlink(itemPath);
+          removed++;
+        }
+      }
+    }
+  } catch (error) {
+    // Directory might not exist or be readable
+    if (error.code !== 'ENOENT') {
+      log.warn(`Warning: Could not clean directory ${targetDir}:`, error.message);
+    }
+  }
+  
+  return removed;
 }
 
 async function syncAllImages() {
@@ -199,11 +241,10 @@ async function syncAllImages() {
 
   for (const config of IMAGE_SYNC_CONFIGS) {
     const result = await syncImagesForConfig(config);
-    if (result.synced > 0 || result.skipped > 0 || result.removed > 0) {
+    if (result.synced > 0 || result.skipped > 0) {
       log.info(`📁 Syncing ${config.name} images...`);
       if (result.synced > 0) log.info(`   Synced ${result.synced} files`);
       if (result.skipped > 0) log.info(`   Skipped ${result.skipped} files that were unchanged`);
-      if (result.removed > 0) log.info(`   Cleaned up ${result.removed} orphaned ${config.name} files`);
     }
   }
 

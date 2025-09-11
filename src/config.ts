@@ -1,4 +1,5 @@
 // Site configuration with TypeScript types
+import { logger } from './utils/logger';
 export interface SiteConfig {
   site: string;
   title: string;
@@ -245,8 +246,8 @@ function validateSiteConfig(config: SiteConfig): { isValid: boolean; errors: str
 // Validate configuration on import
 const validation = validateSiteConfig(siteConfig);
 if (!validation.isValid) {
-  console.error('❌ Site configuration validation failed:');
-  validation.errors.forEach(error => console.error(`  • ${error}`));
+  logger.error('❌ Site configuration validation failed:');
+  validation.errors.forEach(error => logger.error(`  • ${error}`));
   throw new Error(`Site configuration is invalid. Please fix the following issues:\n${validation.errors.join('\n')}`);
 }
 

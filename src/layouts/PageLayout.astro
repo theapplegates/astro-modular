@@ -106,6 +106,30 @@ const structuredData = {
 
   <Fragment slot="scripts">
     <script>
+      // Initialize lightbox functionality for images
+      document.addEventListener('DOMContentLoaded', () => {
+        function initializeLightbox() {
+          const images = document.querySelectorAll('img');
+          images.forEach((img, index) => {
+            // Skip images that are already clickable (like in galleries)
+            if (img.closest('a') || img.closest('.image-grid')) {
+              return;
+            }
+
+            // Make image clickable
+            img.style.cursor = 'pointer';
+            img.addEventListener('click', () => {
+              // Dispatch custom event to open lightbox
+              window.dispatchEvent(new CustomEvent('openLightbox', {
+                detail: { index }
+              }));
+            });
+          });
+        }
+
+        // Initialize lightbox after a short delay to ensure images are loaded
+        setTimeout(initializeLightbox, 200);
+      });
       // Process content after DOM loads
       document.addEventListener('DOMContentLoaded', function() {
         // Initialize image grid layouts

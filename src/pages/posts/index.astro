@@ -92,7 +92,7 @@ const pagination = {
         }
       })();
       
-      return shouldShowCoverImage && !post.data.image.startsWith('http') && (
+      return shouldShowCoverImage && post.data.image && !post.data.image.startsWith('http') && (
         <link 
           rel="preload" 
           as="image" 

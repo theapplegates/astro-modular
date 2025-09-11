@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import { siteConfig } from '@/config';
+import { logger } from '@/utils/logger';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Icon from '@/components/Icon.astro';
 
@@ -13,7 +14,7 @@ try {
     pageContent = await notFoundPage.render();
   }
 } catch (error) {
-  console.warn('Could not load 404 page content:', error);
+  logger.warn('Could not load 404 page content:', error);
 }
 
 // SEO data for 404 page
