@@ -14,7 +14,7 @@ views:
     name: Posts
     filters:
       and:
-        - file.folder == "posts"
+        - file.folder.startsWith("posts")
     order:
       - title
       - date

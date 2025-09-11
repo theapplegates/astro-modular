@@ -1,6 +1,6 @@
 ---
 title: Getting Started
-date: 2024-01-20
+date: 2025-09-07
 description: Everything you need to know to set up, configure, and customize Astro Modular.
 tags:
   - tutorial

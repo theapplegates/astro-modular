@@ -86,11 +86,36 @@ const { seoData, bodyClass = '' } = Astro.props;
     </>
   )}
 
-  <!-- Theme-aware favicons -->
-    <link rel="icon" type="image/png" href="/favicon-light.png" />
-    <link rel="icon" type="image/png" href="/favicon-light.png" media="(prefers-color-scheme: light)" />
-    <link rel="icon" type="image/png" href="/favicon-dark.png" media="(prefers-color-scheme: dark)" />
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <!-- Browser theme-aware favicons -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-light.png" media="(prefers-color-scheme: light)" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-dark.png" media="(prefers-color-scheme: dark)" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  <!-- Force favicon refresh for Firefox -->
+  <script>
+    // Force favicon refresh based on system theme
+    function updateFaviconForTheme() {
+      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const faviconLink = document.querySelector('link[rel="icon"][sizes="32x32"]:not([media])');
+      
+      if (faviconLink && faviconLink.setAttribute) {
+        const timestamp = new Date().getTime();
+        if (isDark) {
+          faviconLink.setAttribute('href', `/favicon-dark.png?v=${timestamp}`);
+        } else {
+          faviconLink.setAttribute('href', `/favicon-light.png?v=${timestamp}`);
+        }
+      }
+    }
+    
+    // Update favicon on page load
+    updateFaviconForTheme();
+    
+    // Listen for system theme changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateFaviconForTheme);
+  </script>
 
   <!-- Command Palette Config for Client Script -->
   <meta name="command-palette-shortcut" content={siteConfig.commandPalette.shortcut || ''}>
@@ -117,33 +142,6 @@ const { seoData, bodyClass = '' } = Astro.props;
       document.documentElement.classList.remove('light', 'dark');
       document.documentElement.classList.add(theme);
 
-      // Update favicon based on theme
-      updateFavicon(theme);
-    }
-
-    // Function to update favicon based on theme
-    function updateFavicon(theme) {
-      const faviconLinks = document.querySelectorAll('link[rel="icon"]');
-      faviconLinks.forEach(link => {
-        if (link.getAttribute('media')) {
-          // Remove media attribute from all favicon links
-          link.removeAttribute('media');
-        }
-      });
-
-      // Add media attribute based on current theme
-      const lightFavicon = document.querySelector('link[href="/favicon-light.png"]');
-      const darkFavicon = document.querySelector('link[href="/favicon-dark.png"]');
-      
-      if (lightFavicon && darkFavicon) {
-        if (theme === 'dark') {
-          lightFavicon.setAttribute('media', '(prefers-color-scheme: light)');
-          darkFavicon.removeAttribute('media');
-        } else {
-          darkFavicon.setAttribute('media', '(prefers-color-scheme: dark)');
-          lightFavicon.removeAttribute('media');
-        }
-      }
     }
 
     // Initialize immediately
@@ -171,8 +169,6 @@ const { seoData, bodyClass = '' } = Astro.props;
       html.classList.remove('light', 'dark');
       html.classList.add(newTheme);
 
-      // Update favicon based on new theme
-      updateFavicon(newTheme);
 
       // Icons are now static SVG - no re-initialization needed
 
@@ -817,25 +813,8 @@ const { seoData, bodyClass = '' } = Astro.props;
         logger.dev('🔄 SCROLL DEBUG - Swup navigation, scroll restoration enabled');
       }
       
-      // Intercept and prevent any scroll restoration
-      const originalScrollTo = window.scrollTo;
-      
-      (window as any).scrollTo = function(x: number | ScrollToOptions, y?: number) {
-        if (typeof x === 'number' && typeof y === 'number') {
-          if (isForwardNavigation && y === 0) {
-            // Allow scroll to top for forward navigation
-            return originalScrollTo.call(window, x, y);
-          } else if (isForwardNavigation) {
-            // Block any other scroll during forward navigation
-            logger.dev('Blocked scroll during forward navigation:', x, y);
-            return;
-          }
-          return originalScrollTo.call(window, x, y);
-        } else {
-          // Handle ScrollToOptions case
-          return (originalScrollTo as any).call(window, x as ScrollToOptions);
-        }
-      } as typeof window.scrollTo;
+      // Simple scroll management for smooth transitions
+      // No scroll locking - let the transition handle positioning naturally
 
       // Let Swup handle all history management natively
 
@@ -856,6 +835,8 @@ const { seoData, bodyClass = '' } = Astro.props;
       
       // Simple scroll position storage
       const scrollPositions = new Map();
+      // Make it globally accessible for anchor link handlers
+      (window as any).scrollPositions = scrollPositions;
       
       // Flag to track if we've already handled scroll for back navigation
       let backNavigationScrollHandled = false;
@@ -875,6 +856,38 @@ const { seoData, bodyClass = '' } = Astro.props;
         if (!event.trigger || event.trigger.type !== 'popstate') {
           logger.dev('Forward navigation - marking for scroll to top after leaving animation');
           document.documentElement.classList.add('force-scroll-top');
+        }
+      });
+
+      // Track scroll position changes on the current page
+      let scrollTimeout: ReturnType<typeof setTimeout> | null = null;
+      const updateCurrentPageScrollPosition = () => {
+        const url = window.location.href;
+        const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+        scrollPositions.set(url, scrollY);
+        logger.dev('Updated scroll position for current page:', url, 'at', scrollY);
+      };
+
+      // Debounced scroll tracking to avoid excessive updates
+      const trackScrollPosition = () => {
+        if (scrollTimeout) {
+          clearTimeout(scrollTimeout);
+        }
+        scrollTimeout = setTimeout(updateCurrentPageScrollPosition, 150);
+      };
+
+      // Track scroll position changes
+      window.addEventListener('scroll', trackScrollPosition, { passive: true });
+      
+      // Track anchor clicks and smooth scrolling
+      document.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement;
+        const link = target.closest('a[href^="#"]');
+        if (link) {
+          // Wait for smooth scroll to complete, then update position
+          setTimeout(() => {
+            updateCurrentPageScrollPosition();
+          }, 500);
         }
       });
 
@@ -919,22 +932,17 @@ const { seoData, bodyClass = '' } = Astro.props;
         isForwardNavigation = !visit.trigger || !visit.trigger.event || visit.trigger.event.type !== 'popstate';
         logger.dev('isForwardNavigation:', isForwardNavigation);
         
-        // For forward navigation, just log - we'll handle scroll in content:replace
+        // For forward navigation, prepare for transition
         if (isForwardNavigation) {
-          logger.dev('Forward navigation - will scroll to top after content replacement');
+          logger.dev('Forward navigation - preparing transition');
+          // No scroll locking - let the transition handle positioning
         } else {
           // For back navigation, check if there's an anchor in the current URL
-          // (The hash might not be in visit.to.url yet for back navigation)
           if (window.location.href.includes('#')) {
-            logger.dev('Back navigation with anchor detected in visit:start - preventing scroll to top');
+            logger.dev('Back navigation with anchor detected in visit:start');
             // Store the anchor for later use
             const hash = window.location.href.split('#')[1];
             pendingBackAnchor = hash;
-            
-            // Set scroll to a high value to prevent scroll to top
-            window.scrollTo(0, 999999);
-            document.documentElement.scrollTop = 999999;
-            document.body.scrollTop = 999999;
           }
         }
       });
@@ -946,36 +954,18 @@ const { seoData, bodyClass = '' } = Astro.props;
         // Check if this is forward navigation by looking at the trigger
         const isForwardNavigation = visit.trigger && visit.trigger.event && visit.trigger.event.type === 'click';
         
-        if (isForwardNavigation && document.documentElement.classList.contains('force-scroll-top')) {
-          logger.dev('Content replaced - handling scroll for forward navigation');
-          
-          // Check if there's an anchor in the target URL
-          if (visit.to && visit.to.url && visit.to.url.includes('#')) {
-            logger.dev('Forward navigation with anchor - will scroll to anchor after transition');
-            // Don't scroll to top, let the anchor handling in visit:end take care of it
-          } else {
-            logger.dev('Forward navigation without anchor - scrolling to top');
-            // Small delay to ensure the new content is ready
-            setTimeout(() => {
-              window.scrollTo(0, 0);
-              document.documentElement.scrollTop = 0;
-              document.body.scrollTop = 0;
-            }, 10);
-          }
+        if (isForwardNavigation) {
+          logger.dev('Content replaced - forward navigation, allowing natural positioning');
         } else {
-          // For back navigation, handle scroll positioning
-          logger.dev('Content replaced - back navigation, handling scroll positioning');
+          // For back navigation, prepare scroll restoration
+          logger.dev('Content replaced - back navigation, preparing scroll restoration');
           
           if (pendingBackAnchor) {
-            logger.dev('Back navigation with pending anchor - keeping scroll position high');
-            // Keep the scroll position high to prevent scroll to top
-            window.scrollTo(0, 999999);
-            document.documentElement.scrollTop = 999999;
-            document.body.scrollTop = 999999;
+            logger.dev('Back navigation with pending anchor - will scroll to anchor after transition');
           } else {
-            logger.dev('Back navigation without anchor - delaying scroll restoration until after transition');
-            // For back navigation without anchor, delay scroll restoration until after transition
+            logger.dev('Back navigation without anchor - preparing scroll restoration');
             const savedPosition = scrollPositions.get(visit.to.url);
+            
             if (savedPosition !== undefined) {
               logger.dev('Will restore saved position after transition:', savedPosition);
               // Store the position to restore after transition
@@ -1004,6 +994,11 @@ const { seoData, bodyClass = '' } = Astro.props;
            // Check if we have a pending anchor to scroll to
            if (pendingBackAnchor) {
              logger.dev('Back navigation with pending anchor:', pendingBackAnchor);
+             
+             // Restore scroll capability first
+             document.documentElement.style.overflow = '';
+             document.body.style.overflow = '';
+             
              const element = document.getElementById(pendingBackAnchor);
              if (element) {
                logger.dev('Found element for pending anchor, scrolling to it');
@@ -1039,25 +1034,39 @@ const { seoData, bodyClass = '' } = Astro.props;
              (window as any).pendingScrollRestore = undefined;
              
              // Restore scroll position after transition is complete
-             // Wait for the transition to finish by checking for transition classes
-             const waitForTransitionEnd = () => {
+             // Use a timeout instead of recursive requestAnimationFrame to avoid layout issues
+             setTimeout(() => {
+               // Check if transition is still active
                const html = document.documentElement;
                const isTransitioning = html.classList.contains('is-changing') || 
                                       html.classList.contains('is-leaving') || 
                                       html.classList.contains('is-animating');
                
-               if (isTransitioning) {
-                 // Still transitioning, wait for next frame
-                 requestAnimationFrame(waitForTransitionEnd);
-               } else {
-                 // Transition complete, restore scroll position
-                 window.scrollTo(0, position);
+               if (!isTransitioning) {
+                 // Transition complete, restore scroll position smoothly
+                 window.scrollTo({
+                   top: position,
+                   left: 0,
+                   behavior: 'instant'
+                 });
                  logger.dev('Scroll position restored to:', position);
+                 
+                 // Update the stored position to reflect the restoration
+                 setTimeout(() => {
+                   updateCurrentPageScrollPosition();
+                 }, 100);
+               } else {
+                 // Still transitioning, try again after a short delay
+                 setTimeout(() => {
+                   window.scrollTo({
+                     top: position,
+                     left: 0,
+                     behavior: 'instant'
+                   });
+                   logger.dev('Scroll position restored to (delayed):', position);
+                 }, 200);
                }
-             };
-             
-             // Start waiting for transition to end
-             requestAnimationFrame(waitForTransitionEnd);
+             }, 100);
              return;
            }
            
@@ -1101,52 +1110,50 @@ const { seoData, bodyClass = '' } = Astro.props;
              // No anchor - restore saved position
              const savedPosition = scrollPositions.get(visit.to.url);
              if (savedPosition !== undefined && savedPosition > 0) {
-               setTimeout(() => window.scrollTo(0, savedPosition), 100);
+               logger.dev('Restoring saved position:', savedPosition);
+               setTimeout(() => {
+                 window.scrollTo(0, savedPosition);
+                 // Update the stored position after restoration
+                 setTimeout(() => {
+                   updateCurrentPageScrollPosition();
+                 }, 100);
+               }, 100);
              } else {
+               logger.dev('No saved position found, scrolling to top');
                window.scrollTo(0, 0);
              }
            }
          } else {
-           logger.dev('Forward navigation - handling scroll positioning');
-           // Forward navigation - handle scroll positioning
+          logger.dev('Forward navigation - positioning page after transition');
+          // Forward navigation - position the page after transition completes
            // Clear any stored positions for this URL
            scrollPositions.delete(visit.to.url);
            
-           // Check if there's an anchor in the URL
-           if (window.location.href.includes('#')) {
-             logger.dev('Forward navigation with anchor - scrolling to anchor');
-             const hash = window.location.hash.slice(1);
-             logger.dev('Looking for element with ID:', hash);
-             
-             setTimeout(() => {
-               const element = document.getElementById(hash);
-               logger.dev('Found element:', element);
-               if (element) {
-                 logger.dev('Scrolling to element');
-                 element.scrollIntoView({ behavior: 'smooth' });
-               } else {
-                 logger.dev('Element not found, trying alternative approach');
-                 // Try scrolling to the hash directly
-                 if (hash) {
-                   window.location.hash = '#' + hash;
-                 }
-               }
-             }, 350); // Wait for Swup transition to complete
-           } else {
-             logger.dev('Forward navigation without anchor - ensuring at top');
-             // Ensure we're at the top
-             window.scrollTo(0, 0);
-             document.documentElement.scrollTop = 0;
-             document.body.scrollTop = 0;
-           }
+           const hasAnchor = window.location.href.includes('#');
+           const hash = hasAnchor ? window.location.hash.slice(1) : '';
            
-           // Remove the force scroll class
-           document.documentElement.classList.remove('force-scroll-top');
-           
-           // Reset the flag after a short delay
-           setTimeout(() => {
-             isForwardNavigation = false;
-           }, 100);
+          // Position the page immediately after content replacement
+          // The transition will handle the visual animation
+          if (hasAnchor) {
+            logger.dev('Forward navigation with anchor - scrolling to anchor');
+            const element = document.getElementById(hash);
+            if (element) {
+              element.scrollIntoView({ behavior: 'instant', block: 'start' });
+            } else if (hash) {
+              window.location.hash = '#' + hash;
+            }
+          } else {
+            logger.dev('Forward navigation without anchor - scrolling to top');
+            window.scrollTo(0, 0);
+          }
+          
+          // Remove the force scroll class
+          document.documentElement.classList.remove('force-scroll-top');
+          
+          // Reset the flag after a short delay
+          setTimeout(() => {
+            isForwardNavigation = false;
+          }, 100);
          }
          
         // Reinitialize components
@@ -1255,6 +1262,17 @@ const { seoData, bodyClass = '' } = Astro.props;
               behavior: 'smooth',
               block: 'start'
             });
+            
+            // Update scroll position after smooth scroll completes
+            setTimeout(() => {
+              const url = window.location.href;
+              const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+              // Access scrollPositions from the global scope
+              if ((window as any).scrollPositions) {
+                (window as any).scrollPositions.set(url, scrollY);
+                logger.dev('Updated scroll position after anchor click:', url, 'at', scrollY);
+              }
+            }, 500);
           }
         });
       });

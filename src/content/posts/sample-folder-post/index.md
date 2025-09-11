@@ -1,7 +1,7 @@
 ---
 title: Sample Folder-Based Post
 description: This is a test post to demonstrate the folder-based approach
-date: 2025-01-10
+date: 2025-09-09
 tags:
   - test
   - folder-based

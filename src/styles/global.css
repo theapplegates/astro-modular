@@ -676,6 +676,30 @@ html.is-changing {
   overflow: hidden;
 }
 
+/* Lock scroll during transitions to prevent unwanted movement */
+html.is-changing,
+html.is-leaving,
+html.is-animating {
+  overflow: hidden !important;
+}
+
+html.is-changing body,
+html.is-leaving body,
+html.is-animating body {
+  overflow: hidden !important;
+}
+
+/* Ensure header stays visible and stable during transitions */
+html.is-changing header,
+html.is-leaving header,
+html.is-animating header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 40 !important;
+  transform: translateZ(0) !important;
+  will-change: auto !important;
+}
+
 /* Prevent header and footer flashing */
 header, footer, nav {
   will-change: auto;
@@ -692,6 +716,20 @@ html.is-rendering footer {
   opacity: 1 !important;
   transform: none !important;
   transition: none !important;
+}
+
+/* Additional header stability during scroll restoration */
+html.is-changing header,
+html.is-leaving header,
+html.is-animating header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 40 !important;
+  transform: translateZ(0) !important;
+  will-change: auto !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
 }
 
 /* Ensure smooth transitions for interactive elements only */

@@ -1,6 +1,6 @@
 ---
 title: Formatting Reference
-date: 2024-01-25
+date: 2025-09-08
 description: Explore all the markdown, extended markdown, and other embed features available in this blog theme.
 tags:
   - markdown
