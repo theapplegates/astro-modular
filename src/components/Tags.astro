@@ -16,8 +16,8 @@ const sortedTags = [...tags].sort();
 ---
 
 {siteConfig.features.tags && sortedTags.length > 0 && (
-  <div class="tags-container">
-    <h3 class="font-semibold text-primary-900 dark:text-primary-50 mb-4 flex items-center">
+  <div class="tags-container p-4 bg-white dark:bg-primary-900 rounded-xl border border-primary-200 dark:border-primary-700 shadow-lg backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95">
+    <h3 class="font-semibold text-primary-900 dark:text-primary-50 mb-3 flex items-center text-sm">
       <Icon name="tag" class="w-4 h-4 mr-2" />
       Tags
     </h3>
@@ -45,9 +45,6 @@ const sortedTags = [...tags].sort();
 )}
 
 <style>
-  .tags-container {
-    @apply p-6 bg-white dark:bg-primary-900 rounded-xl border border-primary-200 dark:border-primary-700;
-  }
 
   .tag-item {
     @apply inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-full transition-all duration-200;

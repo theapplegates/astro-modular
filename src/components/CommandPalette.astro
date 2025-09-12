@@ -235,6 +235,34 @@ import Icon from './Icon.astro';
         }
       });
 
+      // Add event listener for all command palette links to close the palette when clicked
+      document.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement;
+        const commandPaletteLink = target.closest('#command-palette-overlay a[href]');
+        if (commandPaletteLink && this.isOpen) {
+          e.preventDefault();
+          const href = commandPaletteLink.getAttribute('href');
+          if (href) {
+            this.close();
+            
+            // Navigate after a small delay to ensure the palette closes first
+            setTimeout(() => {
+              if (href.startsWith('http') && !href.includes(window.location.hostname)) {
+                // External link - open in new tab
+                window.open(href, '_blank');
+              } else {
+                // Internal link - use Swup if available, otherwise regular navigation
+                if ((window as any).swup) {
+                  (window as any).swup.navigate(href);
+                } else {
+                  window.location.href = href;
+                }
+              }
+            }, 50);
+          }
+        }
+      });
+
       // Add global keyboard listener for Escape key to close the palette
       document.addEventListener('keydown', (e) => {
         if (this.isOpen && e.key === 'Escape') {
@@ -678,6 +706,27 @@ import Icon from './Icon.astro';
       anchor.href = item.url;
       anchor.dataset.index = index.toString();
       anchor.className = `command-palette-item w-full flex items-start space-x-3 px-3 py-3 hover:bg-primary-50 dark:hover:bg-primary-800 rounded-lg transition-colors group ${index === this.selectedIndex ? 'bg-primary-50 dark:bg-primary-800' : ''}`;
+      
+      // Add click handler to close the palette when clicked
+      anchor.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.close();
+        
+        // Navigate after a small delay to ensure the palette closes first
+        setTimeout(() => {
+          if (item.url.startsWith('http') && !item.url.includes(window.location.hostname)) {
+            // External link - open in new tab
+            window.open(item.url, '_blank');
+          } else {
+            // Internal link - use Swup if available, otherwise regular navigation
+            if ((window as any).swup) {
+              (window as any).swup.navigate(item.url);
+            } else {
+              window.location.href = item.url;
+            }
+          }
+        }, 50);
+      });
       
       // Add static SVG icon for file
       const fileIcon = document.createElement('div');
