@@ -3,8 +3,6 @@ title: Privacy Policy
 description: This privacy policy explains how your information is collected, used, and protected when you visit this website.
 noIndex: true
 ---
-# Privacy Policy
-
 Last updated: September 5, 2025
 ## The Policy
 

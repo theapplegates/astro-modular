@@ -64,35 +64,46 @@ const structuredData = {
     )}
   </Fragment>
 
-  <div class="relative">
-    <!-- TOC is hidden on mobile and tablet, only shown on desktop -->
-
+  <div class="py-8 relative">
     <div class="mx-auto px-4 sm:px-6 lg:px-8 relative" style={`max-width: ${siteConfig.layout.contentWidth}`}>
-      {page.data.image && (
-        <div class="aspect-video overflow-hidden rounded-xl mb-8">
-          <ImageWrapper
-            src={page.data.image}
-            basePath="/pages/images/"
-            alt={page.data.imageAlt || `Featured image for page: ${page.data.title}`}
-            class="w-full h-full"
-            width={800}
-            height={450}
-            format="webp"
-            quality={85}
-            loading="eager"
-            fetchpriority="high"
-          />
-        </div>
-      )}
-
       <!-- Page content -->
-      <div class="prose dark:prose-dark max-w-none">
-        <Content />
-      </div>
+      <article class={`bg-primary-50 dark:bg-primary-900 rounded-lg border border-primary-200 dark:border-primary-700 shadow-sm ${page.data.image ? 'overflow-hidden' : ''}`}>
+        {page.data.image && (
+          <div class="h-40 sm:h-48 md:h-56 lg:h-64 overflow-hidden rounded-t-lg bg-primary-100 dark:bg-primary-800">
+            <ImageWrapper
+              src={page.data.image}
+              basePath="/pages/images/"
+              alt={page.data.imageAlt || `Featured image for page: ${page.data.title}`}
+              class="w-full h-full object-cover"
+              width={800}
+              height={450}
+              format="webp"
+              quality={85}
+              loading="eager"
+              fetchpriority="high"
+            />
+          </div>
+        )}
+
+        <!-- Page content wrapper -->
+        <div class={`p-6 ${page.data.image ? 'rounded-b-lg' : 'rounded-lg'}`}>
+          <!-- Page header -->
+          <header class="mb-4">
+            <h1 class="text-xl font-bold text-primary-900 dark:text-primary-50 mb-6 leading-tight">
+              {page.data.title}
+            </h1>
+          </header>
+
+          <!-- Page content -->
+          <div class="prose dark:prose-dark max-w-none" id="page-content">
+            <Content />
+          </div>
+        </div>
+      </article>
 
       <!-- Desktop TOC - floats to the right of the content container -->
       {shouldShowTOC && (
-        <div class="hidden xl:block absolute top-0 left-full ml-8 w-64">
+        <div class="hidden xl:block absolute top-0 left-full ml-1 w-64">
           <div class="sticky top-24" id="toc">
             <TableOfContents headings={toc} />
           </div>
@@ -130,6 +141,17 @@ const structuredData = {
         // Initialize lightbox after a short delay to ensure images are loaded
         setTimeout(initializeLightbox, 200);
       });
+      // Remove duplicate H1 from page content (since we render it in header)
+      document.addEventListener('DOMContentLoaded', function() {
+        const pageContent = document.getElementById('page-content');
+        if (pageContent) {
+          const firstH1 = pageContent.querySelector('h1');
+          if (firstH1) {
+            firstH1.remove();
+          }
+        }
+      });
+
       // Process content after DOM loads
       document.addEventListener('DOMContentLoaded', function() {
         // Initialize image grid layouts

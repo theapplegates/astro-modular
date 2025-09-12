@@ -6,13 +6,10 @@ A powerful, modular blog theme for Astro specifically designed for Obsidian user
 
 ## Features
 
-**Built for Obsidian Users** - Write in a dedicated vault, publish to your blog with wikilinks, callouts, and seamless integration.
-
-**Modular & Customizable** - Each feature can be enabled/disabled independently with 10+ themes.
-
-**Content-First** - Markdown-first with folder-based posts, image optimization, and automatic SEO features.
-
-**Developer-Friendly** - TypeScript throughout, command palette navigation, and comprehensive documentation.
+- **Built for Obsidian Users**: write in a dedicated vault, publish to your blog with wikilinks, callouts, and seamless integration.
+- **Modular & Customizable**: each feature can be enabled/disabled independently with 10+ themes.
+- **Content-First**: markdown-first with folder-based posts, image optimization, and automatic SEO features.
+- **Developer-Friendly**: TypeScript throughout, command palette navigation, and comprehensive documentation.
 
 ## Quick Start
 
@@ -69,11 +66,11 @@ pnpm preview
 
 <img width="1920" height="1200" alt="Astro Modular with Minimal theme applied, post example." src="https://github.com/user-attachments/assets/e6a6a560-924e-43c7-8b46-d03a9cbee4a1" />
 
-## 📚 Documentation
+## Documentation
 
 For detailed guides, see the included blog posts:
 - **[Getting Started](posts/getting-started.md)** - Complete setup and workflow guide
-- **[Markdown Features](posts/formatting-reference.md)** - Comprehensive formatting reference  
+- **[Formatting Reference](posts/formatting-reference.md)** - Comprehensive formatting reference  
 - **[Astro Suite Vault Guide](posts/astro-suite-vault-modular-guide.md)** - Obsidian vault walkthrough
 
 **For AI Agents & Developers:** See [AGENTS.md](AGENTS.md) for comprehensive technical documentation.

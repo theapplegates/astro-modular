@@ -678,11 +678,11 @@ main {
 
 /* PostCard component styles - moved from component to global for Swup compatibility */
 .post-card {
-  @apply p-5 bg-white dark:bg-primary-900 rounded-xl border border-primary-200 dark:border-primary-700 transition-all duration-200 hover:shadow-lg hover:shadow-primary-900/10 dark:hover:shadow-primary-800/30;
+  @apply bg-primary-50 dark:bg-primary-900 rounded-lg border border-primary-200 dark:border-primary-700 shadow-sm hover:shadow-md transition-shadow duration-200;
 }
 
 .featured-post {
-  @apply p-6 bg-gradient-to-br from-white to-primary-50 dark:from-primary-900 dark:to-primary-800 rounded-xl border border-primary-200 dark:border-primary-700 transition-all duration-200 hover:shadow-xl hover:shadow-primary-900/15 dark:hover:shadow-primary-800/40;
+  @apply bg-primary-50 dark:bg-primary-900 rounded-lg border border-primary-200 dark:border-primary-700 shadow-sm hover:shadow-md transition-shadow duration-200;
 }
 
 
@@ -696,6 +696,8 @@ a:focus-visible, button:focus-visible, .btn:focus-visible {
   @apply outline-2 outline-highlight-500 dark:outline-highlight-400 outline-offset-2;
   transition: outline 0.2s ease-in-out;
 }
+
+/* PostLayout unified card styling - seamless cover image connection */
 
 /* Print Styles */
 @media print {

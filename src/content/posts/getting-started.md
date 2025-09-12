@@ -247,6 +247,8 @@ Use [[wikilinks]] to connect posts.
 > Work exactly like in Obsidian!
 ```
 
+Since the post title is hardcoded as H1, your content should start with H2 headings.
+
 You can also create folder-based posts, as you can see here: [Sample Folder-Based Post](posts/sample-folder-post/index.md). The base filename is `index.md` and the parent folder filename serves as the slug of the post.
 ## Creating Pages 
 
@@ -259,20 +261,22 @@ description: ""
 noIndex: false
 ---
 
-# Start with H1 Headings
+## Start with H2 Headings
 
 Write using markdown with enhanced features.
 ```
+
+H1s are hardcoded from the title frontmatter like posts, but pages get a unique `noIndex` property that sets whether or not the page should be indexed in search engines or included on the sitemap. Helpful for pages that you don't want indexed like a thank-you page.
 
 ### Automatic Aliases & Redirects
 
 When you rename a post or page in Obsidian, the old filename is automatically stored as an alias. Astro processes these aliases and creates redirect rules, so old URLs continue to work. You don't need to add aliases manually - they appear automatically when you use Obsidian's rename functionality.
 
-Use the `noIndex` frontmatter Boolean to decide whether or not `<meta name="robots" content="noindex, nofollow">` gets placed on the page. This will tell search engines not to index the page. 
+### Other Page Details
 
 The Contact page has an optional form embedded into it, which leads to the Thank You page when filled out. It's preconfigured to work with Netlify out of the box, you just have to [enable form detection](https://docs.netlify.com/manage/forms/setup/) on your project.
 
-Optional Privacy Policy page can be edited or removed by deleting it if you don't want it. 
+An optional Privacy Policy page can be edited or removed by deleting it if you don't want it. 
 
 `index.md` controls what goes on the homepage blurb. Adding content to `404.md` will display on any "not found" page.
 ## Obsidian Integration
@@ -296,7 +300,7 @@ To remove Obsidian, simply delete the `.obsidian` folder.
 ## Key Features
 
 ### Command Palette
-Press `Ctrl+K` (or custom hotkey) for instant navigation, search, and theme switching.
+Press `Ctrl+K` (or custom hotkey) for instant navigation, search, and dark/light mode switching.
 
 ### Wikilinks & Connections
 - `[[Post Title]]` - Standard wikilink
@@ -345,7 +349,7 @@ Common issues:
 
 1. **Customize** `src/config.ts`
 2. **Write** your first post
-3. **Explore** [Markdown Features](formatting-reference.md)
+3. **Explore** [Formatting Reference](formatting-reference.md)
 4. **Set up** Obsidian vault workflow
 5. **Deploy** and share
 

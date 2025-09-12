@@ -236,13 +236,14 @@ src/content/posts/
 - **H1 is in MARKDOWN** - pages MUST have `# Title` in their markdown content
 - **NO hardcoded H1** in the layout - PageLayout does not render the title
 - **Prose classes handle styling** - H1 styling comes from prose typography
-- **Example**: Page markdown starts with `# About` → Prose renders the H1
+- **Content starts with H2** - Since H1 is the page title, content should start with `##` headings
+- **Example**: Page markdown starts with `# About` → Prose renders the H1, content uses `##` for sections
 
 #### Why This Distinction Matters
-- **Posts**: Title comes from frontmatter, layout handles presentation
-- **Pages**: Title comes from markdown content, prose handles presentation
+- **Posts**: Title comes from frontmatter, layout handles presentation, content starts with H2
+- **Pages**: Title comes from markdown content, prose handles presentation, content starts with H2
 - **Consistency**: Both use the same prose classes for content, but different approaches for titles
-- **AI Agents**: Never add H1 to post markdown or remove H1 from page markdown
+- **AI Agents**: Never add H1 to post markdown or remove H1 from page markdown, both content sections start with H2
 
 ## Obsidian Integration
 
@@ -948,9 +949,10 @@ The comments are styled to match your theme automatically. If you see styling is
 - These are completely separate systems - don't mix them up!
 
 #### 3. **H1 Title Handling**
-- **Posts**: NO H1 in markdown content - title comes from frontmatter
-- **Pages**: MUST have H1 in markdown content - no hardcoded title in layout
+- **Posts**: NO H1 in markdown content - title comes from frontmatter, content starts with H2
+- **Pages**: MUST have H1 in markdown content - no hardcoded title in layout, content starts with H2
 - Never add H1 to post markdown or remove H1 from page markdown
+- Both posts and pages should have content sections starting with H2 headings
 
 #### 4. **🚨 FAVICON THEME BEHAVIOR (CRITICAL)**
 - **Favicon should NOT change with manual theme toggle** - it should only change with browser system theme

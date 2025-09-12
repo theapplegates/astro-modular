@@ -6,8 +6,6 @@ aliases:
   - contact-me
   - contact-us
 ---
-# Contact
-
 Send me a message. 
 
 <form   
