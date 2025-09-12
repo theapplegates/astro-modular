@@ -63,14 +63,8 @@
   force = true
 
 [[redirects]]
-  from = "/privacy-policy"
-  to = "/privacy"
-  status = 301
-  force = true
-
-[[redirects]]
-  from = "/thanks"
-  to = "/thank-you"
+  from = "/privacy"
+  to = "/privacy-policy"
   status = 301
   force = true
 

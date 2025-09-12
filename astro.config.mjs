@@ -25,8 +25,7 @@ export default defineConfig({
   '/about-us': '/about',
   '/contact-me': '/contact',
   '/contact-us': '/contact',
-  '/privacy-policy': '/privacy',
-  '/thanks': '/thank-you'
+  '/privacy': '/privacy-policy'
 },
   image: {
     service: {

@@ -1,7 +1,7 @@
 filters:
   and:
     - file.ext == "md"
-    - file.path != "pages/index.md"
+    - file.folder.startsWith("posts")
 properties:
   note.title:
     displayName: Title
@@ -12,9 +12,6 @@ properties:
 views:
   - type: cards
     name: Posts
-    filters:
-      and:
-        - file.folder.startsWith("posts")
     order:
       - title
       - date
@@ -24,16 +21,3 @@ views:
     cardSize: 230
     image: note.image
     imageAspectRatio: 0.55
-  - type: cards
-    name: Pages
-    filters:
-      and:
-        - file.folder == "pages"
-    order:
-      - title
-      - pubDate
-      - formula.Draft
-    sort:
-      - property: date
-        direction: DESC
-    cardSize: 260
