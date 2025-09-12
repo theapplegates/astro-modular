@@ -7,7 +7,7 @@ tags:
   - astro
 draft: false
 image: "[[cover.png]]"
-imageAlt: A beautiful multi-tiered waterfall cascading into a turquoise lake surrounded by lush green forest
+imageAlt: A beautiful multi-tiered waterfall cascading into a turquoise lake surrounded by lush green forest.
 hideCoverImage: false
 ---
 This is a test post to demonstrate how the folder-based approach works. The folder name `sample-folder-post` should become the slug for this post.
@@ -16,11 +16,19 @@ This is a test post to demonstrate how the folder-based approach works. The fold
 
 Here's an image that should be stored in the same folder:
 
-Wikilink embed
-![[forest.png]]
-
-Markdown link embed
 ![Forest.](forest.png)
+
+Standard markdown image embed: 
+
+```
+![Forest.](forest.png)
+```
+
+Wikilink image embed: 
+
+```
+![[forest.png]]
+```
 ## Benefits of Folder-Based Approach
 
 - **Organization**: Keep all post assets in one place

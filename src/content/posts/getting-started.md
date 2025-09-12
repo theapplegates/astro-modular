@@ -114,6 +114,33 @@ features: {
 - `"latest-and-posts"` - Show on latest post section AND posts pages/tags (but not recent posts section)
 - `"none"` - Never show cover images
 
+**Post Card Aspect Ratio:**
+Configure the aspect ratio for post card cover images:
+
+```typescript
+features: {
+  postCardAspectRatio: "og", // Default: OpenGraph standard
+  customAspectRatio: undefined, // For custom ratios
+}
+```
+
+**Aspect Ratio Options:**
+- `"og"` (1.91:1) - OpenGraph standard (default)
+- `"16:9"` (1.78:1) - Standard widescreen
+- `"4:3"` (1.33:1) - Traditional
+- `"3:2"` (1.5:1) - Classic photography
+- `"square"` (1:1) - Square
+- `"golden"` (1.618:1) - Golden ratio
+- `"custom"` - Use your own ratio
+
+**Custom Aspect Ratio Example:**
+```typescript
+postCardAspectRatio: "custom",
+customAspectRatio: "2.5/1" // Custom 2.5:1 ratio
+```
+
+*Note: This only affects post cards (listings, homepage, tag pages). Individual post cover images maintain their original aspect ratio.*
+
 ### Comments System
 
 The theme includes a Giscus-powered commenting system that uses GitHub Discussions. Here's how to set it up:

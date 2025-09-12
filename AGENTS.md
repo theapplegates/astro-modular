@@ -744,6 +744,37 @@ features: {
 - `"latest-and-posts"` - Show on latest post section AND posts pages/tags (but not recent posts section)
 - `"none"` - Never show cover images
 
+#### Post Card Aspect Ratio Configuration
+Configure the aspect ratio for post card cover images:
+
+```typescript
+features: {
+  postCardAspectRatio: "og", // Default: OpenGraph standard
+  customAspectRatio: undefined, // For custom ratios
+}
+```
+
+**Aspect Ratio Options:**
+- `"og"` (1.91:1) - OpenGraph standard (default)
+- `"16:9"` (1.78:1) - Standard widescreen
+- `"4:3"` (1.33:1) - Traditional
+- `"3:2"` (1.5:1) - Classic photography
+- `"square"` (1:1) - Square
+- `"golden"` (1.618:1) - Golden ratio
+- `"custom"` - Use your own ratio
+
+**Custom Aspect Ratio Example:**
+```typescript
+postCardAspectRatio: "custom",
+customAspectRatio: "2.5/1" // Custom 2.5:1 ratio
+```
+
+**Important Notes for AI Agents:**
+- This **only affects post cards** (listings, homepage, tag pages)
+- **Individual post cover images** maintain their original aspect ratio
+- The aspect ratio is applied via CSS `aspect-ratio` property
+- Use the `getPostCardAspectRatio()` utility function to get the current ratio value
+
 #### Navigation Configuration
 ```typescript
 navigation: {
@@ -991,6 +1022,7 @@ All SEO features work with folder-based posts:
 ### Image System Confusion (Common AI Agent Mistake)
 - **Post cards** show images based on `showCoverImages` config, NOT `hideCoverImage` frontmatter
 - **Post content** shows images based on `hideCoverImage` frontmatter, NOT config
+- **Post card aspect ratio** is controlled by `postCardAspectRatio` config, NOT individual post settings
 - These are completely separate systems - don't mix them up!
 
 ### Development vs Production

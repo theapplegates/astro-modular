@@ -1,5 +1,16 @@
 // Site configuration with TypeScript types
 import { logger } from './utils/logger';
+
+// Aspect ratio options for post cards
+export type AspectRatio = 
+  | "16:9"        // 1.78:1 - Standard widescreen
+  | "4:3"         // 1.33:1 - Traditional
+  | "3:2"         // 1.5:1 - Classic photography
+  | "og"          // 1.91:1 - OpenGraph standard
+  | "square"      // 1:1 - Square
+  | "golden"      // 1.618:1 - Golden ratio
+  | "custom";     // Custom ratio
+
 export interface SiteConfig {
   site: string;
   title: string;
@@ -36,6 +47,8 @@ export interface SiteConfig {
     postNavigation: boolean;
     showLatestPost: boolean;
     comments: boolean;
+    postCardAspectRatio: AspectRatio;
+    customAspectRatio?: string; // For custom ratio (e.g., "2.5/1")
   };
   commandPalette: {
     shortcut: string;
@@ -108,7 +121,18 @@ export const siteConfig: SiteConfig = {
     showLatestPost: true,
     showSocialIconsInFooter: true,
     showCoverImages: "latest-and-posts", // "all" | "latest" | "home" | "posts" | "latest-and-posts" | "none"
+    postCardAspectRatio: "og", // "16:9" | "4:3" | "3:2" | "og" | "square" | "golden" | "custom"
+    customAspectRatio: "2.5/1", // Only used when postCardAspectRatio is "custom" (e.g., "2.5/1")
     comments: false,
+    
+    // Aspect ratio options:
+    // - "16:9" (1.78:1) - Standard widescreen
+    // - "4:3" (1.33:1) - Traditional
+    // - "3:2" (1.5:1) - Classic photography
+    // - "og" (1.91:1) - OpenGraph standard (default)
+    // - "square" (1:1) - Square
+    // - "golden" (1.618:1) - Golden ratio
+    // - "custom" - Use customAspectRatio field (e.g., "2.5/1")
   },
 
   commandPalette: {
@@ -163,7 +187,7 @@ export const siteConfig: SiteConfig = {
 };
 
 // Utility functions
-export function getFeature(feature: keyof Omit<SiteConfig["features"], "showCoverImages">): boolean {
+export function getFeature(feature: keyof Omit<SiteConfig["features"], "showCoverImages" | "postCardAspectRatio" | "customAspectRatio">): boolean {
   return siteConfig.features[feature];
 }
 
@@ -177,6 +201,29 @@ export function getContentWidth(): string {
 
 export function getTheme(): "minimal" | "oxygen" | "atom" | "ayu" | "catppuccin" | "charcoal" | "dracula" | "everforest" | "flexoki" | "gruvbox" | "macos" | "nord" | "obsidian" | "rose-pine" | "sky" | "solarized" | "things" {
   return siteConfig.theme;
+}
+
+export function getPostCardAspectRatio(): string {
+  const { postCardAspectRatio, customAspectRatio } = siteConfig.features;
+  
+  switch (postCardAspectRatio) {
+    case "16:9":
+      return "16 / 9";
+    case "4:3":
+      return "4 / 3";
+    case "3:2":
+      return "3 / 2";
+    case "og":
+      return "1.91 / 1";
+    case "square":
+      return "1 / 1";
+    case "golden":
+      return "1.618 / 1";
+    case "custom":
+      return customAspectRatio || "1.91 / 1"; // Fallback to OpenGraph if custom not provided
+    default:
+      return "1.91 / 1"; // Default to OpenGraph
+  }
 }
 
 // Validation function for siteConfig
@@ -225,6 +272,19 @@ function validateSiteConfig(config: SiteConfig): { isValid: boolean; errors: str
   const validCoverImageOptions = ['all', 'latest', 'home', 'posts', 'latest-and-posts', 'none'];
   if (!validCoverImageOptions.includes(config.features.showCoverImages)) {
     errors.push(`features.showCoverImages must be one of: ${validCoverImageOptions.join(', ')}`);
+  }
+
+  // Aspect ratio validation
+  const validAspectRatios = ['16:9', '4:3', '3:2', 'og', 'square', 'golden', 'custom'];
+  if (!validAspectRatios.includes(config.features.postCardAspectRatio)) {
+    errors.push(`features.postCardAspectRatio must be one of: ${validAspectRatios.join(', ')}`);
+  }
+
+  // Custom aspect ratio validation
+  if (config.features.postCardAspectRatio === 'custom') {
+    if (!config.features.customAspectRatio || !config.features.customAspectRatio.match(/^\d+(\.\d+)?\s*\/\s*\d+(\.\d+)?$/)) {
+      errors.push('features.customAspectRatio must be provided and in format "width / height" (e.g., "2.5 / 1") when postCardAspectRatio is "custom"');
+    }
   }
 
   // Home blurb placement validation
