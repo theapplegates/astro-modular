@@ -2,7 +2,7 @@
 import type { Post } from '@/types';
 import { processImagesForLightbox } from '@/utils/images';
 import { siteConfig } from '@/config';
-import { formatDateMobile, getReadingTimeMobile } from '@/utils/markdown';
+import { formatDate, formatDateMobile, getReadingTimeMobile } from '@/utils/markdown';
 import ImageGallery from './ImageGallery.astro';
 import TableOfContents from './TableOfContents.astro';
 import Button from './Button.astro';
@@ -47,11 +47,7 @@ const processedImage = (() => {
         <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-primary-600 dark:text-primary-300 mb-6">
           <time datetime={post.data.date.toISOString()} class="font-medium">
             <span class="hidden sm:inline">
-              {post.data.date.toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-              })}
+              {formatDate(post.data.date)}
             </span>
             <span class="sm:hidden">
               {formatDateMobile(post.data.date)}
@@ -156,7 +152,7 @@ const processedImage = (() => {
             <div class="flex justify-between">
               <span class="text-primary-600 dark:text-primary-300">Published</span>
               <span class="text-primary-900 dark:text-primary-50">
-                {post.data.date.toLocaleDateString()}
+                {formatDate(post.data.date)}
               </span>
             </div>
             

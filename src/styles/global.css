@@ -191,7 +191,7 @@ kbd {
 }
 
 .btn-primary {
-  @apply bg-primary-900 dark:bg-primary-100 text-white dark:text-primary-900 hover:bg-primary-800 dark:hover:bg-primary-200 border-primary-900 dark:border-primary-100;
+  @apply bg-highlight-600 dark:bg-highlight-400 text-white dark:text-white hover:bg-highlight-700 dark:hover:bg-highlight-300 border-highlight-600 dark:border-highlight-400;
 }
 
 .btn-secondary {

@@ -71,6 +71,39 @@ Astro Modular is a powerful, modular blog theme for Astro specifically designed 
 - **Host**: localhost
 - **Hot Reload**: Enabled with file watching
 
+### 🚨 CRITICAL: Vite File System Security
+
+**⚠️ AI AGENTS MUST READ THIS SECTION CAREFULLY ⚠️**
+
+**NEVER disable `vite.server.fs.strict`** in the Astro configuration. This is a **CRITICAL security requirement**.
+
+#### **Why This Matters**
+- **Security**: `fs.strict: false` allows access to files outside the project directory
+- **Network Exposure**: Files on your machine become accessible on your network
+- **Best Practice**: Vite's strict mode is the default for good security reasons
+- **Professional Standards**: Production sites should maintain proper file system boundaries
+
+#### **What NOT to Do**
+```javascript
+// ❌ WRONG - Never disable Vite strict mode
+vite: {
+  server: {
+    fs: {
+      strict: false,  // NEVER DO THIS
+      allow: ['..']   // NEVER DO THIS
+    }
+  }
+}
+```
+
+#### **What to Do Instead**
+- **Keep Vite strict mode enabled** (default behavior)
+- **Use proper file paths** within the project directory
+- **Handle file system errors gracefully** without compromising security
+- **Use environment variables** for development-specific configurations
+
+**This is CRITICAL for maintaining security and professional development standards.**
+
 ### 🚨 CRITICAL: Production Logging Guidelines
 
 **⚠️ AI AGENTS MUST READ THIS SECTION CAREFULLY ⚠️**

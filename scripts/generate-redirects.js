@@ -139,10 +139,15 @@ async function processMarkdownFile(filePath, isPost = false) {
       return []; // No redirects to process
     }
     
+    // Ensure aliases is an array
+    const aliasesArray = Array.isArray(frontmatter.aliases) 
+      ? frontmatter.aliases 
+      : [frontmatter.aliases];
+    
     const targetUrl = getContentUrl(filePath, isPost);
     const redirects = [];
     
-    for (const alias of frontmatter.aliases) {
+    for (const alias of aliasesArray) {
       const cleanAlias = alias.startsWith('/') ? alias.substring(1) : alias;
       
       redirects.push({

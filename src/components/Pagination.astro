@@ -80,7 +80,7 @@ const prevUrl = hasPrev
             href={page === 1 ? baseUrl : `${baseUrl}/${page}`}
             class={`inline-flex items-center justify-center w-10 h-10 text-sm font-medium rounded-lg transition-colors ${
               page === currentPage
-                ? 'bg-primary-900 dark:bg-primary-100 text-white dark:text-primary-900'
+                ? 'btn-primary'
                 : 'text-primary-600 dark:text-primary-300 bg-white dark:bg-primary-900 border border-primary-300 dark:border-primary-600 hover:bg-primary-50 dark:hover:bg-primary-800 hover:text-primary-800 dark:hover:text-primary-200'
             }`}
             aria-current={page === currentPage ? 'page' : undefined}
@@ -136,7 +136,7 @@ const prevUrl = hasPrev
 
   /* Focus styles */
   nav[aria-label="Pagination"] a:focus-visible {
-    @apply outline-none ring-2 ring-primary-500 ring-offset-2;
+    @apply outline-none ring-2 ring-highlight-500 ring-offset-2;
   }
 
   /* Active page enhancement */

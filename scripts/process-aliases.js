@@ -136,8 +136,13 @@ async function processMarkdownFile(filePath) {
       return false; // No aliases to process
     }
     
+    // Ensure aliases is an array
+    const aliasesArray = Array.isArray(frontmatter.aliases) 
+      ? frontmatter.aliases 
+      : [frontmatter.aliases];
+    
     // Ensure aliases are in the correct format (no leading slash)
-    const cleanAliases = frontmatter.aliases.map(alias => 
+    const cleanAliases = aliasesArray.map(alias => 
       alias.startsWith('/') ? alias.substring(1) : alias
     );
     
