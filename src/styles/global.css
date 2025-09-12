@@ -462,29 +462,50 @@ textarea {
   @apply border-collapse w-full;
 }
 
-.table-wrapper {
-  overflow-x: auto;
+/* Ensure table wrapper styling takes precedence */
+.prose .table-wrapper {
+  overflow-x: auto !important;
   -webkit-overflow-scrolling: touch;
-  margin: 1.5rem 0;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-  background: white;
+  margin: 1.5rem 0 !important;
+  border-radius: 0.75rem !important;
+  border: 1px solid rgb(203 213 225) !important; /* border-slate-300 */
+  background: white !important;
+  overflow: hidden !important; /* Ensures rounded corners work properly */
+}
+
+.dark .prose .table-wrapper {
+  background: rgb(30 41 59) !important; /* bg-slate-800 */
+  border-color: rgb(71 85 105) !important; /* border-slate-600 */
+}
+
+.table-wrapper {
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
+  margin: 1.5rem 0 !important;
+  border-radius: 0.75rem !important;
+  border: 1px solid rgb(203 213 225) !important; /* border-slate-300 */
+  background: white !important;
+  overflow: hidden !important; /* Ensures rounded corners work properly */
 }
 
 .dark .table-wrapper {
-  background: rgb(30 41 59); /* bg-slate-800 */
+  background: rgb(30 41 59) !important; /* bg-slate-800 */
+  border-color: rgb(71 85 105) !important; /* border-slate-600 */
 }
 
 .table-wrapper table {
   margin: 0 !important;
   width: 100%;
   min-width: 500px;
+  border-radius: 0.75rem;
+  overflow: hidden;
 }
 
 .prose th, .prose td {
-  @apply border-0 border-r border-b border-primary-300 dark:border-primary-600 px-4 py-2;
+  @apply border-0 border-r border-b border-primary-200 dark:border-primary-600 px-4 py-3;
   white-space: nowrap;
   min-width: 100px;
+  transition: background-color 0.2s ease;
 }
 
 .prose th:last-child, .prose td:last-child {
@@ -496,10 +517,31 @@ textarea {
 }
 
 .prose th {
-  @apply bg-primary-100 dark:bg-primary-700 font-semibold text-primary-900 dark:text-primary-100;
+  @apply bg-primary-200 dark:bg-primary-700 font-bold text-primary-900 dark:text-primary-100;
   position: sticky;
   top: 0;
   z-index: 10;
+  font-size: 0.875rem;
+  letter-spacing: 0.025em;
+  border-right: none !important; /* No vertical lines between header cells */
+  border-bottom: 2px solid rgb(203 213 225) !important; /* Stronger border below header */
+}
+
+.dark .prose th {
+  border-right: none !important; /* No vertical lines between header cells in dark mode */
+  border-bottom: 2px solid rgb(71 85 105) !important; /* Dark mode border */
+}
+
+.prose tr:hover {
+  @apply bg-primary-100 dark:bg-primary-800/60;
+}
+
+.prose tr:nth-child(even) {
+  @apply bg-primary-50 dark:bg-primary-800/30;
+}
+
+.prose tr:nth-child(even):hover {
+  @apply bg-primary-200 dark:bg-primary-700/60;
 }
 
 @media (min-width: 768px) {

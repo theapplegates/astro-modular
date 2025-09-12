@@ -513,10 +513,10 @@ const { seoData, bodyClass = '' } = Astro.props;
     // Test the function immediately
     updateNavigationHighlighting();
 
-    // Initialize comments on page load
+    // Initialize comments and table wrappers on page load
     document.addEventListener('DOMContentLoaded', () => {
       if (isDev) {
-        logger.dev('🔄 BaseLayout: DOM loaded - checking for comments');
+        logger.dev('🔄 BaseLayout: DOM loaded - checking for comments and tables');
       }
       if (document.querySelector('#giscus-comments')) {
         if (isDev) {
@@ -524,6 +524,8 @@ const { seoData, bodyClass = '' } = Astro.props;
         }
         window.initializeGiscusComments();
       }
+      // Initialize table wrappers on initial page load
+      window.initializeTableWrappers();
     });
 
     // CRITICAL: Listen for Swup page transitions using hooks API
@@ -544,10 +546,13 @@ const { seoData, bodyClass = '' } = Astro.props;
           }
           // Reinitialize favicon after page transition
           setFavicon();
+          // Initialize table wrappers after content replacement
           setTimeout(() => {
             if (document.querySelector('#giscus-comments')) {
               window.initializeGiscusComments();
             }
+            // Initialize table wrappers
+            window.initializeTableWrappers();
           }, 100);
         });
 
@@ -559,6 +564,8 @@ const { seoData, bodyClass = '' } = Astro.props;
             if (document.querySelector('#giscus-comments')) {
               window.initializeGiscusComments();
             }
+            // Initialize table wrappers
+            window.initializeTableWrappers();
           }, 100);
         });
 
@@ -698,7 +705,7 @@ const { seoData, bodyClass = '' } = Astro.props;
         if (!table.parentElement?.classList.contains('table-wrapper')) {
           const wrapper = document.createElement('div');
           wrapper.className = 'table-wrapper';
-          wrapper.style.cssText = 'overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 1.5rem 0; border-radius: 0.5rem; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);';
+          // Let CSS handle the styling instead of inline styles
           
           table.parentNode?.insertBefore(wrapper, table);
           wrapper.appendChild(table);

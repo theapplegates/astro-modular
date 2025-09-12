@@ -192,12 +192,13 @@ const processedImage = (() => {
   document.addEventListener('DOMContentLoaded', function() {
     const tables = document.querySelectorAll('.prose table');
     tables.forEach(table => {
-      if (!table.parentElement.classList.contains('table-wrapper')) {
+      if (table.parentElement && !table.parentElement.classList.contains('table-wrapper')) {
         const wrapper = document.createElement('div');
         wrapper.className = 'table-wrapper';
-        wrapper.style.cssText = 'overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 1.5rem 0; border-radius: 0.5rem; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);';
         
-        table.parentNode.insertBefore(wrapper, table);
+        if (table.parentNode) {
+          table.parentNode.insertBefore(wrapper, table);
+        }
         wrapper.appendChild(table);
         
         // Reset table margin since wrapper handles it

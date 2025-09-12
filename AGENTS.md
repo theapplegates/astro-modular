@@ -144,6 +144,147 @@ logger.error('Critical error occurred');    // Production visible
 
 **This is a CRITICAL requirement for maintaining professional production standards.**
 
+### 🎨 CRITICAL: Color Usage Guidelines
+
+**⚠️ AI AGENTS MUST READ THIS SECTION CAREFULLY ⚠️**
+
+This project uses a **dynamic theming system** where colors are defined in theme variables, not hardcoded values. This is **CRITICAL** for maintaining theme consistency and allowing users to switch between different color schemes.
+
+#### **Why This Matters**
+- **Theme Consistency**: All colors should work across all 17+ available themes
+- **User Experience**: Users can switch themes and colors should adapt automatically
+- **Maintainability**: Color changes only need to be made in one place (theme definitions)
+- **Professional Standards**: Hardcoded colors break the theming system
+
+#### **How to Use Theme Colors**
+
+**✅ CORRECT - Use theme variables from Tailwind config**
+```typescript
+// Use Tailwind classes that reference theme variables
+@apply bg-primary-50 dark:bg-primary-800
+@apply text-primary-900 dark:text-primary-100
+@apply border-primary-200 dark:border-primary-600
+@apply text-highlight-600 dark:text-highlight-400
+```
+
+**❌ WRONG - Never use hardcoded color values**
+```typescript
+// BAD - Hardcoded colors break theming
+background: white;
+color: #1f2937;
+border: 1px solid #e5e7eb;
+box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+```
+
+#### **Available Theme Color Variables**
+
+**Primary Colors** (defined in `src/themes/index.ts`):
+- `primary-50` through `primary-950` - Main theme colors
+- `primary-100` - Light backgrounds, subtle elements
+- `primary-200` - Borders, dividers, table headers
+- `primary-300` - Muted text, secondary elements
+- `primary-400` - Medium emphasis text
+- `primary-500` - Default text color
+- `primary-600` - High emphasis text
+- `primary-700` - Dark backgrounds, strong elements
+- `primary-800` - Darker backgrounds, headers
+- `primary-900` - Darkest backgrounds, high contrast text
+
+**Highlight Colors** (accent colors):
+- `highlight-50` through `highlight-950` - Accent colors
+- `highlight-400` - Links, interactive elements (light mode)
+- `highlight-600` - Links, interactive elements (dark mode)
+- `highlight-500` - Default highlight color
+
+#### **Theme Color Usage Patterns**
+
+**Backgrounds:**
+```typescript
+// Light backgrounds
+@apply bg-primary-50 dark:bg-primary-800
+@apply bg-primary-100 dark:bg-primary-700
+
+// Dark backgrounds  
+@apply bg-primary-900 dark:bg-primary-50
+@apply bg-primary-800 dark:bg-primary-100
+```
+
+**Text Colors:**
+```typescript
+// High contrast text
+@apply text-primary-900 dark:text-primary-50
+@apply text-primary-800 dark:text-primary-100
+
+// Medium emphasis text
+@apply text-primary-600 dark:text-primary-300
+@apply text-primary-500 dark:text-primary-400
+
+// Muted text
+@apply text-primary-400 dark:text-primary-500
+```
+
+**Borders and Dividers:**
+```typescript
+// Subtle borders
+@apply border-primary-200 dark:border-primary-600
+@apply border-primary-300 dark:border-primary-500
+
+// Strong borders
+@apply border-primary-400 dark:border-primary-400
+```
+
+**Interactive Elements:**
+```typescript
+// Links and buttons
+@apply text-highlight-600 dark:text-highlight-400
+@apply hover:text-highlight-700 dark:hover:text-highlight-300
+
+// Focus states
+@apply focus:ring-highlight-500 dark:focus:ring-highlight-400
+```
+
+#### **Where to Find Theme Definitions**
+
+1. **Main Theme Config**: `src/themes/index.ts` - Contains all theme definitions
+2. **Tailwind Config**: `tailwind.config.mjs` - Maps theme variables to Tailwind classes
+3. **Current Theme**: `src/config.ts` - Shows which theme is currently active
+
+#### **Action Required for AI Agents**
+
+1. **ALWAYS** use Tailwind classes that reference theme variables
+2. **NEVER** use hardcoded color values like `#ffffff`, `rgb(255, 255, 255)`, or `white`
+3. **CHECK** existing code for hardcoded colors and replace them
+4. **USE** the dark mode variants (`dark:`) for all color definitions
+5. **REFERENCE** the theme files to understand available color scales
+
+#### **Example Conversion**
+
+```typescript
+// Before (BAD - hardcoded colors)
+.table-wrapper {
+  background: white;
+  border: 1px solid #e5e7eb;
+  color: #1f2937;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+.dark .table-wrapper {
+  background: #1e293b;
+  border-color: #475569;
+  color: #f1f5f9;
+}
+
+// After (GOOD - theme variables)
+.table-wrapper {
+  @apply bg-white dark:bg-primary-800;
+  @apply border border-primary-200 dark:border-primary-600;
+  @apply text-primary-900 dark:text-primary-100;
+  @apply shadow-sm;
+}
+```
+
+**This is CRITICAL for maintaining the theming system and user experience across all themes.**
+
 ### Key Scripts
 ```bash
 pnpm run dev              # Start development server
@@ -965,11 +1106,18 @@ The comments are styled to match your theme automatically. If you see styling is
 - **NEVER update favicon** when user manually toggles theme - only when system theme changes
 - **Implementation**: Use CSS media queries + JavaScript system theme detection, not manual theme state
 
-#### 5. **Package Manager**
+#### 5. **🎨 COLOR USAGE (CRITICAL)**
+- **NEVER use hardcoded colors** - Always use theme variables from `src/themes/index.ts`
+- **Use Tailwind classes** that reference theme variables (`primary-*`, `highlight-*`)
+- **Include dark mode variants** for all color definitions (`dark:bg-primary-800`)
+- **Check existing code** for hardcoded colors and replace them
+- **Reference theme files** to understand available color scales
+
+#### 6. **Package Manager**
 - Always use `pnpm` instead of `npm` for all commands
 - Scripts: `pnpm run <script-name>`, not `npm run <script-name>`
 
-#### 6. **Development vs Production Behavior**
+#### 7. **Development vs Production Behavior**
 - **Development**: Missing images show placeholders, warnings are logged
 - **Production**: Missing images cause build failures
 - Always run `pnpm run check-images` before deploying
