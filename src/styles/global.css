@@ -191,19 +191,19 @@ kbd {
 }
 
 .btn-primary {
-  @apply bg-highlight-600 dark:bg-highlight-500 text-white hover:bg-highlight-700 dark:hover:bg-highlight-600;
+  @apply bg-primary-900 dark:bg-primary-100 text-white dark:text-primary-900 hover:bg-primary-800 dark:hover:bg-primary-200 border-primary-900 dark:border-primary-100;
 }
 
 .btn-secondary {
-  @apply bg-highlight-100 dark:bg-highlight-900/50 hover:bg-highlight-200 dark:hover:bg-highlight-800/50;
+  @apply bg-primary-100 dark:bg-primary-800 text-primary-900 dark:text-primary-100 hover:bg-primary-200 dark:hover:bg-primary-700 border-primary-200 dark:border-primary-700;
 }
 
 .btn-outline {
-  @apply border border-highlight-400 dark:border-highlight-500 text-highlight-700 dark:text-highlight-300 bg-transparent;
+  @apply border border-primary-300 dark:border-primary-600 text-primary-900 dark:text-primary-100 hover:bg-primary-50 dark:hover:bg-primary-800 bg-transparent;
 }
 
 .btn-ghost {
-  @apply text-highlight-600 dark:text-highlight-400 hover:bg-highlight-50 dark:hover:bg-highlight-900/30 border-transparent bg-transparent;
+  @apply text-primary-600 dark:text-primary-300 hover:bg-primary-50 dark:hover:bg-primary-800 hover:text-primary-900 dark:hover:text-primary-100 border-transparent bg-transparent;
 }
 
 /* Button Groups */
