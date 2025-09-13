@@ -48,8 +48,8 @@ export default defineConfig({
       containers: ['#swup-container'],
       smoothScrolling: false,
       cache: true,
-      preload: true,
-      accessibility: false,
+      preload: true, // Keep preload for better user experience
+      accessibility: true, // Enable accessibility for PageSpeed Insights
       updateHead: true,
       updateBodyClass: false,
       globalInstance: true,
@@ -82,7 +82,8 @@ export default defineConfig({
         
         return specialPages.some(page => url.startsWith(page));
       },
-      linkSelector: 'a[href]:not([data-no-swup]):not([href^="mailto:"]):not([href^="tel:"]):not([href$=".xml"]):not([href$=".txt"]):not([href$=".json"]):not([href$=".pdf"]):not([href$=".zip"]):not([href$=".csv"])'
+      // Simplified link selector for better compatibility
+      linkSelector: 'a[href]:not([data-no-swup]):not([href^="mailto:"]):not([href^="tel:"])'
     })
   ],
   markdown: {
