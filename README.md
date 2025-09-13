@@ -13,9 +13,15 @@ A flexible blog theme designed for Obsidian users.
 
 ## Quick Start
 
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/davidvkimball/astro-modular)
+
 ### Prerequisites
 - Node.js 18 or higher
 - pnpm (recommended) or npm
+
+
+> [!NOTE]
+> While this theme works great with any markdown editor, it's specifically optimized for Obsidian use. See the [Astro Suite Vault Guide](src/content/posts/astro-suite-vault-modular-guide.md) for Obsidian-specific features.
 
 ### Setup
 
