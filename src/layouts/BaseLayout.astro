@@ -103,10 +103,13 @@ const { seoData, bodyClass = '' } = Astro.props;
   <!-- Swup handled via Astro integration -->
   
   <!-- Font CSS Variables -->
-  <style>
+  <style define:vars={{
+    fontHeading: getFontFamily(siteConfig.typography.headingFont),
+    fontProse: getFontFamily(siteConfig.typography.proseFont)
+  }}>
     :root {
-      --font-heading: {getFontFamily(siteConfig.typography.headingFont)};
-      --font-prose: {getFontFamily(siteConfig.typography.proseFont)};
+      --font-heading: var(--fontHeading);
+      --font-prose: var(--fontProse);
     }
   </style>
 
