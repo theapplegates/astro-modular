@@ -83,6 +83,30 @@ footer: {
 
 The theme options are currently Oxygen, Minimal, Atom, Ayu, Catppuccin, Charcoal, Dracula, Everforest, Flexoki, Gruvbox, macOS, Nord, Obsidian, Rosé Pine, Sky, Solarized, and Things. You may need to do a hard refresh (`CTRL + SHIFT + R`) to see the changes.
 
+### Typography Configuration
+
+Customize fonts for headings and body text:
+
+```typescript
+typography: {
+  headingFont: "Inter", // Font for headings (h1, h2, h3, h4, h5, h6)
+  proseFont: "Inter",   // Font for body text and prose content
+}
+```
+
+**Suggested Font Combinations:**
+- **Default**: `headingFont: "Inter"`, `proseFont: "Inter"`
+- **Modern: `headingFont: "Montserrat"`, `proseFont: "Lato"`
+- **Elegant: `headingFont: "Playfair Display"`, `proseFont: "Source Sans Pro"`
+- **Serif: `headingFont: "Merriweather"`, `proseFont: "Merriweather"`
+
+**Supported Fonts:**
+- **Sans-Serif**: Inter, Roboto, Open Sans, Lato, Poppins, Source Sans Pro, Nunito, Montserrat
+- **Serif**: Playfair Display, Merriweather, Lora, Crimson Text, PT Serif, Libre Baskerville
+- **Monospace**: Fira Code, JetBrains Mono, Source Code Pro, IBM Plex Mono, Cascadia Code
+
+The system automatically loads Google Fonts when needed and provides fallbacks to system fonts for optimal performance.
+
 ### Modular Features
 
 Adjust modular features in the config: 

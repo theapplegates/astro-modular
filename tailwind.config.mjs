@@ -1,5 +1,5 @@
 
-import { siteConfig } from './src/config.ts';
+import { siteConfig, getFontFamily } from './src/config.ts';
 import { themes } from './src/themes/index.ts';
 
 // Get the selected theme
@@ -12,8 +12,9 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        'sans': ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', 'sans-serif'],
-        'heading': ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif']
+        'sans': getFontFamily(siteConfig.typography.proseFont).split(', '),
+        'heading': getFontFamily(siteConfig.typography.headingFont).split(', '),
+        'prose': getFontFamily(siteConfig.typography.proseFont).split(', ')
       },
       colors: {
         // Dynamic theme colors based on config
@@ -30,7 +31,7 @@ export default {
               marginBottom: '1.25em',
             },
             'h1, h2, h3, h4, h5, h6': {
-              fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+              fontFamily: getFontFamily(siteConfig.typography.headingFont),
               fontWeight: '600',
               scrollMarginTop: '2rem',
             },

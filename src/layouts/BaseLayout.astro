@@ -1,7 +1,7 @@
 
 ---
 import { ViewTransitions } from 'astro:transitions';
-import { siteConfig } from '@/config';
+import { siteConfig, getFontFamily, getGoogleFontsUrl } from '@/config';
 import type { SEOData } from '@/types';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
@@ -95,13 +95,21 @@ const { seoData, bodyClass = '' } = Astro.props;
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href={getGoogleFontsUrl(siteConfig.typography.headingFont, siteConfig.typography.proseFont)} rel="stylesheet">
 
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css">
 
   <!-- Swup handled via Astro integration -->
   
+  <!-- Font CSS Variables -->
+  <style>
+    :root {
+      --font-heading: {getFontFamily(siteConfig.typography.headingFont)};
+      --font-prose: {getFontFamily(siteConfig.typography.proseFont)};
+    }
+  </style>
+
   <!-- Theme initialization script -->
   <script is:inline>
     // Initialize theme before page renders to prevent flash

@@ -3,13 +3,13 @@ import { logger } from './utils/logger';
 
 // Aspect ratio options for post cards
 export type AspectRatio = 
-  | "16:9"        // 1.78:1 - Standard widescreen
-  | "4:3"         // 1.33:1 - Traditional
-  | "3:2"         // 1.5:1 - Classic photography
-  | "og"          // 1.91:1 - OpenGraph standard
-  | "square"      // 1:1 - Square
-  | "golden"      // 1.618:1 - Golden ratio
-  | "custom";     // Custom ratio
+  | "16:9" 
+  | "4:3"
+  | "3:2"
+  | "og"
+  | "square"
+  | "golden"
+  | "custom";
 
 export interface SiteConfig {
   site: string;
@@ -48,7 +48,11 @@ export interface SiteConfig {
     showLatestPost: boolean;
     comments: boolean;
     postCardAspectRatio: AspectRatio;
-    customAspectRatio?: string; // For custom ratio (e.g., "2.5/1")
+    customAspectRatio?: string; 
+  };
+  typography: {
+    headingFont: string;
+    proseFont: string;
   };
   commandPalette: {
     shortcut: string;
@@ -102,7 +106,7 @@ export const siteConfig: SiteConfig = {
   },
   homeBlurb: {
     enabled: true,
-    placement: "below", // 'above' (before latest post) or 'below' (after recent posts)
+    placement: "below", // 'above' (at the top of the homepage) or 'below' (after the list of homepage posts)
   },
   footer: {
     content: `© 2025 {author}. Built with the <a href="https://github.com/davidvkimball/astro-modular" target="_blank">Astro Modular</a> theme.`,
@@ -124,15 +128,11 @@ export const siteConfig: SiteConfig = {
     postCardAspectRatio: "og", // "16:9" | "4:3" | "3:2" | "og" | "square" | "golden" | "custom"
     customAspectRatio: "2.5/1", // Only used when postCardAspectRatio is "custom" (e.g., "2.5/1")
     comments: false,
-    
-    // Aspect ratio options:
-    // - "16:9" (1.78:1) - Standard widescreen
-    // - "4:3" (1.33:1) - Traditional
-    // - "3:2" (1.5:1) - Classic photography
-    // - "og" (1.91:1) - OpenGraph standard (default)
-    // - "square" (1:1) - Square
-    // - "golden" (1.618:1) - Golden ratio
-    // - "custom" - Use customAspectRatio field (e.g., "2.5/1")
+  },
+
+  typography: {
+    headingFont: "Inter", // Font for headings (h1, h2, h3, h4, h5, h6), most Google fonts are supported. Default is Inter
+    proseFont: "Inter",   // Font for body text and prose content, most Google fonts are supported. Default is Inter
   },
 
   commandPalette: {
@@ -224,6 +224,75 @@ export function getPostCardAspectRatio(): string {
     default:
       return "1.91 / 1"; // Default to OpenGraph
   }
+}
+
+export function getHeadingFont(): string {
+  return siteConfig.typography.headingFont;
+}
+
+export function getProseFont(): string {
+  return siteConfig.typography.proseFont;
+}
+
+export function getFontFamily(fontName: string): string {
+  // Convert font name to CSS font-family with fallbacks
+  const fontMap: Record<string, string> = {
+    'Inter': "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+    'Roboto': "'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+    'Open Sans': "'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+    'Lato': "'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+    'Poppins': "'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+    'Source Sans Pro': "'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+    'Nunito': "'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+    'Montserrat': "'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+    'Playfair Display': "'Playfair Display', Georgia, 'Times New Roman', serif",
+    'Merriweather': "'Merriweather', Georgia, 'Times New Roman', serif",
+    'Lora': "'Lora', Georgia, 'Times New Roman', serif",
+    'Crimson Text': "'Crimson Text', Georgia, 'Times New Roman', serif",
+    'PT Serif': "'PT Serif', Georgia, 'Times New Roman', serif",
+    'Libre Baskerville': "'Libre Baskerville', Georgia, 'Times New Roman', serif",
+    'Fira Code': "'Fira Code', 'Monaco', 'Consolas', 'Courier New', monospace",
+    'JetBrains Mono': "'JetBrains Mono', 'Monaco', 'Consolas', 'Courier New', monospace",
+    'Source Code Pro': "'Source Code Pro', 'Monaco', 'Consolas', 'Courier New', monospace",
+    'IBM Plex Mono': "'IBM Plex Mono', 'Monaco', 'Consolas', 'Courier New', monospace",
+    'Cascadia Code': "'Cascadia Code', 'Monaco', 'Consolas', 'Courier New', monospace",
+  };
+  
+  return fontMap[fontName] || `'${fontName}', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
+}
+
+export function getGoogleFontsUrl(headingFont: string, proseFont: string): string {
+  // Google Fonts that are commonly used and available
+  const googleFonts = [
+    'Inter', 'Roboto', 'Open Sans', 'Lato', 'Poppins', 'Source Sans Pro', 
+    'Nunito', 'Montserrat', 'Playfair Display', 'Merriweather', 'Lora', 
+    'Crimson Text', 'PT Serif', 'Libre Baskerville', 'Fira Code', 
+    'JetBrains Mono', 'Source Code Pro', 'IBM Plex Mono', 'Cascadia Code'
+  ];
+  
+  const fonts = new Set<string>();
+  
+  // Add fonts if they're Google Fonts
+  if (googleFonts.includes(headingFont)) {
+    fonts.add(headingFont);
+  }
+  if (googleFonts.includes(proseFont)) {
+    fonts.add(proseFont);
+  }
+  
+  // If no Google Fonts are needed, return empty string
+  if (fonts.size === 0) {
+    return '';
+  }
+  
+  // Generate Google Fonts URL
+  const fontList = Array.from(fonts).map(font => {
+    // Add common weights for each font
+    const weights = font.includes('Mono') ? '300;400;500;600;700' : '300;400;500;600;700';
+    return `${font.replace(/\s+/g, '+')}:wght@${weights}`;
+  }).join('&family=');
+  
+  return `https://fonts.googleapis.com/css2?family=${fontList}&display=swap`;
 }
 
 // Validation function for siteConfig

@@ -11,6 +11,7 @@ This document contains essential information for AI agents working with this Ast
 5. [Image Handling](#image-handling)
 6. [Build Process](#build-process)
 7. [Configuration & Customization](#configuration--customization)
+   - [Typography Configuration](#typography-configuration)
 8. [Troubleshooting](#troubleshooting)
 9. [Best Practices](#best-practices)
 10. [Common AI Agent Mistakes](#common-ai-agent-mistakes)
@@ -35,6 +36,7 @@ Astro Modular is a powerful, modular blog theme for Astro specifically designed 
 #### 2. **Flexible & Customizable**
 - **Modular design** - Each feature can be enabled/disabled independently
 - **Multiple color options** - Select from a variety of prebuilt themes (Oxygen, Minimal, Atom, Ayu, Catppuccin, Charcoal, Dracula, Everforest, Flexoki, Gruvbox, macOS, Nord, Obsidian, Rosé Pine, Sky, Solarized, and Things)
+- **Custom typography** - Separate font configuration for headings and body text with 20+ supported fonts
 - **TypeScript throughout** for type safety and better development experience
 - **Command palette** - Press `Ctrl+K` (or custom hotkey) for instant navigation and search
 - **Responsive image grids** - Automatic layouts for multiple consecutive images
@@ -897,6 +899,130 @@ tags: {
 - Use the command palette (`Ctrl+K`) for instant theme switching
 - Themes require hard refresh (`Ctrl+Shift+R`) to see changes
 - All themes are optimized for performance and accessibility
+
+### Typography Configuration
+
+The theme includes a comprehensive typography system that allows separate font configuration for headings and body text.
+
+#### Font Configuration
+```typescript
+typography: {
+  headingFont: "Inter", // Font for headings (h1, h2, h3, h4, h5, h6)
+  proseFont: "Inter",   // Font for body text and prose content
+}
+```
+
+#### Supported Fonts
+
+**Sans-Serif Fonts (Recommended for UI and headings):**
+- **Inter** - Modern, highly readable (default)
+- **Roboto** - Google's signature font
+- **Open Sans** - Humanist, friendly
+- **Lato** - Semi-rounded, warm
+- **Poppins** - Geometric, modern
+- **Source Sans Pro** - Adobe's open source font
+- **Nunito** - Rounded, friendly
+- **Montserrat** - Urban, geometric
+
+**Serif Fonts (Great for headings and elegant typography):**
+- **Playfair Display** - High contrast, elegant
+- **Merriweather** - Highly readable, designed for screens
+- **Lora** - Well-balanced, contemporary
+- **Crimson Text** - Book typeface, readable
+- **PT Serif** - Professional, clean
+- **Libre Baskerville** - Classic, web-optimized
+
+**Monospace Fonts (For code and technical content):**
+- **Fira Code** - Programming ligatures
+- **JetBrains Mono** - Developer-focused
+- **Source Code Pro** - Adobe's monospace
+- **IBM Plex Mono** - Corporate, clean
+- **Cascadia Code** - Microsoft's coding font
+
+#### Popular Font Combinations
+
+**Modern & Professional:**
+```typescript
+typography: {
+  headingFont: "Montserrat",
+  proseFont: "Source Sans Pro",
+}
+```
+
+**Elegant & Readable:**
+```typescript
+typography: {
+  headingFont: "Playfair Display",
+  proseFont: "Lato",
+}
+```
+
+**Clean & Minimal:**
+```typescript
+typography: {
+  headingFont: "Inter",
+  proseFont: "Inter",
+}
+```
+
+**Serif Typography:**
+```typescript
+typography: {
+  headingFont: "Merriweather",
+  proseFont: "Merriweather",
+}
+```
+
+**Tech/Developer Blog:**
+```typescript
+typography: {
+  headingFont: "JetBrains Mono",
+  proseFont: "Source Sans Pro",
+}
+```
+
+#### Technical Implementation
+
+**Font Loading:**
+- Automatically generates Google Fonts URLs based on configuration
+- Only loads fonts that are actually used
+- Provides fallbacks to system fonts for performance
+
+**CSS Custom Properties:**
+- `--font-heading` - Applied to all headings
+- `--font-prose` - Applied to body text and prose content
+- Fallback chain: Custom font → System fonts → Generic families
+
+**Tailwind Classes:**
+- `font-heading` - Apply heading font to any element
+- `font-prose` - Apply prose font to any element
+- `font-sans` - Apply prose font (alias)
+
+**Performance Considerations:**
+- Fonts are loaded asynchronously
+- System font fallbacks prevent layout shift
+- Google Fonts are optimized for web delivery
+- Custom fonts gracefully degrade to system fonts
+
+#### Best Practices for AI Agents
+
+**Font Selection:**
+- **Headings**: Choose fonts with good contrast and readability at various sizes
+- **Body Text**: Prioritize readability and legibility for long-form content
+- **Consistency**: Maintain visual hierarchy between heading and body fonts
+- **Performance**: Stick to Google Fonts for automatic optimization
+
+**Common Mistakes to Avoid:**
+- Don't use too many different fonts (stick to 1-2 maximum)
+- Avoid fonts that are too similar (defeats the purpose of separation)
+- Don't forget to test readability in both light and dark themes
+- Avoid fonts that don't have good fallbacks
+
+**Testing Font Combinations:**
+- Test at different screen sizes
+- Verify readability in both light and dark modes
+- Check that fonts load properly on slow connections
+- Ensure proper fallbacks work when custom fonts fail
 
 ### Content Structure Customization
 
