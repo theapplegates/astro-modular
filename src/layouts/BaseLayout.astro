@@ -91,13 +91,18 @@ const { seoData, bodyClass = '' } = Astro.props;
   <!-- Command Palette Config for Client Script -->
   <meta name="command-palette-shortcut" content={siteConfig.commandPalette.shortcut || ''}>
 
-  <!-- Fonts -->
+  <!-- Preconnect to external domains for faster resource loading -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href={getGoogleFontsUrl(siteConfig.typography.headingFont, siteConfig.typography.proseFont)} rel="stylesheet">
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  
+  <!-- Fonts with optimized loading -->
+  <link href={getGoogleFontsUrl(siteConfig.typography.headingFont, siteConfig.typography.proseFont)} rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link href={getGoogleFontsUrl(siteConfig.typography.headingFont, siteConfig.typography.proseFont)} rel="stylesheet"></noscript>
 
-  <!-- Font Awesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css">
+  <!-- Font Awesome Icons - Load asynchronously -->
+  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
 
   <!-- Swup handled via Astro integration -->
   
@@ -410,8 +415,8 @@ const { seoData, bodyClass = '' } = Astro.props;
   {siteConfig.features.scrollToTop && <ScrollToTop />}
 
 
-  <!-- Global scripts -->
-  <script define:vars={{ commentsEnabled: siteConfig.features.comments }}>
+  <!-- Global scripts - Defer non-critical JavaScript -->
+  <script define:vars={{ commentsEnabled: siteConfig.features.comments }} defer>
     // Simple client-side logger
     const isDev = window.location.hostname === 'localhost' || window.location.hostname.includes('localhost');
     const logger = {

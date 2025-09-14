@@ -9,6 +9,25 @@ export default defineConfig({
       }
     }
   ],
+  build: {
+    // Enable asset compression
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true, // Remove console.log in production
+        drop_debugger: true
+      }
+    },
+    // Optimize chunk splitting
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['swup'],
+          utils: ['fuse.js']
+        }
+      }
+    }
+  },
   server: {
     hmr: false
   },

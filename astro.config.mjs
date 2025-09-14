@@ -11,6 +11,7 @@ import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import { siteConfig } from './src/config.ts';
 import swup from '@swup/astro';
+import compress from 'astro-compress';
 
 // Deployment platform configuration
 const DEPLOYMENT_PLATFORM = process.env.DEPLOYMENT_PLATFORM || 'netlify';
@@ -42,6 +43,59 @@ export default defineConfig({
     tailwind(),
     sitemap(),
     mdx(),
+    compress({
+      // Compress HTML, CSS, JS, and other text files
+      HTML: {
+        minify: true,
+        removeComments: true,
+        removeEmptyElements: true,
+        collapseWhitespace: true,
+        removeRedundantAttributes: true,
+        removeScriptTypeAttributes: true,
+        removeStyleLinkTypeAttributes: true,
+        useShortDoctype: true,
+        minifyCSS: true,
+        minifyJS: true
+      },
+      CSS: {
+        minify: true,
+        removeComments: true,
+        removeEmptyRules: true,
+        mergeRules: true,
+        mergeLonghand: true,
+        mergeSelectors: true
+      },
+      JavaScript: {
+        minify: true,
+        removeComments: true,
+        removeConsole: true,
+        removeDebugger: true
+      },
+      Image: {
+        // Only compress images if they're not already optimized
+        jpg: {
+          quality: 85
+        },
+        png: {
+          quality: 85
+        },
+        webp: {
+          quality: 85
+        }
+      },
+      // Enable gzip compression
+      Gzip: {
+        enabled: true,
+        threshold: 1024, // Only compress files larger than 1KB
+        minRatio: 0.8    // Only compress if compression ratio is better than 80%
+      },
+      // Enable brotli compression for better ratios
+      Brotli: {
+        enabled: true,
+        threshold: 1024,
+        minRatio: 0.8
+      }
+    }),
     swup({
       theme: false,
       animationClass: 'transition-swup-',
