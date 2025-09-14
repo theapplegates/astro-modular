@@ -113,6 +113,18 @@ export function remarkWikilinks() {
       if (node.url && isInternalLink(node.url)) {
         const linkText = extractLinkTextFromUrl(node.url);
         if (linkText) {
+          // Convert .md file references to proper /posts/ URLs
+          if (node.url.endsWith('.md')) {
+            // Handle both direct .md references and posts/...md references
+            if (node.url.startsWith('posts/')) {
+              // Already has posts/ prefix, just remove .md and add leading slash
+              node.url = `/${node.url.replace(/\.md$/, '')}`;
+            } else {
+              // Direct .md reference, convert to /posts/ URL
+              node.url = `/posts/${linkText}`;
+            }
+          }
+
           // Add wikilink data attributes to make it work with linked mentions
           if (!node.data) {
             node.data = {};
@@ -401,17 +413,22 @@ function isInternalLink(url: string): boolean {
     return false;
   }
 
-  // Check if it's a post link (ends with .md or is a slug)
-  return url.endsWith('.md') || url.startsWith('/posts/') || !url.includes('/');
+  // Check if it's a post link (ends with .md, starts with /posts/, or is a slug)
+  return url.endsWith('.md') || url.startsWith('/posts/') || url.startsWith('posts/') || !url.includes('/');
 }
 
 // Helper function to extract link text from URL for internal links
 function extractLinkTextFromUrl(url: string): string | null {
   url = url.trim();
 
-  // Handle .md files
+  // Handle .md files - these should be treated as post references
   if (url.endsWith('.md')) {
-    return url.replace(/\.md$/, '');
+    // Handle both direct .md references and posts/...md references
+    if (url.startsWith('posts/')) {
+      return url.replace('posts/', '').replace(/\.md$/, '');
+    } else {
+      return url.replace(/\.md$/, '');
+    }
   }
 
   // Handle /posts/ URLs

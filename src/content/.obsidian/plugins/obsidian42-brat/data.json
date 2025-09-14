@@ -1,17 +1,17 @@
 {
   "pluginList": [
-    "davidvkimball/obsidian-alias-filename-history",
     "davidvkimball/obsidian-property-over-filename",
+    "davidvkimball/obsidian-alias-filename-history",
     "davidvkimball/obsidian-disable-tabs",
     "davidvkimball/obsidian-astro-composer"
   ],
   "pluginSubListFrozenVersion": [
     {
-      "repo": "davidvkimball/obsidian-alias-filename-history",
+      "repo": "davidvkimball/obsidian-property-over-filename",
       "version": "latest"
     },
     {
-      "repo": "davidvkimball/obsidian-property-over-filename",
+      "repo": "davidvkimball/obsidian-alias-filename-history",
       "version": "latest"
     },
     {
