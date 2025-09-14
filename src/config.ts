@@ -90,7 +90,7 @@ export interface SiteConfig {
 export const siteConfig: SiteConfig = {
   site: "https://astro-modular.netlify.app",
   title: "Astro Modular",
-  description: "A modular Astro blog.",
+  description: "A flexible blog theme designed for Obsidian users.",
   author: "David V. Kimball",
   language: "en",
 
