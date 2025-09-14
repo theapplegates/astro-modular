@@ -102,56 +102,6 @@ const { seoData, bodyClass = '' } = Astro.props;
 
   <!-- Swup handled via Astro integration -->
   
-  <!-- Swup Performance Optimization -->
-  <script is:inline>
-    // Detect PageSpeed Insights and optimize accordingly
-    function isPageSpeedInsights() {
-      return navigator.userAgent.includes('Lighthouse') || 
-             navigator.userAgent.includes('Chrome-Lighthouse') ||
-             window.location.search.includes('pagespeed') ||
-             document.referrer.includes('pagespeed');
-    }
-    
-    // Swup performance optimizations for PageSpeed Insights compatibility
-    document.addEventListener('DOMContentLoaded', function() {
-      // If PageSpeed Insights is detected, disable Swup temporarily
-      if (isPageSpeedInsights()) {
-        // Disable Swup for PageSpeed Insights
-        if (window.swup) {
-          window.swup.destroy();
-          window.swup = null;
-        }
-        
-        // Ensure all content is visible
-        document.body.classList.add('pagespeed-insights-mode');
-        return;
-      }
-      
-      // Normal Swup behavior for regular users
-      if (window.swup) {
-        // Add performance monitoring
-        window.swup.on('pageView', function() {
-          // Clean up any performance-impacting elements
-          const performanceElements = document.querySelectorAll('[data-swup-performance]');
-          performanceElements.forEach(el => {
-            if (el.dataset.swupPerformance === 'cleanup') {
-              el.remove();
-            }
-          });
-        });
-        
-        // Optimize for PageSpeed Insights by ensuring content is ready
-        window.swup.on('contentReplaced', function() {
-          // Force a reflow to ensure content is fully rendered
-          document.body.offsetHeight;
-          
-          // Dispatch custom event for PageSpeed Insights compatibility
-          window.dispatchEvent(new CustomEvent('swupContentReady'));
-        });
-      }
-    });
-  </script>
-  
   <!-- Font CSS Variables -->
   <style define:vars={{
     fontHeading: getFontFamily(siteConfig.typography.headingFont),
@@ -160,54 +110,6 @@ const { seoData, bodyClass = '' } = Astro.props;
     :root {
       --font-heading: var(--fontHeading);
       --font-prose: var(--fontProse);
-    }
-    
-    /* Swup Performance Optimizations */
-    #swup-container {
-      /* Ensure proper rendering for PageSpeed Insights */
-      contain: layout style paint;
-      will-change: auto;
-    }
-    
-    /* Optimize transitions for better performance */
-    .transition-swup- {
-      /* Use transform and opacity for better performance */
-      transform: translateZ(0);
-      backface-visibility: hidden;
-      perspective: 1000px;
-    }
-    
-    /* Reduce layout thrashing during transitions */
-    .transition-swup- * {
-      transform: translateZ(0);
-    }
-    
-    /* Ensure content is visible during PageSpeed Insights analysis */
-    .swup-transition-overlay {
-      display: none !important;
-    }
-    
-    /* PageSpeed Insights mode - disable all Swup transitions */
-    .pagespeed-insights-mode .transition-swup- {
-      transition: none !important;
-      animation: none !important;
-      transform: none !important;
-      opacity: 1 !important; /* Ensure content is visible for PageSpeed Insights */
-    }
-    
-    .pagespeed-insights-mode #swup-container {
-      contain: none;
-      will-change: auto;
-      opacity: 1 !important; /* Ensure content is visible for PageSpeed Insights */
-    }
-    
-    /* Ensure content is visible during PageSpeed Insights analysis */
-    .pagespeed-insights-mode html.is-animating .transition-swup-fade {
-      opacity: 1 !important;
-    }
-    
-    .pagespeed-insights-mode html.is-leaving .transition-swup-fade {
-      opacity: 1 !important;
     }
   </style>
 
@@ -263,10 +165,17 @@ const { seoData, bodyClass = '' } = Astro.props;
 
     // Listen for system theme changes
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+      if (window.location.hostname === 'localhost' || window.location.hostname.includes('localhost')) {
+        logger.dev('🔄 System theme changed:', e.matches ? 'dark' : 'light');
+      }
       if (!localStorage.getItem('theme')) {
         const newTheme = e.matches ? 'dark' : 'light';
         localStorage.setItem('theme', newTheme);
         initTheme();
+      } else {
+        if (window.location.hostname === 'localhost' || window.location.hostname.includes('localhost')) {
+          logger.dev('  - User has manual theme set, not updating theme');
+        }
       }
       // Always update favicon based on system theme, regardless of user's manual theme choice
       setFavicon();
@@ -305,15 +214,20 @@ const { seoData, bodyClass = '' } = Astro.props;
 
     // Global comments initialization function - Swup compatible
     function initializeGiscusComments() {
+      logger.dev('🔄 Global: Initializing Giscus comments...');
+      
       // Check if comments are enabled in config
       if (!window.commentsEnabled) {
+        logger.dev('❌ Global: Comments are disabled in config');
         return;
       }
       
       // Check if comments container exists
       const commentsContainer = document.querySelector('#giscus-comments');
+      logger.dev('📦 Global: Comments container found:', !!commentsContainer);
       
       if (!commentsContainer) {
+        logger.dev('❌ Global: No comments container found');
         return;
       }
 
@@ -323,14 +237,18 @@ const { seoData, bodyClass = '' } = Astro.props;
       // Remove any existing Giscus scripts from the entire document
       const existingScripts = document.querySelectorAll('script[src*="giscus.app"]');
       existingScripts.forEach(script => {
+        logger.dev('🗑️ Global: Removing existing Giscus script');
         script.remove();
       });
 
       // Remove any existing Giscus iframes from the entire document
       const existingIframes = document.querySelectorAll('iframe[src*="giscus"]');
       existingIframes.forEach(iframe => {
+        logger.dev('🗑️ Global: Removing existing Giscus iframe');
         iframe.remove();
       });
+
+      logger.dev('✅ Global: Setting up comments loading');
       
       // Clear any error state
       commentsContainer.removeAttribute('data-error');
@@ -370,7 +288,7 @@ const { seoData, bodyClass = '' } = Astro.props;
       script.setAttribute('data-loading', loading);
       
       script.onload = function() {
-        
+        logger.dev('✅ Global: Giscus script loaded successfully');
         
         // Auto-scroll to comments section after GitHub sign-in
         // This helps users find the comments after authentication
@@ -384,7 +302,17 @@ const { seoData, bodyClass = '' } = Astro.props;
                                  document.referrer.includes('github.com') ||
                                  document.referrer.includes('giscus.app');
             
+            logger.dev('🔍 OAuth detection:', {
+              hasCode: urlParams.has('code'),
+              hasState: urlParams.has('state'),
+              hashIncludesGiscus: window.location.hash.includes('giscus'),
+              referrerIncludesGithub: document.referrer.includes('github.com'),
+              referrerIncludesGiscus: document.referrer.includes('giscus.app'),
+              isOAuthReturn
+            });
+            
             if (isOAuthReturn) {
+              logger.dev('🔄 Detected GitHub OAuth return, scrolling to comments');
               commentsContainer.scrollIntoView({ 
                 behavior: 'smooth', 
                 block: 'start' 
@@ -398,7 +326,7 @@ const { seoData, bodyClass = '' } = Astro.props;
           const giscusIframe = document.querySelector('iframe[src*="giscus"]');
           if (giscusIframe) {
             giscusIframe.addEventListener('load', () => {
-              
+              logger.dev('🔄 Giscus iframe loaded successfully');
             });
           } else {
             // If iframe not ready yet, check again in a bit
@@ -410,7 +338,7 @@ const { seoData, bodyClass = '' } = Astro.props;
       };
       
       script.onerror = function() {
-        
+        logger.error('❌ Global: Failed to load Giscus script');
         commentsContainer.setAttribute('data-error', 'true');
       };
       
@@ -508,13 +436,13 @@ const { seoData, bodyClass = '' } = Astro.props;
 
   <!-- Global scripts -->
   <script define:vars={{ commentsEnabled: siteConfig.features.comments }}>
-    // Client-side logger for development
+    // Simple client-side logger
     const isDev = window.location.hostname === 'localhost' || window.location.hostname.includes('localhost');
     const logger = {
-      dev: (...args) => isDev && console.log('🔧 DEV:', ...args),
-      info: (...args) => isDev && console.info('ℹ️ INFO:', ...args),
-      warn: (...args) => console.warn('⚠️ WARN:', ...args),
-      error: (...args) => console.error('❌ ERROR:', ...args)
+      dev: (...args) => isDev && console.log(...args),
+      info: (...args) => isDev && console.info(...args),
+      warn: (...args) => console.warn(...args),
+      error: (...args) => console.error(...args)
     };
 
     // Make logger globally available for all scripts
@@ -616,55 +544,55 @@ const { seoData, bodyClass = '' } = Astro.props;
     let swupRetryCount = 0;
     const maxSwupRetries = 50; // Max 5 seconds of retries
     
-     function setupSwupHooks() {
-       if (window.swup) {
-         if (isDev) {
-           logger.dev('✅ Swup instance found, setting up hooks');
-         }
-         
-         // Use the correct Swup hooks API
-         window.swup.hooks.on('content:replace', () => {
-           if (isDev) {
-             logger.dev('🔄 Swup: content:replace hook - reinitializing comments and favicon');
-           }
-           // Reinitialize favicon after page transition
-           setFavicon();
-           // Initialize table wrappers after content replacement
-           setTimeout(() => {
-             if (document.querySelector('#giscus-comments')) {
-               window.initializeGiscusComments();
-             }
-             // Initialize table wrappers
-             window.initializeTableWrappers();
-           }, 100);
-         });
+    function setupSwupHooks() {
+      if (window.swup) {
+        if (isDev) {
+          logger.dev('✅ Swup instance found, setting up hooks');
+        }
+        
+        // Use the correct Swup hooks API
+        window.swup.hooks.on('content:replace', () => {
+          if (isDev) {
+            logger.dev('🔄 Swup: content:replace hook - reinitializing comments and favicon');
+          }
+          // Reinitialize favicon after page transition
+          setFavicon();
+          // Initialize table wrappers after content replacement
+          setTimeout(() => {
+            if (document.querySelector('#giscus-comments')) {
+              window.initializeGiscusComments();
+            }
+            // Initialize table wrappers
+            window.initializeTableWrappers();
+          }, 100);
+        });
 
-         window.swup.hooks.on('page:view', () => {
-           if (isDev) {
-             logger.dev('🔄 Swup: page:view hook - reinitializing comments');
-           }
-           setTimeout(() => {
-             if (document.querySelector('#giscus-comments')) {
-               window.initializeGiscusComments();
-             }
-             // Initialize table wrappers
-             window.initializeTableWrappers();
-           }, 100);
-         });
+        window.swup.hooks.on('page:view', () => {
+          if (isDev) {
+            logger.dev('🔄 Swup: page:view hook - reinitializing comments');
+          }
+          setTimeout(() => {
+            if (document.querySelector('#giscus-comments')) {
+              window.initializeGiscusComments();
+            }
+            // Initialize table wrappers
+            window.initializeTableWrappers();
+          }, 100);
+        });
 
-         // Favicon is handled by CSS media queries - no JavaScript needed
-       } else if (swupRetryCount < maxSwupRetries) {
-         swupRetryCount++;
-         if (isDev) {
-           logger.dev(`⏳ Swup not ready, retrying in 100ms (${swupRetryCount}/${maxSwupRetries})`);
-         }
-         setTimeout(setupSwupHooks, 100);
-       } else {
-         if (isDev) {
-           logger.warn('⚠️ Swup not available after maximum retries, continuing without it');
-         }
-       }
-     }
+        // Favicon is handled by CSS media queries - no JavaScript needed
+      } else if (swupRetryCount < maxSwupRetries) {
+        swupRetryCount++;
+        if (isDev) {
+          logger.dev(`⏳ Swup not ready, retrying in 100ms (${swupRetryCount}/${maxSwupRetries})`);
+        }
+        setTimeout(setupSwupHooks, 100);
+      } else {
+        if (isDev) {
+          logger.warn('⚠️ Swup not available after maximum retries, continuing without it');
+        }
+      }
+    }
 
     // Start setting up Swup hooks
     setupSwupHooks();
@@ -678,15 +606,15 @@ const { seoData, bodyClass = '' } = Astro.props;
           mutation.addedNodes.forEach((node) => {
             if (node.nodeType === Node.ELEMENT_NODE) {
               const element = node;
-               // Check if the added node or its children contain the comments container
-               if (element.id === 'giscus-comments' || element.querySelector('#giscus-comments')) {
-                 if (isDev) {
-                   logger.dev('🔄 MutationObserver: Comments container detected, initializing');
-                 }
-                 setTimeout(() => {
-                   window.initializeGiscusComments();
-                 }, 200);
-               }
+              // Check if the added node or its children contain the comments container
+              if (element.id === 'giscus-comments' || element.querySelector('#giscus-comments')) {
+                if (isDev) {
+                  logger.dev('🔄 MutationObserver: Comments container detected, initializing');
+                }
+                setTimeout(() => {
+                  window.initializeGiscusComments();
+                }, 200);
+              }
             }
           });
         }
@@ -695,37 +623,37 @@ const { seoData, bodyClass = '' } = Astro.props;
 
     // Start observing the swup container for changes
     const swupContainer = document.querySelector('#swup-container');
-       if (swupContainer) {
-         observer.observe(swupContainer, {
-           childList: true,
-           subtree: true
-         });
-         if (isDev) {
-           logger.dev('✅ MutationObserver: Started observing swup-container');
-         }
-       }
+    if (swupContainer) {
+      observer.observe(swupContainer, {
+        childList: true,
+        subtree: true
+      });
+      if (isDev) {
+        logger.dev('✅ MutationObserver: Started observing swup-container');
+      }
+    }
 
     // AGGRESSIVE FALLBACK: Check for comments on every navigation click
     document.addEventListener('click', (event) => {
       const target = event.target;
       if (!target) return;
       
-       // Check if it's a navigation link
-       const href = target.getAttribute('href');
-       if (target.tagName === 'A' && href && !href.startsWith('#')) {
-         if (isDev) {
-           logger.dev('🔄 Click detected on navigation link, will check for comments');
-         }
-         // Delay to allow Swup to process the navigation
-         setTimeout(() => {
-           if (document.querySelector('#giscus-comments')) {
-             if (isDev) {
-               logger.dev('🔄 Navigation click: Comments container found, initializing');
-             }
-             window.initializeGiscusComments();
-           }
-         }, 500);
-       }
+      // Check if it's a navigation link
+      const href = target.getAttribute('href');
+      if (target.tagName === 'A' && href && !href.startsWith('#')) {
+        if (isDev) {
+          logger.dev('🔄 Click detected on navigation link, will check for comments');
+        }
+        // Delay to allow Swup to process the navigation
+        setTimeout(() => {
+          if (document.querySelector('#giscus-comments')) {
+            if (isDev) {
+              logger.dev('🔄 Navigation click: Comments container found, initializing');
+            }
+            window.initializeGiscusComments();
+          }
+        }, 500);
+      }
     });
 
     // Global image preloader to prevent reloading across navigation
@@ -770,9 +698,9 @@ const { seoData, bodyClass = '' } = Astro.props;
         images.forEach((img, index) => {
           if (img instanceof HTMLImageElement) {
             const priority = index < 3 ? 'high' : 'low';
-           this.preloadImage(img.src, priority).catch((error) => {
-             logger.warn('Failed to preload image:', error);
-           });
+            this.preloadImage(img.src, priority).catch((error) => {
+              logger.warn('Failed to preload image:', error);
+            });
           }
         });
       }
