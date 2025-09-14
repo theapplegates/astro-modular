@@ -1,6 +1,5 @@
 import type { Post, PostData, ReadingTime, Heading } from '@/types';
 import { siteConfig } from '@/config';
-import { logger } from '@/utils/logger';
 
 // Process markdown content and extract data
 export function processMarkdown(content: string): {
@@ -247,15 +246,12 @@ export function extractTags(posts: Post[]): string[] {
           if (tag && typeof tag === 'string' && tag.trim()) {
             tags.add(tag.trim());
           } else if (isDev) {
-            logger.warn(`[Dev] Invalid tag found in post "${post.slug}":`, tag);
           }
         });
       }
     });
   } catch (error) {
     if (isDev) {
-      logger.warn('[Dev] Error extracting tags from posts:', error);
-      logger.warn('[Dev] Continuing with empty tag list...');
     }
     return [];
   }
@@ -269,7 +265,6 @@ export function filterPostsByTag(posts: Post[], tag: string): Post[] {
   
   if (!tag || typeof tag !== 'string') {
     if (isDev) {
-      logger.warn('[Dev] Invalid tag provided to filterPostsByTag:', tag);
     }
     return [];
   }
@@ -286,8 +281,6 @@ export function filterPostsByTag(posts: Post[], tag: string): Post[] {
     });
   } catch (error) {
     if (isDev) {
-      logger.warn('[Dev] Error filtering posts by tag:', error);
-      logger.warn('[Dev] Returning empty post list...');
     }
     return [];
   }

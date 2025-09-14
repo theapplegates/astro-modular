@@ -70,37 +70,23 @@ const pagination = {
 
 <BaseLayout seoData={seoData}>
   <Fragment slot="head">
-    <!-- Preload critical images from first 2 posts - only if they will be displayed -->
-    {paginatedPosts.slice(0, 2).map(post => {
-      // Use same logic as PostCard to determine if cover image should be shown
-      const shouldShowCoverImage = (() => {
-        if (!post.data.image) return false;
-        
-        const showCoverImages = siteConfig.features.showCoverImages;
-        switch (showCoverImages) {
-          case 'all':
-            return true;
-          case 'posts':
-            return true;
-          case 'latest-and-posts':
-            return true;
-          case 'latest':
-          case 'home':
-          case 'none':
-          default:
-            return false;
-        }
-      })();
+    <!-- Preload only the first post's image to avoid unused preload warnings -->
+    {paginatedPosts.length > 0 && (() => {
+      const firstPost = paginatedPosts[0];
+      if (!firstPost.data.image || firstPost.data.image.startsWith('http')) return null;
       
-      return shouldShowCoverImage && post.data.image && !post.data.image.startsWith('http') && (
+      const showCoverImages = siteConfig.features.showCoverImages;
+      const shouldShowCoverImage = ['all', 'posts', 'latest-and-posts'].includes(showCoverImages);
+      
+      return shouldShowCoverImage ? (
         <link 
           rel="preload" 
           as="image" 
-          href={optimizePostImagePath(post.data.image, post.slug)}
+          href={optimizePostImagePath(firstPost.data.image, firstPost.slug, firstPost.id)}
           fetchpriority="high"
         />
-      );
-    })}
+      ) : null;
+    })()}
   </Fragment>
 
   <div class="py-8 relative">
@@ -155,7 +141,7 @@ const pagination = {
               <!-- Posts list -->
               <div class="space-y-4 mb-12">
                 {paginatedPosts.map((post, index) => (
-                  <PostCard post={post} eager={index < 3} context="posts" />
+                  <PostCard post={post} eager={index === 0} context="posts" />
                 ))}
               </div>
 

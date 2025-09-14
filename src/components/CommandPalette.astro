@@ -1,6 +1,5 @@
 ---
 import { siteConfig } from '../config';
-import { logger } from '@/utils/logger';
 import Icon from './Icon.astro';
 ---
 
@@ -288,7 +287,7 @@ import Icon from './Icon.astro';
         const response = await fetch('/api/posts.json');
         if (response.ok) {
           this.items = await response.json();
-          this.initializeFuseSearch();
+          // Don't initialize Fuse.js immediately - wait until first search
         } else {
           console.error('Failed to fetch posts:', response.statusText);
           // Fallback to empty array
@@ -302,29 +301,48 @@ import Icon from './Icon.astro';
     }
 
     private async initializeFuseSearch() {
-      // Dynamically import Fuse.js to avoid blocking initial load
-      const Fuse = (await import('fuse.js')).default;
-      
-      this.fuse = new Fuse(this.items, {
-        keys: [
-          { name: 'title', weight: 0.5 },
-          { name: 'description', weight: 0.2 },
-          { name: 'tags', weight: 0.3 }
-        ],
-        threshold: 0.3, // Lower threshold for more fuzzy matching
-        includeScore: true,
-        includeMatches: true,
-        minMatchCharLength: 1,
-        shouldSort: true,
-        findAllMatches: true,
-        ignoreLocation: true,
-        useExtendedSearch: true
-      });
+      try {
+        // Add a small delay to ensure the module is ready
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // Try to load Fuse.js with better error handling
+        const fuseModule = await import('fuse.js');
+        const Fuse = fuseModule.default || fuseModule;
+        
+        if (typeof Fuse === 'function') {
+          this.fuse = new Fuse(this.items, {
+            keys: [
+              { name: 'title', weight: 0.5 },
+              { name: 'description', weight: 0.2 },
+              { name: 'tags', weight: 0.3 }
+            ],
+            threshold: 0.3, // Lower threshold for more fuzzy matching
+            includeScore: true,
+            includeMatches: true,
+            minMatchCharLength: 1,
+            shouldSort: true,
+            findAllMatches: true,
+            ignoreLocation: true,
+            useExtendedSearch: true
+          });
+        } else {
+          throw new Error('Fuse.js not properly loaded');
+        }
+      } catch (error) {
+        // Fallback to basic search if Fuse.js fails to load
+        console.warn('Failed to load Fuse.js, falling back to basic search:', error);
+        this.fuse = null;
+      }
     }
 
     // Advanced search using Fuse.js with fallback to basic search
-    private searchItems(query: string): CommandPaletteItem[] {
+    private async searchItems(query: string): Promise<CommandPaletteItem[]> {
       if (!query.trim()) return [];
+
+      // Initialize Fuse.js lazily on first search
+      if (!this.fuse && this.items.length > 0) {
+        await this.initializeFuseSearch();
+      }
 
       // Use Fuse.js if available, otherwise fallback to basic search
       if (this.fuse) {
@@ -526,7 +544,7 @@ import Icon from './Icon.astro';
       await this.loadPosts();
 
       // Use improved search algorithm
-      this.filteredItems = this.searchItems(trimmedQuery);
+      this.filteredItems = await this.searchItems(trimmedQuery);
 
       // Cache the results with size limit
       this.manageCache(cacheKey, [...this.filteredItems]);

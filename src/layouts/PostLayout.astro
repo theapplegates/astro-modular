@@ -27,14 +27,6 @@ const isDev = import.meta.env.DEV;
 // Generate SEO data
 const seoData = generatePostSEO(post, Astro.site ? Astro.site.toString() : '');
 
-// Debug OG image URL (only in development)
-if (import.meta.env.DEV) {
-  const { logger } = await import('@/utils/logger');
-  logger.dev('Post OG Image URL:', seoData.ogImage?.url);
-  logger.dev('Post data image:', post.data.image);
-  logger.dev('Post hideCoverImage:', post.data.hideCoverImage);
-  logger.dev('Show cover images config:', siteConfig.features.showCoverImages);
-}
 
 // Dynamic image import for local images
 let localImage: any = null;
@@ -49,18 +41,9 @@ if (post.data.image && !post.data.image.startsWith('http')) {
       localImage = await images[imageKey]();
     } else {
       hasImageError = true;
-      if (isDev && devConfig.images.logMissingImages) {
-        const { logger } = await import('@/utils/logger');
-        logger.warn(`[PostLayout] Image not found: ${imageKey}`);
-        logger.warn(`[PostLayout] Original image path: ${post.data.image}`);
-      }
     }
   } catch (error) {
     hasImageError = true;
-    if (isDev && devConfig.images.logMissingImages) {
-      const { logger } = await import('@/utils/logger');
-      logger.warn('Failed to import image:', post.data.image, error);
-    }
   }
 }
 
@@ -111,8 +94,18 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
     <!-- Structured Data -->
     <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
 
-    <!-- Preload post cover image - only if it will actually be displayed -->
-    {siteConfig.features.showCoverImages !== 'none' && post.data.image && post.data.hideCoverImage !== true && (
+    <!-- Preload post cover image - only for posts that will definitely show the image immediately -->
+    {(() => {
+      if (!post.data.image || post.data.hideCoverImage === true) return false;
+      
+      const showCoverImages = siteConfig.features.showCoverImages;
+      // Only preload for posts that are likely to show the image immediately
+      // Skip preload for complex posts that might have delayed rendering
+      const shouldPreload = ['all', 'posts', 'latest-and-posts'].includes(showCoverImages) && 
+                           post.slug !== 'formatting-reference';
+      
+      return shouldPreload;
+    })() && (
       <link 
         rel="preload" 
         as="image" 
@@ -301,14 +294,6 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
 
   <Fragment slot="scripts">
     <script define:vars={{ posts: visiblePosts, commentsEnabled: siteConfig.features.comments, postTitle: post.data.title, postSlug: post.slug }}>
-      // Debug: Comments section
-      if (window.location.hostname === 'localhost' || window.location.hostname.includes('localhost')) {
-        logger.dev('🔧 PostLayout comments check:', {
-          commentsEnabled,
-          postTitle,
-          postSlug
-        });
-      }
 
       // Process wikilinks and initialize layouts after content loads
       document.addEventListener('DOMContentLoaded', () => {

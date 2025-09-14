@@ -1,7 +1,6 @@
 import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
 import { shouldShowPost } from '@/utils/markdown';
-import { logger } from '@/utils/logger';
 
 export const GET: APIRoute = async () => {
   try {
@@ -34,7 +33,6 @@ export const GET: APIRoute = async () => {
       }
     });
   } catch (error) {
-    logger.error('Error fetching posts for command palette:', error);
     return new Response(JSON.stringify({ error: 'Failed to fetch posts' }), {
       status: 500,
       headers: {

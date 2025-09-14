@@ -1,6 +1,5 @@
 import type { ImageInfo, OpenGraphImage } from '@/types';
 import { siteConfig } from '@/config';
-import { logger } from '@/utils/logger';
 
 // Process images for responsive layouts
 export function processImageLayout(images: ImageInfo[]): {
@@ -119,7 +118,6 @@ export function optimizeImagePath(imagePath: string): string {
 export function optimizePageImagePath(imagePath: string): string {
   // Handle null, undefined, or empty strings
   if (!imagePath || typeof imagePath !== 'string') {
-    logger.warn('Invalid page image path provided:', imagePath);
     return '/pages/images/placeholder.jpg'; // Fallback to placeholder
   }
 
@@ -128,7 +126,6 @@ export function optimizePageImagePath(imagePath: string): string {
   
   // Handle empty path after cleaning
   if (!cleanPath) {
-    logger.warn('Empty page image path after cleaning:', imagePath);
     return '/pages/images/placeholder.jpg';
   }
 
@@ -180,7 +177,6 @@ export function stripObsidianBrackets(imagePath: string): string {
 export function optimizePostImagePath(imagePath: string, postSlug?: string, postId?: string): string {
   // Handle null, undefined, or empty strings
   if (!imagePath || typeof imagePath !== 'string') {
-    logger.warn('Invalid image path provided:', imagePath);
     return '/posts/images/placeholder.jpg'; // Fallback to placeholder
   }
 
@@ -189,7 +185,6 @@ export function optimizePostImagePath(imagePath: string, postSlug?: string, post
   
   // Handle empty path after cleaning
   if (!cleanPath) {
-    logger.warn('Empty image path after cleaning:', imagePath);
     return '/posts/images/placeholder.jpg';
   }
 

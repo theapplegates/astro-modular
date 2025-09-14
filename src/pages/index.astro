@@ -3,7 +3,6 @@ import { getCollection, getEntry } from 'astro:content';
 import { siteConfig } from '@/config';
 import { generateHomeSEO } from '@/utils/seo';
 import { shouldShowPost, sortPostsByDate, processPost } from '@/utils/markdown';
-import { logger } from '@/utils/logger';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import PostCard from '@/components/PostCard.astro';
 import Icon from '@/components/Icon.astro';
@@ -38,7 +37,6 @@ if (siteConfig.homeBlurb?.enabled) {
       HomeBlurbContent = Content;
     }
   } catch (error) {
-    logger.warn('Home blurb content not found:', error);
   }
 }
 

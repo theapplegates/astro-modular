@@ -2,7 +2,6 @@
 import path from "node:path";
 import { Image } from "astro:assets";
 import { devConfig, isDev } from "@/config/dev";
-import { logger } from "@/utils/logger";
 
 interface Props {
   id?: string;
@@ -90,8 +89,6 @@ if (isLocal) {
     
     // Debug logging
     if (isDev && devConfig.images.logMissingImages) {
-      logger.dev(`[ImageWrapper] Looking for image: ${normalizedPath}`);
-      logger.dev(`[ImageWrapper] Available files:`, Object.keys(files).filter(f => f.includes('sample-folder-post')));
     }
     
     const file = files[normalizedPath];
@@ -110,8 +107,6 @@ if (isLocal) {
       
       // Only warn in development mode if logging is enabled
       if (isDev && devConfig.images.logMissingImages) {
-        logger.warn(`[ImageWrapper] Image file not found: ${normalizedPath}`);
-        logger.warn(`[ImageWrapper] Using fallback: ${fallbackSrc}`);
       }
     }
   } catch (error) {
@@ -126,8 +121,6 @@ if (isLocal) {
     }
     
     if (isDev && devConfig.images.logMissingImages) {
-      logger.warn(`[ImageWrapper] Failed to import image: ${src}`, error);
-      logger.warn(`[ImageWrapper] Using fallback: ${fallbackSrc}`);
     }
   }
 }

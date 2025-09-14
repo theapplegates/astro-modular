@@ -1,5 +1,4 @@
 // Site configuration with TypeScript types
-import { logger } from './utils/logger';
 
 // Aspect ratio options for post cards
 export type AspectRatio = 
@@ -375,8 +374,6 @@ function validateSiteConfig(config: SiteConfig): { isValid: boolean; errors: str
 // Validate configuration on import
 const validation = validateSiteConfig(siteConfig);
 if (!validation.isValid) {
-  logger.error('❌ Site configuration validation failed:');
-  validation.errors.forEach(error => logger.error(`  • ${error}`));
   throw new Error(`Site configuration is invalid. Please fix the following issues:\n${validation.errors.join('\n')}`);
 }
 

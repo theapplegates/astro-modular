@@ -48,8 +48,8 @@ export default defineConfig({
       containers: ['#swup-container'],
       smoothScrolling: false,
       cache: true,
-      preload: true, // Keep preload for better user experience
-      accessibility: true, // Enable accessibility for PageSpeed Insights
+      preload: true, 
+      accessibility: false,
       updateHead: true,
       updateBodyClass: false,
       globalInstance: true,

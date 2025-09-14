@@ -7,7 +7,6 @@ import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
 import CommandPalette from '@/components/CommandPalette.astro';
 import ScrollToTop from '@/components/ScrollToTop.astro';
-import { logger } from '@/utils/logger';
 import '@/styles/global.css';
 
 export interface Props {
@@ -166,7 +165,6 @@ const { seoData, bodyClass = '' } = Astro.props;
     // Listen for system theme changes
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
       if (window.location.hostname === 'localhost' || window.location.hostname.includes('localhost')) {
-        logger.dev('🔄 System theme changed:', e.matches ? 'dark' : 'light');
       }
       if (!localStorage.getItem('theme')) {
         const newTheme = e.matches ? 'dark' : 'light';
@@ -174,7 +172,6 @@ const { seoData, bodyClass = '' } = Astro.props;
         initTheme();
       } else {
         if (window.location.hostname === 'localhost' || window.location.hostname.includes('localhost')) {
-          logger.dev('  - User has manual theme set, not updating theme');
         }
       }
       // Always update favicon based on system theme, regardless of user's manual theme choice
@@ -214,20 +211,15 @@ const { seoData, bodyClass = '' } = Astro.props;
 
     // Global comments initialization function - Swup compatible
     function initializeGiscusComments() {
-      logger.dev('🔄 Global: Initializing Giscus comments...');
       
       // Check if comments are enabled in config
       if (!window.commentsEnabled) {
-        logger.dev('❌ Global: Comments are disabled in config');
         return;
       }
       
       // Check if comments container exists
       const commentsContainer = document.querySelector('#giscus-comments');
-      logger.dev('📦 Global: Comments container found:', !!commentsContainer);
-      
       if (!commentsContainer) {
-        logger.dev('❌ Global: No comments container found');
         return;
       }
 
@@ -237,18 +229,15 @@ const { seoData, bodyClass = '' } = Astro.props;
       // Remove any existing Giscus scripts from the entire document
       const existingScripts = document.querySelectorAll('script[src*="giscus.app"]');
       existingScripts.forEach(script => {
-        logger.dev('🗑️ Global: Removing existing Giscus script');
         script.remove();
       });
 
       // Remove any existing Giscus iframes from the entire document
       const existingIframes = document.querySelectorAll('iframe[src*="giscus"]');
       existingIframes.forEach(iframe => {
-        logger.dev('🗑️ Global: Removing existing Giscus iframe');
         iframe.remove();
       });
 
-      logger.dev('✅ Global: Setting up comments loading');
       
       // Clear any error state
       commentsContainer.removeAttribute('data-error');
@@ -288,7 +277,6 @@ const { seoData, bodyClass = '' } = Astro.props;
       script.setAttribute('data-loading', loading);
       
       script.onload = function() {
-        logger.dev('✅ Global: Giscus script loaded successfully');
         
         // Auto-scroll to comments section after GitHub sign-in
         // This helps users find the comments after authentication
@@ -302,17 +290,7 @@ const { seoData, bodyClass = '' } = Astro.props;
                                  document.referrer.includes('github.com') ||
                                  document.referrer.includes('giscus.app');
             
-            logger.dev('🔍 OAuth detection:', {
-              hasCode: urlParams.has('code'),
-              hasState: urlParams.has('state'),
-              hashIncludesGiscus: window.location.hash.includes('giscus'),
-              referrerIncludesGithub: document.referrer.includes('github.com'),
-              referrerIncludesGiscus: document.referrer.includes('giscus.app'),
-              isOAuthReturn
-            });
-            
             if (isOAuthReturn) {
-              logger.dev('🔄 Detected GitHub OAuth return, scrolling to comments');
               commentsContainer.scrollIntoView({ 
                 behavior: 'smooth', 
                 block: 'start' 
@@ -326,7 +304,6 @@ const { seoData, bodyClass = '' } = Astro.props;
           const giscusIframe = document.querySelector('iframe[src*="giscus"]');
           if (giscusIframe) {
             giscusIframe.addEventListener('load', () => {
-              logger.dev('🔄 Giscus iframe loaded successfully');
             });
           } else {
             // If iframe not ready yet, check again in a bit
@@ -338,7 +315,6 @@ const { seoData, bodyClass = '' } = Astro.props;
       };
       
       script.onerror = function() {
-        logger.error('❌ Global: Failed to load Giscus script');
         commentsContainer.setAttribute('data-error', 'true');
       };
       
@@ -527,11 +503,9 @@ const { seoData, bodyClass = '' } = Astro.props;
     // Initialize comments and table wrappers on page load
     document.addEventListener('DOMContentLoaded', () => {
       if (isDev) {
-        logger.dev('🔄 BaseLayout: DOM loaded - checking for comments and tables');
       }
       if (document.querySelector('#giscus-comments')) {
         if (isDev) {
-          logger.dev('✅ BaseLayout: Comments container found, initializing');
         }
         window.initializeGiscusComments();
       }
@@ -547,13 +521,11 @@ const { seoData, bodyClass = '' } = Astro.props;
     function setupSwupHooks() {
       if (window.swup) {
         if (isDev) {
-          logger.dev('✅ Swup instance found, setting up hooks');
         }
         
         // Use the correct Swup hooks API
         window.swup.hooks.on('content:replace', () => {
           if (isDev) {
-            logger.dev('🔄 Swup: content:replace hook - reinitializing comments and favicon');
           }
           // Reinitialize favicon after page transition
           setFavicon();
@@ -569,7 +541,6 @@ const { seoData, bodyClass = '' } = Astro.props;
 
         window.swup.hooks.on('page:view', () => {
           if (isDev) {
-            logger.dev('🔄 Swup: page:view hook - reinitializing comments');
           }
           setTimeout(() => {
             if (document.querySelector('#giscus-comments')) {
@@ -584,12 +555,10 @@ const { seoData, bodyClass = '' } = Astro.props;
       } else if (swupRetryCount < maxSwupRetries) {
         swupRetryCount++;
         if (isDev) {
-          logger.dev(`⏳ Swup not ready, retrying in 100ms (${swupRetryCount}/${maxSwupRetries})`);
         }
         setTimeout(setupSwupHooks, 100);
       } else {
         if (isDev) {
-          logger.warn('⚠️ Swup not available after maximum retries, continuing without it');
         }
       }
     }
@@ -609,7 +578,6 @@ const { seoData, bodyClass = '' } = Astro.props;
               // Check if the added node or its children contain the comments container
               if (element.id === 'giscus-comments' || element.querySelector('#giscus-comments')) {
                 if (isDev) {
-                  logger.dev('🔄 MutationObserver: Comments container detected, initializing');
                 }
                 setTimeout(() => {
                   window.initializeGiscusComments();
@@ -629,7 +597,6 @@ const { seoData, bodyClass = '' } = Astro.props;
         subtree: true
       });
       if (isDev) {
-        logger.dev('✅ MutationObserver: Started observing swup-container');
       }
     }
 
@@ -642,13 +609,11 @@ const { seoData, bodyClass = '' } = Astro.props;
       const href = target.getAttribute('href');
       if (target.tagName === 'A' && href && !href.startsWith('#')) {
         if (isDev) {
-          logger.dev('🔄 Click detected on navigation link, will check for comments');
         }
         // Delay to allow Swup to process the navigation
         setTimeout(() => {
           if (document.querySelector('#giscus-comments')) {
             if (isDev) {
-              logger.dev('🔄 Navigation click: Comments container found, initializing');
             }
             window.initializeGiscusComments();
           }
@@ -699,7 +664,6 @@ const { seoData, bodyClass = '' } = Astro.props;
           if (img instanceof HTMLImageElement) {
             const priority = index < 3 ? 'high' : 'low';
             this.preloadImage(img.src, priority).catch((error) => {
-              logger.warn('Failed to preload image:', error);
             });
           }
         });
