@@ -740,8 +740,6 @@ a:focus-visible, button:focus-visible, .btn:focus-visible {
   transition: outline 0.2s ease-in-out;
 }
 
-/* PostLayout unified card styling - seamless cover image connection */
-
 /* Print Styles */
 @media print {
   .no-print { display: none !important; }

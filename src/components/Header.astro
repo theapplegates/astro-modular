@@ -35,7 +35,7 @@ const paletteIcon = allSectionsDisabled ? 'search' : 'command';
         <!-- Smart Navigation (single system with style variants) -->
         {siteConfig.navigation.showNavigation && (  
     <nav class={`hidden md:flex items-center ${  
-      siteConfig.navigation.style === 'minimal' ? `space-x-4 ${!siteConfig.features.darkModeToggleButton && !siteConfig.features.commandPalette ? '' : 'mr-4'}` : 'space-x-8' }`} aria-label="Main navigation">
+      siteConfig.navigation.style === 'minimal' ? `space-x-5 ${!siteConfig.features.darkModeToggleButton && !siteConfig.features.commandPalette ? '' : 'mr-4'}` : 'space-x-5' }`} aria-label="Main navigation">
             {siteConfig.navigation.pages.map(page => (
               <a 
                 href={page.url}

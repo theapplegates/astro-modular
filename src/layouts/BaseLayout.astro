@@ -517,6 +517,63 @@ const { seoData, bodyClass = '' } = Astro.props;
       handleInitialHashScroll();
     });
 
+    // Command Palette Keyboard Shortcut Handler
+    function setupCommandPaletteShortcut() {
+      // Get the shortcut from the meta tag
+      const shortcutMeta = document.querySelector('meta[name="command-palette-shortcut"]');
+      if (!shortcutMeta) return;
+      
+      const shortcut = shortcutMeta.getAttribute('content');
+      if (!shortcut || shortcut.trim() === '') return;
+      
+      // Parse the shortcut (e.g., "ctrl+e" -> {ctrl: true, key: "e"})
+      const parts = shortcut.toLowerCase().split('+').map(p => p.trim());
+      const modifiers = {
+        ctrl: parts.includes('ctrl') || parts.includes('control'),
+        alt: parts.includes('alt'),
+        shift: parts.includes('shift'),
+        meta: parts.includes('meta') || parts.includes('cmd') || parts.includes('command')
+      };
+      
+      // Get the main key (last part)
+      const key = parts[parts.length - 1];
+      if (!key) return;
+      
+      // Add global keyboard listener
+      document.addEventListener('keydown', (e) => {
+        // Check if all required modifiers are pressed
+        const modifiersMatch = modifiers.ctrl === e.ctrlKey &&
+                              modifiers.alt === e.altKey &&
+                              modifiers.shift === e.shiftKey &&
+                              modifiers.meta === e.metaKey;
+        
+        // Check if the key matches (case insensitive)
+        const keyMatch = e.key.toLowerCase() === key.toLowerCase();
+        
+        // Only trigger if we're not in an input field, textarea, or contenteditable
+        const isInputField = e.target.tagName === 'INPUT' ||
+                            e.target.tagName === 'TEXTAREA' ||
+                            e.target.contentEditable === 'true' ||
+                            e.target.isContentEditable;
+        
+        if (modifiersMatch && keyMatch && !isInputField) {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          // Dispatch the openCommandPalette event
+          const event = new CustomEvent('openCommandPalette');
+          window.dispatchEvent(event);
+        }
+      });
+    }
+
+    // Setup command palette shortcut when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', setupCommandPaletteShortcut);
+    } else {
+      setupCommandPaletteShortcut();
+    }
+
     // CRITICAL: Listen for Swup page transitions using hooks API
     // Wait for Swup to be available
     let swupRetryCount = 0;
