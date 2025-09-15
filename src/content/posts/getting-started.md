@@ -30,9 +30,10 @@ You'll need:
 
 ```bash
 # Install dependencies
+npm install
 pnpm install
-
 # Start development server
+
 pnpm run dev
 # Available at http://localhost:5000
 
@@ -119,6 +120,7 @@ features: {
       tableOfContents: true,
       tags: true,
       linkedMentions: true,
+      linkedMentionsCompact: false,
       scrollToTop: true,
       darkModeToggleButton: true,
       commandPalette: true,
@@ -130,13 +132,17 @@ features: {
   },
 ```
 
+**Linked Mentions Features:**
+- `linkedMentions: true` - enable linked mentions section at the end of the page showing which posts reference the current post
+- `linkedMentionsCompact: false` - choose between detailed view (default) or compact view for linked mentions
+
 **Cover Image Options:**
-- `"all"` - Show cover images everywhere
-- `"latest"` - Show only on the latest post section and featured posts
-- `"home"` - Show on homepage sections (latest and recent)
-- `"posts"` - Show only on posts pages, tag pages, and post listings
-- `"latest-and-posts"` - Show on latest post section AND posts pages/tags (but not recent posts section)
-- `"none"` - Never show cover images
+- `"all"` - show cover images on all post cards
+- `"latest"` - show only on the latest post section and featured posts
+- `"home"` - show only on homepage sections (latest and recent)
+- `"posts"` - show only on posts pages, tag pages, and post cards
+- `"latest-and-posts"` - show on latest post section AND posts pages/tags cards (but not recent posts section)
+- `"none"` - never show cover images on post cards
 
 **Post Card Aspect Ratio:**
 Configure the aspect ratio for post card cover images:
@@ -149,13 +155,13 @@ features: {
 ```
 
 **Aspect Ratio Options:**
-- `"og"` (1.91:1) - OpenGraph standard (default)
-- `"16:9"` (1.78:1) - Standard widescreen
-- `"4:3"` (1.33:1) - Traditional
-- `"3:2"` (1.5:1) - Classic photography
-- `"square"` (1:1) - Square
-- `"golden"` (1.618:1) - Golden ratio
-- `"custom"` - Use your own ratio
+- `"og"` (1.91:1) - open graph standard (default)
+- `"16:9"` (1.78:1) - standard widescreen
+- `"4:3"` (1.33:1) - traditional
+- `"3:2"` (1.5:1) - classic photography
+- `"square"` (1:1) - square
+- `"golden"` (1.618:1) - golden ratio
+- `"custom"` - use your own ratio
 
 **Custom Aspect Ratio Example:**
 ```typescript
@@ -246,14 +252,15 @@ Navigation is also set in the config:
 ```
 navigation: {
   showNavigation: true,
-  style: 'traditional', // or 'minimal'
+  style: "traditional", // or 'minimal'
   showMobileMenu: true,
   pages: [
-    { title: 'Posts', url: '/posts' },
-    { title: 'About', url: '/about' }
+    { title: "Posts", url: "/posts" },
+    { title: "About", url: "/about" },
+    { title: "External", url: "https://example.com" }
   ],
   social: [
-    { title: 'GitHub', url: 'https://github.com/username', icon: 'github' }
+    { title: "GitHub", url: "https://github.com/username", icon: "github" }
   ],
 }
 ```
@@ -356,7 +363,8 @@ Press `Ctrl+K` (or custom hotkey) for instant navigation, search, and dark/light
 ### Wikilinks & Connections
 - `[[Post Title]]` - Standard wikilink
 - `[[Post Title|Custom Text]]` - Custom display text
-- **Linked mentions** show post connections automatically
+- **Linked mentions** show post connections automatically with collapsible interface
+- **Compact or detailed view** options for linked mentions display
 
 ### Image Optimization
 - **WebP conversion** for performance

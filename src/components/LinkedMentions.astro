@@ -53,10 +53,10 @@ function processExcerptLinks(text: string, targetSlug: string): string {
     }
     
     if (isRelevantLink) {
-      // For relevant links, create the proper wikilink format and bold it
+      // For relevant links, create the proper wikilink format and highlight it
       // If there's a display override, use [[display]], otherwise use [[link]]
       const properFormat = display ? `[[${display}]]` : `[[${link}]]`;
-      return `<strong class="text-primary-800 dark:text-primary-200">${properFormat}</strong>`;
+      return `<mark class="bg-highlight-200 dark:bg-highlight-800 text-highlight-900 dark:text-highlight-100 px-1 rounded-sm">${properFormat}</mark>`;
     }
     
     // Return the original match for non-relevant links
@@ -110,10 +110,10 @@ function processExcerptLinks(text: string, targetSlug: string): string {
     const wikilinkFormat = `[[${displayText}]]`;
     
     if (isRelevantLink) {
-      // Bold the wikilink format for the relevant link
-      return `<strong class="text-primary-800 dark:text-primary-200">${wikilinkFormat}</strong>`;
+      // Highlight the wikilink format for the relevant link
+      return `<mark class="bg-highlight-200 dark:bg-highlight-800 text-highlight-900 dark:text-highlight-100 px-1 rounded-sm">${wikilinkFormat}</mark>`;
     } else {
-      // Keep as wikilink format but not bold
+      // Keep as wikilink format but not highlighted
       return wikilinkFormat;
     }
   });
