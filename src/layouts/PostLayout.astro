@@ -231,7 +231,7 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
 
         <!-- Post navigation -->
         {siteConfig.features.postNavigation && (prevPost || nextPost) && (
-          <nav class="mt-16 pt-8 border-t border-primary-200 dark:border-primary-700">
+          <nav class="mt-8 pt-8 border-t border-primary-200 dark:border-primary-700">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               {prevPost && (
                 <div class="text-left">

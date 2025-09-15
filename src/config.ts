@@ -38,6 +38,7 @@ export interface SiteConfig {
     tableOfContents: boolean;
     tags: boolean;
     linkedMentions: boolean;
+    linkedMentionsCompact: boolean;
     scrollToTop: boolean;
     darkModeToggleButton: boolean;
     showCoverImages: "all" | "latest" | "home" | "posts" | "latest-and-posts" | "none";
@@ -117,6 +118,7 @@ export const siteConfig: SiteConfig = {
     tableOfContents: true,
     tags: true,
     linkedMentions: true,
+    linkedMentionsCompact: false,
     scrollToTop: true,
     darkModeToggleButton: true,
     commandPalette: true,
