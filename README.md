@@ -2,7 +2,8 @@
 
 A flexible blog theme designed for Obsidian users.
 
-<img width="2124" height="2830" alt="Astro Modular with the Oxygen theme applied, homepage." src="https://github.com/user-attachments/assets/3d325cdd-4e07-4b20-8766-395dab8a4b7e" />
+<img width="2124" height="2830" alt="Astro Modular with the Oxygen theme applied, homepage." src="https://github.com/user-attachments/assets/9a6b16ce-dfed-4764-96c5-e1f3b80160ea" />
+
 
 ## Badges
 
@@ -42,6 +43,7 @@ A flexible blog theme designed for Obsidian users.
 
 1. **Install:**
    ```bash
+   npm install
    pnpm install
    ```
 
