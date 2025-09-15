@@ -205,7 +205,7 @@ import Icon from './Icon.astro';
       
       img.onerror = () => {
         this.loading.classList.add('hidden');
-        console.error('Failed to load image:', currentImage.src);
+        // Image failed to load - silently handle error
       };
       
       img.src = currentImage.src;

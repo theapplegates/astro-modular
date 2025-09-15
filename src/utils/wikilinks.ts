@@ -416,8 +416,14 @@ function createExcerptAroundWikilink(content: string, linkText: string, allPosts
       // Check if this URL points to our target linkText
       if (isInternalLink(url)) {
         const { linkText: urlLinkText } = extractLinkTextFromUrlWithAnchor(url, allPosts, allPages);
-        if (urlLinkText === linkText) {
-          return extractExcerptAtPosition(withoutFrontmatter, markdownMatch.index, fullMatch.length);
+        if (urlLinkText) {
+          // Normalize both linkText and urlLinkText for comparison
+          const normalizedLinkText = linkText.replace(/\/index$/, '');
+          const normalizedUrlLinkText = urlLinkText.replace(/\/index$/, '');
+          
+          if (normalizedUrlLinkText === normalizedLinkText || urlLinkText === linkText) {
+            return extractExcerptAtPosition(withoutFrontmatter, markdownMatch.index, fullMatch.length);
+          }
         }
       }
     }

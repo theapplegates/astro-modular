@@ -201,7 +201,72 @@ const processedImage = (() => {
         (table as HTMLElement).style.margin = '0';
       }
     });
+  });
 
+  // Debug: Check what anchor links exist on the page
+  document.addEventListener('DOMContentLoaded', () => {
+    const anchorLinks = document.querySelectorAll('a.anchor-link[href^="#"]');
+    console.log('Found anchor links on page:', anchorLinks.length);
+    anchorLinks.forEach((link, index) => {
+      console.log(`Anchor link ${index}:`, link.href, link.textContent);
+    });
     
+    // Also check for any links with href starting with #
+    const allHashLinks = document.querySelectorAll('a[href^="#"]');
+    console.log('Found all hash links on page:', allHashLinks.length);
+    allHashLinks.forEach((link, index) => {
+      console.log(`Hash link ${index}:`, link.href, link.textContent, link.className);
+    });
+  });
+
+  // Handle heading links with smooth scrolling (outside DOMContentLoaded)
+  document.addEventListener('click', (e) => {
+    console.log('Click detected on:', e.target, 'Tag:', e.target.tagName, 'Class:', e.target.className);
+    
+    // Check if clicked element is an anchor link
+    if (e.target.tagName === 'A' && e.target.classList.contains('anchor-link')) {
+      console.log('Direct anchor link click detected');
+      const href = e.target.getAttribute('href');
+      console.log('Heading link clicked:', href);
+      
+      if (href && href.startsWith('#') && href.length > 1) {
+        const targetElement = document.querySelector(href);
+        console.log('Target element found:', targetElement);
+        
+        if (targetElement) {
+          e.preventDefault();
+          console.log('Preventing default and scrolling...');
+          
+          // Update URL
+          history.pushState(null, '', href);
+          
+          // Custom smooth scroll implementation
+          const targetPosition = targetElement.offsetTop - 100; // Account for header
+          const startPosition = window.pageYOffset;
+          const distance = targetPosition - startPosition;
+          const duration = 800; // 800ms duration
+          let start = null;
+
+          function step(timestamp) {
+            if (!start) start = timestamp;
+            const progress = timestamp - start;
+            const percentage = Math.min(progress / duration, 1);
+            
+            // Easing function (ease-in-out)
+            const easeInOut = percentage < 0.5 
+              ? 2 * percentage * percentage 
+              : 1 - Math.pow(-2 * percentage + 2, 2) / 2;
+            
+            window.scrollTo(0, startPosition + distance * easeInOut);
+            
+            if (progress < duration) {
+              requestAnimationFrame(step);
+            }
+          }
+          
+          requestAnimationFrame(step);
+        }
+      }
+    }
   });
 </script>

@@ -677,10 +677,11 @@ a, button, .btn, .card, .callout, nav a {
   transition: all 0.2s ease-out;
 }
 
-/* Disable smooth scroll behavior during transitions */
+/* Smooth scroll behavior for anchor links only */
 html {
   scroll-behavior: auto;
 }
+
 
 /* Navigation active states - more subtle */
 nav a.active,

@@ -417,17 +417,10 @@ const { seoData, bodyClass = '' } = Astro.props;
 
   <!-- Global scripts - Defer non-critical JavaScript -->
   <script define:vars={{ commentsEnabled: siteConfig.features.comments }} defer>
-    // Simple client-side logger
-    const isDev = window.location.hostname === 'localhost' || window.location.hostname.includes('localhost');
-    const logger = {
-      dev: (...args) => isDev && console.log(...args),
-      info: (...args) => isDev && console.info(...args),
-      warn: (...args) => console.warn(...args),
-      error: (...args) => console.error(...args)
-    };
+    // Logger removed - no console output in production
 
-    // Make logger globally available for all scripts
-    window.logger = logger;
+    // Define isDev in client-side JavaScript (always false in production)
+    const isDev = false;
 
     // Set window.commentsEnabled for client-side access
     window.commentsEnabled = commentsEnabled;
@@ -517,8 +510,11 @@ const { seoData, bodyClass = '' } = Astro.props;
       // Initialize table wrappers on initial page load
       window.initializeTableWrappers();
       
-      // Handle anchor scrolling on initial page load
-      handleAnchorScrolling();
+      // Setup smooth scrolling for anchor links
+      setupSmoothScrolling();
+      
+      // Handle initial hash scroll (if URL has hash)
+      handleInitialHashScroll();
     });
 
     // CRITICAL: Listen for Swup page transitions using hooks API
@@ -544,8 +540,8 @@ const { seoData, bodyClass = '' } = Astro.props;
             }
             // Initialize table wrappers
             window.initializeTableWrappers();
-            // Handle anchor scrolling after content replacement
-            handleAnchorScrolling();
+            // Re-setup smooth scrolling for anchor links
+            setupSmoothScrolling();
           }, 100);
         });
 
@@ -558,8 +554,8 @@ const { seoData, bodyClass = '' } = Astro.props;
             }
             // Initialize table wrappers
             window.initializeTableWrappers();
-            // Handle anchor scrolling after page view
-            handleAnchorScrolling();
+            // Re-setup smooth scrolling for anchor links
+            setupSmoothScrolling();
           }, 100);
         });
 
@@ -706,51 +702,120 @@ const { seoData, bodyClass = '' } = Astro.props;
     // Make initializeTableWrappers globally accessible
     window.initializeTableWrappers = initializeTableWrappers;
 
-    // Handle anchor scrolling functionality
-    function handleAnchorScrolling() {
+
+    // Handle smooth scrolling for anchor links (same-page only)
+    function setupSmoothScrolling() {
+      // Remove any existing event listeners to avoid duplicates
+      const existingLinks = document.querySelectorAll('a[href^="#"]:not([href="/"]):not([href^="/"])');
+      existingLinks.forEach(link => {
+        link.removeEventListener('click', handleAnchorClick);
+      });
+      
+      // Only handle anchor links that are NOT navigation links
+      const anchorLinks = document.querySelectorAll('a[href^="#"]:not([href="/"]):not([href^="/"])');
+      
+      anchorLinks.forEach(link => {
+        link.addEventListener('click', handleAnchorClick);
+      });
+    }
+
+    // Handle anchor link clicks with smooth scrolling
+    function handleAnchorClick(e) {
+      const href = e.target.getAttribute('href');
+      if (href && href.startsWith('#') && href.length > 1) {
+        const targetElement = document.querySelector(href);
+        if (targetElement) {
+          e.preventDefault();
+          
+          // DON'T update URL - let the browser handle it naturally
+          // This prevents interfering with browser history
+          
+          // Custom smooth scroll animation
+          const targetPosition = targetElement.offsetTop - 100; // Account for header
+          const startPosition = window.pageYOffset;
+          const distance = targetPosition - startPosition;
+          const duration = 800; // 800ms duration
+          let start = null;
+
+          function step(timestamp) {
+            if (!start) start = timestamp;
+            const progress = timestamp - start;
+            const percentage = Math.min(progress / duration, 1);
+            
+            // Easing function (ease-in-out)
+            const easeInOut = percentage < 0.5 
+              ? 2 * percentage * percentage 
+              : 1 - Math.pow(-2 * percentage + 2, 2) / 2;
+            
+            window.scrollTo(0, startPosition + distance * easeInOut);
+            
+            if (progress < duration) {
+              requestAnimationFrame(step);
+            }
+          }
+          
+          requestAnimationFrame(step);
+        }
+      }
+    }
+
+    // Handle URL hash scrolling on page load (start at top, then smooth scroll)
+    function handleInitialHashScroll() {
       const hash = window.location.hash;
       if (hash && hash.length > 1) {
-        // Wait a bit for content to be fully rendered
+        // First, scroll to top instantly
+        window.scrollTo(0, 0);
+        
+        // Then wait a bit and smooth scroll to target
         setTimeout(() => {
           const targetElement = document.querySelector(hash);
           if (targetElement) {
-            // Enable smooth scrolling temporarily
-            document.documentElement.style.scrollBehavior = 'smooth';
-            document.body.style.scrollBehavior = 'smooth';
+            // Custom smooth scroll animation
+            const targetPosition = targetElement.offsetTop - 100; // Account for header
+            const startPosition = window.pageYOffset;
+            const distance = targetPosition - startPosition;
+            const duration = 800; // 800ms duration
+            let start = null;
+
+            function step(timestamp) {
+              if (!start) start = timestamp;
+              const progress = timestamp - start;
+              const percentage = Math.min(progress / duration, 1);
+              
+              // Easing function (ease-in-out)
+              const easeInOut = percentage < 0.5 
+                ? 2 * percentage * percentage 
+                : 1 - Math.pow(-2 * percentage + 2, 2) / 2;
+              
+              window.scrollTo(0, startPosition + distance * easeInOut);
+              
+              if (progress < duration) {
+                requestAnimationFrame(step);
+              }
+            }
             
-            // Scroll to the target element
-            targetElement.scrollIntoView({ 
-              behavior: 'smooth', 
-              block: 'start',
-              inline: 'nearest'
-            });
-            
-            // Reset scroll behavior after scrolling (but keep it smooth for future anchor clicks)
-            setTimeout(() => {
-              // Don't reset to 'auto' - keep smooth scrolling enabled for better UX
-              // The browser will handle the rest naturally
-            }, 1000);
+            requestAnimationFrame(step);
           }
         }, 100);
       }
     }
 
-    // Make handleAnchorScrolling globally accessible
-    window.handleAnchorScrolling = handleAnchorScrolling;
 
-    // Handle browser back/forward button for anchor links
+    // Handle browser back/forward button - IGNORE anchors, only handle pages
     function handlePopState() {
       // Small delay to ensure content is loaded
       setTimeout(() => {
-        handleAnchorScrolling();
-        // Reinitialize image grids after back/forward navigation
+        // Always scroll to top for browser navigation - ignore anchors completely
+        window.scrollTo(0, 0);
+        
+        // Reinitialize components after back/forward navigation
         if (window.initializeImageGrids) {
           window.initializeImageGrids();
         }
-        // Reinitialize table wrappers after back/forward navigation
         if (window.initializeTableWrappers) {
           window.initializeTableWrappers();
         }
+        setupSmoothScrolling();
       }, 50);
     }
 
@@ -762,11 +827,7 @@ const { seoData, bodyClass = '' } = Astro.props;
       if (typeof window !== 'undefined' && window.swup) {
         const swup = window.swup;
         
-        // Start with instant scrolling globally
-        document.documentElement.style.scrollBehavior = 'auto';
-        document.body.style.scrollBehavior = 'auto';
-        
-        // Override Swup's scroll methods to always use instant scrolling
+        // Override Swup's scroll methods to always use instant scrolling for page navigation
         if (swup.scrollToElement) {
           swup.scrollToElement = () => {
             window.scrollTo(0, 0);
@@ -781,9 +842,8 @@ const { seoData, bodyClass = '' } = Astro.props;
         
         // Handle page navigation with instant scroll
         swup.hooks.on('visit:start', () => {
-          // Disable smooth scrolling during page navigation
+          // Ensure instant scrolling during page navigation
           document.documentElement.style.scrollBehavior = 'auto';
-          document.body.style.scrollBehavior = 'auto';
         });
         
         swup.hooks.on('content:replace', () => {
@@ -797,43 +857,30 @@ const { seoData, bodyClass = '' } = Astro.props;
           // Update navigation highlighting after page transition
           updateNavigationHighlighting();
           // Handle anchor scrolling after page transition
-          handleAnchorScrolling();
+          // Handle initial hash scroll if present
+        handleInitialHashScroll();
         });
         
         swup.hooks.on('visit:end', () => {
-          // Re-enable smooth scrolling for anchor links after page is loaded
-          setTimeout(() => {
-            document.documentElement.style.scrollBehavior = 'smooth';
-            document.body.style.scrollBehavior = 'smooth';
-            // Update navigation highlighting after page transition is complete
-            updateNavigationHighlighting();
-            // Handle anchor scrolling after page transition is complete
-            handleAnchorScrolling();
-          }, 100);
+          // Keep instant scrolling for page navigation, but enable smooth for anchors
+          document.documentElement.style.scrollBehavior = 'auto';
+          // Update navigation highlighting after page transition is complete
+          updateNavigationHighlighting();
+          // Handle anchor scrolling after page transition is complete
+          // Handle initial hash scroll if present
+        handleInitialHashScroll();
         });
         
-        // Handle anchor link clicks (headings, TOC) with smooth scrolling
-        document.addEventListener('click', (e) => {
-          const target = e.target;
-          const link = target.closest('a[href^="#"]');
-          
-          if (link) {
-            const href = link.getAttribute('href');
-            // Only handle anchor links that start with # and have content after #
-            if (href && href.startsWith('#') && href.length > 1) {
-              const targetElement = document.querySelector(href);
-              if (targetElement) {
-                // Don't prevent default - let browser handle history naturally
-                // Just add smooth scrolling behavior
-                document.documentElement.style.scrollBehavior = 'smooth';
-                document.body.style.scrollBehavior = 'smooth';
-                
-                // The browser will handle the scroll and history update
-                // We just ensure smooth scrolling is enabled
-              }
-            }
-          }
-        });
+      }
+    }
+
+
+    if (typeof window !== 'undefined') {
+      // Setup smooth scrolling when DOM is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setupSmoothScrolling);
+      } else {
+        setupSmoothScrolling();
       }
     }
 

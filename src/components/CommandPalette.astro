@@ -289,12 +289,10 @@ import Icon from './Icon.astro';
           this.items = await response.json();
           // Don't initialize Fuse.js immediately - wait until first search
         } else {
-          console.error('Failed to fetch posts:', response.statusText);
           // Fallback to empty array
           this.items = [];
         }
       } catch (error) {
-        console.error('Failed to load posts:', error);
         // Fallback to empty array
         this.items = [];
       }
@@ -330,7 +328,6 @@ import Icon from './Icon.astro';
         }
       } catch (error) {
         // Fallback to basic search if Fuse.js fails to load
-        console.warn('Failed to load Fuse.js, falling back to basic search:', error);
         this.fuse = null;
       }
     }

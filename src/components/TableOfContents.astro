@@ -65,27 +65,6 @@ const filteredHeadings = headings.filter(h => h.depth >= 2 && h.depth <= 4);
       });
     }
     
-    // Smooth scroll to headings
-    tocLinks.forEach(link => {
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-        const href = link.getAttribute('href') || '';
-        const target = document.querySelector(href);
-        if (target) {
-          // Update the URL with the hash
-          history.pushState(null, '', href);
-          
-          // Ensure smooth scrolling is enabled
-          document.documentElement.style.scrollBehavior = 'smooth';
-          
-          // Scroll to the target
-          target.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-          });
-        }
-      });
-    });
     
     // Update active link on scroll
     let ticking = false;
@@ -103,7 +82,7 @@ const filteredHeadings = headings.filter(h => h.depth >= 2 && h.depth <= 4);
     highlightTOC();
     
     // Force scrollbar style refresh
-    const tocNav = document.querySelector('.toc-container');
+    const tocNav = document.querySelector('.toc-container') as HTMLElement;
     if (tocNav) {
       // Trigger a reflow to force style recalculation
       tocNav.style.display = 'none';

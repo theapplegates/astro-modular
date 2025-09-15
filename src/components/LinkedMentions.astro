@@ -23,28 +23,32 @@ function processExcerptLinks(text: string, targetSlug: string): string {
     const anchorIndex = link.indexOf('#');
     const baseLink = anchorIndex === -1 ? link : link.substring(0, anchorIndex);
     
-    console.log('Detailed anchor parsing:', {
-      link,
-      anchorIndex,
-      baseLink,
-      'baseLink.length': baseLink.length,
-      'link.length': link.length
-    });
-    
     // Process the link to get the slug for comparison
     let linkSlug = baseLink.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
     
     // Handle posts/path format
     if (baseLink.startsWith('posts/')) {
       const postPath = baseLink.replace('posts/', '');
-      // Use content-aware logic to determine if we should remove /index
-      const targetPost = posts.find(p => p.slug === postPath.replace('/index', ''));
-      const shouldRemove = targetPost ? targetPost.id.endsWith('/index') : false;
-      const cleanPath = shouldRemove && postPath.endsWith('/index') ? postPath.replace('/index', '') : postPath;
+      // For folder-based posts, remove /index to get the folder name (slug)
+      const cleanPath = postPath.endsWith('/index') ? postPath.replace('/index', '') : postPath;
       linkSlug = cleanPath.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
     }
     
-    const isRelevantLink = linkSlug === targetSlug;
+    // Special case: if the link is just display text (no path), check if it matches the target post title
+    // This handles cases where markdown links are converted to wikilinks in excerpts
+    let isRelevantLink = linkSlug === targetSlug;
+    
+    if (!isRelevantLink && !baseLink.includes('/') && !baseLink.includes('posts/')) {
+      // This is likely a display text that was converted from a markdown link
+      // Check if this display text matches the target post title
+      const targetPost = posts.find(p => p.slug === targetSlug);
+      if (targetPost) {
+        const titleSlug = targetPost.data.title.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
+        isRelevantLink = linkSlug === titleSlug;
+        
+        // Debug logging removed for production
+      }
+    }
     
     if (isRelevantLink) {
       // For relevant links, create the proper wikilink format and bold it
@@ -67,38 +71,49 @@ function processExcerptLinks(text: string, targetSlug: string): string {
     let linkText: string | null = null;
     if (baseUrl.endsWith('.md')) {
       linkText = baseUrl.replace(/\.md$/, '');
-      // Use content-aware logic to determine if we should remove /index
-      if (linkText) {
-        const targetPost = posts.find(p => p.slug === linkText!.replace('/index', ''));
-        const shouldRemove = targetPost ? targetPost.id.endsWith('/index') : false;
-        if (shouldRemove && linkText!.endsWith('/index')) {
-          linkText = linkText!.replace('/index', '');
-        }
+      // For folder-based posts, remove /index to get the folder name (slug)
+      if (linkText && linkText.endsWith('/index')) {
+        linkText = linkText.replace('/index', '');
       }
     } else if (baseUrl.startsWith('/posts/')) {
       linkText = baseUrl.replace('/posts/', '');
+    } else if (baseUrl.startsWith('posts/')) {
+      linkText = baseUrl.replace('posts/', '');
+      // For folder-based posts, remove /index to get the folder name (slug)
+      if (linkText && linkText.endsWith('/index')) {
+        linkText = linkText.replace('/index', '');
+      }
     } else if (!baseUrl.includes('/')) {
       linkText = baseUrl;
     }
     
+    let isRelevantLink = false;
+    
     if (linkText) {
       const linkSlug = linkText.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
-      const isRelevantLink = linkSlug === targetSlug;
-      
-      // Convert markdown link to wikilink format: [Display](url) → [[Display]]
-      const wikilinkFormat = `[[${displayText}]]`;
-      
-      if (isRelevantLink) {
-        // Bold the wikilink format for the relevant link
-        return `<strong class="text-primary-800 dark:text-primary-200">${wikilinkFormat}</strong>`;
-      } else {
-        // Keep as wikilink format but not bold
-        return wikilinkFormat;
+      isRelevantLink = linkSlug === targetSlug;
+    }
+    
+    // Also check if the display text matches the target post title
+    if (!isRelevantLink) {
+      const targetPost = posts.find(p => p.slug === targetSlug);
+      if (targetPost) {
+        const titleSlug = targetPost.data.title.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
+        const displaySlug = displayText.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
+        isRelevantLink = displaySlug === titleSlug;
       }
     }
     
-    // If we can't extract link text, keep the original markdown format
-    return match;
+    // Convert markdown link to wikilink format: [Display](url) → [[Display]]
+    const wikilinkFormat = `[[${displayText}]]`;
+    
+    if (isRelevantLink) {
+      // Bold the wikilink format for the relevant link
+      return `<strong class="text-primary-800 dark:text-primary-200">${wikilinkFormat}</strong>`;
+    } else {
+      // Keep as wikilink format but not bold
+      return wikilinkFormat;
+    }
   });
   
   return text;
