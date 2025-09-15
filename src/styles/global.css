@@ -349,8 +349,10 @@ textarea {
   gap: 0.5rem;
   margin: 1.5rem 0;
   max-width: 100%;
+  width: 100%;
 }
 
+/* Mobile first - single column */
 .prose .image-grid-2,
 .prose .image-grid-3,
 .prose .image-grid-4,
@@ -359,22 +361,25 @@ textarea {
   grid-template-columns: 1fr;
 }
 
+/* Small tablets and up - 2 columns */
 @media (min-width: 600px) {
-  .prose .image-grid-2,
-  .prose .image-grid-3,
-  .prose .image-grid-4,
-  .prose .image-grid-5,
+  .prose .image-grid-2 { grid-template-columns: 1fr 1fr; }
+  .prose .image-grid-3 { grid-template-columns: 1fr 1fr; }
+  .prose .image-grid-4 { grid-template-columns: 1fr 1fr; }
+  .prose .image-grid-5 { grid-template-columns: 1fr 1fr; }
   .prose .image-grid-6 { grid-template-columns: 1fr 1fr; }
 }
 
+/* Desktop - 3+ columns */
 @media (min-width: 900px) {
-  .prose .image-grid-3,
-  .prose .image-grid-4,
-  .prose .image-grid-5,
-  .prose .image-grid-6 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+  .prose .image-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .prose .image-grid-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+  .prose .image-grid-5 { grid-template-columns: 1fr 1fr 1fr; }
+  .prose .image-grid-6 { grid-template-columns: 1fr 1fr 1fr; }
 }
 
-@media (min-width: 1400px) {
+/* Large desktop - 5+ columns */
+@media (min-width: 1200px) {
   .prose .image-grid-5 { grid-template-columns: 1fr 1fr 1fr 1fr 1fr; }
   .prose .image-grid-6 { grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr; }
 }
@@ -388,6 +393,13 @@ textarea {
   margin: 0;
   display: block;
   max-width: 100%;
+  min-width: 0; /* Allow images to shrink below their natural size */
+}
+
+/* Ensure images in grids are properly sized */
+.prose .image-grid img {
+  aspect-ratio: 16/9; /* Maintain consistent aspect ratio */
+  object-fit: cover;
 }
 
 /* Prose Styles */

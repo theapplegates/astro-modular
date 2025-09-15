@@ -80,6 +80,7 @@ Disabled default core plugins:
 Community plugins enabled: 
 - Alias Filename History
 - Astro Composer
+- Copy Block Link
 - Default New Tab Page
 - Git
 - Hider
@@ -132,6 +133,12 @@ Pull in images from Unsplash or other sources easily with just a few keystrokes.
 ### Title-Only Tab
 
 Pulls from the `title` property instead of using the filename for any tab. 
+
+### Copy Block Link
+
+Helpful for being able to simply right click a heading and get the link to it. It's a little cumbersome to paste and have to rename it each time, but thankfully it the Astro Modular theme handles the link conversion for you so anchors work properly. 
+
+I will soon replace this with a feature that I'll roll into the Astro Composer plugin that will take care of this more elegantly.
 
 ### Property Over Filename
 

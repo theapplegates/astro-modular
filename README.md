@@ -57,6 +57,13 @@ A flexible blog theme designed for Obsidian users.
    pnpm build
    ```
 
+4. **Update theme (optional):**
+   ```bash
+   pnpm run update-theme
+   ```
+   
+   This command helps you keep your theme up to date with the latest features and fixes. See the [Theme Updates section in AGENTS.md](AGENTS.md#theme-updates) for detailed instructions.
+
 ### Configuration
 
 Edit `src/config.ts` to customize your site.

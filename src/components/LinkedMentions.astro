@@ -10,15 +10,40 @@ export interface Props {
 
 const { currentSlug } = Astro.props;
 
-// Get all posts to find linked mentions
+// Get all posts and pages to find linked mentions
 const posts = await getCollection('posts');
-const linkedMentions = findLinkedMentions(posts, currentSlug);
+const pages = await getCollection('pages');
+const linkedMentions = findLinkedMentions(posts as any[], currentSlug, posts as any[], pages as any[]);
 
 // Function to process links in excerpt text
 function processExcerptLinks(text: string, targetSlug: string): string {
   // First, process wikilinks - keep brackets but bold only the relevant link
   text = text.replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (match, link, display) => {
-    const linkSlug = link.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
+    // Parse anchor if present
+    const anchorIndex = link.indexOf('#');
+    const baseLink = anchorIndex === -1 ? link : link.substring(0, anchorIndex);
+    
+    console.log('Detailed anchor parsing:', {
+      link,
+      anchorIndex,
+      baseLink,
+      'baseLink.length': baseLink.length,
+      'link.length': link.length
+    });
+    
+    // Process the link to get the slug for comparison
+    let linkSlug = baseLink.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
+    
+    // Handle posts/path format
+    if (baseLink.startsWith('posts/')) {
+      const postPath = baseLink.replace('posts/', '');
+      // Use content-aware logic to determine if we should remove /index
+      const targetPost = posts.find(p => p.slug === postPath.replace('/index', ''));
+      const shouldRemove = targetPost ? targetPost.id.endsWith('/index') : false;
+      const cleanPath = shouldRemove && postPath.endsWith('/index') ? postPath.replace('/index', '') : postPath;
+      linkSlug = cleanPath.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
+    }
+    
     const isRelevantLink = linkSlug === targetSlug;
     
     if (isRelevantLink) {
@@ -27,18 +52,33 @@ function processExcerptLinks(text: string, targetSlug: string): string {
       const properFormat = display ? `[[${display}]]` : `[[${link}]]`;
       return `<strong class="text-primary-800 dark:text-primary-200">${properFormat}</strong>`;
     }
+    
+    // Return the original match for non-relevant links
+    return match;
   });
   
   // Then, process standard markdown links - convert to wikilink format and bold only the relevant link
   text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, displayText, url) => {
+    // Parse anchor if present
+    const anchorIndex = url.indexOf('#');
+    const baseUrl = anchorIndex === -1 ? url : url.substring(0, anchorIndex);
+    
     // Extract the link text from URL to check if it matches target
-    let linkText = null;
-    if (url.endsWith('.md')) {
-      linkText = url.replace(/\.md$/, '');
-    } else if (url.startsWith('/posts/')) {
-      linkText = url.replace('/posts/', '');
-    } else if (!url.includes('/')) {
-      linkText = url;
+    let linkText: string | null = null;
+    if (baseUrl.endsWith('.md')) {
+      linkText = baseUrl.replace(/\.md$/, '');
+      // Use content-aware logic to determine if we should remove /index
+      if (linkText) {
+        const targetPost = posts.find(p => p.slug === linkText!.replace('/index', ''));
+        const shouldRemove = targetPost ? targetPost.id.endsWith('/index') : false;
+        if (shouldRemove && linkText!.endsWith('/index')) {
+          linkText = linkText!.replace('/index', '');
+        }
+      }
+    } else if (baseUrl.startsWith('/posts/')) {
+      linkText = baseUrl.replace('/posts/', '');
+    } else if (!baseUrl.includes('/')) {
+      linkText = baseUrl;
     }
     
     if (linkText) {
@@ -76,7 +116,7 @@ function processExcerptLinks(text: string, targetSlug: string): string {
     </h2>
     
     <div class="space-y-4">
-      {linkedMentions.map(mention => (
+      {linkedMentions.filter(mention => mention !== null).map(mention => (
         <article class="p-4 bg-primary-50 dark:bg-primary-800/30 rounded-lg border border-primary-200 dark:border-primary-700 hover:border-primary-300 dark:hover:border-primary-600 transition-colors">
           <h3 class="font-medium text-primary-900 dark:text-primary-50 mb-2">
             <a 

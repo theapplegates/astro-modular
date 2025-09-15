@@ -326,6 +326,9 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
 
         // Initialize image grids
         initializeImageGrids();
+        
+        // Make initializeImageGrids globally accessible
+        window.initializeImageGrids = initializeImageGrids;
 
         // Process wikilinks - unified logic for all wikilink types
         const wikilinks = document.querySelectorAll('.wikilink[data-wikilink]');
@@ -375,22 +378,9 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
       document.addEventListener('swup:contentReplaced', () => {
         // Re-initialize image grids after content replacement
         setTimeout(() => {
-          const paragraphs = document.querySelectorAll('.prose p');
-          paragraphs.forEach(p => {
-            const images = p.querySelectorAll('img, picture');
-            const textNodes = Array.from(p.childNodes).filter(node => 
-              node.nodeType === Node.TEXT_NODE && node.textContent.trim() !== ''
-            );
-            const otherElements = Array.from(p.childNodes).filter(node => 
-              node.nodeType === Node.ELEMENT_NODE && !['IMG', 'PICTURE', 'BR'].includes(node.tagName)
-            );
-
-            if (images.length >= 2 && textNodes.length === 0 && otherElements.length === 0) {
-              p.classList.remove('image-grid', 'image-grid-2', 'image-grid-3', 'image-grid-4', 'image-grid-5', 'image-grid-6');
-              const gridClass = `image-grid-${Math.min(images.length, 6)}`;
-              p.classList.add('image-grid', gridClass);
-            }
-          });
+          if (window.initializeImageGrids) {
+            window.initializeImageGrids();
+          }
 
           // Comments are now handled globally by BaseLayout Swup hooks
         }, 100);

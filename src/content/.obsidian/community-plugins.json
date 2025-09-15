@@ -17,5 +17,6 @@
   "obsidian-shellcommands",
   "obsidian-git",
   "alias-filename-history",
-  "property-over-filename"
+  "property-over-filename",
+  "obsidian-copy-block-link"
 ]

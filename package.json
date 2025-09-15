@@ -17,6 +17,7 @@
     "generate-redirects:dry-run": "node scripts/generate-redirects.js --dry-run",
     "generate-redirects:validate": "node scripts/generate-redirects.js --validate",
     "check-images": "node scripts/check-missing-images.js",
+    "update-theme": "node scripts/update-theme.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

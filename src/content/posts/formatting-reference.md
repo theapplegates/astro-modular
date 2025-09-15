@@ -235,7 +235,7 @@ For example: [[getting-started|Getting Started]] or [Astro Suite Vault (Modular)
 For example: [[getting-started|Getting Started]] or [Astro Suite Vault (Modular) Guide](astro-suite-vault-modular-guide).
 ```
 
-
+Here's an internal link with an anchor: [[posts/sample-folder-post/index#Benefits of Folder-Based Approach|Benefits of Folder-Based Approach]]
 ### Reference Links
 
 This is a [reference link][1] and this is another [reference link][markdown].

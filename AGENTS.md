@@ -10,11 +10,12 @@ This document contains essential information for AI agents working with this Ast
 4. [Obsidian Integration](#obsidian-integration)
 5. [Image Handling](#image-handling)
 6. [Build Process](#build-process)
-7. [Configuration & Customization](#configuration--customization)
+7. [Theme Updates](#theme-updates)
+8. [Configuration & Customization](#configuration--customization)
    - [Typography Configuration](#typography-configuration)
-8. [Troubleshooting](#troubleshooting)
-9. [Best Practices](#best-practices)
-10. [Common AI Agent Mistakes](#common-ai-agent-mistakes)
+9. [Troubleshooting](#troubleshooting)
+10. [Best Practices](#best-practices)
+11. [Common AI Agent Mistakes](#common-ai-agent-mistakes)
 
 ## Project Vision & Philosophy
 
@@ -400,7 +401,7 @@ src/content/posts/
 
 ### H1 Title Handling - CRITICAL DISTINCTION
 
-**IMPORTANT**: Posts and Pages handle H1 titles completely differently:
+**IMPORTANT**: Both Posts and Pages now handle H1 titles the same way:
 
 #### Posts (PostLayout)
 - **H1 is HARDCODED** in the layout using `{post.data.title}` from frontmatter
@@ -409,17 +410,16 @@ src/content/posts/
 - **Example**: Post frontmatter has `title: "My Post"` → Layout renders `<h1>My Post</h1>`
 
 #### Pages (PageLayout)  
-- **H1 is in MARKDOWN** - pages MUST have `# Title` in their markdown content
-- **NO hardcoded H1** in the layout - PageLayout does not render the title
-- **Prose classes handle styling** - H1 styling comes from prose typography
-- **Content starts with H2** - Since H1 is the page title, content should start with `##` headings
-- **Example**: Page markdown starts with `# About` → Prose renders the H1, content uses `##` for sections
+- **H1 is HARDCODED** in the layout using `{page.data.title}` from frontmatter
+- **NO H1 in markdown content** - pages should NOT have `# Title` in their markdown
+- **Layout controls styling** - H1 styling is handled by the PageLayout component
+- **Example**: Page frontmatter has `title: "About"` → Layout renders `<h1>About</h1>`
 
-#### Why This Distinction Matters
-- **Posts**: Title comes from frontmatter, layout handles presentation, content starts with H2
-- **Pages**: Title comes from markdown content, prose handles presentation, content starts with H2
-- **Consistency**: Both use the same prose classes for content, but different approaches for titles
-- **AI Agents**: Never add H1 to post markdown or remove H1 from page markdown, both content sections start with H2
+#### Why This Matters
+- **Both Posts and Pages**: Title comes from frontmatter, layout handles presentation
+- **Content starts with H2**: Since H1 is hardcoded in the layout, all content should start with `##` headings
+- **Consistency**: Both use the same approach for titles and content structure
+- **AI Agents**: NEVER add H1 to any markdown content - both posts and pages have hardcoded H1s from frontmatter
 
 ## Obsidian Integration
 
@@ -690,6 +690,156 @@ Supported platforms with specific configurations:
 - **Netlify**: `pnpm run build:netlify`
 - **Vercel**: `pnpm run build:vercel`
 - **GitHub Pages**: `pnpm run build:github-pages`
+
+## Theme Updates
+
+### Update Theme Command
+
+The theme includes a built-in update command that helps users keep their Astro Modular theme installation up to date with the latest features and fixes.
+
+#### Quick Start
+
+To update your theme to the latest version, simply run:
+
+```bash
+pnpm run update-theme
+```
+
+#### What the Update Command Does
+
+The `update-theme` command will:
+
+1. **Check your git repository** - Ensures you're in a valid git repository
+2. **Check for uncommitted changes** - Warns you if you have uncommitted changes
+3. **Setup upstream remote** - Adds the upstream repository if not already configured
+4. **Create a backup** - Saves your current commit hash for reference
+5. **Fetch latest changes** - Downloads the latest changes from the upstream repository
+6. **Check for updates** - Compares your local version with the latest upstream version
+7. **Merge changes** - Merges the updates into your local copy
+8. **Update dependencies** - Runs `pnpm install` to update any changed dependencies
+9. **Rebuild project** - Runs `pnpm run build` to ensure everything works
+
+#### Prerequisites
+
+- Your project must be a git repository
+- You should have committed or stashed any local changes before running the update
+- You need internet access to fetch updates from the upstream repository
+
+#### First-Time Setup
+
+If this is your first time using the update command, it will automatically:
+
+- Add the upstream repository as a remote named `upstream`
+- Configure it to point to the official Astro Modular theme repository
+
+#### Handling Merge Conflicts
+
+If you've made custom changes to theme files and there are conflicts during the merge:
+
+1. The update command will stop and show you which files have conflicts
+2. You'll need to manually resolve the conflicts in your code editor
+3. After resolving conflicts, run:
+   ```bash
+   git add .
+   git commit
+   ```
+4. Then run the update command again:
+   ```bash
+   pnpm run update-theme
+   ```
+
+#### Command Options
+
+```bash
+# Show help information
+pnpm run update-theme --help
+
+# Show version information
+pnpm run update-theme --version
+```
+
+#### Best Practices for AI Agents
+
+**Before Updating:**
+1. **Commit your changes** - Always commit or stash your local changes before updating
+2. **Test your site** - Make sure your current site is working properly
+3. **Backup important files** - If you've made custom modifications, back them up
+
+**After Updating:**
+1. **Test your site** - Run `pnpm run dev` to make sure everything still works
+2. **Check for conflicts** - Review any files that had conflicts during the merge
+3. **Update documentation** - Update any custom documentation if needed
+
+**Custom Modifications:**
+- **Keep a changelog** - Document what you've changed and why
+- **Use feature branches** - Consider keeping custom changes in separate branches
+- **Test thoroughly** - Always test after updates to ensure your customizations still work
+
+#### Troubleshooting Theme Updates
+
+**"Not in a git repository"**
+If you get this error, you need to initialize git in your project:
+
+```bash
+git init
+git add .
+git commit -m "Initial commit"
+```
+
+**"Merge failed - there may be conflicts"**
+This means there are conflicts between your changes and the upstream changes. You'll need to:
+
+1. Open the conflicted files in your editor
+2. Look for conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`)
+3. Resolve the conflicts by choosing which changes to keep
+4. Remove the conflict markers
+5. Add and commit the resolved files
+
+**"Failed to fetch from upstream"**
+This usually means there's a network issue or the upstream repository is unavailable. Check:
+
+- Your internet connection
+- The upstream repository URL is correct
+- You have access to the repository
+
+**"Dependency update failed"**
+If dependency updates fail, try running manually:
+
+```bash
+pnpm install
+```
+
+#### Advanced Usage
+
+**Checking for Updates Without Updating**
+To see if updates are available without actually updating:
+
+```bash
+git fetch upstream
+git log HEAD..upstream/main --oneline
+```
+
+**Updating from a Specific Branch**
+If you want to update from a specific branch (e.g., a beta version):
+
+```bash
+git fetch upstream
+git merge upstream/beta-branch
+```
+
+**Rolling Back Updates**
+If an update causes issues, you can roll back to the previous version:
+
+```bash
+# Find the commit hash before the update
+git log --oneline
+
+# Reset to that commit (replace COMMIT_HASH with the actual hash)
+git reset --hard COMMIT_HASH
+
+# Rebuild the project
+pnpm run build
+```
 
 ## Configuration & Customization
 
@@ -1039,7 +1189,7 @@ typography: {
 #### Pages
 - Static pages in `src/content/pages/`
 - Images in `src/content/pages/images/`
-- Use H1 headings in markdown content
+- NO H1 headings in markdown content - title comes from frontmatter
 
 ## Troubleshooting
 
@@ -1281,9 +1431,9 @@ The comments are styled to match your theme automatically. If you see styling is
 - These are completely separate systems - don't mix them up!
 
 #### 3. **H1 Title Handling**
-- **Posts**: NO H1 in markdown content - title comes from frontmatter, content starts with H2
-- **Pages**: MUST have H1 in markdown content - no hardcoded title in layout, content starts with H2
-- Never add H1 to post markdown or remove H1 from page markdown
+- **Both Posts and Pages**: NO H1 in markdown content - title comes from frontmatter, content starts with H2
+- **H1 is hardcoded** in both PostLayout and PageLayout using frontmatter title
+- **NEVER add H1** to any markdown content - both posts and pages have hardcoded H1s from frontmatter
 - Both posts and pages should have content sections starting with H2 headings
 
 #### 4. **🚨 FAVICON THEME BEHAVIOR (CRITICAL)**
@@ -1379,8 +1529,8 @@ The comments are styled to match your theme automatically. If you see styling is
 
 #### 1. **Layout Components**
 - **BaseLayout.astro**: Main layout with Swup container
-- **PostLayout.astro**: Individual post layout (hardcoded H1)
-- **PageLayout.astro**: Page layout (no hardcoded H1)
+- **PostLayout.astro**: Individual post layout (hardcoded H1 from frontmatter)
+- **PageLayout.astro**: Page layout (hardcoded H1 from frontmatter)
 
 #### 2. **Content Components**
 - **PostCard.astro**: Post cards for listings (controlled by config)
