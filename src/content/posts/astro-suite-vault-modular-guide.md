@@ -103,8 +103,6 @@ Unlike other themes, you can use wikilinks or standard markdown links, ***withou
 
 You can also easily grab links to headings by right clicking one and selecting "Copy Heading Link". 
 
-I will soon replace this with a feature that I'll roll into the Astro Composer plugin that will take care of this more elegantly.
-
 `CTRL + R` allows you to easily rename blog posts, and note filenames (or parent folders) get updated in kebab-case automatically. When this happens, the old filename will be stored as an alias by default via the Alias Filename History plugin. This means redirects of the old post or page URL will go to the current post's slug, which is configured in Astro. 
 
 You can adjust lots of settings including regex for ignoring names (like `Untitled` or a `_` prefix), timeout in seconds to store the name, or looking for changes in the parent folder name as well if you use the folder-based post option.
