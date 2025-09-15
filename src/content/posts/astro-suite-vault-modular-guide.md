@@ -80,7 +80,6 @@ Disabled default core plugins:
 Community plugins enabled: 
 - Alias Filename History
 - Astro Composer
-- Copy Block Link
 - Default New Tab Page
 - Git
 - Hider
@@ -101,6 +100,10 @@ Handy for easily creating new notes as Astro blog posts. Just create a new note 
 You can also define and set default properties that can be generated automatically or manually set for any open note as well. The "Standardize properties" command can help set or reorganize any missing properties or tags, especially if you update your properties template down the road.
 
 Unlike other themes, you can use wikilinks or standard markdown links, ***without*** having to convert those to internal links for Astro with the "Convert internal links for Astro" command. This theme supports any internal link that works with Obsidian.
+
+You can also easily grab links to headings by right clicking one and selecting "Copy Heading Link". 
+
+I will soon replace this with a feature that I'll roll into the Astro Composer plugin that will take care of this more elegantly.
 
 `CTRL + R` allows you to easily rename blog posts, and note filenames (or parent folders) get updated in kebab-case automatically. When this happens, the old filename will be stored as an alias by default via the Alias Filename History plugin. This means redirects of the old post or page URL will go to the current post's slug, which is configured in Astro. 
 
@@ -133,12 +136,6 @@ Pull in images from Unsplash or other sources easily with just a few keystrokes.
 ### Title-Only Tab
 
 Pulls from the `title` property instead of using the filename for any tab. 
-
-### Copy Block Link
-
-Helpful for being able to simply right click a heading and get the link to it. It's a little cumbersome to paste and have to rename it each time, but thankfully it the Astro Modular theme handles the link conversion for you so anchors work properly. 
-
-I will soon replace this with a feature that I'll roll into the Astro Composer plugin that will take care of this more elegantly.
 
 ### Property Over Filename
 
