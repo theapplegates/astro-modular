@@ -23,6 +23,7 @@ This document contains essential information for AI agents working with this Ast
 4. [Obsidian Integration](#obsidian-integration)
 5. [Image Handling](#image-handling)
 6. [Build Process](#build-process)
+   - [RSS and Atom Feeds](#rss-and-atom-feeds)
 7. [Theme Updates](#theme-updates)
 8. [Configuration & Customization](#configuration--customization)
    - [Typography Configuration](#typography-configuration)
@@ -678,6 +679,43 @@ The build process includes several pre-build steps:
 2. **Process Aliases**: Convert content aliases to redirects
 3. **Generate Redirects**: Create redirect rules for deployment platforms
 4. **Build Astro**: Compile the site
+
+### RSS and Atom Feeds
+
+The theme automatically generates both RSS and Atom feeds for content syndication:
+
+#### Feed Generation
+- **RSS Feed**: Available at `/rss.xml` - Uses `@astrojs/rss` integration
+- **Atom Feed**: Available at `/feed.xml` - Custom implementation in `src/pages/feed.xml.ts`
+- **Auto-generated**: Both feeds are automatically generated during the build process
+- **Content Source**: Feeds include all published posts (excludes drafts in production)
+
+#### Feed Features
+- **Post Filtering**: Only includes non-draft posts in production builds
+- **Sorting**: Posts are sorted by date (newest first)
+- **Metadata**: Includes post title, description, publication date, and tags
+- **Image Support**: RSS feed includes post images when `imageOG: true` is set
+- **Categories**: Post tags are included as RSS categories and Atom categories
+- **Author Information**: Uses global author from `siteConfig.author`
+
+#### Feed Buttons
+Both RSS and Atom feed buttons are available on all post listing pages:
+- **Posts Index** (`/posts`) - Main posts listing
+- **Paginated Posts** (`/posts/[page]`) - Paginated post listings  
+- **Tag Pages** (`/posts/tag/[...tag]`) - Posts filtered by tag
+- **Paginated Tag Pages** (`/posts/tag/[...tag]/[page]`) - Paginated tag listings
+
+#### Feed Button Styling
+- **Consistent Design**: Both buttons use identical styling with theme-aware colors
+- **Icons**: RSS uses Lucide RSS icon, Atom uses Lucide atom icon
+- **Accessibility**: Proper `title` attributes and `data-no-swup` for Swup compatibility
+- **Responsive**: Buttons adapt to different screen sizes and themes
+
+#### Technical Implementation
+- **RSS**: Uses `@astrojs/rss` with custom data processing for images and metadata
+- **Atom**: Custom XML generation with proper Atom 1.0 specification compliance
+- **Caching**: Both feeds include appropriate cache headers (1 hour cache, 1 day s-maxage)
+- **Content Type**: RSS serves as `application/rss+xml`, Atom as `application/xml`
 
 ### Deployment Platforms
 
