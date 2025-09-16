@@ -31,20 +31,20 @@ A flexible blog theme designed for Obsidian users.
 
 ## Features
 
-[x] **Custom Themes** 
-[x] **Dark/Light Mode** 
-[x] **Wikilinks** 
-[x] **Obsidian-Style Callouts** 
-[x] **Folder-Based Posts** 
-[x] **Image Optimization** 
-[x] **Sitemap, RSS, Open Graph, robots.txt, & llms.txt Generation** 
-[x] **Command Palette** 
-[x] **Table of Contents** 
-[x] **Reading Time** 
-[x] **Tagging** 
-[x] **Search** 
-[x] **Profile Picture** 
-[x] **Comments** 
+- [x] **Custom Themes** 
+- [x] **Dark/Light Mode** 
+- [x] **Wikilinks** 
+- [x] **Obsidian-Style Callouts** 
+- [x] **Folder-Based Posts** 
+- [x] **Image Optimization** 
+- [x] **Sitemap, RSS, Open Graph, robots.txt, & llms.txt Generation** 
+- [x] **Command Palette** 
+- [x] **Table of Contents** 
+- [x] **Reading Time** 
+- [x] **Tagging** 
+- [x] **Search** 
+- [x] **Profile Picture** 
+- [x] **Comments** 
 
 ## Quick Start
 
