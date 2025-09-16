@@ -393,6 +393,8 @@ src/content/posts/
 
 ## Obsidian Integration
 
+For complete Obsidian setup and usage instructions, see the [Astro Suite Vault Guide](src/content/posts/astro-suite-vault-modular-guide.md).
+
 ### Astro Suite Vault Philosophy
 The included Obsidian vault follows three core principles:
 1. **Plug-and-play Astro blogging experience**
@@ -838,7 +840,7 @@ pnpm run build
 
 ### Core Configuration (`src/config.ts`)
 
-The configuration is organized in logical sections for easy customization:
+The configuration is organized in logical sections for easy customization. For detailed setup instructions, see the [Getting Started Guide](src/content/posts/getting-started.md).
 
 #### Site Information
 ```typescript
@@ -1063,13 +1065,20 @@ tags: {
 - **Sky** - Light, airy design
 - **Solarized** - Precision colors for machines and people
 - **Things** - Clean, minimal design
+- **Custom** - Create your own theme using the template system
 
-*Note: You may need to do a hard refresh (`Ctrl+Shift+R`) to see theme changes.*
 
 #### Theme Switching
 - Use the command palette (`Ctrl+K`) for instant theme switching
-- Themes require hard refresh (`Ctrl+Shift+R`) to see changes
+- Theme changes are visible in real-time with `pnpm dev`
 - All themes are optimized for performance and accessibility
+
+#### Custom Themes
+- **Template system**: Use `src/themes/custom/custom.ts` as a starting point
+- **Configuration**: Set `theme: "custom"` and `customThemeFile: "filename"` in `src/config.ts`
+- **Multiple themes**: Copy and rename the template file, then change `customThemeFile` in config
+- **Documentation**: See `src/themes/custom/README.md` for detailed instructions
+- **Real-time preview**: Changes are visible immediately with `pnpm dev`
 
 ### Typography Configuration
 

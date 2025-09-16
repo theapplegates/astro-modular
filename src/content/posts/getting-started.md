@@ -83,7 +83,22 @@ footer: {
 }
 ```
 
-The theme options are currently Oxygen, Minimal, Atom, Ayu, Catppuccin, Charcoal, Dracula, Everforest, Flexoki, Gruvbox, macOS, Nord, Obsidian, Rosé Pine, Sky, Solarized, and Things. You may need to do a hard refresh (`CTRL + SHIFT + R`) to see the changes.
+The theme options are currently Oxygen, Minimal, Atom, Ayu, Catppuccin, Charcoal, Dracula, Everforest, Flexoki, Gruvbox, macOS, Nord, Obsidian, Rosé Pine, Sky, Solarized, Things, and Custom. Theme changes are visible in real-time with `pnpm dev`.
+
+### Custom Themes
+
+You can create your own custom themes by:
+
+1. **Rename the template**: Rename `src/themes/custom/custom.ts` to whatever you want
+2. **Modify colors**: Update the color scales to match your design
+3. **Update config**: 
+   - Set `theme: "custom"` in `src/config.ts`
+   - Set `customThemeFile: "your-theme-name"` (filename without .ts extension)
+4. **Test**: Use `pnpm dev` to see your theme changes in real-time
+
+The system automatically finds and uses your custom theme!
+
+See `src/themes/custom/README.md` for detailed instructions and best practices.
 
 ### Typography Configuration
 

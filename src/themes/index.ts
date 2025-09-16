@@ -1,4 +1,42 @@
 
+// Import custom theme if it exists
+let customTheme = null;
+try {
+  // Try to load the custom theme directly
+  const custom = require('./custom/custom');
+  customTheme = custom.customTheme;
+} catch (error) {
+  // Custom theme not found, that's okay - use a fallback
+  customTheme = {
+    primary: {
+      50: "#f8fafc",
+      100: "#f1f5f9",
+      200: "#e2e8f0",
+      300: "#cbd5e1",
+      400: "#94a3b8",
+      500: "#64748b",
+      600: "#475569",
+      700: "#334155",
+      800: "#1e293b",
+      900: "#0f172a",
+      950: "#020617"
+    },
+    highlight: {
+      50: "#fef2f2",
+      100: "#fee2e2",
+      200: "#fecaca",
+      300: "#fca5a5",
+      400: "#f87171",
+      500: "#ef4444",
+      600: "#dc2626",
+      700: "#b91c1c",
+      800: "#991b1b",
+      900: "#7f1d1d",
+      950: "#450a0a"
+    }
+  };
+}
+
 // Theme color definitions
 export const themes = {
   minimal: {
@@ -459,7 +497,8 @@ export const themes = {
       800: '#522994',
       900: '#441f78',
     }
-  }
+  },
+  ...(customTheme ? { custom: customTheme } : {})
 } as const;
 
 // Valid theme names type

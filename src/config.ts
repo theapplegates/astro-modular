@@ -16,7 +16,8 @@ export interface SiteConfig {
   description: string;
   author: string;
   language: string;
-  theme: "minimal" | "oxygen" | "atom" | "ayu" | "catppuccin" | "charcoal" | "dracula" | "everforest" | "flexoki" | "gruvbox" | "macos" | "nord" | "obsidian" | "rose-pine" | "sky" | "solarized" | "things";
+  theme: "minimal" | "oxygen" | "atom" | "ayu" | "catppuccin" | "charcoal" | "dracula" | "everforest" | "flexoki" | "gruvbox" | "macos" | "nord" | "obsidian" | "rose-pine" | "sky" | "solarized" | "things" | "custom";
+  customThemeFile?: string; // Filename in src/themes/custom/ (e.g., "my-cool-theme" for my-cool-theme.ts)
   layout: {
     contentWidth: string;
   };
@@ -105,7 +106,8 @@ export const siteConfig: SiteConfig = {
   author: "David V. Kimball",
   language: "en",
 
-  theme: "oxygen", // Valid themes: "minimal" | "oxygen" | "atom" | "ayu" | "catppuccin" | "charcoal" | "dracula" | "everforest" | "flexoki" | "gruvbox" | "macos" | "nord" | "obsidian" | "rose-pine" | "sky" | "solarized" | "things"
+  theme: "oxygen", // Available themes: "minimal" | "oxygen" | "atom" | "ayu" | "catppuccin" | "charcoal" | "dracula" | "everforest" | "flexoki" | "gruvbox" | "macos" | "nord" | "obsidian" | "rose-pine" | "sky" | "solarized" | "things" | "custom"
+  customThemeFile: "custom", // Only used if theme is set to "custom" above. Filename in src/themes/custom/ (without .ts extension)
   layout: {
     contentWidth: "45rem",
   },
@@ -221,9 +223,10 @@ export function getContentWidth(): string {
   return siteConfig.layout.contentWidth;
 }
 
-export function getTheme(): "minimal" | "oxygen" | "atom" | "ayu" | "catppuccin" | "charcoal" | "dracula" | "everforest" | "flexoki" | "gruvbox" | "macos" | "nord" | "obsidian" | "rose-pine" | "sky" | "solarized" | "things" {
+export function getTheme(): "minimal" | "oxygen" | "atom" | "ayu" | "catppuccin" | "charcoal" | "dracula" | "everforest" | "flexoki" | "gruvbox" | "macos" | "nord" | "obsidian" | "rose-pine" | "sky" | "solarized" | "things" | "custom" {
   return siteConfig.theme;
 }
+
 
 export function getPostCardAspectRatio(): string {
   const { postCardAspectRatio, customAspectRatio } = siteConfig.features;
@@ -336,9 +339,14 @@ function validateSiteConfig(config: SiteConfig): { isValid: boolean; errors: str
   }
 
   // Theme validation
-  const validThemes = ['minimal', 'oxygen', 'atom', 'ayu', 'catppuccin', 'charcoal', 'dracula', 'everforest', 'flexoki', 'gruvbox', 'macos', 'nord', 'obsidian', 'rose-pine', 'sky', 'solarized', 'things'];
+  const validThemes = ['minimal', 'oxygen', 'atom', 'ayu', 'catppuccin', 'charcoal', 'dracula', 'everforest', 'flexoki', 'gruvbox', 'macos', 'nord', 'obsidian', 'rose-pine', 'sky', 'solarized', 'things', 'custom'];
   if (!validThemes.includes(config.theme)) {
     errors.push(`theme must be one of: ${validThemes.join(', ')}`);
+  }
+  if (config.theme === 'custom') {
+    if (!config.customThemeFile || config.customThemeFile.trim() === '') {
+      errors.push('customThemeFile is required when theme is "custom"');
+    }
   }
 
   // Numeric validations
@@ -413,9 +421,12 @@ function validateSiteConfig(config: SiteConfig): { isValid: boolean; errors: str
     if (!['circle', 'square', 'none'].includes(config.profilePicture.style)) {
       errors.push('profilePicture.style must be one of: circle, square, none');
     }
-    if (config.profilePicture.url && !config.profilePicture.url.startsWith('/') && !config.profilePicture.url.startsWith('http')) {
-      errors.push('profilePicture.url must be a valid URL starting with / or http');
-    }
+        if (config.profilePicture.url && !config.profilePicture.url.startsWith('/') && !config.profilePicture.url.startsWith('http')) {
+          errors.push('profilePicture.url must be a valid URL starting with / or http');
+        }
+        if (config.profilePicture.url && config.profilePicture.url.trim() === '') {
+          errors.push('profilePicture.url cannot be empty if provided');
+        }
   }
 
   return {
