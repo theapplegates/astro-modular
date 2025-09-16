@@ -164,7 +164,7 @@ Commander helps us place a button for each of these actions on the file explorer
 
 Only used temporarily to load Alias Filename History, Astro Composer, Disable Tabs, and Property Over Filename plugins before they're available in the Obsidian plugin directory. Future versions of this vault will remove BRAT in favor of the official releases.
 
-## Git
+### Git
 
 With the [Git](https://obsidian.md/plugins?id=obsidian-git) plugin, you can easily publish to your Astro blog without leaving Obsidian using `CTRL + SHIFT + S`. Simply enable the plugin and configure with git to turn it on.
 

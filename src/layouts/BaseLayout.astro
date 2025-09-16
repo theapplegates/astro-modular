@@ -510,6 +510,11 @@ const { seoData, bodyClass = '' } = Astro.props;
       // Initialize table wrappers on initial page load
       window.initializeTableWrappers();
       
+      // Initialize linked mentions on initial page load
+      if (window.initializeLinkedMentions) {
+        window.initializeLinkedMentions();
+      }
+      
       // Setup smooth scrolling for anchor links
       setupSmoothScrolling();
       
@@ -597,6 +602,10 @@ const { seoData, bodyClass = '' } = Astro.props;
             }
             // Initialize table wrappers
             window.initializeTableWrappers();
+            // Initialize linked mentions
+            if (window.initializeLinkedMentions) {
+              window.initializeLinkedMentions();
+            }
             // Re-setup smooth scrolling for anchor links
             setupSmoothScrolling();
           }, 100);
@@ -611,6 +620,10 @@ const { seoData, bodyClass = '' } = Astro.props;
             }
             // Initialize table wrappers
             window.initializeTableWrappers();
+            // Initialize linked mentions
+            if (window.initializeLinkedMentions) {
+              window.initializeLinkedMentions();
+            }
             // Re-setup smooth scrolling for anchor links
             setupSmoothScrolling();
           }, 100);
@@ -913,6 +926,10 @@ const { seoData, bodyClass = '' } = Astro.props;
           window.scrollTo(0, 0);
           // Update navigation highlighting after page transition
           updateNavigationHighlighting();
+          // Initialize linked mentions after page transition
+          if (window.initializeLinkedMentions) {
+            window.initializeLinkedMentions();
+          }
           // Handle anchor scrolling after page transition
           // Handle initial hash scroll if present
         handleInitialHashScroll();
@@ -923,6 +940,10 @@ const { seoData, bodyClass = '' } = Astro.props;
           document.documentElement.style.scrollBehavior = 'auto';
           // Update navigation highlighting after page transition is complete
           updateNavigationHighlighting();
+          // Initialize linked mentions after page transition is complete
+          if (window.initializeLinkedMentions) {
+            window.initializeLinkedMentions();
+          }
           // Handle anchor scrolling after page transition is complete
           // Handle initial hash scroll if present
         handleInitialHashScroll();

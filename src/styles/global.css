@@ -343,7 +343,47 @@ textarea {
   @apply overflow-hidden;
 }
 
-/* Image Grid Layouts */
+/* Image Grid Layouts - Auto-detect paragraphs with multiple images */
+
+/* Auto-detect paragraphs with multiple images using :has() */
+.prose p:has(img + img) {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin: 1.5rem 0;
+  max-width: 100%;
+  width: 100%;
+  transition: grid-template-columns 0.2s ease-in-out;
+}
+
+/* Small tablets and up - maintain 2 columns for multi-image paragraphs */
+@media (min-width: 600px) {
+  .prose p:has(img + img) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Desktop - 3+ columns for paragraphs with 3+ images */
+@media (min-width: 900px) {
+  .prose p:has(img + img + img) {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+  .prose p:has(img + img + img + img) {
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+  }
+}
+
+/* Large desktop - 5+ columns for paragraphs with 5+ images */
+@media (min-width: 1200px) {
+  .prose p:has(img + img + img + img + img) {
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  }
+  .prose p:has(img + img + img + img + img + img) {
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+  }
+}
+
+/* Fallback for browsers that don't support :has() - use JavaScript classes */
 .prose .image-grid {
   display: grid;
   gap: 0.5rem;
@@ -352,16 +392,12 @@ textarea {
   width: 100%;
 }
 
-/* Mobile first - single column */
-.prose .image-grid-2,
-.prose .image-grid-3,
-.prose .image-grid-4,
-.prose .image-grid-5,
-.prose .image-grid-6 {
-  grid-template-columns: 1fr;
-}
+.prose .image-grid-2 { grid-template-columns: 1fr 1fr; }
+.prose .image-grid-3 { grid-template-columns: 1fr 1fr; }
+.prose .image-grid-4 { grid-template-columns: 1fr 1fr; }
+.prose .image-grid-5 { grid-template-columns: 1fr 1fr; }
+.prose .image-grid-6 { grid-template-columns: 1fr 1fr; }
 
-/* Small tablets and up - 2 columns */
 @media (min-width: 600px) {
   .prose .image-grid-2 { grid-template-columns: 1fr 1fr; }
   .prose .image-grid-3 { grid-template-columns: 1fr 1fr; }
@@ -370,7 +406,6 @@ textarea {
   .prose .image-grid-6 { grid-template-columns: 1fr 1fr; }
 }
 
-/* Desktop - 3+ columns */
 @media (min-width: 900px) {
   .prose .image-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
   .prose .image-grid-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
@@ -378,7 +413,6 @@ textarea {
   .prose .image-grid-6 { grid-template-columns: 1fr 1fr 1fr; }
 }
 
-/* Large desktop - 5+ columns */
 @media (min-width: 1200px) {
   .prose .image-grid-5 { grid-template-columns: 1fr 1fr 1fr 1fr 1fr; }
   .prose .image-grid-6 { grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr; }

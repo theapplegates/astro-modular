@@ -17,6 +17,7 @@ const posts = await getCollection('posts');
 const pages = await getCollection('pages');
 const linkedMentions = findLinkedMentions(posts as any[], currentSlug, posts as any[], pages as any[]);
 
+
 // Function to process links in excerpt text
 function processExcerptLinks(text: string, targetSlug: string): string {
   // First, process wikilinks - keep brackets but bold only the relevant link
@@ -71,16 +72,16 @@ function processExcerptLinks(text: string, targetSlug: string): string {
     
     // Extract the link text from URL to check if it matches target
     let linkText: string | null = null;
-    if (baseUrl.endsWith('.md')) {
-      linkText = baseUrl.replace(/\.md$/, '');
+    if (baseUrl.startsWith('/posts/')) {
+      linkText = baseUrl.replace('/posts/', '');
+    } else if (baseUrl.startsWith('posts/')) {
+      linkText = baseUrl.replace('posts/', '');
       // For folder-based posts, remove /index to get the folder name (slug)
       if (linkText && linkText.endsWith('/index')) {
         linkText = linkText.replace('/index', '');
       }
-    } else if (baseUrl.startsWith('/posts/')) {
-      linkText = baseUrl.replace('/posts/', '');
-    } else if (baseUrl.startsWith('posts/')) {
-      linkText = baseUrl.replace('posts/', '');
+    } else if (baseUrl.endsWith('.md')) {
+      linkText = baseUrl.replace(/\.md$/, '');
       // For folder-based posts, remove /index to get the folder name (slug)
       if (linkText && linkText.endsWith('/index')) {
         linkText = linkText.replace('/index', '');
@@ -92,7 +93,9 @@ function processExcerptLinks(text: string, targetSlug: string): string {
     let isRelevantLink = false;
     
     if (linkText) {
-      const linkSlug = linkText.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
+      // Remove .md extension before slug generation
+      const cleanLinkText = linkText.replace(/\.md$/, '');
+      const linkSlug = cleanLinkText.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
       isRelevantLink = linkSlug === targetSlug;
     }
     
@@ -195,28 +198,36 @@ function processExcerptLinks(text: string, targetSlug: string): string {
 )}
 
 <script>
-  // Linked Mentions Toggle Functionality
-  document.addEventListener('DOMContentLoaded', function() {
-    const toggle = document.getElementById('linked-mentions-toggle');
-    const content = document.getElementById('linked-mentions-content');
-    const arrow = document.getElementById('linked-mentions-arrow');
+  // Linked Mentions Toggle Functionality - Swup Compatible
+  function initializeLinkedMentions() {
+    const toggle = document.getElementById('linked-mentions-toggle') as HTMLButtonElement;
+    const content = document.getElementById('linked-mentions-content') as HTMLElement;
+    const arrow = document.getElementById('linked-mentions-arrow') as HTMLElement;
     
     if (toggle && content && arrow) {
-      toggle.addEventListener('click', function() {
-        const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+      // Remove any existing event listeners to prevent duplicates
+      const newToggle = toggle.cloneNode(true) as HTMLButtonElement;
+      const parentNode = toggle.parentNode;
+      if (parentNode) {
+        parentNode.replaceChild(newToggle, toggle);
+      }
+      
+      // Add click handler to the new toggle element
+      newToggle.addEventListener('click', function() {
+        const isExpanded = newToggle.getAttribute('aria-expanded') === 'true';
         
         if (isExpanded) {
           // Collapse
           content.style.maxHeight = '0';
           content.style.opacity = '0';
           arrow.style.transform = 'rotate(90deg)';
-          toggle.setAttribute('aria-expanded', 'false');
+          newToggle.setAttribute('aria-expanded', 'false');
         } else {
           // Expand
           content.style.maxHeight = content.scrollHeight + 'px';
           content.style.opacity = '1';
           arrow.style.transform = 'rotate(0deg)';
-          toggle.setAttribute('aria-expanded', 'true');
+          newToggle.setAttribute('aria-expanded', 'true');
         }
       });
       
@@ -224,7 +235,17 @@ function processExcerptLinks(text: string, targetSlug: string): string {
       content.style.maxHeight = content.scrollHeight + 'px';
       content.style.opacity = '1';
     }
-  });
+  }
+
+  // Initialize on DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeLinkedMentions);
+  } else {
+    initializeLinkedMentions();
+  }
+
+  // Make function globally accessible for Swup hooks
+  (window as any).initializeLinkedMentions = initializeLinkedMentions;
 </script>
 
 <style>

@@ -56,11 +56,11 @@ const { layout: finalLayout, images: finalImages } = processedLayout;
   }
   
   .image-gallery.grid-2 {
-    @apply grid-cols-1 sm:grid-cols-2;
+    @apply grid-cols-2;
   }
   
   .image-gallery.grid-3 {
-    @apply grid-cols-1 sm:grid-cols-2 lg:grid-cols-3;
+    @apply grid-cols-2 sm:grid-cols-3;
   }
   
   .image-gallery.grid-4 {
@@ -75,14 +75,7 @@ const { layout: finalLayout, images: finalImages } = processedLayout;
     @apply relative block;
   }
   
-  /* Responsive adjustments */
-  @media (max-width: 640px) {
-    .image-gallery.grid-2,
-    .image-gallery.grid-3,
-    .image-gallery.grid-4 {
-      @apply grid-cols-1;
-    }
-  }
+  /* Responsive adjustments - maintain side-by-side layout on mobile */
   
   /* Mixed aspect ratios for better layouts */
   .image-gallery.grid-3 .image-item:first-child {

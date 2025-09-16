@@ -154,9 +154,17 @@ const structuredData = {
 
       // Process content after DOM loads
       document.addEventListener('DOMContentLoaded', function() {
-        // Initialize image grid layouts
+        // Initialize image grid layouts (fallback for browsers without :has() support)
         function initializeImageGrids() {
-          // Find all paragraphs that contain only images (including Image component output)
+          // Check if browser supports :has() selector
+          const supportsHas = CSS.supports('selector(:has(img))');
+          
+          if (supportsHas) {
+            // Browser supports :has(), CSS will handle it automatically
+            return;
+          }
+
+          // Fallback for browsers without :has() support
           const paragraphs = document.querySelectorAll('.prose p');
           
           paragraphs.forEach(p => {

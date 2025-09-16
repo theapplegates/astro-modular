@@ -345,6 +345,7 @@ export function extractWikilinks(content: string): WikilinkMatch[] {
           .replace(/-+/g, '-')
           .replace(/^-+|-+$/g, '');
 
+
         matches.push({
           link: linkText,
           display: displayText.trim(),
@@ -420,6 +421,7 @@ function createExcerptAroundWikilink(content: string, linkText: string, allPosts
           // Normalize both linkText and urlLinkText for comparison
           const normalizedLinkText = linkText.replace(/\/index$/, '');
           const normalizedUrlLinkText = urlLinkText.replace(/\/index$/, '');
+          
           
           if (normalizedUrlLinkText === normalizedLinkText || urlLinkText === linkText) {
             return extractExcerptAtPosition(withoutFrontmatter, markdownMatch.index, fullMatch.length);
@@ -556,7 +558,10 @@ function isInternalLink(url: string): boolean {
   const { link } = parseLinkWithAnchor(url);
 
   // Check if it's a post link (ends with .md, starts with /posts/, or is a slug)
-  return link.endsWith('.md') || link.startsWith('/posts/') || link.startsWith('posts/') || !link.includes('/');
+  const isInternal = link.endsWith('.md') || link.startsWith('/posts/') || link.startsWith('posts/') || !link.includes('/');
+  
+  
+  return isInternal;
 }
 
 // Helper function to extract link text from URL for internal links
@@ -572,30 +577,30 @@ function extractLinkTextFromUrlWithAnchor(url: string, allPosts: any[] = [], all
   // Parse anchor if present
   const { link, anchor } = parseLinkWithAnchor(url);
 
+  // Handle posts/ prefixed links first
+  if (link.startsWith('posts/')) {
+    let linkText = link.replace('posts/', '').replace(/\.md$/, '');
+    // Conservative approach: only remove /index if it follows folder-based pattern
+    if (linkText.endsWith('/index') && linkText.split('/').length === 2) {
+      linkText = linkText.replace('/index', '');
+    }
+    return {
+      linkText: linkText,
+      anchor: anchor
+    };
+  }
+  
   // Handle .md files - these should be treated as post references
   if (link.endsWith('.md')) {
-    // Handle both direct .md references and posts/...md references
-    if (link.startsWith('posts/')) {
-      let linkText = link.replace('posts/', '').replace(/\.md$/, '');
-      // Conservative approach: only remove /index if it follows folder-based pattern
-      if (linkText.endsWith('/index') && linkText.split('/').length === 2) {
-        linkText = linkText.replace('/index', '');
-      }
-      return {
-        linkText: linkText,
-        anchor: anchor
-      };
-    } else {
-      let linkText = link.replace(/\.md$/, '');
-      // Conservative approach: only remove /index if it follows folder-based pattern
-      if (linkText.endsWith('/index') && linkText.split('/').length === 1) {
-        linkText = linkText.replace('/index', '');
-      }
-      return {
-        linkText: linkText,
-        anchor: anchor
-      };
+    let linkText = link.replace(/\.md$/, '');
+    // Conservative approach: only remove /index if it follows folder-based pattern
+    if (linkText.endsWith('/index') && linkText.split('/').length === 1) {
+      linkText = linkText.replace('/index', '');
     }
+    return {
+      linkText: linkText,
+      anchor: anchor
+    };
   }
 
   // Handle /posts/ URLs
