@@ -1397,7 +1397,7 @@ comments: {
   category: "General",              // Discussion category
   categoryId: "DIC_kwDO...",       // Category ID from Giscus
   mapping: "pathname",              // How posts map to discussions
-  strict: "0",                      // Allow comments on any post
+  strict: "0",                      // Allow comments on any post (auto-creates discussions)
   reactions: "1",                   // Enable reactions (1) or disable (0)
   metadata: "0",                    // Hide discussion metadata (1) or show (0)
   inputPosition: "bottom",          // Comment input position
@@ -1408,11 +1408,12 @@ comments: {
 ```
 
 ### How It Works
-- **Each blog post** automatically creates a GitHub discussion
+- **Each blog post** automatically creates a GitHub discussion when someone first tries to comment
 - **Visitors need GitHub accounts** to comment
 - **Comments appear** both on your blog and in GitHub Discussions
 - **You moderate** through GitHub's interface
 - **"Announcement" format** prevents random discussion creation
+- **No manual setup required** - discussions are created on-demand
 
 ### Troubleshooting
 
