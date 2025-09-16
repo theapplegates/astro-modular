@@ -987,24 +987,11 @@ const { seoData, bodyClass = '' } = Astro.props;
     }
     
     function initializeImageGalleries() {
-      console.log('🖼️ Initializing image galleries...');
       const contentElement = document.querySelector('.prose');
       if (!contentElement) {
-        console.log('❌ No .prose element found');
         return;
       }
-      console.log('✅ Found .prose element');
-      
       const paragraphs = contentElement.querySelectorAll('p');
-      console.log(`📄 Found ${paragraphs.length} paragraphs`);
-      
-      // Debug: log all paragraphs with images
-      paragraphs.forEach((p, index) => {
-        const imgs = p.querySelectorAll('img');
-        if (imgs.length > 0) {
-          console.log(`📸 Paragraph ${index}: ${imgs.length} image(s)`, p.textContent?.substring(0, 50));
-        }
-      });
       
       // Find all paragraphs with images (single or multiple)
       const imageParagraphs: { paragraph: Element; index: number; imageCount: number }[] = [];
@@ -1015,15 +1002,12 @@ const { seoData, bodyClass = '' } = Astro.props;
         }
       });
       
-      console.log(`🖼️ Found ${imageParagraphs.length} paragraphs with images`);
-      
       // Process each image paragraph
       imageParagraphs.forEach((paraInfo) => {
         const { paragraph, imageCount } = paraInfo;
         
         // Process paragraphs with 1 or more images
         if (imageCount >= 1) {
-          console.log(`🎨 Creating gallery with ${imageCount} images from single paragraph`);
           
           // Create gallery container
           const galleryContainer = document.createElement('div');
@@ -1053,10 +1037,6 @@ const { seoData, bodyClass = '' } = Astro.props;
             
                    // Add click event listener to open lightbox
                    button.addEventListener('click', () => {
-                     console.log(`🖼️ Image ${imgIndex} clicked, opening lightbox...`);
-                     console.log('Image src:', img.src);
-                     console.log('Image alt:', img.alt);
-                     
                      // Dispatch custom event to open lightbox
                      window.dispatchEvent(new CustomEvent('openLightbox', {
                        detail: { index: imgIndex, button: button }
@@ -1091,7 +1071,6 @@ const { seoData, bodyClass = '' } = Astro.props;
         }
       });
       
-      console.log('✅ Image gallery initialization complete');
     }
     
     // Initialize on page load

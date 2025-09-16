@@ -72,7 +72,6 @@
     private isOpen: boolean = false;
 
     constructor() {
-      console.log('🚀 Initializing Lightbox');
       this.overlay = document.getElementById('lightbox-overlay')!;
       this.image = document.getElementById('lightbox-image') as HTMLImageElement;
       this.caption = document.getElementById('lightbox-caption')!;
@@ -84,15 +83,12 @@
 
       // Add event listeners
       this.closeButton.addEventListener('click', () => {
-        console.log('🔴 Close button clicked');
         this.close();
       });
       this.prevButton.addEventListener('click', () => {
-        console.log('⬅️ Prev button clicked');
         this.prev();
       });
       this.nextButton.addEventListener('click', () => {
-        console.log('➡️ Next button clicked');
         this.next();
       });
 
@@ -129,7 +125,6 @@
     private init() {
       // Event listeners
       window.addEventListener('openLightbox', (e: any) => {
-        console.log('🎯 Lightbox received openLightbox event:', e.detail);
         this.collectImages(e.detail.button);
         this.open(e.detail.index || 0);
       });
@@ -141,7 +136,6 @@
         const gallery = clickedButton.closest('.image-grid');
         if (gallery) {
           const galleryImages = gallery.querySelectorAll('img[data-lightbox="gallery"]');
-          console.log(`🔍 Lightbox collecting ${galleryImages.length} images from specific gallery`);
           
           this.images = Array.from(galleryImages).map(img => {
             const imgElement = img as HTMLImageElement;
@@ -150,7 +144,6 @@
               alt: imgElement.alt || 'Image',
               caption: undefined
             };
-            console.log(`📸 Collected gallery image:`, imageData);
             return imageData;
           });
           return;
@@ -159,7 +152,6 @@
       
       // Fallback: collect all gallery images if no specific gallery found
       const galleryImages = document.querySelectorAll('img[data-lightbox="gallery"]');
-      console.log(`🔍 Lightbox collecting ${galleryImages.length} images from all galleries`);
       
       this.images = Array.from(galleryImages).map(img => {
         const imgElement = img as HTMLImageElement;
@@ -168,15 +160,11 @@
           alt: imgElement.alt || 'Image',
           caption: undefined
         };
-        console.log(`📸 Collected gallery image:`, imageData);
         return imageData;
       });
     }
 
     private open(index: number) {
-      console.log('🚀 Opening lightbox at index', index);
-      console.log('🔍 Total images available:', this.images.length);
-      console.log('🔍 Current image data:', this.images[index]);
       
       this.currentIndex = index;
       this.isOpen = true;
@@ -203,24 +191,6 @@
       this.overlay.style.transform = 'none';
       this.overlay.style.transformOrigin = 'initial';
       document.body.style.overflow = 'hidden';
-
-      console.log('🔍 Overlay display after opening:', this.overlay.style.display);
-      console.log('🔍 Overlay visibility after opening:', this.overlay.style.visibility);
-      console.log('🔍 Overlay opacity after opening:', this.overlay.style.opacity);
-      console.log('🔍 Overlay dimensions after opening:', this.overlay.offsetWidth, 'x', this.overlay.offsetHeight);
-      console.log('🔍 Overlay computed display:', window.getComputedStyle(this.overlay).display);
-      console.log('🔍 Overlay computed visibility:', window.getComputedStyle(this.overlay).visibility);
-      console.log('🔍 Overlay computed opacity:', window.getComputedStyle(this.overlay).opacity);
-      
-      // Check overlay position after forcing
-      setTimeout(() => {
-        const overlayRect = this.overlay.getBoundingClientRect();
-        console.log('🔍 Overlay position after forcing:', overlayRect);
-        console.log('🔍 Overlay is in viewport:', overlayRect.top >= 0 && overlayRect.left >= 0 && overlayRect.bottom <= window.innerHeight && overlayRect.right <= window.innerWidth);
-        console.log('🔍 Overlay parent element:', this.overlay.parentElement);
-        console.log('🔍 Overlay parent tag name:', this.overlay.parentElement?.tagName);
-        console.log('🔍 Overlay parent classes:', this.overlay.parentElement?.className);
-      }, 50);
       
       this.loadImage();
       this.updateUI();
@@ -248,12 +218,10 @@
 
     private loadImage() {
       if (!this.images[this.currentIndex]) {
-        console.log('❌ No image at index', this.currentIndex);
         return;
       }
 
       const currentImage = this.images[this.currentIndex];
-      console.log('🖼️ Loading image at index', this.currentIndex, ':', currentImage);
       
       // Show loading spinner
       this.loading.style.display = 'flex';
@@ -261,57 +229,12 @@
       // Create new image element to preload
       const img = new Image();
       img.onload = () => {
-        console.log('✅ Image loaded successfully');
-        console.log('🖼️ Setting image src to:', currentImage.src);
-        console.log('🖼️ Setting image alt to:', currentImage.alt);
         this.image.src = currentImage.src;
         this.image.alt = currentImage.alt;
         this.loading.style.display = 'none';
-        
-        // Debug: Check if image is visible after setting src
-        setTimeout(() => {
-          const rect = this.image.getBoundingClientRect();
-          console.log('🔍 Image bounding rect:', rect);
-          console.log('🔍 Image is visible:', rect.width > 0 && rect.height > 0);
-          console.log('🔍 Image natural dimensions:', this.image.naturalWidth, 'x', this.image.naturalHeight);
-          console.log('🔍 Image computed styles:', {
-            position: window.getComputedStyle(this.image).position,
-            top: window.getComputedStyle(this.image).top,
-            left: window.getComputedStyle(this.image).left,
-            transform: window.getComputedStyle(this.image).transform,
-            margin: window.getComputedStyle(this.image).margin,
-            padding: window.getComputedStyle(this.image).padding
-          });
-          
-          // Check overlay visibility
-          const overlayRect = this.overlay.getBoundingClientRect();
-          console.log('🔍 Overlay bounding rect:', overlayRect);
-          console.log('🔍 Overlay is visible:', overlayRect.width > 0 && overlayRect.height > 0);
-          
-          // Check parent containers
-          let parent = this.image.parentElement;
-          let level = 0;
-          while (parent && level < 5) {
-            const parentRect = parent.getBoundingClientRect();
-            console.log(`🔍 Parent level ${level}:`, parent.className, 'width:', parentRect.width, 'height:', parentRect.height, 'y:', parentRect.y);
-            parent = parent.parentElement;
-            level++;
-          }
-          
-          // Force the image to be centered
-          if (rect.y < 0 || rect.y > window.innerHeight) {
-            console.log('🔧 Image is off-screen, forcing center position');
-            this.image.style.position = 'relative';
-            this.image.style.top = '0';
-            this.image.style.left = '0';
-            this.image.style.transform = 'none';
-            this.image.style.margin = '0';
-          }
-        }, 100);
       };
       
       img.onerror = () => {
-        console.log('❌ Image failed to load:', currentImage.src);
         this.loading.style.display = 'none';
       };
       
@@ -343,26 +266,20 @@
 
   function initializeLightbox() {
     if (lightboxInstance) {
-      console.log('🔧 Lightbox already initialized, skipping');
       return lightboxInstance;
     }
 
-    console.log('🚀 Initializing Lightbox');
     lightboxInstance = new Lightbox();
     return lightboxInstance;
   }
 
   // Initialize lightbox when DOM is loaded
   document.addEventListener('DOMContentLoaded', () => {
-    console.log('🚀 Initializing Lightbox on DOMContentLoaded');
     initializeLightbox();
   });
 
   // Also initialize immediately if DOM is already loaded
-  if (document.readyState === 'loading') {
-    console.log('⏳ DOM still loading, waiting for DOMContentLoaded');
-  } else {
-    console.log('🚀 DOM already loaded, initializing Lightbox immediately');
+  if (document.readyState !== 'loading') {
     initializeLightbox();
   }
 </script>
