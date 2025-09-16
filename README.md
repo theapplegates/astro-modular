@@ -31,23 +31,20 @@ A flexible blog theme designed for Obsidian users.
 
 ## Features
 
-### Design & Customization
-- **Theme Selection**: Choose from 17+ color palettes with light and dark mode support
-- **Custom Typography**: Separate font configuration for headings and body text
-- **Responsive Design**: Perfect on desktop, tablet, and mobile
-- **Modular Features**: Toggle any feature on/off through configuration
-
-### Content Management
-- **Native Obsidian Features**: Wikilinks, callouts, and bracket syntax work seamlessly
-- **Folder-Based Posts**: Organize content and assets together
-- **Draft Support**: Show drafts in development, hide in production
-- **Automatic Redirects**: Rename posts without breaking links
-
-### Performance & Accessibility
-- **Lightning Fast**: Built on Astro for optimal performance
-- **Image Optimization**: Automatic WebP conversion and responsive images
-- **Built-in Labels**: Comprehensive ARIA labels and alt text support
-- **Keyboard Navigation**: Full keyboard support throughout
+[x] **Custom Themes** 
+[x] **Dark/Light Mode** 
+[x] **Wikilinks** 
+[x] **Obsidian-Style Callouts** 
+[x] **Folder-Based Posts** 
+[x] **Image Optimization** 
+[x] **Sitemap, RSS, Open Graph, robots.txt, & llms.txt Generation** 
+[x] **Command Palette** 
+[x] **Table of Contents** 
+[x] **Reading Time** 
+[x] **Tagging** 
+[x] **Search** 
+[x] **Profile Picture** 
+[x] **Comments** 
 
 ## Quick Start
 
