@@ -2,7 +2,8 @@
 
 A flexible blog theme designed for Obsidian users. 
 
-<img width="2124" height="2830" alt="Astro Modular with the Oxygen theme applied, homepage." src="https://github.com/user-attachments/assets/9a6b16ce-dfed-4764-96c5-e1f3b80160ea" />
+<img width="1920" height="1080" alt="Astro Modular with the Oxygen theme applied, homepage." src="https://github.com/user-attachments/assets/ec62b1d0-8cc6-4481-aaee-038fdf9168ea" />
+
 
 ## Badges
 
