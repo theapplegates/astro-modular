@@ -12,8 +12,11 @@ const log = {
   warn: (...args) => console.warn(...args)
 };
 
-// Deployment platform configuration
-const DEPLOYMENT_PLATFORM = process.env.DEPLOYMENT_PLATFORM || 'netlify';
+// Import deployment platform helper
+import getDeploymentPlatform from './get-deployment-platform.js';
+
+// Deployment platform configuration - use config if no env var is set
+const DEPLOYMENT_PLATFORM = process.env.DEPLOYMENT_PLATFORM || getDeploymentPlatform();
 const DRY_RUN = process.argv.includes('--dry-run');
 const VALIDATE_ONLY = process.argv.includes('--validate');
 

@@ -1,9 +1,8 @@
 # Astro Modular
 
-A flexible blog theme designed for Obsidian users.
+A flexible blog theme designed for Obsidian users. 
 
 <img width="2124" height="2830" alt="Astro Modular with the Oxygen theme applied, homepage." src="https://github.com/user-attachments/assets/9a6b16ce-dfed-4764-96c5-e1f3b80160ea" />
-
 
 ## Badges
 
@@ -20,21 +19,41 @@ A flexible blog theme designed for Obsidian users.
 [![Node.js](https://img.shields.io/badge/Node.js-18+-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![pnpm](https://img.shields.io/badge/pnpm-8+-F69220?logo=pnpm&logoColor=white)](https://pnpm.io/)
 
+## Why Astro Modular?
+
+- **Obsidian As A CMS**: Works with Obsidian out of the box, write and publish instantly
+- **Highly Customizable**: Every feature can be enabled/disabled independently
+- **Performance-Focused**: Assets are highly optimized for lightning-fast loading
+- **SEO-Ready**: Automatic sitemap, RSS feed, and Open Graph image generation
+
 ## Features
 
-- **Use Obsidian as your CMS**: write in a dedicated vault with preconfigured plugins to accelerate post publishing.
-- **Flexible & Customizable**: each feature can be enabled/disabled independently with 10+ different color options.
-- **Extended Markdown**: link your posts with wikilinks, use collapsible callouts, create beautiful tables and much more.
-- **Automation & SEO**: open graph & metadata support, intuitive redirect logic using frontmatter, and automatic RSS, sitemap, robots, and llms.txt generation.
+### Design & Customization
+- **Theme Selection**: Choose from 17+ color palettes with light and dark mode support
+- **Custom Typography**: Separate font configuration for headings and body text
+- **Responsive Design**: Perfect on desktop, tablet, and mobile
+- **Modular Features**: Toggle any feature on/off through configuration
+
+### Content Management
+- **Native Obsidian Features**: Wikilinks, callouts, and bracket syntax work seamlessly
+- **Folder-Based Posts**: Organize content and assets together
+- **Draft Support**: Show drafts in development, hide in production
+- **Automatic Redirects**: Rename posts without breaking links
+
+### Performance & Accessibility
+- **Lightning Fast**: Built on Astro for optimal performance
+- **Image Optimization**: Automatic WebP conversion and responsive images
+- **Built-in Labels**: Comprehensive ARIA labels and alt text support
+- **Keyboard Navigation**: Full keyboard support throughout
 
 ## Quick Start
 
 [![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/davidvkimball/astro-modular)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/davidvkimball/astro-modular)
 
 ### Prerequisites
 - Node.js 18 or higher
 - pnpm (recommended) or npm
-
 
 > [!NOTE]
 > While this theme works great with any markdown editor, it's specifically optimized for Obsidian use. See the [Astro Suite Vault Guide](src/content/posts/astro-suite-vault-modular-guide.md) for Obsidian-specific features.
@@ -43,15 +62,13 @@ A flexible blog theme designed for Obsidian users.
 
 1. **Install:**
    ```bash
-   npm install
    pnpm install
    ```
 
 2. **Preview:**
    ```bash
-   pnpm dev # or pnpm preview
+   pnpm dev
    ```
-
    Your blog will be available at `http://localhost:5000`
 
 3. **Build for production:**
@@ -64,11 +81,15 @@ A flexible blog theme designed for Obsidian users.
    pnpm run update-theme
    ```
    
-   This command helps you keep your theme up to date with the latest features and fixes. See the [Theme Updates section in AGENTS.md](AGENTS.md#theme-updates) for detailed instructions.
+   This command helps you keep your theme up to date with the latest features and fixes.
 
 ### Configuration
 
-Edit `src/config.ts` to customize your site.
+Edit `src/config.ts` to customize your site - change the theme, enable/disable features, and configure all settings.
+
+## Deployment
+
+Set your deployment platform once in `src/config.ts` under `deployment.platform` ("netlify", "vercel", or "github-pages"). The build process automatically generates the correct configuration files for your chosen platform - no environment variables needed!
 
 ## Documentation
 

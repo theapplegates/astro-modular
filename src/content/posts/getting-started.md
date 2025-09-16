@@ -65,11 +65,15 @@ Select theme and layout options in the config:
 
 ```typescript
 theme: "oxygen",
+customThemeFile: "custom",
+  deployment: {
+    platform: "netlify",
+  },
 layout: {
   contentWidth: "45rem",
 },
-postsPerPage: 5,
-recentPostsCount: 3,
+postsPerPage: 6,
+recentPostsCount: 7,
 seo: {
     defaultOgImageAlt: "Astro Modular logo.",
   },

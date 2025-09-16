@@ -681,10 +681,42 @@ The build process includes several pre-build steps:
 
 ### Deployment Platforms
 
-Supported platforms with specific configurations:
-- **Netlify**: `pnpm run build:netlify`
-- **Vercel**: `pnpm run build:vercel`
-- **GitHub Pages**: `pnpm run build:github-pages`
+The theme supports deployment to all major platforms with an elegant configuration system:
+
+#### Platform Selection
+Set your deployment platform once in `src/config.ts`:
+```typescript
+deployment: {
+  platform: "netlify", // "netlify" | "vercel" | "github-pages"
+}
+```
+
+#### Supported Platforms
+- **Netlify**: Generates `netlify.toml` with redirects and build settings
+- **Vercel**: Generates `vercel.json` with redirects and headers
+- **GitHub Pages**: Generates `public/redirects.txt` for GitHub Pages redirects
+
+#### Build Process
+The build process automatically detects your chosen platform and generates the correct configuration files:
+```bash
+pnpm run build  # Works for all platforms - no environment variables needed!
+```
+
+#### Platform-Specific Features
+- **Netlify**: Includes `netlify.toml` with redirects, build settings, and 404 handling
+- **Vercel**: Generates `vercel.json` with redirects and cache headers for assets
+- **GitHub Pages**: Creates `public/redirects.txt` in the format required by GitHub Pages
+
+#### Migration from Environment Variables
+The old environment variable approach is still supported for backward compatibility:
+```bash
+# Old way (still works)
+DEPLOYMENT_PLATFORM=vercel pnpm run build
+
+# New way (recommended)
+# Just set platform in config.ts and run:
+pnpm run build
+```
 
 ## Theme Updates
 
@@ -862,6 +894,20 @@ layout: {
 postsPerPage: 5,
 recentPostsCount: 3,
 ```
+
+#### Deployment Platform Configuration
+```typescript
+deployment: {
+  platform: "netlify", // "netlify" | "vercel" | "github-pages" - set once and forget!
+}
+```
+
+**Deployment Platform Options:**
+- **`"netlify"`** (default) - Generates `netlify.toml` with redirects and build settings
+- **`"vercel"`** - Generates `vercel.json` with redirects and cache headers
+- **`"github-pages"`** - Generates `public/redirects.txt` for GitHub Pages redirects
+
+**Important:** Set this once in your config and the build process automatically generates the correct platform-specific configuration files. No environment variables needed!
 
 #### Modular Features Configuration
 ```typescript
@@ -1485,7 +1531,14 @@ The comments are styled to match your theme automatically. If you see styling is
 - Always use `pnpm` instead of `npm` for all commands
 - Scripts: `pnpm run <script-name>`, not `npm run <script-name>`
 
-#### 7. **Development vs Production Behavior**
+#### 7. **Deployment Platform Configuration**
+- **Set platform once in config** - Use `deployment.platform` in `src/config.ts`, not environment variables
+- **No environment variables needed** - The build process automatically detects the platform from config
+- **Platform options**: "netlify", "vercel", "github-pages" (all lowercase with hyphens)
+- **Backward compatibility**: Environment variables still work but are not recommended
+- **Configuration files**: Automatically generated based on platform choice
+
+#### 8. **Development vs Production Behavior**
 - **Development**: Missing images show placeholders, warnings are logged
 - **Production**: Missing images cause build failures
 - Always run `pnpm run check-images` before deploying

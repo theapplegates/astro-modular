@@ -18,6 +18,9 @@ export interface SiteConfig {
   language: string;
   theme: "minimal" | "oxygen" | "atom" | "ayu" | "catppuccin" | "charcoal" | "dracula" | "everforest" | "flexoki" | "gruvbox" | "macos" | "nord" | "obsidian" | "rose-pine" | "sky" | "solarized" | "things" | "custom";
   customThemeFile?: string; // Filename in src/themes/custom/ (e.g., "my-cool-theme" for my-cool-theme.ts)
+  deployment: {
+    platform: "netlify" | "vercel" | "github-pages";
+  };
   layout: {
     contentWidth: string;
   };
@@ -108,13 +111,16 @@ export const siteConfig: SiteConfig = {
 
   theme: "oxygen", // Available themes: "minimal" | "oxygen" | "atom" | "ayu" | "catppuccin" | "charcoal" | "dracula" | "everforest" | "flexoki" | "gruvbox" | "macos" | "nord" | "obsidian" | "rose-pine" | "sky" | "solarized" | "things" | "custom"
   customThemeFile: "custom", // Only used if theme is set to "custom" above. Filename in src/themes/custom/ (without .ts extension)
+  deployment: {
+    platform: "netlify", // "netlify" | "vercel" | "github-pages" - sets redirect configuration for the chosen platform
+  },
   layout: {
     contentWidth: "45rem",
   },
   postsPerPage: 6,
   recentPostsCount: 7,
   seo: {
-    defaultOgImageAlt: "Astro Modular logo.",
+    defaultOgImageAlt: "Astro Modular logo.", // Alt text for the default Open Graph image, public/open-graph.png
   },
   homeBlurb: {
     enabled: true,
