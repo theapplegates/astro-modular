@@ -606,6 +606,10 @@ const { seoData, bodyClass = '' } = Astro.props;
             if (window.initializeLinkedMentions) {
               window.initializeLinkedMentions();
             }
+            // Initialize image galleries
+            if (typeof window['initializeImageGalleries'] === 'function') {
+              window['initializeImageGalleries']();
+            }
             // Re-setup smooth scrolling for anchor links
             setupSmoothScrolling();
           }, 100);
@@ -971,6 +975,130 @@ const { seoData, bodyClass = '' } = Astro.props;
         document.addEventListener('swup:enable', setupSwupScrollBehavior);
       }
     }
+  </script>
+
+  <!-- Simple Image Gallery System -->
+  <script>
+    // Declare global function
+    declare global {
+      interface Window {
+        initializeImageGalleries: () => void;
+      }
+    }
+    
+    function initializeImageGalleries() {
+      console.log('🖼️ Initializing image galleries...');
+      const contentElement = document.querySelector('.prose');
+      if (!contentElement) {
+        console.log('❌ No .prose element found');
+        return;
+      }
+      console.log('✅ Found .prose element');
+      
+      const paragraphs = contentElement.querySelectorAll('p');
+      console.log(`📄 Found ${paragraphs.length} paragraphs`);
+      
+      // Debug: log all paragraphs with images
+      paragraphs.forEach((p, index) => {
+        const imgs = p.querySelectorAll('img');
+        if (imgs.length > 0) {
+          console.log(`📸 Paragraph ${index}: ${imgs.length} image(s)`, p.textContent?.substring(0, 50));
+        }
+      });
+      
+      // Find all paragraphs with images (single or multiple)
+      const imageParagraphs: { paragraph: Element; index: number; imageCount: number }[] = [];
+      paragraphs.forEach((para, index) => {
+        const images = Array.from(para.querySelectorAll('img'));
+        if (images.length > 0) {
+          imageParagraphs.push({ paragraph: para, index: index, imageCount: images.length });
+        }
+      });
+      
+      console.log(`🖼️ Found ${imageParagraphs.length} paragraphs with images`);
+      
+      // Process each image paragraph
+      imageParagraphs.forEach((paraInfo) => {
+        const { paragraph, imageCount } = paraInfo;
+        
+        // Process paragraphs with 1 or more images
+        if (imageCount >= 1) {
+          console.log(`🎨 Creating gallery with ${imageCount} images from single paragraph`);
+          
+          // Create gallery container
+          const galleryContainer = document.createElement('div');
+          
+          if (imageCount === 1) {
+            galleryContainer.className = 'image-grid image-grid-1 my-8';
+          } else if (imageCount === 2) {
+            galleryContainer.className = 'image-grid image-grid-2 my-8';
+          } else if (imageCount === 3) {
+            galleryContainer.className = 'image-grid image-grid-3 my-8';
+          } else if (imageCount >= 4) {
+            galleryContainer.className = 'image-grid image-grid-4 my-8';
+          }
+          
+          // Get all images from this paragraph
+          const images = Array.from(paragraph.querySelectorAll('img'));
+          
+          // Add each image to gallery
+          images.forEach((img, imgIndex) => {
+            const imageItem = document.createElement('div');
+            imageItem.className = 'image-item';
+            
+            const button = document.createElement('button');
+            button.className = 'image-button w-full h-full group cursor-pointer';
+            button.setAttribute('data-lightbox', 'gallery');
+            button.setAttribute('aria-label', `View ${img.alt} in full size`);
+            
+                   // Add click event listener to open lightbox
+                   button.addEventListener('click', () => {
+                     console.log(`🖼️ Image ${imgIndex} clicked, opening lightbox...`);
+                     console.log('Image src:', img.src);
+                     console.log('Image alt:', img.alt);
+                     
+                     // Dispatch custom event to open lightbox
+                     window.dispatchEvent(new CustomEvent('openLightbox', {
+                       detail: { index: imgIndex, button: button }
+                     }));
+                   });
+            
+            const imgClone = img.cloneNode(true) as HTMLImageElement;
+            imgClone.className = 'w-full h-full object-cover rounded-lg transition-all duration-300 group-hover:shadow-lg group-hover:scale-[1.02]';
+            imgClone.loading = 'lazy';
+            imgClone.setAttribute('data-lightbox', 'gallery');
+            
+            const overlay = document.createElement('div');
+            overlay.className = 'absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 rounded-lg flex items-center justify-center';
+            
+            const zoomIcon = document.createElement('div');
+            zoomIcon.className = 'w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300';
+            zoomIcon.innerHTML = `
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path>
+              </svg>
+            `;
+            
+            overlay.appendChild(zoomIcon);
+            button.appendChild(imgClone);
+            button.appendChild(overlay);
+            imageItem.appendChild(button);
+            galleryContainer.appendChild(imageItem);
+          });
+          
+          // Replace the paragraph with the gallery
+          paragraph.parentNode?.replaceChild(galleryContainer, paragraph);
+        }
+      });
+      
+      console.log('✅ Image gallery initialization complete');
+    }
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', initializeImageGalleries);
+    
+    // Make function available globally for Swup
+    window['initializeImageGalleries'] = initializeImageGalleries;
   </script>
 
   <!-- Additional body scripts -->

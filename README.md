@@ -32,17 +32,19 @@ A flexible blog theme designed for Obsidian users.
 ## Features
 
 - [x] **Custom Themes** 
+- [x] **Feature Toggle Control** 
 - [x] **Dark/Light Mode** 
-- [x] **Wikilinks** 
+- [x] **Search & Command Palette** 
+- [x] **Wikilinks & Linked Mentions** 
 - [x] **Obsidian-Style Callouts** 
 - [x] **Folder-Based Posts** 
 - [x] **Image Optimization** 
-- [x] **Sitemap, RSS, Open Graph, robots.txt, & llms.txt Generation** 
-- [x] **Command Palette** 
+- [x] **Automatic Sitemap, RSS, Open Graph, robots.txt, & llms.txt Generation** 
 - [x] **Table of Contents** 
-- [x] **Reading Time** 
+- [x] **Smooth Scroll & Page Transitions** 
+- [x] **Image Gallery & Lightbox** 
+- [x] **Reading Time & Word Count** 
 - [x] **Tagging** 
-- [x] **Search** 
 - [x] **Profile Picture** 
 - [x] **Comments** 
 

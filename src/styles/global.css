@@ -392,6 +392,7 @@ textarea {
   width: 100%;
 }
 
+.prose .image-grid-1 { grid-template-columns: 1fr; }
 .prose .image-grid-2 { grid-template-columns: 1fr 1fr; }
 .prose .image-grid-3 { grid-template-columns: 1fr 1fr; }
 .prose .image-grid-4 { grid-template-columns: 1fr 1fr; }
@@ -399,6 +400,7 @@ textarea {
 .prose .image-grid-6 { grid-template-columns: 1fr 1fr; }
 
 @media (min-width: 600px) {
+  .prose .image-grid-1 { grid-template-columns: 1fr; }
   .prose .image-grid-2 { grid-template-columns: 1fr 1fr; }
   .prose .image-grid-3 { grid-template-columns: 1fr 1fr; }
   .prose .image-grid-4 { grid-template-columns: 1fr 1fr; }
@@ -434,6 +436,41 @@ textarea {
 .prose .image-grid img {
   aspect-ratio: 16/9; /* Maintain consistent aspect ratio */
   object-fit: cover;
+}
+
+/* Image gallery items and buttons */
+.prose .image-grid .image-item {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.5rem;
+}
+
+.prose .image-grid .image-button {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.prose .image-grid .image-button:hover {
+  transform: scale(1.02);
+}
+
+.prose .image-grid .image-button img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.prose .image-grid .image-button:hover img {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
 /* Prose Styles */

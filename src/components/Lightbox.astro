@@ -1,75 +1,63 @@
 ---
 // Lightbox component for image viewing
-import Icon from './Icon.astro';
 ---
 
-<!-- Lightbox Overlay -->
-<div 
-  id="lightbox-overlay" 
-  class="fixed inset-0 z-50 hidden bg-black/90 backdrop-blur-sm animate-fade-in"
-  role="dialog"
-  aria-modal="true"
-  aria-label="Image viewer"
->
-  <!-- Close button -->
-  <button 
-    id="lightbox-close"
-    class="absolute top-4 right-4 z-10 p-3 text-white hover:text-primary-300 transition-colors bg-black/50 rounded-full backdrop-blur-sm"
-    aria-label="Close lightbox"
-  >
-    <Icon name="x" class="w-6 h-6" />
+<div id="lightbox-overlay" style="display: none; position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(0, 0, 0, 0.9) !important; z-index: 999999 !important; backdrop-filter: blur(4px) !important; margin: 0 !important; padding: 0 !important;">
+  <button id="lightbox-close" style="position: absolute; top: 16px; right: 16px; z-index: 10; padding: 12px; color: white; background: rgba(0, 0, 0, 0.5); border: none; border-radius: 50%; cursor: pointer; backdrop-filter: blur(4px);">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+    </svg>
   </button>
   
-  <!-- Navigation buttons -->
-  <button 
-    id="lightbox-prev"
-    class="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 p-3 text-white hover:text-primary-300 transition-colors bg-black/50 rounded-full backdrop-blur-sm"
-    aria-label="Previous image"
-  >
-    <Icon name="chevron-left" class="w-6 h-6" />
+  <button id="lightbox-prev" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); z-index: 10; padding: 12px; color: white; background: rgba(0, 0, 0, 0.5); border: none; border-radius: 50%; cursor: pointer; backdrop-filter: blur(4px);">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m15 18-6-6 6-6"/>
+    </svg>
   </button>
   
-  <button 
-    id="lightbox-next"
-    class="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 p-3 text-white hover:text-primary-300 transition-colors bg-black/50 rounded-full backdrop-blur-sm"
-    aria-label="Next image"
-  >
-    <Icon name="chevron-right" class="w-6 h-6" />
+  <button id="lightbox-next" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); z-index: 10; padding: 12px; color: white; background: rgba(0, 0, 0, 0.5); border: none; border-radius: 50%; cursor: pointer; backdrop-filter: blur(4px);">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m9 18 6-6-6-6"/>
+    </svg>
   </button>
   
-  <!-- Image container -->
-  <div class="flex items-center justify-center h-full p-4 sm:p-8">
-    <div class="relative max-w-full max-h-full">
-      <img 
-        id="lightbox-image"
-        src="" 
-        alt=""
-        class="max-w-full max-h-full w-auto h-auto object-contain rounded-lg shadow-2xl"
-      />
+  <div style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; padding: 2rem; position: relative;">
+    <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; max-width: 90vw; max-height: 90vh;">
+      <img id="lightbox-image" src="" alt="" style="max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; border-radius: 8px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); display: block; min-width: 200px; min-height: 200px;">
       
-      <!-- Loading spinner -->
-      <div id="lightbox-loading" class="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg">
-        <div class="animate-spin rounded-full h-8 w-8 border-2 border-white border-t-transparent"></div>
+      <div id="lightbox-loading" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.5); border-radius: 8px;">
+        <div style="width: 32px; height: 32px; border: 2px solid white; border-top: 2px solid transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
       </div>
     </div>
   </div>
   
-  <!-- Image info -->
-  <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
-    <div class="text-center">
-      <p id="lightbox-caption" class="text-white text-sm font-medium mb-2"></p>
-      <p id="lightbox-counter" class="text-white/70 text-xs"></p>
+  <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 16px; background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.4), transparent);">
+    <div style="text-align: center;">
+      <div id="lightbox-caption" style="color: white; font-size: 14px; margin-bottom: 8px;"></div>
+      <div id="lightbox-counter" style="color: rgba(255, 255, 255, 0.7); font-size: 12px;"></div>
     </div>
   </div>
 </div>
 
-<script>
-  interface LightboxImage {
-    src: string;
-    alt: string;
-    caption?: string;
+<style>
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
   }
+  
+  #lightbox-overlay button:hover {
+    background: rgba(0, 0, 0, 0.7) !important;
+  }
+  
+  @media (max-width: 640px) {
+    #lightbox-prev,
+    #lightbox-next {
+      display: none !important;
+    }
+  }
+</style>
 
+<script>
   class Lightbox {
     private overlay: HTMLElement;
     private image: HTMLImageElement;
@@ -79,12 +67,12 @@ import Icon from './Icon.astro';
     private prevButton: HTMLElement;
     private nextButton: HTMLElement;
     private closeButton: HTMLElement;
-    
-    private images: LightboxImage[] = [];
+    private images: Array<{ src: string; alt: string; caption?: string }> = [];
     private currentIndex: number = 0;
     private isOpen: boolean = false;
 
     constructor() {
+      console.log('🚀 Initializing Lightbox');
       this.overlay = document.getElementById('lightbox-overlay')!;
       this.image = document.getElementById('lightbox-image') as HTMLImageElement;
       this.caption = document.getElementById('lightbox-caption')!;
@@ -94,19 +82,19 @@ import Icon from './Icon.astro';
       this.nextButton = document.getElementById('lightbox-next')!;
       this.closeButton = document.getElementById('lightbox-close')!;
 
-      this.init();
-    }
-
-    private init() {
-      // Event listeners
-      window.addEventListener('openLightbox', (e: any) => {
-        this.collectImages();
-        this.open(e.detail.index || 0);
+      // Add event listeners
+      this.closeButton.addEventListener('click', () => {
+        console.log('🔴 Close button clicked');
+        this.close();
       });
-
-      this.closeButton.addEventListener('click', () => this.close());
-      this.prevButton.addEventListener('click', () => this.prev());
-      this.nextButton.addEventListener('click', () => this.next());
+      this.prevButton.addEventListener('click', () => {
+        console.log('⬅️ Prev button clicked');
+        this.prev();
+      });
+      this.nextButton.addEventListener('click', () => {
+        console.log('➡️ Next button clicked');
+        this.next();
+      });
 
       // Close on overlay click
       this.overlay.addEventListener('click', (e) => {
@@ -134,34 +122,105 @@ import Icon from './Icon.astro';
       this.overlay.addEventListener('wheel', (e) => {
         e.preventDefault();
       }, { passive: false });
+
+      this.init();
     }
 
-    private collectImages() {
-      // Collect all images from the page
-      const imageElements = document.querySelectorAll('img');
-      this.images = Array.from(imageElements).map(img => {
-        // Try to find caption from figcaption or title attribute
-        let caption = img.getAttribute('title');
-        
-        // Look for figcaption element
-        const figcaption = img.closest('figure')?.querySelector('figcaption');
-        if (figcaption) {
-          caption = figcaption.textContent?.trim() || caption;
+    private init() {
+      // Event listeners
+      window.addEventListener('openLightbox', (e: any) => {
+        console.log('🎯 Lightbox received openLightbox event:', e.detail);
+        this.collectImages(e.detail.button);
+        this.open(e.detail.index || 0);
+      });
+    }
+
+    private collectImages(clickedButton?: HTMLElement) {
+      // If a specific button was clicked, find its gallery
+      if (clickedButton) {
+        const gallery = clickedButton.closest('.image-grid');
+        if (gallery) {
+          const galleryImages = gallery.querySelectorAll('img[data-lightbox="gallery"]');
+          console.log(`🔍 Lightbox collecting ${galleryImages.length} images from specific gallery`);
+          
+          this.images = Array.from(galleryImages).map(img => {
+            const imgElement = img as HTMLImageElement;
+            const imageData = {
+              src: imgElement.src,
+              alt: imgElement.alt || 'Image',
+              caption: undefined
+            };
+            console.log(`📸 Collected gallery image:`, imageData);
+            return imageData;
+          });
+          return;
         }
-        
-        return {
-          src: img.src,
-          alt: img.alt || 'Image',
-          caption: caption || undefined
+      }
+      
+      // Fallback: collect all gallery images if no specific gallery found
+      const galleryImages = document.querySelectorAll('img[data-lightbox="gallery"]');
+      console.log(`🔍 Lightbox collecting ${galleryImages.length} images from all galleries`);
+      
+      this.images = Array.from(galleryImages).map(img => {
+        const imgElement = img as HTMLImageElement;
+        const imageData = {
+          src: imgElement.src,
+          alt: imgElement.alt || 'Image',
+          caption: undefined
         };
+        console.log(`📸 Collected gallery image:`, imageData);
+        return imageData;
       });
     }
 
     private open(index: number) {
+      console.log('🚀 Opening lightbox at index', index);
+      console.log('🔍 Total images available:', this.images.length);
+      console.log('🔍 Current image data:', this.images[index]);
+      
       this.currentIndex = index;
       this.isOpen = true;
-      this.overlay.classList.remove('hidden');
+      
+      // Move overlay to body to avoid parent container positioning issues
+      if (this.overlay.parentElement !== document.body) {
+        document.body.appendChild(this.overlay);
+      }
+      
+      // Show the overlay and force correct positioning
+      this.overlay.style.display = 'flex';
+      this.overlay.style.visibility = 'visible';
+      this.overlay.style.opacity = '1';
+      this.overlay.style.position = 'fixed';
+      this.overlay.style.top = '0';
+      this.overlay.style.left = '0';
+      this.overlay.style.right = '0';
+      this.overlay.style.bottom = '0';
+      this.overlay.style.width = '100vw';
+      this.overlay.style.height = '100vh';
+      this.overlay.style.zIndex = '999999';
+      this.overlay.style.margin = '0';
+      this.overlay.style.padding = '0';
+      this.overlay.style.transform = 'none';
+      this.overlay.style.transformOrigin = 'initial';
       document.body.style.overflow = 'hidden';
+
+      console.log('🔍 Overlay display after opening:', this.overlay.style.display);
+      console.log('🔍 Overlay visibility after opening:', this.overlay.style.visibility);
+      console.log('🔍 Overlay opacity after opening:', this.overlay.style.opacity);
+      console.log('🔍 Overlay dimensions after opening:', this.overlay.offsetWidth, 'x', this.overlay.offsetHeight);
+      console.log('🔍 Overlay computed display:', window.getComputedStyle(this.overlay).display);
+      console.log('🔍 Overlay computed visibility:', window.getComputedStyle(this.overlay).visibility);
+      console.log('🔍 Overlay computed opacity:', window.getComputedStyle(this.overlay).opacity);
+      
+      // Check overlay position after forcing
+      setTimeout(() => {
+        const overlayRect = this.overlay.getBoundingClientRect();
+        console.log('🔍 Overlay position after forcing:', overlayRect);
+        console.log('🔍 Overlay is in viewport:', overlayRect.top >= 0 && overlayRect.left >= 0 && overlayRect.bottom <= window.innerHeight && overlayRect.right <= window.innerWidth);
+        console.log('🔍 Overlay parent element:', this.overlay.parentElement);
+        console.log('🔍 Overlay parent tag name:', this.overlay.parentElement?.tagName);
+        console.log('🔍 Overlay parent classes:', this.overlay.parentElement?.className);
+      }, 50);
       
       this.loadImage();
       this.updateUI();
@@ -169,7 +228,7 @@ import Icon from './Icon.astro';
 
     private close() {
       this.isOpen = false;
-      this.overlay.classList.add('hidden');
+      this.overlay.style.display = 'none';
       document.body.style.overflow = '';
     }
 
@@ -188,70 +247,122 @@ import Icon from './Icon.astro';
     }
 
     private loadImage() {
-      if (!this.images[this.currentIndex]) return;
+      if (!this.images[this.currentIndex]) {
+        console.log('❌ No image at index', this.currentIndex);
+        return;
+      }
 
       const currentImage = this.images[this.currentIndex];
+      console.log('🖼️ Loading image at index', this.currentIndex, ':', currentImage);
       
       // Show loading spinner
-      this.loading.classList.remove('hidden');
+      this.loading.style.display = 'flex';
       
       // Create new image element to preload
       const img = new Image();
       img.onload = () => {
+        console.log('✅ Image loaded successfully');
+        console.log('🖼️ Setting image src to:', currentImage.src);
+        console.log('🖼️ Setting image alt to:', currentImage.alt);
         this.image.src = currentImage.src;
         this.image.alt = currentImage.alt;
-        this.loading.classList.add('hidden');
+        this.loading.style.display = 'none';
+        
+        // Debug: Check if image is visible after setting src
+        setTimeout(() => {
+          const rect = this.image.getBoundingClientRect();
+          console.log('🔍 Image bounding rect:', rect);
+          console.log('🔍 Image is visible:', rect.width > 0 && rect.height > 0);
+          console.log('🔍 Image natural dimensions:', this.image.naturalWidth, 'x', this.image.naturalHeight);
+          console.log('🔍 Image computed styles:', {
+            position: window.getComputedStyle(this.image).position,
+            top: window.getComputedStyle(this.image).top,
+            left: window.getComputedStyle(this.image).left,
+            transform: window.getComputedStyle(this.image).transform,
+            margin: window.getComputedStyle(this.image).margin,
+            padding: window.getComputedStyle(this.image).padding
+          });
+          
+          // Check overlay visibility
+          const overlayRect = this.overlay.getBoundingClientRect();
+          console.log('🔍 Overlay bounding rect:', overlayRect);
+          console.log('🔍 Overlay is visible:', overlayRect.width > 0 && overlayRect.height > 0);
+          
+          // Check parent containers
+          let parent = this.image.parentElement;
+          let level = 0;
+          while (parent && level < 5) {
+            const parentRect = parent.getBoundingClientRect();
+            console.log(`🔍 Parent level ${level}:`, parent.className, 'width:', parentRect.width, 'height:', parentRect.height, 'y:', parentRect.y);
+            parent = parent.parentElement;
+            level++;
+          }
+          
+          // Force the image to be centered
+          if (rect.y < 0 || rect.y > window.innerHeight) {
+            console.log('🔧 Image is off-screen, forcing center position');
+            this.image.style.position = 'relative';
+            this.image.style.top = '0';
+            this.image.style.left = '0';
+            this.image.style.transform = 'none';
+            this.image.style.margin = '0';
+          }
+        }, 100);
       };
       
       img.onerror = () => {
-        this.loading.classList.add('hidden');
-        // Image failed to load - silently handle error
+        console.log('❌ Image failed to load:', currentImage.src);
+        this.loading.style.display = 'none';
       };
       
       img.src = currentImage.src;
     }
 
     private updateUI() {
-      const currentImage = this.images[this.currentIndex];
-      if (!currentImage) return;
+      if (this.images.length > 1) {
+        this.counter.textContent = `${this.currentIndex + 1} of ${this.images.length}`;
+        this.prevButton.style.display = 'block';
+        this.nextButton.style.display = 'block';
+      } else {
+        this.counter.textContent = '';
+        this.prevButton.style.display = 'none';
+        this.nextButton.style.display = 'none';
+      }
 
-      // Update caption - show caption if available, otherwise show alt text
-      this.caption.textContent = currentImage.caption || currentImage.alt;
-      
-      // Update counter
-      this.counter.textContent = `${this.currentIndex + 1} of ${this.images.length}`;
-      
-      // Show/hide navigation buttons
-      const hasMultipleImages = this.images.length > 1;
-      this.prevButton.style.display = hasMultipleImages ? 'block' : 'none';
-      this.nextButton.style.display = hasMultipleImages ? 'block' : 'none';
+      const currentImage = this.images[this.currentIndex];
+      if (currentImage?.caption) {
+        this.caption.textContent = currentImage.caption;
+      } else {
+        this.caption.textContent = '';
+      }
     }
+  }
+
+  // Singleton pattern to prevent multiple lightbox instances
+  let lightboxInstance: Lightbox | null = null;
+
+  function initializeLightbox() {
+    if (lightboxInstance) {
+      console.log('🔧 Lightbox already initialized, skipping');
+      return lightboxInstance;
+    }
+
+    console.log('🚀 Initializing Lightbox');
+    lightboxInstance = new Lightbox();
+    return lightboxInstance;
   }
 
   // Initialize lightbox when DOM is loaded
   document.addEventListener('DOMContentLoaded', () => {
-    new Lightbox();
+    console.log('🚀 Initializing Lightbox on DOMContentLoaded');
+    initializeLightbox();
   });
-</script>
 
-<style>
-  #lightbox-overlay {
-    backdrop-filter: blur(8px);
+  // Also initialize immediately if DOM is already loaded
+  if (document.readyState === 'loading') {
+    console.log('⏳ DOM still loading, waiting for DOMContentLoaded');
+  } else {
+    console.log('🚀 DOM already loaded, initializing Lightbox immediately');
+    initializeLightbox();
   }
-  
-  #lightbox-image {
-    max-height: calc(100vh - 160px);
-    transition: opacity 0.3s ease;
-  }
-  
-  @media (max-width: 640px) {
-    #lightbox-prev,
-    #lightbox-next {
-      display: none !important;
-    }
-    
-    #lightbox-image {
-      max-height: calc(100vh - 120px);
-    }
-  }
-</style>
+</script>
