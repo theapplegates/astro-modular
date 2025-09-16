@@ -85,4 +85,4 @@ This is an open-source project. Feel free to submit feature requests, report bug
 
 ## License
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[MIT License](https://github.com/davidvkimball/astro-modular?tab=MIT-1-ov-file)
