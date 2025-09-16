@@ -63,7 +63,7 @@ export const siteConfig = {
 
 Select theme and layout options in the config:
 
-```
+```typescript
 theme: "oxygen",
 layout: {
   contentWidth: "45rem",
@@ -78,6 +78,7 @@ homeBlurb: {
   placement: "below", // 'above' or 'below'
 },
 footer: {
+  enabled: true,
   content: `© 2025 {author}. Built with Astro Modular.`,
 }
 ```
@@ -112,7 +113,7 @@ The system automatically loads Google Fonts when needed and provides fallbacks t
 
 Adjust modular features in the config: 
 
-```
+```typescript
 features: {
     flags: {
       readingTime: true,
@@ -206,8 +207,9 @@ features: {
    - Select **"General"** as the discussion category
    - Copy the generated **Repository ID** and **Category ID**
 
-4. **Update Your Config**:
-   ```typescript
+1. **Update Your Config**:
+
+```typescript
    comments: {
      provider: "giscus",
      repo: "username/repo-name",        // Your GitHub repository
@@ -223,7 +225,7 @@ features: {
      lang: "en",                       // Language
      loading: "lazy",                  // Lazy load comments
    }
-   ```
+```
 
 #### How It Works
 
@@ -264,17 +266,47 @@ navigation: {
   ],
 }
 ```
+
+### Profile Picture
+
+Add a personal touch with a configurable profile picture that can appear in the header or footer:
+
+```typescript
+profilePicture: {
+  enabled: true,
+  image: "/profile.jpg",        // Path to your image (place in public/ directory)
+  alt: "Profile picture",       // Alt text for accessibility
+  size: "md",                   // "sm" (32px), "md" (48px), or "lg" (64px)
+  url: "/about",                // Optional URL to link to when clicked
+  placement: "footer",          // "footer" or "header"
+  style: "circle",              // "circle", "square", or "none"
+}
+```
+
 ## Content Structure
 
 ```
 src/content/
-├── posts/           # Blog posts
-│   ├── images/      # Post images
-│   └── *.md         # Markdown files
-├── pages/           # Static pages
-│   ├── images/      # Page images
-│   └── *.md         # Markdown files
-└── .obsidian/       # Obsidian vault setup
+├── posts/                   # Blog posts
+│   ├── images/              # Shared post images
+│   ├── getting-started.md   # File-based post
+│   ├── sample-folder-post/  # Folder-based post
+│   │   ├── index.md         # Main content file
+│   │   ├── hero-image.jpg   # Post-specific assets
+│   │   ├── diagram.png
+│   │   └── document.pdf
+│   └── another-post/        # Another folder-based post
+│       ├── index.md
+│       └── cover.jpg
+├── pages/                   # Static pages
+│   ├── images/              # Shared page images
+│   ├── about.md
+│   ├── contact.md
+│   └── privacy.md
+└── .obsidian/               # Obsidian vault setup
+    ├── plugins/             # Configured plugins
+    ├── themes/              # Minimal theme
+    └── snippets/            # Custom CSS snippets
 ```
 
 ## Writing Posts

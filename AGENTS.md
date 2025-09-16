@@ -2,6 +2,19 @@
 
 This document contains essential information for AI agents working with this Astro-based blog theme. It combines development practices, folder-based content organization, technical implementation details, and the project's vision for seamless Obsidian-to-web publishing.
 
+## 🚨 CRITICAL: Primary Information Sources
+
+**⚠️ AI AGENTS MUST READ THIS SECTION FIRST ⚠️**
+
+**The most up-to-date and accurate information is found in these blog posts:**
+
+1. **[Getting Started Guide](src/content/posts/getting-started.md)** - Complete setup, configuration, and workflow information
+2. **[Astro Suite Vault Guide](src/content/posts/astro-suite-vault-modular-guide.md)** - Obsidian vault configuration and usage
+
+**These blog posts should be treated as the authoritative source of truth.** Use the information in this AGENTS.md file as supplementary technical documentation, but always reference the blog posts for the most current and accurate user-facing information.
+
+**When in doubt, check the blog posts first.**
+
 ## Table of Contents
 
 1. [Project Vision & Philosophy](#project-vision--philosophy)
@@ -20,7 +33,21 @@ This document contains essential information for AI agents working with this Ast
 ## Project Vision & Philosophy
 
 ### Core Mission
-Astro Modular is a powerful, modular blog theme for Astro specifically designed for **Obsidian users** who want to seamlessly publish their notes and content to the web with minimal friction. This theme bridges the gap between your Obsidian vault and a production-ready blog.
+Astro Modular is an Astro blog theme template designed for **Obsidian users**, created by [David V. Kimball](https://davidvkimball.com). This theme turns Obsidian into a powerful CMS for instant blog publishing, bridging the gap between your Obsidian vault and a production-ready blog.
+
+The theme is built on four core principles:
+
+#### **Clarity First**
+Content should be the star, not the design. Every element is carefully crafted to enhance readability and focus attention on what matters most - your ideas and writing.
+
+#### **Highly Performant**
+Fast loading times and smooth interactions are not optional. Every aspect of this theme has been optimized to deliver exceptional performance across all devices.
+
+#### **Works with Obsidian**
+If you use Obsidian, this theme is a natural extension of your workflow. All rich markdown and extended markdown features, including Wikilinks, callouts, and other embedded features, display seamlessly between your vault and published site.
+
+#### **Modular Design**
+Every feature can be toggled on or off through a single configuration file. Enable only what you need, keeping your site fast and focused on your specific use case.
 
 ### Key Design Principles
 
@@ -111,74 +138,17 @@ vite: {
 
 **⚠️ AI AGENTS MUST READ THIS SECTION CAREFULLY ⚠️**
 
-This project has a **dedicated logger utility** (`src/utils/logger.ts`) that **MUST** be used for all logging instead of raw `console.log()` statements. This is **CRITICAL** for production deployments.
+**NEVER use raw `console.log()` statements in production code.** This project maintains clean console output for professional deployments.
 
 #### **Why This Matters**
-- **Production Performance**: Raw console logs slow down production sites
-- **Security**: Console logs can leak sensitive information in production
+- **Production Performance**: Console logs slow down production sites
 - **User Experience**: Console spam degrades user experience
 - **Professional Standards**: Production sites should have clean console output
 
-#### **How to Use the Logger**
-
-```typescript
-// ✅ CORRECT - Use the logger utility
-import { logger } from '@/utils/logger';
-
-logger.debug('Debug information');  // Only shows in development
-logger.info('General information'); // Shows in dev, warnings+ in production
-logger.warn('Warning message');     // Shows in dev and production
-logger.error('Error message');      // Always shows
-logger.dev('Dev-only message');     // Only shows in development
-```
-
-```typescript
-// ❌ WRONG - Never use raw console in production code
-console.log('This will show in production!');     // BAD
-console.info('This will show in production!');    // BAD
-console.warn('This will show in production!');   // BAD
-console.error('This will show in production!');  // BAD
-```
-
-#### **Logger Behavior by Environment**
-
-| Environment | Debug | Info | Warn | Error | Dev |
-|-------------|-------|------|------|-------|-----|
-| **Development** | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Production** | ❌ | ❌ | ✅ | ✅ | ❌ |
-
-#### **Current Code Issues**
-The current codebase has **extensive console.log statements** that will appear in production. These **MUST** be replaced with the logger utility:
-
-- **BaseLayout.astro**: Multiple console.log statements for navigation highlighting
-- **GiscusComments.astro**: Debug logging for comments initialization
-- **PostLayout.astro**: Debug logging for comments and image grids
-- **Various components**: Raw console statements throughout
-
-#### **Action Required for AI Agents**
-1. **ALWAYS** import and use `logger` from `@/utils/logger`
-2. **NEVER** use raw `console.log()`, `console.info()`, `console.warn()`, or `console.error()`
-3. **Replace existing console statements** with appropriate logger methods
-4. **Use `logger.dev()`** for development-only debugging
-5. **Use `logger.warn()`** or `logger.error()`** for production-visible messages
-
-#### **Example Conversion**
-
-```typescript
-// Before (BAD - shows in production)
-console.log('🔄 Initializing comments...');
-console.warn('Failed to load comments');
-console.error('Critical error occurred');
-
-// After (GOOD - respects environment)
-import { logger } from '@/utils/logger';
-
-logger.dev('🔄 Initializing comments...');  // Dev only
-logger.warn('Failed to load comments');     // Production visible
-logger.error('Critical error occurred');    // Production visible
-```
-
-**This is a CRITICAL requirement for maintaining professional production standards.**
+#### **Simple Rule**
+- **Development**: Console logs are acceptable for debugging
+- **Production**: No console output should appear in the final build
+- **Use the project's logger utility** (`src/utils/logger.ts`) for any logging needs
 
 ### 🎨 CRITICAL: Color Usage Guidelines
 
@@ -437,13 +407,20 @@ The included Obsidian vault follows three core principles:
 - **Hider Plugin** - Remove distracting UI elements
 - **Style Settings** - Fine-tune visual appearance
 - **Custom CSS Snippets** - Optional enhancements for window management and mobile interface
+  - `astro-modular-styling` - Gives embedded HTML elements similar look to frontend
+  - `custom-draggable-top-area.css` - Makes window moving easier when frame is hidden
+  - `hide-properties-heading-and-add-properties-button.css` - Alternative to Style Settings plugin
+  - `hide-tabs-icon-mobile.css` - Removes tabs icon in mobile version
+  - `hide-longpress-flair-mobile.css` - Simplifies mobile interface
+  - `hide-header-title-mobile.css` - Simplifies mobile interface
 
 #### Essential Hotkeys for AI Agents
 When working with the Obsidian vault, these hotkeys are crucial:
 - **Toggle left side panel**: `CTRL + ALT + Z`
 - **Toggle right side panel**: `CTRL + ALT + X`
 - **Toggle tab bar**: `CTRL + ALT + S`
-- **Navigate back/forward**: `ALT + ←` / `ALT + →`
+- **Navigate back**: `ALT + ←`
+- **Navigate forward**: `ALT + →`
 - **Open homepage**: `CTRL + M`
 - **Add property**: `CTRL + ;`
 - **Toggle reading view**: `CTRL + E`
@@ -466,6 +443,8 @@ When working with the Obsidian vault, these hotkeys are crucial:
   - Supports `CTRL + R` for easy renaming
   - Generates default properties automatically
   - Works with both wikilinks and standard markdown links
+  - Supports "Standardize properties" command for organizing properties
+  - Allows copying heading links by right-clicking headings
 - **Critical**: Unlike other themes, this theme supports **any internal link that works with Obsidian** without conversion
 
 #### Homepage and Default New Tab Page
@@ -479,11 +458,15 @@ When working with the Obsidian vault, these hotkeys are crucial:
 - **Title-Only Tab**: Uses `title` property instead of filename for tabs
 - **Property Over Filename**: Use `title` property as primary identifier for linking/searching
 - **Alias Filename History**: Stores old filenames as aliases for URL redirects
+  - Automatically stores old filenames when renaming posts/pages
+  - Configurable regex for ignoring names (like `Untitled` or `_` prefix)
+  - Adjustable timeout and parent folder name tracking
 
 #### Focus & Productivity
 - **ProZen**: Full-screen writing mode with `CTRL + SHIFT + Z`
 - **Disable Tabs**: Optional - new tabs replace current ones (great with hidden tab bar)
 - **Shell Commands**: Quick access to terminal and config file
+- **BRAT (Temporary)**: Used temporarily to load plugins before they're available in the official directory
 
 ### Git Integration
 - **Git Plugin**: Publish to Astro blog without leaving Obsidian
@@ -504,16 +487,26 @@ When you rename a post or page in Obsidian, the old filename is automatically st
 ### Vault Structure
 ```
 src/content/
-├── posts/           # Blog posts
-│   ├── images/      # Post images
-│   └── *.md         # Markdown files
-├── pages/           # Static pages
-│   ├── images/      # Page images
-│   └── *.md         # Markdown files
-└── .obsidian/       # Obsidian vault setup
-    ├── plugins/     # Configured plugins
-    ├── themes/      # Minimal theme
-    └── snippets/    # Custom CSS snippets
+├── posts/                   # Blog posts
+│   ├── images/              # Shared post images
+│   ├── getting-started.md   # File-based post
+│   ├── sample-folder-post/  # Folder-based post
+│   │   ├── index.md         # Main content file
+│   │   ├── hero-image.jpg   # Post-specific assets
+│   │   ├── diagram.png
+│   │   └── document.pdf
+│   └── another-post/        # Another folder-based post
+│       ├── index.md
+│       └── cover.jpg
+├── pages/                   # Static pages
+│   ├── images/              # Shared page images
+│   ├── about.md
+│   ├── contact.md
+│   └── privacy.md
+└── .obsidian/               # Obsidian vault setup
+    ├── plugins/             # Configured plugins
+    ├── themes/              # Minimal theme
+    └── snippets/            # Custom CSS snippets
 ```
 
 ## Page Transitions with Swup
@@ -877,6 +870,7 @@ features: {
     tableOfContents: true,
     tags: true,
     linkedMentions: true,
+    linkedMentionsCompact: false,
     scrollToTop: true,
     darkModeToggleButton: true,
     commandPalette: true,
@@ -887,6 +881,10 @@ features: {
   showCoverImages: "latest-and-posts", // See cover image options below
 }
 ```
+
+**Linked Mentions Features:**
+- `linkedMentions: true` - Enable linked mentions section at the end of the page showing which posts reference the current post
+- `linkedMentionsCompact: false` - Choose between detailed view (default) or compact view for linked mentions
 
 #### Cover Image Options
 - `"all"` - Show cover images everywhere
@@ -953,9 +951,30 @@ homeBlurb: {
   placement: "below", // 'above' or 'below'
 },
 footer: {
+  enabled: true,  // Set to false for minimal footer
   content: `© 2025 {author}. Built with Astro Modular.`,
 }
 ```
+
+#### Profile Picture Configuration
+```typescript
+profilePicture: {
+  enabled: true,
+  image: "/profile.jpg",        // Path to your image (place in public/ directory)
+  alt: "Profile picture",       // Alt text for accessibility
+  size: "md",                   // "sm" (32px), "md" (48px), or "lg" (64px)
+  url: "/about",                // Optional URL to link to when clicked
+  placement: "footer",          // "footer" or "header"
+  style: "circle",              // "circle", "square", or "none"
+}
+```
+
+**Profile Picture Features:**
+- **Placement Options**: Header (replaces text logo) or Footer (above or aligned with content)
+- **Style Options**: Circle (profile photos), Square (logo squares), None (horizontal logos/banners)
+- **Footer Control**: When `footer.enabled: false`, profile picture aligns with social icons
+- **Responsive**: Different layouts for mobile and desktop
+- **Theme-Aware**: Styling adapts to all available themes
 
 ### Content Frontmatter Schemas
 
@@ -1044,6 +1063,8 @@ tags: {
 - **Sky** - Light, airy design
 - **Solarized** - Precision colors for machines and people
 - **Things** - Clean, minimal design
+
+*Note: You may need to do a hard refresh (`Ctrl+Shift+R`) to see theme changes.*
 
 #### Theme Switching
 - Use the command palette (`Ctrl+K`) for instant theme switching
@@ -1417,13 +1438,9 @@ The comments are styled to match your theme automatically. If you see styling is
 ### Critical Distinctions to Remember
 
 #### 1. **🚨 PRODUCTION LOGGING (MOST CRITICAL)**
-- **NEVER use raw `console.log()`** - Use `logger` from `@/utils/logger` instead
-- **Development**: All logs show (debug, info, warn, error)
-- **Production**: Only warnings and errors show
-- **Current codebase has extensive console.log statements that MUST be replaced**
-- **This is CRITICAL for professional production deployments**
-
-**___TRIPLE UNDERSCORE WARNING: ALWAYS USE LOGGER UTILITY - NEVER CONSOLE.LOG IN PRODUCTION CODE___**
+- **NEVER use raw `console.log()`** in production code
+- **Use the project's logger utility** (`src/utils/logger.ts`) for any logging needs
+- **Keep console output clean** for professional deployments
 
 #### 2. **Image System Confusion (Most Common)**
 - **Post cards** show images based on `showCoverImages` config, NOT `hideCoverImage` frontmatter
@@ -1564,4 +1581,4 @@ The comments are styled to match your theme automatically. If you see styling is
 - Update configuration documentation
 - Explain non-obvious decisions
 
-This comprehensive guide should help AI agents understand the project structure, development practices, content organization patterns, and common pitfalls when working with this Astro modular theme.
+This comprehensive guide should help AI agents understand the project structure, development practices, content organization patterns, and common pitfalls when working with Astro Modular.

@@ -30,7 +30,17 @@ export interface SiteConfig {
     placement?: "above" | "below";
   };
   footer: {
+    enabled: boolean;
     content: string;
+  };
+  profilePicture: {
+    enabled: boolean;
+    image: string;
+    alt: string;
+    size: "sm" | "md" | "lg";
+    url?: string;
+    placement: "footer" | "header";
+    style: "circle" | "square" | "none";
   };
   features: {
     readingTime: boolean;
@@ -109,7 +119,18 @@ export const siteConfig: SiteConfig = {
     placement: "below", // 'above' (at the top of the homepage) or 'below' (after the list of homepage posts)
   },
   footer: {
+    enabled: true,
     content: `© 2025 {author}. Built with the <a href="https://github.com/davidvkimball/astro-modular" target="_blank">Astro Modular</a> theme.`,
+  },
+
+  profilePicture: {
+    enabled: false, 
+    image: "/profile.jpg", // Path to your profile image (place in public/ directory)
+    alt: "Profile picture",
+    style: "circle", // "circle", "square", or "none"
+    placement: "footer", // "footer" or "header"
+    size: "md", // "sm" (32px), "md" (48px), or "lg" (64px) - only affects footer placement
+    url: "/about", // Optional
   },
 
   features: {
@@ -365,6 +386,36 @@ function validateSiteConfig(config: SiteConfig): { isValid: boolean; errors: str
   // Language validation
   if (!config.language || !config.language.match(/^[a-z]{2}(-[A-Z]{2})?$/)) {
     errors.push('language must be a valid language code (e.g., "en", "en-US")');
+  }
+
+  // Footer validation
+  if (typeof config.footer.enabled !== 'boolean') {
+    errors.push('footer.enabled must be a boolean value');
+  }
+  if (config.footer.enabled && (!config.footer.content || config.footer.content.trim() === '')) {
+    errors.push('footer.content is required when footer.enabled is true');
+  }
+
+  // Profile picture validation
+  if (config.profilePicture.enabled) {
+    if (!config.profilePicture.image || config.profilePicture.image.trim() === '') {
+      errors.push('profilePicture.image is required when profilePicture.enabled is true');
+    }
+    if (!config.profilePicture.alt || config.profilePicture.alt.trim() === '') {
+      errors.push('profilePicture.alt is required when profilePicture.enabled is true');
+    }
+    if (!['sm', 'md', 'lg'].includes(config.profilePicture.size)) {
+      errors.push('profilePicture.size must be one of: sm, md, lg');
+    }
+    if (!['footer', 'header'].includes(config.profilePicture.placement)) {
+      errors.push('profilePicture.placement must be either "footer" or "header"');
+    }
+    if (!['circle', 'square', 'none'].includes(config.profilePicture.style)) {
+      errors.push('profilePicture.style must be one of: circle, square, none');
+    }
+    if (config.profilePicture.url && !config.profilePicture.url.startsWith('/') && !config.profilePicture.url.startsWith('http')) {
+      errors.push('profilePicture.url must be a valid URL starting with / or http');
+    }
   }
 
   return {

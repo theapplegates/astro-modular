@@ -203,39 +203,22 @@ const processedImage = (() => {
     });
   });
 
-  // Debug: Check what anchor links exist on the page
+  // Initialize anchor link detection
   document.addEventListener('DOMContentLoaded', () => {
-    const anchorLinks = document.querySelectorAll('a.anchor-link[href^="#"]');
-    console.log('Found anchor links on page:', anchorLinks.length);
-    anchorLinks.forEach((link, index) => {
-      console.log(`Anchor link ${index}:`, link.href, link.textContent);
-    });
-    
-    // Also check for any links with href starting with #
-    const allHashLinks = document.querySelectorAll('a[href^="#"]');
-    console.log('Found all hash links on page:', allHashLinks.length);
-    allHashLinks.forEach((link, index) => {
-      console.log(`Hash link ${index}:`, link.href, link.textContent, link.className);
-    });
+    // Anchor links are automatically handled by the click event listener below
   });
 
   // Handle heading links with smooth scrolling (outside DOMContentLoaded)
   document.addEventListener('click', (e) => {
-    console.log('Click detected on:', e.target, 'Tag:', e.target.tagName, 'Class:', e.target.className);
-    
     // Check if clicked element is an anchor link
     if (e.target.tagName === 'A' && e.target.classList.contains('anchor-link')) {
-      console.log('Direct anchor link click detected');
       const href = e.target.getAttribute('href');
-      console.log('Heading link clicked:', href);
       
       if (href && href.startsWith('#') && href.length > 1) {
         const targetElement = document.querySelector(href);
-        console.log('Target element found:', targetElement);
         
         if (targetElement) {
           e.preventDefault();
-          console.log('Preventing default and scrolling...');
           
           // Update URL
           history.pushState(null, '', href);
