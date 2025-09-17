@@ -1056,14 +1056,16 @@ The `scripts/get-version.js` utility provides several functions:
 
 **For Maintainers (Creating Releases):**
 
-1. **Update Version Files:**
+1. **Update Version Files (Manual Process):**
    ```bash
-   # Edit VERSION file
+   # Step 1: Update VERSION file
    echo "0.2.0" > VERSION
    
-   # Update package.json
-   # Change version to "0.2.0"
+   # Step 2: Update package.json manually
+   # Change "version": "0.1.0" to "version": "0.2.0"
    ```
+   
+   **Important**: Both files must be updated manually. The VERSION file is the source of truth, but package.json controls the terminal display.
 
 2. **Create GitHub Release:**
    - Go to GitHub repository
@@ -1162,9 +1164,10 @@ The `scripts/get-version.js` utility provides several functions:
 
 **Release Process:**
 - **Update VERSION file first** - this is the source of truth
-- **Update package.json** - keep both files in sync
+- **Update package.json manually** - both files must be updated separately
 - **Use semantic versioning** - follow semver conventions
 - **Test version commands** before creating releases
+- **No automatic sync** - version files don't sync automatically during dev/build
 
 **User Experience:**
 - **Version display is consistent** across all commands

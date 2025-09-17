@@ -1110,13 +1110,9 @@ const { seoData, bodyClass = '' } = Astro.props;
   <script>
     // Global category filtering function - Swup compatible
     function initializeCategoryFiltering() {
-      console.log('BaseLayout: Initializing category filtering...');
-      
       const categoryItems = document.querySelectorAll('.category-item');
       const projectCards = document.querySelectorAll('[data-project-categories]');
       let currentActiveCategory = null;
-
-      console.log(`BaseLayout: Found ${categoryItems.length} category items and ${projectCards.length} project cards`);
 
       // Remove existing event listeners to prevent duplicates
       categoryItems.forEach(item => {
@@ -1134,16 +1130,13 @@ const { seoData, bodyClass = '' } = Astro.props;
           e.stopPropagation();
           
           const category = item.getAttribute('data-category');
-          console.log('BaseLayout: Category clicked:', category);
           
           if (!category) {
-            console.warn('BaseLayout: No category found on clicked item');
             return;
           }
           
           // Check if this category is already active
           const isCurrentlyActive = currentActiveCategory === category;
-          console.log('BaseLayout: Is currently active:', isCurrentlyActive);
           
           // Reset all buttons to inactive state
           freshCategoryItems.forEach(btn => {
@@ -1153,29 +1146,21 @@ const { seoData, bodyClass = '' } = Astro.props;
           
           if (isCurrentlyActive) {
             // If clicking the same category, show all projects
-            console.log('BaseLayout: Showing all projects');
             projectCards.forEach(card => {
               card.style.display = 'block';
             });
             currentActiveCategory = null;
           } else {
             // Filter projects by category
-            console.log('BaseLayout: Filtering projects by category:', category);
-            let visibleCount = 0;
-            
-            projectCards.forEach((card, index) => {
+            projectCards.forEach(card => {
               const cardCategories = card.getAttribute('data-project-categories') || '';
-              console.log(`BaseLayout: Card ${index} categories:`, cardCategories);
               
               if (cardCategories.includes(category)) {
                 card.style.display = 'block';
-                visibleCount++;
               } else {
                 card.style.display = 'none';
               }
             });
-            
-            console.log(`BaseLayout: Showing ${visibleCount} projects for category: ${category}`);
             
             // Make clicked button active
             item.classList.remove('bg-primary-100', 'dark:bg-primary-800', 'text-primary-700', 'dark:text-primary-300');
