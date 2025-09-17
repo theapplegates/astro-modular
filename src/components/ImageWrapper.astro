@@ -73,7 +73,7 @@ if (isLocal) {
     
     // Remove leading "images/" if present since basePath already includes it
     // But only for global images, not folder-based images
-    if (cleanSrc.startsWith('images/') && basePath === '/posts/images/') {
+    if (cleanSrc.startsWith('images/') && (basePath === '/posts/images/' || basePath === '/projects/images/' || basePath === '/docs/images/')) {
       cleanSrc = cleanSrc.slice(7);
     }
     
@@ -96,31 +96,16 @@ if (isLocal) {
       img = await file();
     } else {
       isImageMissing = true;
-      // Determine appropriate fallback based on basePath
-      if (basePath.includes('/posts/')) {
-        fallbackSrc = devConfig.images.fallbacks.posts;
-      } else if (basePath.includes('/pages/')) {
-        fallbackSrc = devConfig.images.fallbacks.pages;
-      } else {
-        fallbackSrc = devConfig.images.fallbacks.default;
-      }
-      
-      // Only warn in development mode if logging is enabled
+      // No fallback images - just mark as missing
       if (isDev && devConfig.images.logMissingImages) {
+        console.warn(`Missing image: ${src} (basePath: ${basePath})`);
       }
     }
   } catch (error) {
     isImageMissing = true;
-    // Determine appropriate fallback based on basePath
-    if (basePath.includes('/posts/')) {
-      fallbackSrc = devConfig.images.fallbacks.posts;
-    } else if (basePath.includes('/pages/')) {
-      fallbackSrc = devConfig.images.fallbacks.pages;
-    } else {
-      fallbackSrc = devConfig.images.fallbacks.default;
-    }
-    
+    // No fallback images - just mark as missing
     if (isDev && devConfig.images.logMissingImages) {
+      console.warn(`Error loading image: ${src} (basePath: ${basePath})`, error);
     }
   }
 }
@@ -145,10 +130,10 @@ const imageStyle = `object-position: ${position}`;
       fetchpriority={fetchpriority}
       densities={densities}
     />
-  ) : (
+  ) : isPublic ? (
     <img 
-      src={isPublic ? src : (fallbackSrc || src)} 
-      alt={isImageMissing ? `Missing image: ${alt}` : alt} 
+      src={src} 
+      alt={alt} 
       class={imageClass} 
       style={imageStyle}
       loading={loading}
@@ -156,7 +141,21 @@ const imageStyle = `object-position: ${position}`;
       fetchpriority={fetchpriority}
       width={width}
       height={height}
-      title={isImageMissing ? `Original path: ${src}` : undefined}
+    />
+  ) : isImageMissing ? (
+    // Don't render anything for missing local images
+    null
+  ) : (
+    <img 
+      src={src} 
+      alt={alt} 
+      class={imageClass} 
+      style={imageStyle}
+      loading={loading}
+      decoding={decoding}
+      fetchpriority={fetchpriority}
+      width={width}
+      height={height}
     />
   )}
   

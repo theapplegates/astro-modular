@@ -950,20 +950,18 @@ deployment: {
 #### Modular Features Configuration
 ```typescript
 features: {
-  flags: {
-    readingTime: true,
-    wordCount: true,
-    tableOfContents: true,
-    tags: true,
-    linkedMentions: true,
-    linkedMentionsCompact: false,
-    scrollToTop: true,
-    darkModeToggleButton: true,
-    commandPalette: true,
-    postNavigation: true,
-    showLatestPost: true,
-    showSocialIconsInFooter: true,
-  },
+  readingTime: true,
+  wordCount: true,
+  tableOfContents: true,
+  tags: true,
+  linkedMentions: true,
+  linkedMentionsCompact: false,
+  scrollToTop: true,
+  darkModeToggleButton: true,
+  commandPalette: true,
+  postNavigation: true,
+  showLatestPost: true,
+  showSocialIconsInFooter: true,
   showCoverImages: "latest-and-posts", // See cover image options below
 }
 ```
@@ -979,6 +977,41 @@ features: {
 - `"posts"` - Show only on posts pages, tag pages, and post listings
 - `"latest-and-posts"` - Show on latest post section AND posts pages/tags (but not recent posts section)
 - `"none"` - Never show cover images
+
+#### Homepage Featured Content
+The homepage can display featured projects and documentation alongside posts. These settings are configured under the `homeBlurb` section:
+
+```typescript
+homeBlurb: {
+  enabled: true,
+  placement: "below", // 'above' or 'below'
+  homeProjects: false, // Show featured projects on homepage
+  homeDocs: false, // Show featured docs on homepage
+}
+```
+
+**Featured Projects:**
+- `homeBlurb.homeProjects: true` - Show featured projects on homepage
+- **Priority**: First tries to show projects with `featured: true` in frontmatter (up to 3)
+- **Fallback**: If no featured projects exist, shows the 2 most recent projects
+- **No Content**: If no projects exist at all, shows nothing
+- Includes "View all projects →" link
+- Appears after recent posts section
+
+**Featured Documentation:**
+- `homeBlurb.homeDocs: true` - Show featured docs on homepage  
+- **Priority**: First tries to show docs with `featured: true` in frontmatter (up to 3)
+- **Fallback**: If no featured docs exist, shows the 3 most recent docs
+- **No Content**: If no docs exist at all, shows nothing
+- Includes "View all docs →" link
+- Appears after featured projects section
+
+**Homepage Order:**
+1. Latest Post (if enabled)
+2. Recent Posts
+3. Featured Projects (if enabled)
+4. Featured Documentation (if enabled)
+5. Home Blurb (if enabled)
 
 #### Post Card Aspect Ratio Configuration
 Configure the aspect ratio for post card cover images:
@@ -1304,6 +1337,89 @@ typography: {
 - Static pages in `src/content/pages/`
 - Images in `src/content/pages/images/`
 - NO H1 headings in markdown content - title comes from frontmatter
+
+#### Projects
+- Showcase work, side projects, and portfolio items
+- Support both folder-based and single-file organization
+- Images in `src/content/projects/images/` or co-located with content
+- Frontmatter includes: title, description, date, technologies, repositoryUrl, demoUrl, status, image, imageAlt, hideCoverImage, draft, noIndex, featured
+- Status: "in-progress" or "completed"
+- Featured: `true` to show on homepage (requires `homeProjects: true` in config)
+- URL structure: `/projects/project-slug`
+
+#### Documentation
+- Technical documentation and guides
+- Support both folder-based and single-file organization  
+- Images in `src/content/docs/images/` or co-located with content
+- Frontmatter includes: title, description, category, order, lastModified (optional), version, image, imageAlt, hideCoverImage, draft, noIndex, showTOC, featured
+- Featured: `true` to show on homepage (requires `homeDocs: true` in config)
+- URL structure: `/docs/doc-slug`
+
+**Documentation Structure:**
+Documentation files are organized by category and can be single files:
+
+```
+src/content/docs/
+├── getting-started.md
+├── advanced-configuration.md
+├── api-reference/
+│   ├── index.md
+│   └── code.png
+├── images/
+│   └── sample-guide-hero.png
+└── sample-guide.md
+```
+
+**Frontmatter Schema:**
+```yaml
+---
+title: "Documentation Title"             # Required
+description: "Documentation description" # Required
+category: "Setup"                        # Required - for organization
+order: 1                                 # Required - for sorting within category
+lastModified: 2024-01-15                # Optional - if missing, no date is shown
+version: "1.0.0"                         # Optional
+image: "hero-image.jpg"                  # Optional
+imageAlt: "Documentation screenshot"     # Optional
+hideCoverImage: false                    # Optional
+draft: false                             # Optional
+noIndex: false                           # Optional
+showTOC: true                            # Optional - override global TOC setting
+featured: false                          # Optional - show on homepage (requires homeDocs: true)
+---
+```
+
+**Features:**
+- **Category Organization**: Group related documentation
+- **Version Control**: Track documentation versions
+- **Ordered Display**: Control display order within categories
+- **Table of Contents**: Automatic TOC generation
+- **Search Integration**: Included in command palette search
+- **SEO Optimized**: Proper meta tags and structured data
+
+**Categories:**
+Common documentation categories:
+- **Setup**: Installation and initial configuration
+- **Configuration**: Advanced settings and customization
+- **Reference**: API documentation and technical specs
+- **Tutorials**: Step-by-step guides
+- **Troubleshooting**: Common issues and solutions
+- **Examples**: Code samples and use cases
+
+**Best Practices:**
+1. Use clear, descriptive titles
+2. Organize by logical categories
+3. Set appropriate order values
+4. Include version information for API docs
+5. Write for your target audience
+6. Keep content up-to-date
+7. Use consistent formatting
+
+**URL Structure:**
+- Individual docs: `/docs/documentation-slug`
+- Documentation index: `/docs`
+- Documentation is automatically included in search and command palette
+- Categories are displayed as sections on the index page
 
 ## Troubleshooting
 

@@ -2,7 +2,7 @@
 import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
 import { siteConfig } from '../config';
-import { shouldShowPost } from '../utils/markdown';
+import { shouldShowPost, shouldShowContent } from '../utils/markdown';
 
 function shouldExcludeFromSitemap(slug: string): boolean {
   const excludedSlugs = ['404', 'sitemap', 'rss'];
@@ -12,9 +12,11 @@ function shouldExcludeFromSitemap(slug: string): boolean {
 export const GET: APIRoute = async ({ site }) => {  
   const siteUrl = site?.toString() || siteConfig.site;  
     
-  // Get all posts and pages  
+  // Get all content collections
   const posts = await getCollection('posts');  
-  const pages = await getCollection('pages');  
+  const pages = await getCollection('pages');
+  const projects = await getCollection('projects');
+  const docs = await getCollection('docs');  
     
   // Filter posts based on environment  
   const isDev = import.meta.env.DEV;  
@@ -28,6 +30,15 @@ export const GET: APIRoute = async ({ site }) => {
     page.slug !== '404' &&  
     !page.data.noIndex &&  
     !shouldExcludeFromSitemap(page.slug)  
+  );
+
+  // Filter projects and docs based on environment
+  const visibleProjects = projects.filter(project => 
+    shouldShowContent(project, isDev) && !project.data.noIndex
+  );
+  
+  const visibleDocs = docs.filter(doc => 
+    shouldShowContent(doc, isDev) && !doc.data.noIndex
   ); 
   
   // Generate URLs
@@ -52,6 +63,26 @@ export const GET: APIRoute = async ({ site }) => {
       <priority>0.8</priority>
     </url>
   `);
+
+  // Projects index page
+  urls.push(`
+    <url>
+      <loc>${siteUrl}/projects/</loc>
+      <lastmod>${new Date().toISOString()}</lastmod>
+      <changefreq>weekly</changefreq>
+      <priority>0.7</priority>
+    </url>
+  `);
+
+  // Documentation index page
+  urls.push(`
+    <url>
+      <loc>${siteUrl}/docs/</loc>
+      <lastmod>${new Date().toISOString()}</lastmod>
+      <changefreq>weekly</changefreq>
+      <priority>0.7</priority>
+    </url>
+  `);
   
   // Individual posts
   visiblePosts.forEach(post => {
@@ -71,6 +102,32 @@ export const GET: APIRoute = async ({ site }) => {
       <url>
         <loc>${siteUrl}${page.slug}/</loc>
         <lastmod>${new Date().toISOString()}</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+      </url>
+    `);
+  });
+
+  // Individual projects
+  visibleProjects.forEach(project => {
+    const lastmod = project.data.date;
+    urls.push(`
+      <url>
+        <loc>${siteUrl}projects/${project.slug}/</loc>
+        <lastmod>${lastmod.toISOString()}</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+      </url>
+    `);
+  });
+
+  // Individual documentation pages
+  visibleDocs.forEach(doc => {
+    const lastmod = doc.data.lastModified || new Date();
+    urls.push(`
+      <url>
+        <loc>${siteUrl}docs/${doc.slug}/</loc>
+        <lastmod>${lastmod.toISOString()}</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.6</priority>
       </url>

@@ -1,0 +1,21 @@
+---
+import { getCollection } from 'astro:content';
+import { shouldShowPost } from '@/utils/markdown';
+import ProjectLayout from '@/layouts/ProjectLayout.astro';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects');
+  const isDev = import.meta.env.DEV;
+  
+  return projects
+    .filter(project => shouldShowPost(project as any, isDev))
+    .map(project => ({
+      params: { slug: project.slug },
+      props: { project }
+    }));
+}
+
+const { project } = Astro.props;
+---
+
+<ProjectLayout project={project} />

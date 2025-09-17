@@ -12,14 +12,16 @@ export interface Post {
 export interface PostData {
   title: string;
   date: Date;
-  description: string;
-  image?: string;
-  imageAlt?: string;
+  description: string | null;
+  image?: string | null | undefined;
+  imageAlt?: string | null | undefined;
   imageOG?: boolean;
   hideCoverImage?: boolean;
-  tags?: string[];
+  tags?: string[] | null | undefined;
   draft?: boolean;
-  targetKeyword?: string;
+  targetKeyword?: string | null | undefined;
+  author?: string | null | undefined;
+  noIndex?: boolean;
 }
 
 export interface Page {
@@ -39,6 +41,56 @@ export interface PageData {
   imageOG?: boolean;
   draft?: boolean;
   showTOC?: boolean;
+}
+
+export interface Project {
+  id: string;
+  slug: string;
+  body: string;
+  collection: string;
+  data: ProjectData;
+  render(): Promise<{ Content: any; headings: Heading[]; remarkPluginFrontmatter: any }>;
+}
+
+export interface ProjectData {
+  title: string;
+  description: string;
+  date: Date;
+  technologies?: string[];
+  repositoryUrl?: string;
+  demoUrl?: string;
+  status?: 'in-progress' | 'completed' | '' | null;
+  image?: string;
+  imageAlt?: string;
+  hideCoverImage?: boolean;
+  draft?: boolean;
+  noIndex?: boolean;
+  featured?: boolean;
+}
+
+export interface Docs {
+  id: string;
+  slug: string;
+  body: string;
+  collection: string;
+  data: DocsData;
+  render(): Promise<{ Content: any; headings: Heading[]; remarkPluginFrontmatter: any }>;
+}
+
+export interface DocsData {
+  title: string;
+  description: string;
+  category: string;
+  order: number;
+  lastModified?: Date;
+  version?: string;
+  image?: string;
+  imageAlt?: string;
+  hideCoverImage?: boolean;
+  draft?: boolean;
+  noIndex?: boolean;
+  showTOC?: boolean;
+  featured?: boolean;
 }
 
 export interface Heading {
@@ -72,7 +124,7 @@ export interface CommandPaletteItem {
   title: string;
   description?: string;
   url: string;
-  type: 'post' | 'page' | 'social' | 'external' | 'action';
+  type: 'post' | 'page' | 'project' | 'docs' | 'social' | 'external' | 'action';
   icon?: string;
 }
 

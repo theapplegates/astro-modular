@@ -73,27 +73,31 @@ function checkImageExists(imageSrc, filePath) {
     imagePath = imagePath.slice(2, -2);
   }
   
-  // Determine if this is a posts or pages file
+  // Determine content type and folder structure
   const isPostsFile = filePath.includes('posts');
   const isPagesFile = filePath.includes('pages');
+  const isProjectsFile = filePath.includes('projects');
+  const isDocsFile = filePath.includes('docs');
   const isFolderBasedPost = filePath.endsWith('index.md') && isPostsFile;
+  const isFolderBasedProject = filePath.endsWith('index.md') && isProjectsFile;
+  const isFolderBasedDoc = filePath.endsWith('index.md') && isDocsFile;
   
-  // 1. Check in the same folder as the markdown file (for folder-based posts)
-  if (isFolderBasedPost) {
-    const postDir = path.dirname(filePath);
-    const sameFolderPath = path.join(postDir, imagePath);
+  // 1. Check in the same folder as the markdown file (for folder-based content)
+  if (isFolderBasedPost || isFolderBasedProject || isFolderBasedDoc) {
+    const contentDir = path.dirname(filePath);
+    const sameFolderPath = path.join(contentDir, imagePath);
     if (fs.existsSync(sameFolderPath)) {
       return { exists: true, path: sameFolderPath };
     }
     
-    // Check in /images/ subfolder within the post folder
-    const imagesSubfolderPath = path.join(postDir, 'images', imagePath);
+    // Check in /images/ subfolder within the content folder
+    const imagesSubfolderPath = path.join(contentDir, 'images', imagePath);
     if (fs.existsSync(imagesSubfolderPath)) {
       return { exists: true, path: imagesSubfolderPath };
     }
   }
   
-  // 2. Check in general images directory (posts/images/ or pages/images/)
+  // 2. Check in general images directory for each content type
   if (isPostsFile) {
     const generalImagesPath = path.join(projectRoot, 'src', 'content', 'posts', 'images', imagePath);
     if (fs.existsSync(generalImagesPath)) {
@@ -108,10 +112,40 @@ function checkImageExists(imageSrc, filePath) {
     }
   }
   
+  if (isProjectsFile) {
+    const generalImagesPath = path.join(projectRoot, 'src', 'content', 'projects', 'images', imagePath);
+    if (fs.existsSync(generalImagesPath)) {
+      return { exists: true, path: generalImagesPath };
+    }
+  }
+  
+  if (isDocsFile) {
+    const generalImagesPath = path.join(projectRoot, 'src', 'content', 'docs', 'images', imagePath);
+    if (fs.existsSync(generalImagesPath)) {
+      return { exists: true, path: generalImagesPath };
+    }
+  }
+  
   // 3. Check in public directory (for synced images)
   if (isFolderBasedPost) {
     const postSlug = path.basename(path.dirname(filePath));
     const publicPath = path.join(projectRoot, 'public', 'posts', postSlug, imagePath);
+    if (fs.existsSync(publicPath)) {
+      return { exists: true, path: publicPath };
+    }
+  }
+  
+  if (isFolderBasedProject) {
+    const projectSlug = path.basename(path.dirname(filePath));
+    const publicPath = path.join(projectRoot, 'public', 'projects', projectSlug, imagePath);
+    if (fs.existsSync(publicPath)) {
+      return { exists: true, path: publicPath };
+    }
+  }
+  
+  if (isFolderBasedDoc) {
+    const docSlug = path.basename(path.dirname(filePath));
+    const publicPath = path.join(projectRoot, 'public', 'docs', docSlug, imagePath);
     if (fs.existsSync(publicPath)) {
       return { exists: true, path: publicPath };
     }

@@ -150,7 +150,7 @@ import Icon from './Icon.astro';
     title: string;
     description?: string; // Optional description for posts
     url: string;
-    type: 'post' | 'page' | 'action';
+    type: 'post' | 'page' | 'project' | 'documentation' | 'action';
     score?: number; // Score for search relevance
     tags?: string[]; // Tags for posts
   }
@@ -284,14 +284,35 @@ import Icon from './Icon.astro';
       }
 
       try {
-        const response = await fetch('/api/posts.json');
-        if (response.ok) {
-          this.items = await response.json();
-          // Don't initialize Fuse.js immediately - wait until first search
-        } else {
-          // Fallback to empty array
-          this.items = [];
+        // Load all content types in parallel
+        const [postsResponse, projectsResponse, docsResponse] = await Promise.all([
+          fetch('/api/posts.json'),
+          fetch('/api/projects.json'),
+          fetch('/api/docs.json')
+        ]);
+
+        const allItems = [];
+
+        // Load posts
+        if (postsResponse.ok) {
+          const posts = await postsResponse.json();
+          allItems.push(...posts);
         }
+
+        // Load projects
+        if (projectsResponse.ok) {
+          const projects = await projectsResponse.json();
+          allItems.push(...projects);
+        }
+
+        // Load documentation
+        if (docsResponse.ok) {
+          const docs = await docsResponse.json();
+          allItems.push(...docs);
+        }
+
+        this.items = allItems;
+        // Don't initialize Fuse.js immediately - wait until first search
       } catch (error) {
         // Fallback to empty array
         this.items = [];
@@ -743,10 +764,30 @@ import Icon from './Icon.astro';
         }, 50);
       });
       
-      // Add static SVG icon for file
-      const fileIcon = document.createElement('div');
-      fileIcon.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-primary-500 dark:text-primary-400 group-hover:text-highlight-500 mt-0.5"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>';
-      anchor.appendChild(fileIcon);
+      // Add icon based on content type
+      const iconDiv = document.createElement('div');
+      iconDiv.className = 'w-4 h-4 text-primary-500 dark:text-primary-400 group-hover:text-highlight-500 mt-0.5';
+      
+      let iconSvg = '';
+      switch (item.type) {
+        case 'post':
+          iconSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>';
+          break;
+        case 'project':
+          iconSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>';
+          break;
+        case 'docs':
+          iconSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>';
+          break;
+        case 'page':
+          iconSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>';
+          break;
+        default:
+          iconSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>';
+      }
+      
+      iconDiv.innerHTML = iconSvg;
+      anchor.appendChild(iconDiv);
 
       // Add container for title and description
       const contentDiv = document.createElement('div');

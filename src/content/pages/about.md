@@ -24,4 +24,13 @@ If you use Obsidian, this theme is a natural extension of your workflow. All ric
 ### Modular Design
 Every feature can be toggled on or off through a single configuration file. Enable only what you need, keeping your site fast and focused on your specific use case.
 
+---
+
+## Pages to Check Out
+
+- [Contact](/contact) page with a form
+- [Thank You](/thank-you) page where submitters are directed after a successful submission 
+- [Privacy Policy](/privacy-policy) page
+
+---
 ![Photograph of a lush, green cove.](images/water.jpg)

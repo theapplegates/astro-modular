@@ -11,7 +11,7 @@ const log = {
   warn: (...args) => console.warn(...args)
 };
 
-// Define source and target directories for both posts and pages
+// Define source and target directories for posts, pages, projects, and docs
 const IMAGE_SYNC_CONFIGS = [
   {
     source: 'src/content/posts/images',
@@ -22,6 +22,16 @@ const IMAGE_SYNC_CONFIGS = [
     source: 'src/content/pages/images',
     target: 'public/pages/images',
     name: 'pages'
+  },
+  {
+    source: 'src/content/projects/images',
+    target: 'public/projects/images',
+    name: 'projects'
+  },
+  {
+    source: 'src/content/docs/images',
+    target: 'public/docs/images',
+    name: 'docs'
   }
 ];
 
@@ -58,26 +68,26 @@ async function findImageFiles(dir, relativePath = '') {
   return imageFiles;
 }
 
-// Function to find folder-based posts and sync their images
-async function syncFolderBasedImages() {
-  const postsDir = 'src/content/posts';
-  const publicPostsDir = 'public/posts';
+// Function to find folder-based content and sync their images
+async function syncFolderBasedImages(contentType) {
+  const contentDir = `src/content/${contentType}`;
+  const publicContentDir = `public/${contentType}`;
   
   try {
-    const posts = await fs.readdir(postsDir);
+    const items = await fs.readdir(contentDir);
     let totalSynced = 0;
     let totalSkipped = 0;
     
-    for (const post of posts) {
-      const postPath = path.join(postsDir, post);
-      const stat = await fs.stat(postPath);
+    for (const item of items) {
+      const itemPath = path.join(contentDir, item);
+      const stat = await fs.stat(itemPath);
       
-      // Check if it's a directory (folder-based post)
+      // Check if it's a directory (folder-based content)
       if (stat.isDirectory()) {
-        const targetDir = path.join(publicPostsDir, post);
+        const targetDir = path.join(publicContentDir, item);
         
         // Find all image files recursively
-        const imageFiles = await findImageFiles(postPath);
+        const imageFiles = await findImageFiles(itemPath);
         
         for (const imageFile of imageFiles) {
           const targetPath = path.join(targetDir, imageFile.relativePath);
@@ -110,14 +120,14 @@ async function syncFolderBasedImages() {
     }
     
     if (totalSynced > 0 || totalSkipped > 0) {
-      log.info(`📁 Syncing folder-based post images...`);
+      log.info(`📁 Syncing folder-based ${contentType} images...`);
       if (totalSynced > 0) log.info(`   Synced ${totalSynced} files`);
       if (totalSkipped > 0) log.info(`   Skipped ${totalSkipped} files that were unchanged`);
     }
     
     return { synced: totalSynced, skipped: totalSkipped };
   } catch (error) {
-    log.error('❌ Error syncing folder-based images:', error);
+    log.error(`❌ Error syncing folder-based ${contentType} images:`, error);
     return { synced: 0, skipped: 0 };
   }
 }
@@ -248,8 +258,11 @@ async function syncAllImages() {
     }
   }
 
-  // Sync folder-based post images
-  await syncFolderBasedImages();
+  // Sync folder-based images for all content types
+  const contentTypes = ['posts', 'pages', 'projects', 'docs'];
+  for (const contentType of contentTypes) {
+    await syncFolderBasedImages(contentType);
+  }
 
   log.info('🎉 Image sync complete!');
 }

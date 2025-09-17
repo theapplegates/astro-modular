@@ -1,6 +1,6 @@
-import type { Post, Page, SEOData, OpenGraphImage } from '@/types';
+import type { Post, Page, Project, Docs, SEOData, OpenGraphImage } from '@/types';
 import siteConfig from '@/config';
-import { getFallbackOGImage, optimizePostImagePath } from './images';
+import { getFallbackOGImage, optimizePostImagePath, optimizeContentImagePath } from './images';
 
 // Helper function to get default OG image
 function getDefaultOGImage(): OpenGraphImage {
@@ -86,6 +86,94 @@ export function generatePageSEO(page: Page, url: string): SEOData {
     ogImage,  
     ogType: 'website',  
     noIndex: page.data.noIndex || false  // Add this line  
+  };
+}
+
+// Generate SEO data for projects
+export function generateProjectSEO(project: Project, url: string): SEOData {
+  const { title, description, image, imageOG, technologies, date } = project.data;
+
+  let ogImage: OpenGraphImage | undefined;
+
+  if (image && imageOG) {
+    // Handle both local and external image paths
+    let imageUrl: string;
+    if (image.startsWith('http')) {
+      // External URL
+      imageUrl = image;
+    } else {
+      // Use optimizeImagePath for proper path resolution
+      const imagePath = optimizeContentImagePath(image, 'projects', project.slug, project.id);
+      imageUrl = `${siteConfig.site}${imagePath}`;
+    }
+    ogImage = {
+      url: imageUrl,
+      alt: project.data.imageAlt || `Featured image for project: ${title}`,
+      width: 1200,
+      height: 630,
+    };
+  } else {
+    // Use default OG image
+    ogImage = getDefaultOGImage();
+    ogImage = {
+      ...ogImage,
+      url: `${siteConfig.site}${ogImage.url}`
+    };
+  }
+
+  return {  
+    title: `${title} | ${siteConfig.title}`,  
+    description,  
+    canonical: url,  
+    ogImage,  
+    ogType: 'article',  
+    publishedTime: date.toISOString(),  
+    modifiedTime: date.toISOString(),  
+    tags: technologies,  
+    noIndex: project.data.noIndex || false  
+  };
+}
+
+// Generate SEO data for documentation
+export function generateDocumentationSEO(documentation: Docs, url: string): SEOData {
+  const { title, description, image, imageOG, category, version } = documentation.data;
+
+  let ogImage: OpenGraphImage | undefined;
+
+  if (image && imageOG) {
+    let imageUrl: string;
+    if (image.startsWith('http')) {
+      // External URL
+      imageUrl = image;
+    } else {
+      // Use optimizeImagePath for proper path resolution
+      const imagePath = optimizeContentImagePath(image, 'docs', documentation.slug, documentation.id);
+      imageUrl = `${siteConfig.site}${imagePath}`;
+    }
+    ogImage = {
+      url: imageUrl,
+      alt: documentation.data.imageAlt || `Featured image for documentation: ${title}`,
+      width: 1200,
+      height: 630
+    };
+  } else {
+    // Use default OG image
+    ogImage = getDefaultOGImage();
+    ogImage = {
+      ...ogImage,
+      url: `${siteConfig.site}${ogImage.url}`
+    };
+  }
+
+  return {  
+    title: `${title} | ${siteConfig.title}`,  
+    description,  
+    canonical: url,  
+    ogImage,  
+    ogType: 'article',  
+    articleSection: category,
+    keywords: version ? [`${category}`, `version ${version}`] : [category],
+    noIndex: documentation.data.noIndex || false  
   };
 }
 

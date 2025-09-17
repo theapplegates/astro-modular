@@ -1,6 +1,17 @@
 import type { Post, PostData, ReadingTime, Heading } from '@/types';
 import { siteConfig } from '@/config';
 
+// Check if a date is valid (not January 1, 1970 or invalid)
+export function isValidDate(date: Date): boolean {
+  if (!date || !(date instanceof Date) || isNaN(date.getTime())) {
+    return false;
+  }
+  
+  // Check if it's January 1, 1970 (Unix epoch)
+  const epoch = new Date(0);
+  return date.getTime() > epoch.getTime();
+}
+
 // Process markdown content and extract data
 export function processMarkdown(content: string): {
   excerpt: string;
@@ -214,6 +225,24 @@ export function shouldShowPost(post: Post, isDev: boolean = false): boolean {
   }
 
   return true;
+}
+
+// Generic function to check if any content item should be shown
+export function shouldShowContent(item: { data: { title: string; date?: Date; draft?: boolean } }, isDev: boolean = false): boolean {
+  const { draft, title, date } = item.data;
+
+  // Always require title
+  if (!title) {
+    return false;
+  }
+
+  // In development, show all content (even drafts)
+  if (isDev) {
+    return true;
+  }
+
+  // In production, hide drafts
+  return !draft;
 }
 
 // Sort posts by date (newest first)

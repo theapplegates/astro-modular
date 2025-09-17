@@ -1,0 +1,142 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { formatDate, processMarkdown, isValidDate } from '../utils/markdown';
+import { siteConfig, getPostCardAspectRatio } from '../config';
+import ImageWrapper from './ImageWrapper.astro';
+import Icon from './Icon.astro';
+
+interface Props {
+  project: CollectionEntry<'projects'>;
+  featured?: boolean;
+  eager?: boolean;
+  context?: 'latest' | 'recent' | 'projects' | 'tags' | 'home';
+}
+
+const { project, featured = false, eager = false, context = 'projects' } = Astro.props;
+
+// Get excerpt from markdown processing
+const { excerpt } = processMarkdown(project.body);
+
+const title = project.data.title;
+const description = project.data.description || excerpt;
+const date = project.data.date;
+const image = project.data.image;
+const imageAlt = project.data.imageAlt || `Cover image for ${title}`;
+const hideCoverImage = project.data.hideCoverImage || false;
+const technologies = project.data.technologies || [];
+const status = project.data.status;
+const repositoryUrl = project.data.repositoryUrl;
+const demoUrl = project.data.demoUrl;
+
+// Get aspect ratio for cover image
+const aspectRatio = getPostCardAspectRatio();
+
+// Determine if we should show the cover image
+const shouldShowCoverImage = siteConfig.features.showCoverImages !== 'none' && 
+  (siteConfig.features.showCoverImages === 'all' || 
+   (siteConfig.features.showCoverImages === 'latest' && context === 'latest') ||
+   (siteConfig.features.showCoverImages === 'home' && (context === 'latest' || context === 'recent' || context === 'home')) ||
+   (siteConfig.features.showCoverImages === 'posts' && context === 'projects') ||
+   (siteConfig.features.showCoverImages === 'latest-and-posts' && (context === 'latest' || context === 'projects' || context === 'home')));
+
+const showCoverImage = shouldShowCoverImage && image && !hideCoverImage;
+---
+
+<div class="group relative bg-white dark:bg-primary-800 rounded-xl border border-primary-200 dark:border-primary-700 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 aspect-[4/3]">
+  <a href={`/projects/${project.slug}`} class="block h-full" aria-label={`View project: ${title}`}>
+    <!-- Background Image or Fallback -->
+    {showCoverImage ? (
+      <div class="absolute inset-0">
+        <ImageWrapper
+          src={image}
+          basePath={(() => {
+            // 1. External URLs - no basePath needed
+            if (image.startsWith('http')) {
+              return '';
+            }
+            
+            // 2. Check if this is a folder-based project by looking at the file path
+            // Folder-based projects have their content in a subdirectory with index.md
+            const isFolderBasedProject = project.id.includes('/') && project.id.endsWith('/index.md');
+            
+            if (isFolderBasedProject) {
+              // Remove Obsidian brackets to get the actual image path
+              let cleanImagePath = image;
+              if (cleanImagePath.startsWith('[[') && cleanImagePath.endsWith(']]')) {
+                cleanImagePath = cleanImagePath.slice(2, -2);
+              }
+              
+              // For folder-based projects, check if image is in images/ subfolder
+              if (cleanImagePath.startsWith('images/')) {
+                return `/projects/${project.slug}/images/`;
+              }
+              // Image in same folder as index.md
+              return `/projects/${project.slug}/`;
+            }
+            
+            // 3. Regular projects - use global images directory
+            return "/projects/images/";
+          })()}
+          alt={imageAlt}
+          width={800}
+          height={600}
+          loading={eager ? 'eager' : 'lazy'}
+          fetchpriority={eager ? 'high' : 'auto'}
+          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+        />
+        <!-- Dark overlay for better text readability -->
+        <div class="absolute inset-0 bg-black/70 group-hover:bg-black/80 transition-colors duration-300"></div>
+      </div>
+    ) : (
+      <!-- Fallback background when no image -->
+      <div class="absolute inset-0 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-700 dark:to-primary-800"></div>
+    )}
+
+    <!-- Status badge -->
+    {status && (status === 'in-progress' || status === 'completed') && (
+      <div class="absolute top-3 right-3 z-10">
+        <span class={`px-2 py-1 rounded-full text-xs font-medium shadow-sm ${
+          status === 'completed' 
+            ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' 
+            : 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200'
+        }`}>
+          {status === 'completed' ? 'Completed' : 'In Progress'}
+        </span>
+      </div>
+    )}
+
+    <!-- Date -->
+    {isValidDate(date) && (
+      <div class="absolute top-3 left-3 z-10">
+        <time datetime={date.toISOString()} class="text-xs text-white/90 font-mono bg-black/20 px-2 py-1 rounded backdrop-blur-sm">
+          {formatDate(date)}
+        </time>
+      </div>
+    )}
+
+    <!-- Content Overlay -->
+    <div class="absolute inset-0 flex flex-col justify-end p-6 z-10">
+      <!-- Title -->
+      <h3 class="text-xl font-bold text-white mb-2 group-hover:text-highlight-300 transition-colors line-clamp-2 drop-shadow-lg text-center">
+        {title}
+      </h3>
+
+      <!-- Hover content -->
+      <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <!-- Description -->
+        {description && (
+          <p class="text-sm text-white/90 mb-3 line-clamp-2 drop-shadow-lg text-left">
+            {description}
+          </p>
+        )}
+
+        <!-- View project link -->
+        <div class="text-center">
+          <span class="text-sm font-medium text-highlight-300 group-hover:text-highlight-200 transition-colors">
+            View project →
+          </span>
+        </div>
+      </div>
+    </div>
+  </a>
+</div>

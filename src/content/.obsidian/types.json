@@ -6,6 +6,7 @@
     "pubDate": "date",
     "imageOG": "checkbox",
     "draft": "checkbox",
-    "noIndex": "checkbox"
+    "noIndex": "checkbox",
+    "featured": "checkbox"
   }
 }

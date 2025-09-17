@@ -32,6 +32,8 @@ export interface SiteConfig {
   homeBlurb?: {
     enabled?: boolean;
     placement?: "above" | "below";
+    homeProjects?: boolean;
+    homeDocs?: boolean;
   };
   footer: {
     enabled: boolean;
@@ -62,7 +64,7 @@ export interface SiteConfig {
     showLatestPost: boolean;
     comments: boolean;
     postCardAspectRatio: AspectRatio;
-    customAspectRatio?: string; 
+    customAspectRatio?: string;
   };
   typography: {
     headingFont: string;
@@ -125,6 +127,8 @@ export const siteConfig: SiteConfig = {
   homeBlurb: {
     enabled: true,
     placement: "below", // 'above' (at the top of the homepage) or 'below' (after the list of homepage posts)
+    homeProjects: true, // Show featured projects on homepage
+    homeDocs: true, // Show featured docs on homepage
   },
   footer: {
     enabled: true,
@@ -197,8 +201,9 @@ export const siteConfig: SiteConfig = {
     showMobileMenu: true,
     pages: [
       { title: "Posts", url: "/posts" },
+      { title: "Projects", url: "/projects" },
+      { title: "Docs", url: "/docs" },
       { title: "About", url: "/about" },
-      { title: "Contact", url: "/contact" },
       { title: "GitHub", url: "https://github.com/davidvkimball/astro-modular" },
     ],
     social: [
