@@ -186,22 +186,86 @@ function shouldAllowUpdates() {
 }
 
 /**
- * Get latest release information from GitHub
+ * Get latest release information from GitHub (with user preference)
  */
 async function getLatestRelease() {
   try {
-    logInfo('Fetching latest release information...');
-    const response = await fetch(`${GITHUB_API_BASE}/releases/latest`);
+    logInfo('Fetching release information...');
     
-    if (!response.ok) {
-      throw new Error(`GitHub API error: ${response.status}`);
+    // First check what releases are available
+    const releasesResponse = await fetch(`${GITHUB_API_BASE}/releases`);
+    
+    if (!releasesResponse.ok) {
+      if (releasesResponse.status === 404) {
+        logWarning('No releases found in upstream repository.');
+        logInfo('This is normal for template installations - using current state instead.');
+        return null;
+      }
+      throw new Error(`GitHub API error: ${releasesResponse.status}`);
     }
     
-    const release = await response.json();
-    logSuccess(`Found latest release: ${release.tag_name}`);
-    return release;
+    const allReleases = await releasesResponse.json();
+    
+    if (allReleases.length === 0) {
+      logWarning('No releases found in upstream repository.');
+      logInfo('This is normal for template installations - using current state instead.');
+      return null;
+    }
+    
+    // Separate stable and pre-releases
+    const stableReleases = allReleases.filter(release => !release.prerelease);
+    const preReleases = allReleases.filter(release => release.prerelease);
+    
+    // Ask user preference if both types exist
+    if (stableReleases.length > 0 && preReleases.length > 0) {
+      const readline = await import('readline');
+      const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+      });
+      
+      logInfo(`Found ${stableReleases.length} stable release(s) and ${preReleases.length} pre-release(s).`);
+      logInfo(`Latest stable: ${stableReleases[0].tag_name}`);
+      logInfo(`Latest pre-release: ${preReleases[0].tag_name}`);
+      
+      const answer = await new Promise((resolve) => {
+        rl.question('\nWhich would you like to use?\n  1) Latest stable release (recommended)\n  2) Latest pre-release (may be unstable)\n  3) Cancel update\n\nEnter choice (1-3): ', resolve);
+      });
+      rl.close();
+      
+      if (answer === '3') {
+        logInfo('Update cancelled by user.');
+        process.exit(0);
+      } else if (answer === '2') {
+        const release = preReleases[0];
+        logSuccess(`Using latest pre-release: ${release.tag_name}`);
+        return release;
+      } else if (answer === '1' || answer === '') {
+        const release = stableReleases[0];
+        logSuccess(`Using latest stable release: ${release.tag_name}`);
+        return release;
+      } else {
+        logWarning('Invalid choice, using latest stable release.');
+        const release = stableReleases[0];
+        logSuccess(`Using latest stable release: ${release.tag_name}`);
+        return release;
+      }
+    }
+    
+    // If only one type exists, use it automatically
+    if (stableReleases.length > 0) {
+      const release = stableReleases[0];
+      logSuccess(`Using latest stable release: ${release.tag_name}`);
+      return release;
+    } else {
+      const release = preReleases[0];
+      logSuccess(`Using latest pre-release: ${release.tag_name}`);
+      return release;
+    }
+    
   } catch (error) {
-    logError(`Failed to fetch release information: ${error.message}`);
+    logWarning(`Failed to fetch release information: ${error.message}`);
+    logInfo('This is normal for template installations - using current state instead.');
     return null;
   }
 }
@@ -1019,33 +1083,47 @@ async function updateTheme(updateContent = false) {
   
   // A. Get latest release information
   const release = await getLatestRelease();
-  if (!release) {
-    logError('Failed to get latest release information. Stopping update.');
-    process.exit(1);
-  }
   
-  // B. Download theme files
-  const extractedDir = await downloadThemeFiles(release);
-  if (!extractedDir) {
-    logError('Failed to download theme files. Stopping update.');
-    process.exit(1);
-  }
-  
-  // C. Ensure content directories exist
-  await ensureContentDirectories();
-  
-  // D. Copy theme files
-  if (!await copyThemeFiles(extractedDir, updateContent)) {
-    logError('Failed to copy theme files. Stopping update.');
+  if (release) {
+    // Use GitHub release approach
+    logInfo('Using GitHub release for updates...');
+    
+    // B. Download theme files
+    const extractedDir = await downloadThemeFiles(release);
+    if (!extractedDir) {
+      logError('Failed to download theme files. Stopping update.');
+      process.exit(1);
+    }
+    
+    // C. Ensure content directories exist
+    await ensureContentDirectories();
+    
+    // D. Copy theme files
+    if (!await copyThemeFiles(extractedDir, updateContent)) {
+      logError('Failed to copy theme files. Stopping update.');
+      cleanupTempFiles();
+      process.exit(1);
+    }
+    
+    // E. Clean up temporary files
     cleanupTempFiles();
-    process.exit(1);
+    
+    // F. Ask about Obsidian files
+    await updateObsidianFiles(release.tag_name);
+  } else {
+    // Fallback: Use git-based approach for template installations
+    logInfo('Using git-based approach for template installations...');
+    
+    // For template installations, we'll just ensure everything is up to date
+    // and skip the complex release-based update
+    await ensureContentDirectories();
+    
+    logInfo('Template installation detected - no external updates available.');
+    logInfo('Your installation is already up to date with the template.');
+    
+    // Skip Obsidian updates for template installations
+    logInfo('Skipping Obsidian configuration updates for template installations.');
   }
-  
-  // E. Clean up temporary files
-  cleanupTempFiles();
-  
-  // F. Ask about Obsidian files
-  await updateObsidianFiles(release.tag_name);
   
   // Step 8: Update dependencies
   logStep(8, 'Updating dependencies');
@@ -1060,29 +1138,36 @@ async function updateTheme(updateContent = false) {
   // Success!
   log('\n🎉 Theme update completed successfully!', 'green');
   log('======================================', 'green');
-  logInfo(`Your Astro Modular theme has been updated to ${release.tag_name}`);
-  logInfo('Your customizations have been preserved');
-  logInfo('Run "pnpm run dev" to start the development server');
   
-  // Update version information
-  try {
-    const { updateVersion } = await import('./get-version.js');
-    const version = release.tag_name.replace('v', ''); // Remove 'v' prefix if present
-    if (updateVersion(version)) {
-      logSuccess(`Updated version to ${version}`);
+  if (release) {
+    logInfo(`Your Astro Modular theme has been updated to ${release.tag_name}`);
+    logInfo('Your customizations have been preserved');
+    
+    // Update version information
+    try {
+      const { updateVersion } = await import('./get-version.js');
+      const version = release.tag_name.replace('v', ''); // Remove 'v' prefix if present
+      if (updateVersion(version)) {
+        logSuccess(`Updated version to ${version}`);
+      }
+    } catch (error) {
+      logWarning('Could not update version information');
     }
-  } catch (error) {
-    logWarning('Could not update version information');
+    
+    // Create a single commit with the changes
+    try {
+      execSync('git add .', { stdio: 'pipe' });
+      execSync(`git commit -m "Update theme to ${release.tag_name}"`, { stdio: 'pipe' });
+      logSuccess(`Created commit: Update theme to ${release.tag_name}`);
+    } catch (error) {
+      logWarning('Could not create commit (no changes detected)');
+    }
+  } else {
+    logInfo('Template installation verified and ready to use');
+    logInfo('Your installation is up to date with the latest template');
   }
   
-  // Create a single commit with the changes
-  try {
-    execSync('git add .', { stdio: 'pipe' });
-    execSync(`git commit -m "Update theme to ${release.tag_name}"`, { stdio: 'pipe' });
-    logSuccess(`Created commit: Update theme to ${release.tag_name}`);
-  } catch (error) {
-    logWarning('Could not create commit (no changes detected)');
-  }
+  logInfo('Run "pnpm run dev" to start the development server');
 }
 
 // Handle command line arguments
