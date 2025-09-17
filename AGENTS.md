@@ -25,11 +25,12 @@ This document contains essential information for AI agents working with this Ast
 6. [Build Process](#build-process)
    - [RSS and Atom Feeds](#rss-and-atom-feeds)
 7. [Theme Updates](#theme-updates)
-8. [Configuration & Customization](#configuration--customization)
+8. [Version Management](#version-management)
+9. [Configuration & Customization](#configuration--customization)
    - [Typography Configuration](#typography-configuration)
-9. [Troubleshooting](#troubleshooting)
-10. [Best Practices](#best-practices)
-11. [Common AI Agent Mistakes](#common-ai-agent-mistakes)
+10. [Troubleshooting](#troubleshooting)
+11. [Best Practices](#best-practices)
+12. [Common AI Agent Mistakes](#common-ai-agent-mistakes)
 
 ## Project Vision & Philosophy
 
@@ -335,6 +336,36 @@ src/content/posts/
 - **Folder name becomes the slug**: `folder-based-post` → `/posts/folder-based-post/`
 - **index.md contains the content**: Main content goes in the `index.md` file
 - **Assets are co-located**: All related files stay in the same folder
+
+### Content Types
+
+The theme supports multiple content types for different purposes:
+
+#### Posts (`src/content/posts/`)
+- **Purpose**: Blog posts and articles
+- **URL Structure**: `/posts/post-slug`
+- **Features**: Tags, reading time, linked mentions, comments
+- **Organization**: Single files or folder-based with co-located assets
+
+#### Pages (`src/content/pages/`)
+- **Purpose**: Static pages (About, Contact, etc.)
+- **URL Structure**: `/page-slug`
+- **Features**: Simple content without blog-specific features
+- **Organization**: Single files or folder-based with co-located assets
+
+#### Projects (`src/content/projects/`)
+- **Purpose**: Portfolio items, side projects, work showcases
+- **URL Structure**: `/projects/project-slug`
+- **Features**: Categories, status, repository/demo links, featured flag
+- **Organization**: Single files or folder-based with co-located assets
+- **Frontmatter**: `title`, `description`, `date`, `categories`, `repositoryUrl`, `demoUrl`, `status`, `image`, `imageAlt`, `hideCoverImage`, `draft`, `noIndex`, `featured`
+
+#### Documentation (`src/content/docs/`)
+- **Purpose**: Technical documentation, guides, API references
+- **URL Structure**: `/docs/doc-slug`
+- **Features**: Categories, version control, table of contents, featured flag
+- **Organization**: Single files or folder-based with co-located assets
+- **Frontmatter**: `title`, `description`, `category`, `order`, `lastModified`, `version`, `image`, `imageAlt`, `hideCoverImage`, `draft`, `noIndex`, `showTOC`, `featured`
 
 ### Content Schema
 
@@ -760,14 +791,20 @@ pnpm run build
 
 ### Update Theme Command
 
-The theme includes a built-in update command that helps users keep their Astro Modular theme installation up to date with the latest features and fixes.
+The theme includes a built-in update command that helps users keep their Astro Modular theme installation up to date with the latest features and fixes. The update process is designed to be **safe and conservative**, protecting your content while updating theme files.
 
 #### Quick Start
 
-To update your theme to the latest version, simply run:
-
+**Safe Update (Recommended):**
 ```bash
 pnpm run update-theme
+```
+
+**Content Update (Use with caution):**
+```bash
+pnpm run update-theme:content
+# or
+pnpm run update-theme --update-content
 ```
 
 #### What the Update Command Does
@@ -780,9 +817,58 @@ The `update-theme` command will:
 4. **Create a backup** - Saves your current commit hash for reference
 5. **Fetch latest changes** - Downloads the latest changes from the upstream repository
 6. **Check for updates** - Compares your local version with the latest upstream version
-7. **Merge changes** - Merges the updates into your local copy
-8. **Update dependencies** - Runs `pnpm install` to update any changed dependencies
-9. **Rebuild project** - Runs `pnpm run build` to ensure everything works
+7. **Check critical files** - Ensures all required scripts and files are present
+8. **Ensure content directories** - Creates missing content directories (projects, docs)
+9. **Update theme files** - Updates components, layouts, styles, and scripts
+10. **Smart merge configurations** - Preserves your settings while adding new options
+11. **Handle content files** - Skips content by default (opt-in only with `--update-content`)
+12. **Update Obsidian configuration** - Updates plugins and core configs (with user confirmation)
+13. **Update dependencies** - Runs `pnpm install` to update any changed dependencies
+14. **Rebuild project** - Runs `pnpm run build` to ensure everything works
+
+#### Content Protection (Critical)
+
+**By default, your content files are NEVER updated:**
+- Posts (`src/content/posts/`)
+- Pages (`src/content/pages/`)
+- Projects (`src/content/projects/`)
+- Documentation (`src/content/docs/`)
+- Public assets (`public/`)
+
+**This prevents accidental loss of your blog posts and customizations.**
+
+To update content files, you must explicitly use the `--update-content` flag, which will:
+- Show clear warnings about content overwrites
+- Require explicit confirmation before proceeding
+- Only update content when you explicitly choose to do so
+
+#### Obsidian Plugin Updates
+
+The update process handles Obsidian plugins intelligently:
+
+**Always Updated:**
+- Plugin core files (`main.js`, `manifest.json`, `styles.css`)
+- Obsidian core configuration files
+- New plugins (when introduced)
+
+**Never Updated:**
+- User preference files (`data.json`)
+- User appearance settings
+- Custom snippets and themes
+- User-specific configurations
+
+**New Plugin Strategy:**
+- New plugins are detected automatically
+- You're asked if you want to install them
+- Existing plugins are updated to latest versions
+- Your plugin settings and preferences are preserved
+
+**Plugin Update Process:**
+1. Update core plugin files (main.js, manifest.json, styles.css)
+2. Preserve user data files (data.json)
+3. Detect new plugins from upstream
+4. Ask for confirmation before installing new plugins
+5. Maintain your existing plugin configurations
 
 #### Prerequisites
 
@@ -905,6 +991,186 @@ git reset --hard COMMIT_HASH
 # Rebuild the project
 pnpm run build
 ```
+
+## Version Management
+
+### Theme Version System
+
+The Astro Modular theme includes a comprehensive version management system that tracks the current theme version and displays it consistently across all build and development commands.
+
+#### Version Display
+
+**All pnpm commands now show the theme version:**
+```bash
+> astro-modular@0.1.0 dev C:\Users\david\Development\astro-modular
+> astro-modular@0.1.0 build C:\Users\david\Development\astro-modular
+> astro-modular@0.1.0 version C:\Users\david\Development\astro-modular
+```
+
+**Instead of the generic workspace version:**
+```bash
+# Old (generic)
+> workspace@1.0.0 dev
+
+# New (theme-specific)
+> astro-modular@0.1.0 dev
+```
+
+#### Version Files
+
+The version system uses multiple files to maintain consistency:
+
+**Primary Version File:**
+- **`VERSION`** - Contains the current version number (e.g., `0.1.0`)
+
+**Package Configuration:**
+- **`package.json`** - Updated with theme name (`astro-modular`) and version (`0.1.0`)
+
+**Version Utility:**
+- **`scripts/get-version.js`** - Provides version management functions
+
+#### Version Commands
+
+**Get Current Version:**
+```bash
+pnpm run version
+# Output: 0.1.0
+```
+
+**Get Theme Identifier:**
+```bash
+node scripts/get-version.js
+# Output: 0.1.0
+```
+
+#### Version Management Functions
+
+The `scripts/get-version.js` utility provides several functions:
+
+**`getThemeVersion()`** - Get current version from VERSION file or package.json
+**`getThemeName()`** - Get theme name from package.json
+**`getThemeIdentifier()`** - Get full identifier (name@version)
+**`updateVersion(newVersion)`** - Update both VERSION file and package.json
+
+#### Release Process
+
+**For Maintainers (Creating Releases):**
+
+1. **Update Version Files:**
+   ```bash
+   # Edit VERSION file
+   echo "0.2.0" > VERSION
+   
+   # Update package.json
+   # Change version to "0.2.0"
+   ```
+
+2. **Create GitHub Release:**
+   - Go to GitHub repository
+   - Click "Releases" → "Create a new release"
+   - Tag version: `v0.2.0` (with 'v' prefix)
+   - Release title: `v0.2.0`
+   - Description: List of changes
+   - **Important**: Use "Source code (zip)" as the release asset (automatic)
+
+3. **Publish Release:**
+   - Click "Publish release"
+   - GitHub automatically creates the source code zip
+   - No additional files needed
+
+**For Users (Updating Theme):**
+
+1. **Check for Updates:**
+   ```bash
+   pnpm run update-theme --version
+   # Shows current version and available updates
+   ```
+
+2. **Update Theme:**
+   ```bash
+   # Safe update (recommended)
+   pnpm run update-theme
+   
+   # With content updates (use with caution)
+   pnpm run update-theme:content
+   ```
+
+3. **Version Updates Automatically:**
+   - Update script fetches latest release from GitHub
+   - Downloads source code zip from release
+   - Updates theme files while preserving content
+   - Updates version information automatically
+   - Creates single commit with changes
+
+#### Version Update Process
+
+**When users run `pnpm run update-theme`:**
+
+1. **Fetch Latest Release** - Gets release info from GitHub API
+2. **Download Source Code** - Downloads zip from release assets
+3. **Extract Theme Files** - Extracts to temporary directory
+4. **Update Theme Files** - Copies theme files to project
+5. **Update Version** - Updates VERSION file and package.json
+6. **Create Commit** - Single commit with all changes
+7. **Cleanup** - Removes temporary files
+
+**Version Sync:**
+- Release tag: `v0.2.0` → Version: `0.2.0` (removes 'v' prefix)
+- Both VERSION file and package.json are updated
+- All commands show new version immediately
+
+#### Template vs Fork Detection
+
+**Template Users:**
+- See `astro-modular@0.1.0` in all commands
+- No update functionality available
+- Version stays at template version
+
+**Fork Users:**
+- See `astro-modular@0.1.0` in all commands
+- Full update functionality available
+- Version updates with theme updates
+
+#### Version Display Examples
+
+**Development Server:**
+```bash
+> astro-modular@0.1.0 dev C:\Users\david\Development\astro-modular
+> cross-env ASTRO_CONTENT_COLLECTION_CACHE=false node scripts/setup-dev.mjs && node scripts/sync-images.js && node scripts/process-aliases.js && node scripts/generate-redirects.js && astro dev --host localhost --port 5000
+```
+
+**Build Process:**
+```bash
+> astro-modular@0.1.0 build C:\Users\david\Development\astro-modular
+> node scripts/sync-images.js && node scripts/process-aliases.js && node scripts/generate-redirects.js && astro build
+```
+
+**Version Check:**
+```bash
+> astro-modular@0.1.0 version C:\Users\david\Development\astro-modular
+> node scripts/get-version.js
+0.1.0
+```
+
+#### Best Practices for AI Agents
+
+**Version Management:**
+- **Always check current version** before making changes
+- **Use version commands** to verify theme version
+- **Don't hardcode version numbers** - use the utility functions
+- **Test version display** after making changes
+
+**Release Process:**
+- **Update VERSION file first** - this is the source of truth
+- **Update package.json** - keep both files in sync
+- **Use semantic versioning** - follow semver conventions
+- **Test version commands** before creating releases
+
+**User Experience:**
+- **Version display is consistent** across all commands
+- **Theme identification is clear** - users know which version they're using
+- **Update process is transparent** - users see version changes
+- **No confusion** between workspace and theme versions
 
 ## Configuration & Customization
 

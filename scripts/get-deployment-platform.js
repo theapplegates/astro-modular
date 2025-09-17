@@ -1,40 +1,37 @@
 #!/usr/bin/env node
 
 /**
- * Get deployment platform from config file
- * This script reads the TypeScript config file and extracts the deployment platform
+ * Get deployment platform from config
+ * This script reads the deployment platform from src/config.ts
  */
 
 import { readFileSync } from 'fs';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+import { join } from 'path';
 
 function getDeploymentPlatform() {
   try {
-    const configPath = join(__dirname, '..', 'src', 'config.ts');
-    const configContent = readFileSync(configPath, 'utf-8');
+    const configPath = join(process.cwd(), 'src', 'config.ts');
+    const configContent = readFileSync(configPath, 'utf8');
     
-    // Extract deployment platform from config - look for the actual config value
-    // Split by "Set your values HERE" to get only the config section, not the interface
-    const configSections = configContent.split('// Set your values HERE');
-    if (configSections.length > 1) {
-      const configSection = configSections[1];
-      const platformMatch = configSection.match(/platform:\s*"([^"]+)"/);
-      if (platformMatch) {
-        return platformMatch[1];
-      }
+    // Extract platform from config
+    const platformMatch = configContent.match(/platform:\s*["']([^"']+)["']/);
+    
+    if (platformMatch) {
+      return platformMatch[1];
     }
     
-    // Fallback to netlify if not found
-    return 'netlify';
+    // Fallback to environment variable
+    return process.env.DEPLOYMENT_PLATFORM || 'netlify';
   } catch (error) {
-    console.warn('Warning: Could not read config file, defaulting to netlify');
-    return 'netlify';
+    console.error('Error reading config:', error.message);
+    return process.env.DEPLOYMENT_PLATFORM || 'netlify';
   }
 }
 
-// Export the platform
+// Export for use in other scripts
 export default getDeploymentPlatform;
+
+// If run directly, output the platform
+if (import.meta.url === `file://${process.argv[1]}`) {
+  console.log(getDeploymentPlatform());
+}

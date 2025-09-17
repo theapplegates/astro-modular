@@ -38,6 +38,7 @@ A flexible blog theme designed for Obsidian users.
 - [x] **Wikilinks & Linked Mentions** 
 - [x] **Obsidian-Style Callouts** 
 - [x] **Folder-Based Posts** 
+- [x] **Multiple Content Types** (Posts, Pages, Projects, Documentation)
 - [x] **Image Optimization** 
 - [x] **Automatic Sitemap, RSS, Open Graph, robots.txt, & llms.txt Generation** 
 - [x] **Table of Contents** 
@@ -80,10 +81,14 @@ A flexible blog theme designed for Obsidian users.
 
 4. **Update theme (optional):**
    ```bash
+   # Safe update (recommended) - preserves your content
    pnpm run update-theme
+   
+   # Content update (use with caution) - may overwrite your content
+   pnpm run update-theme:content
    ```
    
-   This command helps you keep your theme up to date with the latest features and fixes.
+   The update command helps you keep your theme up to date with the latest features and fixes while protecting your content by default.
 
 ### Configuration
 

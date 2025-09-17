@@ -10,13 +10,16 @@
  */
 
 import { execSync } from 'child_process';
-import { existsSync, readFileSync, writeFileSync, readdirSync, statSync } from 'fs';
+import { existsSync, readFileSync, writeFileSync, readdirSync, statSync, mkdirSync } from 'fs';
 import { join, relative, dirname } from 'path';
 import { createReadStream, createWriteStream } from 'fs';
 import { pipeline } from 'stream/promises';
+import { createWriteStream as createWriteStreamAsync } from 'fs';
+import { pipeline as pipelineAsync } from 'stream/promises';
 
 // Configuration
 const UPSTREAM_REPO = 'https://github.com/davidvkimball/astro-modular.git';
+const GITHUB_API_BASE = 'https://api.github.com/repos/davidvkimball/astro-modular';
 const THEME_VERSION_FILE = 'THEME_VERSION';
 const BACKUP_DIR = '.theme-backup';
 
@@ -26,7 +29,7 @@ const FILE_CATEGORIES = {
   THEME_FILES: [
     'src/components/',
     'src/layouts/',
-    'src/pages/',
+    'src/pages/', // Only page templates, not content
     'src/styles/',
     'src/themes/',
     'src/utils/',
@@ -37,12 +40,7 @@ const FILE_CATEGORIES = {
     'tsconfig.json',
     'package.json',
     'pnpm-lock.yaml',
-    'scripts/check-missing-images.js',
-    'scripts/generate-redirects.js',
-    'scripts/process-aliases.js',
-    'scripts/sync-images.js',
-    'scripts/setup-dev.mjs',
-    'scripts/update-theme.js',
+    'scripts/', // Include all scripts
     'netlify.toml',
     'README.md',
     'LICENSE'
@@ -53,11 +51,18 @@ const FILE_CATEGORIES = {
     'src/config.ts'
   ],
 
-  // User choice - ask before updating
-  USER_CHOICE_FILES: [
+  // NEVER update by default - user content (only with --update-content flag)
+  USER_CONTENT: [
     'src/content/posts/',
     'src/content/pages/',
+    'src/content/projects/',
+    'src/content/docs/',
     'public/'
+  ],
+
+  // Only add new content types when introduced
+  NEW_CONTENT_TYPES: [
+    // This will be populated when new content types are added
   ],
 
   // Obsidian files - complex categorization
@@ -147,6 +152,276 @@ function checkGitRepository() {
     return true;
   } catch (error) {
     return false;
+  }
+}
+
+/**
+ * Check if this is a fork (has upstream remote) vs template (no upstream)
+ */
+function isFork() {
+  try {
+    const remotes = execSync('git remote -v', { encoding: 'utf8' });
+    return remotes.includes('upstream') && remotes.includes('davidvkimball/astro-modular');
+  } catch (error) {
+    return false;
+  }
+}
+
+/**
+ * Check if update functionality should be available
+ */
+function shouldAllowUpdates() {
+  if (!checkGitRepository()) {
+    return false;
+  }
+  
+  if (!isFork()) {
+    logInfo('This appears to be a template installation. Update functionality is not available.');
+    logInfo('To enable updates, fork the repository and add an upstream remote.');
+    return false;
+  }
+  
+  return true;
+}
+
+/**
+ * Get latest release information from GitHub
+ */
+async function getLatestRelease() {
+  try {
+    logInfo('Fetching latest release information...');
+    const response = await fetch(`${GITHUB_API_BASE}/releases/latest`);
+    
+    if (!response.ok) {
+      throw new Error(`GitHub API error: ${response.status}`);
+    }
+    
+    const release = await response.json();
+    logSuccess(`Found latest release: ${release.tag_name}`);
+    return release;
+  } catch (error) {
+    logError(`Failed to fetch release information: ${error.message}`);
+    return null;
+  }
+}
+
+/**
+ * Download and extract theme files from GitHub release
+ */
+async function downloadThemeFiles(release) {
+  try {
+    logInfo('Downloading theme files from GitHub release...');
+    
+    // Download the source code zip
+    const zipUrl = release.zipball_url;
+    const zipResponse = await fetch(zipUrl);
+    
+    if (!zipResponse.ok) {
+      throw new Error(`Failed to download zip: ${zipResponse.status}`);
+    }
+    
+    // Create temporary directory
+    const tempDir = join(process.cwd(), '.temp-theme-update');
+    if (existsSync(tempDir)) {
+      execSync(`rm -rf "${tempDir}"`, { stdio: 'pipe' });
+    }
+    mkdirSync(tempDir, { recursive: true });
+    
+    // Save zip file
+    const zipPath = join(tempDir, 'theme.zip');
+    const zipBuffer = await zipResponse.arrayBuffer();
+    writeFileSync(zipPath, Buffer.from(zipBuffer));
+    
+    // Extract zip (using system unzip command)
+    try {
+      execSync(`unzip -q "${zipPath}" -d "${tempDir}"`, { stdio: 'pipe' });
+    } catch (error) {
+      // Try Windows PowerShell unzip
+      execSync(`powershell -command "Expand-Archive -Path '${zipPath}' -DestinationPath '${tempDir}' -Force"`, { stdio: 'pipe' });
+    }
+    
+    // Find the extracted directory (GitHub creates a directory with the tag name)
+    const extractedDirs = readdirSync(tempDir).filter(item => 
+      statSync(join(tempDir, item)).isDirectory() && item !== 'theme.zip'
+    );
+    
+    if (extractedDirs.length === 0) {
+      throw new Error('No extracted directory found');
+    }
+    
+    const extractedDir = join(tempDir, extractedDirs[0]);
+    logSuccess('Theme files downloaded and extracted');
+    
+    return extractedDir;
+  } catch (error) {
+    logError(`Failed to download theme files: ${error.message}`);
+    return null;
+  }
+}
+
+/**
+ * Filter and copy theme files from extracted directory
+ */
+async function copyThemeFiles(sourceDir, updateContent = false) {
+  try {
+    logInfo('Copying theme files...');
+    
+    let copiedCount = 0;
+    let skippedCount = 0;
+    
+    // Copy theme files
+    for (const filePattern of FILE_CATEGORIES.THEME_FILES) {
+      const sourcePath = join(sourceDir, filePattern);
+      const destPath = join(process.cwd(), filePattern);
+      
+      if (existsSync(sourcePath)) {
+        if (statSync(sourcePath).isDirectory()) {
+          // Copy directory recursively
+          try {
+            execSync(`cp -r "${sourcePath}"/* "${destPath}/"`, { stdio: 'pipe' });
+          } catch (error) {
+            // Windows PowerShell copy
+            execSync(`powershell -command "Copy-Item -Path '${sourcePath}\\*' -Destination '${destPath}' -Recurse -Force"`, { stdio: 'pipe' });
+          }
+          logSuccess(`Updated directory: ${filePattern}`);
+        } else {
+          // Copy file
+          try {
+            execSync(`cp "${sourcePath}" "${destPath}"`, { stdio: 'pipe' });
+          } catch (error) {
+            // Windows PowerShell copy
+            execSync(`powershell -command "Copy-Item -Path '${sourcePath}' -Destination '${destPath}' -Force"`, { stdio: 'pipe' });
+          }
+          logSuccess(`Updated file: ${filePattern}`);
+        }
+        copiedCount++;
+      } else {
+        logWarning(`File not found in release: ${filePattern}`);
+        skippedCount++;
+      }
+    }
+    
+    // Handle content files if requested
+    if (updateContent) {
+      for (const filePattern of FILE_CATEGORIES.USER_CONTENT) {
+        const sourcePath = join(sourceDir, filePattern);
+        const destPath = join(process.cwd(), filePattern);
+        
+        if (existsSync(sourcePath)) {
+          if (statSync(sourcePath).isDirectory()) {
+            try {
+              execSync(`cp -r "${sourcePath}"/* "${destPath}/"`, { stdio: 'pipe' });
+            } catch (error) {
+              // Windows PowerShell copy
+              execSync(`powershell -command "Copy-Item -Path '${sourcePath}\\*' -Destination '${destPath}' -Recurse -Force"`, { stdio: 'pipe' });
+            }
+            logSuccess(`Updated content directory: ${filePattern}`);
+          } else {
+            try {
+              execSync(`cp "${sourcePath}" "${destPath}"`, { stdio: 'pipe' });
+            } catch (error) {
+              // Windows PowerShell copy
+              execSync(`powershell -command "Copy-Item -Path '${sourcePath}' -Destination '${destPath}' -Force"`, { stdio: 'pipe' });
+            }
+            logSuccess(`Updated content file: ${filePattern}`);
+          }
+          copiedCount++;
+        }
+      }
+    }
+    
+    logSuccess(`Theme files copied: ${copiedCount} files updated, ${skippedCount} skipped`);
+    return true;
+  } catch (error) {
+    logError(`Failed to copy theme files: ${error.message}`);
+    return false;
+  }
+}
+
+/**
+ * Clean up temporary files
+ */
+function cleanupTempFiles() {
+  try {
+    const tempDir = join(process.cwd(), '.temp-theme-update');
+    if (existsSync(tempDir)) {
+      try {
+        execSync(`rm -rf "${tempDir}"`, { stdio: 'pipe' });
+      } catch (error) {
+        // Windows PowerShell remove
+        execSync(`powershell -command "Remove-Item -Path '${tempDir}' -Recurse -Force"`, { stdio: 'pipe' });
+      }
+      logInfo('Cleaned up temporary files');
+    }
+  } catch (error) {
+    logWarning('Failed to clean up temporary files');
+  }
+}
+
+/**
+ * Check for and restore critical files
+ */
+async function checkCriticalFiles(upstreamBranch) {
+  logStep('A1', 'Checking critical files');
+  
+  const criticalFiles = [
+    'scripts/get-deployment-platform.js',
+    'scripts/sync-images.js',
+    'scripts/process-aliases.js',
+    'scripts/generate-redirects.js',
+    'scripts/check-missing-images.js',
+    'scripts/setup-dev.mjs'
+  ];
+  
+  let allFilesPresent = true;
+  
+  for (const file of criticalFiles) {
+    if (!existsSync(file)) {
+      try {
+        execSync(`git checkout ${upstreamBranch} -- "${file}"`, { stdio: 'pipe' });
+        logSuccess(`Restored missing critical file: ${file}`);
+      } catch (error) {
+        logError(`Could not restore critical file: ${file}`);
+        allFilesPresent = false;
+      }
+    } else {
+      logInfo(`Critical file present: ${file}`);
+    }
+  }
+  
+  if (!allFilesPresent) {
+    logError('Some critical files could not be restored. Update may fail.');
+    return false;
+  }
+  
+  logSuccess('All critical files present');
+  return true;
+}
+
+/**
+ * Ensure content directories exist
+ */
+async function ensureContentDirectories() {
+  logStep('A2', 'Ensuring content directories exist');
+  
+  const contentDirs = [
+    'src/content/projects',
+    'src/content/docs'
+  ];
+  
+  for (const dir of contentDirs) {
+    if (!existsSync(dir)) {
+      try {
+        // Use cross-platform directory creation
+        const { mkdirSync } = await import('fs');
+        mkdirSync(dir, { recursive: true });
+        logSuccess(`Created content directory: ${dir}`);
+      } catch (error) {
+        logWarning(`Could not create directory: ${dir}`);
+      }
+    } else {
+      logInfo(`Content directory exists: ${dir}`);
+    }
   }
 }
 
@@ -267,14 +542,27 @@ async function updateThemeFiles(upstreamBranch) {
     // Create a temporary branch for theme files
     execSync('git checkout -b temp-theme-update', { stdio: 'pipe' });
     
+    let updateCount = 0;
+    let errorCount = 0;
+    
     // Merge only theme files
     for (const filePattern of FILE_CATEGORIES.THEME_FILES) {
       try {
         execSync(`git checkout ${upstreamBranch} -- "${filePattern}"`, { stdio: 'pipe' });
         logSuccess(`Updated ${filePattern}`);
+        updateCount++;
       } catch (error) {
         logWarning(`Could not update ${filePattern} (may not exist)`);
+        errorCount++;
       }
+    }
+    
+    if (updateCount === 0) {
+      logError('No theme files were updated. This may indicate a problem.');
+      // Clean up temp branch
+      execSync('git checkout main', { stdio: 'pipe' });
+      execSync('git branch -D temp-theme-update', { stdio: 'pipe' });
+      return false;
     }
     
     // Commit the theme file updates
@@ -286,10 +574,10 @@ async function updateThemeFiles(upstreamBranch) {
     execSync('git merge temp-theme-update --no-edit', { stdio: 'pipe' });
     execSync('git branch -d temp-theme-update', { stdio: 'pipe' });
     
-    logSuccess('Core theme files updated successfully');
+    logSuccess(`Core theme files updated successfully (${updateCount} files updated, ${errorCount} errors)`);
     return true;
   } catch (error) {
-    logError('Failed to update theme files');
+    logError(`Failed to update theme files: ${error.message}`);
     // Clean up temp branch
     try {
       execSync('git checkout main', { stdio: 'pipe' });
@@ -405,9 +693,9 @@ function extractNewProperties(upstreamConfig, userConfig) {
 }
 
 /**
- * Ask user for content file updates
+ * Handle content file updates (opt-in only)
  */
-async function askUserForContentUpdates(upstreamBranch) {
+async function handleContentUpdates(upstreamBranch, updateContent = false) {
   logStep('C', 'Checking content files');
   
   // Check if there are content changes
@@ -423,6 +711,12 @@ async function askUserForContentUpdates(upstreamBranch) {
     log(`  - ${change.file} (${change.type})`, 'blue');
   });
   
+  if (!updateContent) {
+    logInfo('Content updates are disabled by default. Use --update-content flag to enable.');
+    logInfo('Your content files will be preserved.');
+    return;
+  }
+  
   const readline = await import('readline');
   const rl = readline.createInterface({
     input: process.stdin,
@@ -430,7 +724,7 @@ async function askUserForContentUpdates(upstreamBranch) {
   });
   
   const answer = await new Promise((resolve) => {
-    rl.question('\nUpdate content files? (y/N): ', resolve);
+    rl.question('\n⚠️  WARNING: This will overwrite your content files! Continue? (y/N): ', resolve);
   });
   rl.close();
   
@@ -447,7 +741,7 @@ async function askUserForContentUpdates(upstreamBranch) {
 async function checkContentChanges(upstreamBranch) {
   const changes = [];
   
-  for (const contentDir of FILE_CATEGORIES.USER_CHOICE_FILES) {
+  for (const contentDir of FILE_CATEGORIES.USER_CONTENT) {
     try {
       const diff = execSync(`git diff --name-status ${upstreamBranch} -- "${contentDir}"`, { encoding: 'utf8' });
       const lines = diff.trim().split('\n').filter(line => line.trim());
@@ -661,21 +955,37 @@ function rebuildProject() {
 /**
  * Main update function
  */
-async function updateTheme() {
+async function updateTheme(updateContent = false) {
   log('🚀 Astro Modular Theme Updater', 'bright');
   log('================================', 'bright');
   log('This updater preserves your customizations while updating theme files', 'blue');
   
-  // Step 1: Check if we're in a git repository
-  logStep(1, 'Checking git repository');
+  // Step 1: Check if updates should be allowed
+  logStep(1, 'Checking update eligibility');
+  if (!shouldAllowUpdates()) {
+    logError('Update functionality is not available for this installation.');
+    logInfo('This appears to be a template installation.');
+    logInfo('To enable updates, fork the repository and add an upstream remote.');
+    process.exit(1);
+  }
+  logSuccess('Update functionality available');
+  
+  if (updateContent) {
+    log('⚠️  WARNING: Content updates are enabled. This may overwrite your content files!', 'yellow');
+  } else {
+    log('ℹ️  Content updates are disabled by default. Use --update-content to enable.', 'blue');
+  }
+  
+  // Step 2: Check if we're in a git repository
+  logStep(2, 'Checking git repository');
   if (!checkGitRepository()) {
     logError('Not in a git repository. Please initialize git first.');
     process.exit(1);
   }
   logSuccess('Git repository found');
   
-  // Step 2: Check for uncommitted changes
-  logStep(2, 'Checking for uncommitted changes');
+  // Step 3: Check for uncommitted changes
+  logStep(3, 'Checking for uncommitted changes');
   const gitStatus = getGitStatus();
   if (gitStatus) {
     logWarning('You have uncommitted changes:');
@@ -701,50 +1011,42 @@ async function updateTheme() {
     logSuccess('Working directory is clean');
   }
   
-  // Step 3: Check/setup upstream remote
-  logStep(3, 'Setting up upstream remote');
-  if (!checkUpstreamRemote()) {
-    if (!addUpstreamRemote()) {
-      process.exit(1);
-    }
-  } else {
-    logSuccess('Upstream remote already configured');
-  }
-  
   // Step 4: Create backup
   logStep(4, 'Creating backup');
   createBackup();
   
-  // Step 5: Fetch latest changes
-  logStep(5, 'Fetching latest changes');
-  if (!fetchUpstream()) {
+  // Step 7: Download and apply updates
+  logStep(7, 'Downloading and applying updates');
+  
+  // A. Get latest release information
+  const release = await getLatestRelease();
+  if (!release) {
+    logError('Failed to get latest release information. Stopping update.');
     process.exit(1);
   }
   
-  // Step 6: Check for updates
-  logStep(6, 'Checking for updates');
-  const updateInfo = checkForUpdates();
-  if (!updateInfo.hasUpdates) {
-    logSuccess('Your theme is already up to date!');
-    process.exit(0);
+  // B. Download theme files
+  const extractedDir = await downloadThemeFiles(release);
+  if (!extractedDir) {
+    logError('Failed to download theme files. Stopping update.');
+    process.exit(1);
   }
   
-  logInfo(`Updates available: ${updateInfo.localCommit} → ${updateInfo.upstreamCommit}`);
+  // C. Ensure content directories exist
+  await ensureContentDirectories();
   
-  // Step 7: Intelligent updates
-  logStep(7, 'Performing intelligent updates');
+  // D. Copy theme files
+  if (!await copyThemeFiles(extractedDir, updateContent)) {
+    logError('Failed to copy theme files. Stopping update.');
+    cleanupTempFiles();
+    process.exit(1);
+  }
   
-  // A. Update core theme files (always)
-  await updateThemeFiles(updateInfo.upstreamBranch);
+  // E. Clean up temporary files
+  cleanupTempFiles();
   
-  // B. Smart merge configuration files
-  await smartMergeConfigs(updateInfo.upstreamBranch);
-  
-  // C. Ask about content files
-  await askUserForContentUpdates(updateInfo.upstreamBranch);
-  
-  // D. Ask about Obsidian files
-  await updateObsidianFiles(updateInfo.upstreamBranch);
+  // F. Ask about Obsidian files
+  await updateObsidianFiles(release.tag_name);
   
   // Step 8: Update dependencies
   logStep(8, 'Updating dependencies');
@@ -759,18 +1061,28 @@ async function updateTheme() {
   // Success!
   log('\n🎉 Theme update completed successfully!', 'green');
   log('======================================', 'green');
-  logInfo('Your Astro Modular theme has been updated while preserving your customizations');
+  logInfo(`Your Astro Modular theme has been updated to ${release.tag_name}`);
+  logInfo('Your customizations have been preserved');
   logInfo('Run "pnpm run dev" to start the development server');
   
-  // Show what changed
+  // Update version information
   try {
-    const changes = execSync('git log --oneline HEAD~1..HEAD', { encoding: 'utf8' });
-    if (changes.trim()) {
-      log('\nRecent changes:', 'cyan');
-      console.log(changes);
+    const { updateVersion } = await import('./get-version.js');
+    const version = release.tag_name.replace('v', ''); // Remove 'v' prefix if present
+    if (updateVersion(version)) {
+      logSuccess(`Updated version to ${version}`);
     }
   } catch (error) {
-    // Ignore if we can't get the log
+    logWarning('Could not update version information');
+  }
+  
+  // Create a single commit with the changes
+  try {
+    execSync('git add .', { stdio: 'pipe' });
+    execSync(`git commit -m "Update theme to ${release.tag_name}"`, { stdio: 'pipe' });
+    logSuccess(`Created commit: Update theme to ${release.tag_name}`);
+  } catch (error) {
+    logWarning('Could not create commit (no changes detected)');
   }
 }
 
@@ -784,15 +1096,23 @@ if (args.includes('--help') || args.includes('-h')) {
   log('Usage: pnpm run update-theme [options]', 'cyan');
   log('');
   log('Options:', 'yellow');
-  log('  --help, -h    Show this help message');
-  log('  --version     Show version information');
+  log('  --help, -h           Show this help message');
+  log('  --version            Show version information');
+  log('  --update-content     Enable content file updates (DANGEROUS)');
   log('');
   log('This command will:', 'blue');
-  log('  1. Update core theme files (components, layouts, styles, etc.)');
-  log('  2. Smart merge configuration files (preserve your settings)');
-  log('  3. Ask before updating content files (posts, pages)');
-  log('  4. Ask before updating Obsidian configuration');
-  log('  5. Update dependencies and rebuild');
+  log('  1. Check and restore critical files');
+  log('  2. Ensure content directories exist');
+  log('  3. Update core theme files (components, layouts, styles, etc.)');
+  log('  4. Smart merge configuration files (preserve your settings)');
+  log('  5. Skip content files by default (use --update-content to enable)');
+  log('  6. Ask before updating Obsidian configuration');
+  log('  7. Update dependencies and rebuild');
+  log('');
+  log('Content Protection:', 'yellow');
+  log('  By default, your content files (posts, pages, projects, docs) are NEVER updated.');
+  log('  Use --update-content flag only if you want to overwrite your content.');
+  log('  This prevents accidental loss of your blog posts and customizations.');
   log('');
   log('Your customizations will be preserved while getting new features!');
   process.exit(0);
@@ -808,8 +1128,11 @@ if (args.includes('--version')) {
   process.exit(0);
 }
 
+// Check for update-content flag
+const updateContent = args.includes('--update-content');
+
 // Run the update
-updateTheme().catch((error) => {
+updateTheme(updateContent).catch((error) => {
   logError(`Update failed: ${error.message}`);
   process.exit(1);
 });
