@@ -56,7 +56,7 @@ export interface ProjectData {
   title: string;
   description: string;
   date: Date;
-  technologies?: string[];
+  categories?: string[];
   repositoryUrl?: string;
   demoUrl?: string;
   status?: 'in-progress' | 'completed' | '' | null;

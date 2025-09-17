@@ -5,6 +5,7 @@ import { generatePostsListSEO } from '@/utils/seo';
 import { shouldShowContent, sortPostsByDate, isValidDate } from '@/utils/markdown';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import ProjectCard from '@/components/ProjectCard.astro';
+import ProjectCategories from '@/components/ProjectCategories.astro';
 import Icon from '@/components/Icon.astro';
 
 // Get all projects
@@ -19,6 +20,13 @@ const visibleProjects = allProjects
     const dateB = isValidDate(b.data.date) ? b.data.date : new Date(0);
     return dateB.getTime() - dateA.getTime();
   });
+
+// Extract all unique categories
+const allCategories = Array.from(new Set(
+  visibleProjects
+    .flatMap(project => project.data.categories || [])
+    .filter(Boolean)
+));
 
 // Get projects page content from markdown file
 let projectsPageContent = null;
@@ -42,8 +50,8 @@ seoData.noIndex = projectsPageContent?.data.noIndex || false;
 ---
 
 <BaseLayout seoData={seoData}>
-  <div class="py-8">
-    <div class="mx-auto px-4 sm:px-6 lg:px-8" style={`max-width: ${siteConfig.layout.contentWidth}`}>
+  <div class="py-8 relative">
+    <div class="mx-auto px-4 sm:px-6 lg:px-8 mb-12" style={`max-width: ${siteConfig.layout.contentWidth}`}>
       <!-- Page header -->
       <header class="mb-8">
         <h1 class="text-lg font-bold text-primary-900 dark:text-primary-50 mb-3">
@@ -60,28 +68,53 @@ seoData.noIndex = projectsPageContent?.data.noIndex || false;
         )}
       </header>
 
-      <!-- Projects grid -->
-      {visibleProjects.length > 0 ? (
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {visibleProjects.map((project, index) => (
-            <ProjectCard 
-              project={project} 
-              eager={index === 0}
-              context="projects"
-            />
-          ))}
+      <div class="relative">
+        <!-- Main content -->
+        <div class="max-w-none">
+          {visibleProjects.length > 0 ? (
+            <>
+              <!-- Projects grid -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+                {visibleProjects.map((project, index) => (
+                  <ProjectCard 
+                    project={project} 
+                    eager={index === 0}
+                    context="projects"
+                  />
+                ))}
+              </div>
+            </>
+          ) : (
+            <div class="text-center py-12">
+              <Icon name="folder-open" class="w-12 h-12 text-primary-300 dark:text-primary-600 mx-auto mb-4" />
+              <h3 class="text-lg font-medium text-primary-900 dark:text-primary-50 mb-2">
+                No projects yet
+              </h3>
+              <p class="text-primary-600 dark:text-primary-300">
+                Check back soon for new projects!
+              </p>
+            </div>
+          )}
         </div>
-      ) : (
-        <div class="text-center py-12">
-          <Icon name="folder-open" class="w-12 h-12 text-primary-300 dark:text-primary-600 mx-auto mb-4" />
-          <h3 class="text-lg font-medium text-primary-900 dark:text-primary-50 mb-2">
-            No projects yet
-          </h3>
-          <p class="text-primary-600 dark:text-primary-300">
-            Check back soon for new projects!
-          </p>
+
+        <!-- Mobile sidebar - appears below content on mobile/tablet -->
+        <div class="xl:hidden mt-12 space-y-6">
+          <!-- Categories -->
+          {siteConfig.features.tags && allCategories.length > 0 && (
+            <ProjectCategories categories={allCategories} />
+          )}
         </div>
-      )}
+
+        <!-- Desktop sidebar - floats to the right of the content container -->
+        <div class="hidden xl:block absolute top-0 left-full ml-8 w-64">
+          <div class="sticky top-24 space-y-3 max-h-[calc(100vh-12rem)] overflow-y-auto pb-6">
+            <!-- Categories -->
+            {siteConfig.features.tags && allCategories.length > 0 && (
+              <ProjectCategories categories={allCategories} />
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </BaseLayout>

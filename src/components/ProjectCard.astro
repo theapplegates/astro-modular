@@ -23,7 +23,7 @@ const date = project.data.date;
 const image = project.data.image;
 const imageAlt = project.data.imageAlt || `Cover image for ${title}`;
 const hideCoverImage = project.data.hideCoverImage || false;
-const technologies = project.data.technologies || [];
+const categories = project.data.categories || [];
 const status = project.data.status;
 const repositoryUrl = project.data.repositoryUrl;
 const demoUrl = project.data.demoUrl;
@@ -42,7 +42,7 @@ const shouldShowCoverImage = siteConfig.features.showCoverImages !== 'none' &&
 const showCoverImage = shouldShowCoverImage && image && !hideCoverImage;
 ---
 
-<div class="group relative bg-white dark:bg-primary-800 rounded-xl border border-primary-200 dark:border-primary-700 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 aspect-[4/3]">
+<div class="group relative bg-white dark:bg-primary-800 rounded-xl border border-primary-200 dark:border-primary-700 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 aspect-[4/3]" data-project-categories={categories.join(',')}>
   <a href={`/projects/${project.slug}`} class="block h-full" aria-label={`View project: ${title}`}>
     <!-- Background Image or Fallback -->
     {showCoverImage ? (
@@ -128,6 +128,22 @@ const showCoverImage = shouldShowCoverImage && image && !hideCoverImage;
           <p class="text-sm text-white/90 mb-3 line-clamp-2 drop-shadow-lg text-left">
             {description}
           </p>
+        )}
+
+        <!-- Categories -->
+        {categories.length > 0 && (
+          <div class="flex flex-wrap gap-1 mb-3">
+            {categories.slice(0, 3).map(category => (
+              <span class="inline-flex items-center px-2 py-1 bg-white/20 text-white/90 text-xs font-medium rounded backdrop-blur-sm">
+                {category}
+              </span>
+            ))}
+            {categories.length > 3 && (
+              <span class="inline-flex items-center px-2 py-1 bg-white/20 text-white/90 text-xs font-medium rounded backdrop-blur-sm">
+                +{categories.length - 3} more
+              </span>
+            )}
+          </div>
         )}
 
         <!-- View project link -->

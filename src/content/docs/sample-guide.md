@@ -4,7 +4,7 @@ description: A sample documentation guide to test the new documentation content 
 category: Getting Started
 order: 1
 version: 1.0.0
-lastModified: 2024-01-15
+lastModified: 2025-09-08
 image: "[[images/sample-guide-hero.png]]"
 imageAlt: A sliced lemon next to a knife
 hideCoverImage: false

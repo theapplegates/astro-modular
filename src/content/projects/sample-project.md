@@ -2,7 +2,7 @@
 title: Sample Project
 description: A sample project to demonstrate the new projects content type
 date: 2024-01-15
-technologies:
+categories:
   - React
   - TypeScript
   - Astro

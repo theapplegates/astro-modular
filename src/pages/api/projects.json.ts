@@ -13,7 +13,7 @@ export async function GET() {
       description: project.data.description,
       url: `/projects/${project.slug}`,
       type: 'project' as const,
-      tags: project.data.technologies || [],
+      tags: project.data.categories || [],
       date: project.data.date.toISOString(),
       status: project.data.status
     }));

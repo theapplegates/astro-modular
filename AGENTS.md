@@ -1342,7 +1342,7 @@ typography: {
 - Showcase work, side projects, and portfolio items
 - Support both folder-based and single-file organization
 - Images in `src/content/projects/images/` or co-located with content
-- Frontmatter includes: title, description, date, technologies, repositoryUrl, demoUrl, status, image, imageAlt, hideCoverImage, draft, noIndex, featured
+- Frontmatter includes: title, description, date, categories, repositoryUrl, demoUrl, status, image, imageAlt, hideCoverImage, draft, noIndex, featured
 - Status: "in-progress" or "completed"
 - Featured: `true` to show on homepage (requires `homeProjects: true` in config)
 - URL structure: `/projects/project-slug`

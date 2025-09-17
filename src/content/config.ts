@@ -41,7 +41,7 @@ const projectsCollection = defineCollection({
     title: z.string().default('Untitled Project'),
     description: z.string().nullable().optional().default('No description provided'),
     date: z.coerce.date().default(() => new Date()),
-    technologies: z.array(z.string()).nullable().optional().default([]),
+    categories: z.array(z.string()).nullable().optional().default([]),
     repositoryUrl: z.string().url().nullable().optional(),
     demoUrl: z.string().url().nullable().optional(),
     status: z.union([z.enum(['in-progress', 'completed']), z.literal(''), z.null()]).optional(),

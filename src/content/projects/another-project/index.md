@@ -2,7 +2,7 @@
 title: Another Project
 description: Another sample project showing different status and technologies
 date: 2025-09-03
-technologies:
+categories:
   - Vue.js
   - Node.js
   - MongoDB
