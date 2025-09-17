@@ -875,12 +875,12 @@ const { seoData, bodyClass = '' } = Astro.props;
     }
 
 
-    // Handle browser back/forward button - IGNORE anchors, only handle pages
+    // Handle browser back/forward button - restore scroll position naturally
     function handlePopState() {
       // Small delay to ensure content is loaded
       setTimeout(() => {
-        // Always scroll to top for browser navigation - ignore anchors completely
-        window.scrollTo(0, 0);
+        // Let the browser handle scroll position restoration naturally
+        // Don't force scroll to top - this preserves user's previous scroll position
         
         // Reinitialize components after back/forward navigation
         if (window.initializeImageGrids) {
@@ -896,38 +896,56 @@ const { seoData, bodyClass = '' } = Astro.props;
     // Listen for browser back/forward button
     window.addEventListener('popstate', handlePopState);
 
-    // Smart scroll behavior: instant for page navigation, smooth for anchors only
+    // Smart scroll behavior: preserve scroll position for back/forward, scroll to top for new navigation
     function setupSwupScrollBehavior() {
       if (typeof window !== 'undefined' && window.swup) {
         const swup = window.swup;
         
-        // Override Swup's scroll methods to always use instant scrolling for page navigation
+        // Track if this is a back/forward navigation
+        let isBackForwardNavigation = false;
+        
+        // Override Swup's scroll methods to handle different navigation types
         if (swup.scrollToElement) {
           swup.scrollToElement = () => {
-            window.scrollTo(0, 0);
+            // Only scroll to top for new page navigation, not back/forward
+            if (!isBackForwardNavigation) {
+              window.scrollTo(0, 0);
+            }
           };
         }
         
         if (swup.scrollToTop) {
           swup.scrollToTop = () => {
-            window.scrollTo(0, 0);
+            // Only scroll to top for new page navigation, not back/forward
+            if (!isBackForwardNavigation) {
+              window.scrollTo(0, 0);
+            }
           };
         }
         
-        // Handle page navigation with instant scroll
+        // Handle page navigation - distinguish between new navigation and back/forward
         swup.hooks.on('visit:start', () => {
+          // Check if this is a back/forward navigation by looking at the navigation type
+          isBackForwardNavigation = swup.history?.popstate || false;
+          
           // Ensure instant scrolling during page navigation
           document.documentElement.style.scrollBehavior = 'auto';
         });
         
         swup.hooks.on('content:replace', () => {
-          // This happens during the transition when content is being swapped
-          window.scrollTo(0, 0);
+          // Only scroll to top for new page navigation, not back/forward
+          if (!isBackForwardNavigation) {
+            window.scrollTo(0, 0);
+          }
         });
         
-        // Ensure we're at top when new page is ready
+        // Handle page view - only scroll to top for new navigation
         swup.hooks.on('page:view', () => {
-          window.scrollTo(0, 0);
+          // Only scroll to top for new page navigation, not back/forward
+          if (!isBackForwardNavigation) {
+            window.scrollTo(0, 0);
+          }
+          
           // Update navigation highlighting after page transition
           updateNavigationHighlighting();
           // Initialize linked mentions after page transition
