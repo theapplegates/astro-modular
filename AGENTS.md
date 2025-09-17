@@ -930,7 +930,6 @@ layout: {
   contentWidth: "45rem",
 },
 postsPerPage: 5,
-recentPostsCount: 3,
 ```
 
 #### Deployment Platform Configuration
@@ -960,7 +959,6 @@ features: {
   darkModeToggleButton: true,
   commandPalette: true,
   postNavigation: true,
-  showLatestPost: true,
   showSocialIconsInFooter: true,
   showCoverImages: "latest-and-posts", // See cover image options below
 }
@@ -978,40 +976,128 @@ features: {
 - `"latest-and-posts"` - Show on latest post section AND posts pages/tags (but not recent posts section)
 - `"none"` - Never show cover images
 
-#### Homepage Featured Content
-The homepage can display featured projects and documentation alongside posts. These settings are configured under the `homeBlurb` section:
+#### Homepage Content Options
+The homepage content is now organized under the `homeOptions` section for better clarity and control:
 
 ```typescript
-homeBlurb: {
-  enabled: true,
-  placement: "below", // 'above' or 'below'
-  homeProjects: false, // Show featured projects on homepage
-  homeDocs: false, // Show featured docs on homepage
+homeOptions: {
+  featuredPost: {
+    enabled: true,           // Show featured post on homepage
+    type: "latest",          // "latest" or "featured"
+    slug: "getting-started", // Only used when type is "featured"
+  },
+  recentPosts: {
+    enabled: true,           // Show recent posts on homepage
+    count: 7,                // Number of recent posts to show
+  },
+  projects: {
+    enabled: false,          // Show featured projects on homepage
+    count: 2,                // Number of projects to show
+  },
+  docs: {
+    enabled: false,          // Show featured docs on homepage
+    count: 3,                // Number of docs to show
+  },
+  blurb: {
+    placement: "below",      // "above", "below", or "none"
+  },
 }
 ```
 
-**Featured Projects:**
-- `homeBlurb.homeProjects: true` - Show featured projects on homepage
-- **Priority**: First tries to show projects with `featured: true` in frontmatter (up to 3)
-- **Fallback**: If no featured projects exist, shows the 2 most recent projects
+**Featured Post Configuration:**
+- `enabled: true` - Show featured post section
+- `type: "latest"` - Show the most recent post
+- `type: "featured"` - Show a specific post by slug
+- `slug: "post-name"` - Post slug (without `/posts/` prefix) when type is "featured"
+- **Flexible Setup**: Slug can be present even when `type: "latest"` - it will be ignored until you switch to "featured"
+
+**Recent Posts Configuration:**
+- `enabled: true` - Show recent posts section
+- `count: 7` - Number of recent posts to display
+- **Smart Logic**: If featured post is shown, recent posts start from the second post
+
+**Projects Configuration:**
+- `enabled: true` - Show featured projects on homepage
+- `count: 2` - Number of projects to display
+- **Priority**: First tries to show projects with `featured: true` in frontmatter (up to count)
+- **Fallback**: If no featured projects exist, shows the most recent projects (up to count)
 - **No Content**: If no projects exist at all, shows nothing
 - Includes "View all projects →" link
-- Appears after recent posts section
 
-**Featured Documentation:**
-- `homeBlurb.homeDocs: true` - Show featured docs on homepage  
-- **Priority**: First tries to show docs with `featured: true` in frontmatter (up to 3)
-- **Fallback**: If no featured docs exist, shows the 3 most recent docs
+**Documentation Configuration:**
+- `enabled: true` - Show featured docs on homepage  
+- `count: 3` - Number of docs to display
+- **Priority**: First tries to show docs with `featured: true` in frontmatter (up to count)
+- **Fallback**: If no featured docs exist, shows the most recent docs (up to count)
 - **No Content**: If no docs exist at all, shows nothing
 - Includes "View all docs →" link
-- Appears after featured projects section
+
+**Home Blurb Configuration:**
+- `placement: "above"` - Show at top of homepage
+- `placement: "below"` - Show after content (default)
+- `placement: "none"` - Disable completely
+- **Blurb-Only Mode**: When no other content is enabled, blurb becomes the main page content with H1 title and page-like styling
 
 **Homepage Order:**
-1. Latest Post (if enabled)
-2. Recent Posts
+1. Featured Post (if enabled)
+2. Recent Posts (if enabled)
 3. Featured Projects (if enabled)
 4. Featured Documentation (if enabled)
 5. Home Blurb (if enabled)
+
+**Special Layout Logic:**
+- **Single Content Type**: When only one content type is displayed, it gets special treatment with centered "View all" links instead of section titles
+- **Blurb-Only Mode**: When only blurb content is shown, it displays as a proper page with H1 title and rounded container styling
+
+**Homepage Layout Examples:**
+
+**Show only recent posts:**
+```typescript
+homeOptions: {
+  featuredPost: { enabled: false, type: "latest", slug: undefined },
+  recentPosts: { enabled: true, count: 7 },
+  projects: { enabled: false },
+  docs: { enabled: false },
+  blurb: { placement: "none" },
+}
+// Result: Special treatment - no "Recent Posts" title, centered "View all posts →"
+```
+
+**Show only projects:**
+```typescript
+homeOptions: {
+  featuredPost: { enabled: false, type: "latest", slug: undefined },
+  recentPosts: { enabled: false, count: 7 },
+  projects: { enabled: true },
+  docs: { enabled: false },
+  blurb: { placement: "none" },
+}
+// Result: Special treatment - no "Projects" title, centered "View all projects →"
+```
+
+**Show only blurb content:**
+```typescript
+homeOptions: {
+  featuredPost: { enabled: false, type: "latest", slug: undefined },
+  recentPosts: { enabled: false, count: 7 },
+  projects: { enabled: false },
+  docs: { enabled: false },
+  blurb: { placement: "below" },
+}
+// Result: Page-like layout with H1 title and rounded container
+```
+
+**Show multiple content types:**
+```typescript
+homeOptions: {
+  featuredPost: { enabled: true, type: "latest", slug: undefined },
+  recentPosts: { enabled: true, count: 7 },
+  projects: { enabled: true },
+  docs: { enabled: false },
+  blurb: { placement: "below" },
+}
+// Result: Normal layout with section titles and right-aligned "View all" links
+```
 
 #### Post Card Aspect Ratio Configuration
 Configure the aspect ratio for post card cover images:
@@ -1064,10 +1150,6 @@ navigation: {
 ```typescript
 seo: {
   defaultOgImageAlt: "Astro Modular logo.",
-},
-homeBlurb: {
-  enabled: true,
-  placement: "below", // 'above' or 'below'
 },
 footer: {
   enabled: true,  // Set to false for minimal footer
@@ -1692,7 +1774,16 @@ The comments are styled to match your theme automatically. If you see styling is
 - **Backward compatibility**: Environment variables still work but are not recommended
 - **Configuration files**: Automatically generated based on platform choice
 
-#### 8. **Development vs Production Behavior**
+#### 8. **Homepage Configuration Structure**
+- **Use `homeOptions`** - All homepage content is now under `homeOptions`, not `features` or `homeBlurb`
+- **Featured Post**: Use `homeOptions.featuredPost` with `type: "latest"` or `type: "featured"`
+- **Slug Flexibility**: Slug can be present even when `type: "latest"` - it will be ignored until switched to "featured"
+- **Recent Posts**: Use `homeOptions.recentPosts` with `enabled` and `count` properties
+- **Projects/Docs**: Use `homeOptions.projects` and `homeOptions.docs` with `enabled` property
+- **Blurb**: Use `homeOptions.blurb` with `placement: "above" | "below" | "none"`
+- **Old References**: `showLatestPost`, `recentPostsCount`, and `homeBlurb` are deprecated
+
+#### 9. **Development vs Production Behavior**
 - **Development**: Missing images show placeholders, warnings are logged
 - **Production**: Missing images cause build failures
 - Always run `pnpm run check-images` before deploying

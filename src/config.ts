@@ -25,15 +25,30 @@ export interface SiteConfig {
     contentWidth: string;
   };
   postsPerPage: number;
-  recentPostsCount: number;
   seo: {
     defaultOgImageAlt: string;
   };
-  homeBlurb?: {
-    enabled?: boolean;
-    placement?: "above" | "below";
-    homeProjects?: boolean;
-    homeDocs?: boolean;
+  homeOptions: {
+    featuredPost: {
+      enabled: boolean;
+      type: "latest" | "featured";
+      slug?: string; // Only used when type is "featured"
+    };
+    recentPosts: {
+      enabled: boolean;
+      count: number;
+    };
+    projects: {
+      enabled: boolean;
+      count: number;
+    };
+    docs: {
+      enabled: boolean;
+      count: number;
+    };
+    blurb: {
+      placement: "above" | "below" | "none";
+    };
   };
   footer: {
     enabled: boolean;
@@ -61,7 +76,6 @@ export interface SiteConfig {
     showSocialIconsInFooter: boolean;
     commandPalette: boolean;
     postNavigation: boolean;
-    showLatestPost: boolean;
     comments: boolean;
     postCardAspectRatio: AspectRatio;
     customAspectRatio?: string;
@@ -120,15 +134,30 @@ export const siteConfig: SiteConfig = {
     contentWidth: "45rem",
   },
   postsPerPage: 6,
-  recentPostsCount: 7,
   seo: {
     defaultOgImageAlt: "Astro Modular logo.", // Alt text for the default Open Graph image, public/open-graph.png
   },
-  homeBlurb: {
-    enabled: true,
-    placement: "below", // 'above' (at the top of the homepage) or 'below' (after the list of homepage posts)
-    homeProjects: true, // Show featured projects on homepage
-    homeDocs: true, // Show featured docs on homepage
+  homeOptions: {
+    featuredPost: {
+      enabled: true, // Show featured post on homepage
+      type: "latest", // "latest" or "featured"
+      slug: "getting-started", // Slug of post after '/posts/' to be featured (e.g. "post-title"). Only used when type is "featured"
+    },
+    recentPosts: {
+      enabled: true, // Show recent posts on homepage
+      count: 7, // Number of recent posts to show
+    },
+    projects: {
+      enabled: true, // Show featured projects on homepage
+      count: 2, // Number of projects to show
+    },
+    docs: {
+      enabled: true, // Show featured docs on homepage
+      count: 3, // Number of docs to show
+    },
+    blurb: {
+      placement: "below", // 'above' (at the top), 'below' (after content), or 'none' (disabled)
+    },
   },
   footer: {
     enabled: true,
@@ -156,7 +185,6 @@ export const siteConfig: SiteConfig = {
     darkModeToggleButton: true,
     commandPalette: true,
     postNavigation: true,
-    showLatestPost: true,
     showSocialIconsInFooter: true,
     showCoverImages: "latest-and-posts", // "all" | "latest" | "home" | "posts" | "latest-and-posts" | "none"
     postCardAspectRatio: "og", // "16:9" | "4:3" | "3:2" | "og" | "square" | "golden" | "custom"
@@ -364,8 +392,14 @@ function validateSiteConfig(config: SiteConfig): { isValid: boolean; errors: str
   if (config.postsPerPage < 1 || config.postsPerPage > 50) {
     errors.push('postsPerPage must be between 1 and 50');
   }
-  if (config.recentPostsCount < 1 || config.recentPostsCount > 20) {
-    errors.push('recentPostsCount must be between 1 and 20');
+  if (config.homeOptions.recentPosts.count < 1) {
+    errors.push('homeOptions.recentPosts.count must be at least 1');
+  }
+  if (config.homeOptions.projects.count < 1) {
+    errors.push('homeOptions.projects.count must be at least 1');
+  }
+  if (config.homeOptions.docs.count < 1) {
+    errors.push('homeOptions.docs.count must be at least 1');
   }
 
   // Content width validation
@@ -397,9 +431,19 @@ function validateSiteConfig(config: SiteConfig): { isValid: boolean; errors: str
     }
   }
 
-  // Home blurb placement validation
-  if (config.homeBlurb?.enabled && config.homeBlurb.placement && !['above', 'below'].includes(config.homeBlurb.placement)) {
-    errors.push('homeBlurb.placement must be either "above" or "below"');
+  // Home options validation
+  if (!['above', 'below', 'none'].includes(config.homeOptions.blurb.placement)) {
+    errors.push('homeOptions.blurb.placement must be either "above", "below", or "none"');
+  }
+  
+  // Featured post validation
+  if (!['latest', 'featured'].includes(config.homeOptions.featuredPost.type)) {
+    errors.push('homeOptions.featuredPost.type must be either "latest" or "featured"');
+  }
+  
+  // Only validate slug when type is "featured" - slug is optional when type is "latest"
+  if (config.homeOptions.featuredPost.type === 'featured' && (!config.homeOptions.featuredPost.slug || config.homeOptions.featuredPost.slug.trim() === '')) {
+    errors.push('homeOptions.featuredPost.slug is required when type is "featured"');
   }
 
   // Language validation

@@ -176,8 +176,8 @@ export const themes = {
   },
   dracula: {
     primary: {
-      50: '#f8f8f2',
-      100: '#f1f1eb',
+      50: '#ffffff',
+      100: '#faf8ff',
       200: '#e2e8f0',
       300: '#cbd5e1',
       400: '#94a3b8',

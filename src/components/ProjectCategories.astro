@@ -95,10 +95,10 @@ const sortedCategories = [...categories].sort();
 
 <script>
   // Add interactive functionality for categories
-  document.addEventListener('DOMContentLoaded', () => {
+  function initializeCategoryFiltering() {
     const categoryItems = document.querySelectorAll('.category-item');
     const projectCards = document.querySelectorAll('[data-project-categories]');
-    let currentActiveCategory = null;
+    let currentActiveCategory: string | null = null;
 
     // Add click functionality for filtering
     categoryItems.forEach(item => {
@@ -124,19 +124,13 @@ const sortedCategories = [...categories].sort();
           currentActiveCategory = null;
         } else {
           // Filter projects by category
-          console.log(`Filtering by category: ${category}`);
-          console.log(`Found ${projectCards.length} project cards`);
-          
           projectCards.forEach((card, index) => {
             const cardCategories = card.getAttribute('data-project-categories') || '';
-            console.log(`Card ${index}: categories="${cardCategories}"`);
             
             if (cardCategories.includes(category)) {
               (card as HTMLElement).style.display = 'block';
-              console.log(`Showing card ${index}`);
             } else {
               (card as HTMLElement).style.display = 'none';
-              console.log(`Hiding card ${index}`);
             }
           });
           
@@ -152,5 +146,18 @@ const sortedCategories = [...categories].sort();
         }));
       });
     });
-  });
+  }
+
+  // Initialize on DOM ready
+  document.addEventListener('DOMContentLoaded', initializeCategoryFiltering);
+  
+  // Re-initialize after Swup page transitions
+  document.addEventListener('swup:contentReplaced', initializeCategoryFiltering);
+  
+  // Also try to initialize immediately in case DOM is already ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeCategoryFiltering);
+  } else {
+    initializeCategoryFiltering();
+  }
 </script>

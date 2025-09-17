@@ -30,12 +30,11 @@ You'll need:
 
 ```bash
 # Install dependencies
-npm install
 pnpm install
-# Start development server
 
+# Start development server
 pnpm run dev
-# Available at http://localhost:5000
+# Available at http://localhost:5000 (or next available port)
 
 # Build for production
 pnpm run build
@@ -66,20 +65,37 @@ Select theme and layout options in the config:
 ```typescript
 theme: "oxygen",
 customThemeFile: "custom",
-  deployment: {
-    platform: "netlify",
-  },
+deployment: {
+  platform: "netlify",
+},
 layout: {
   contentWidth: "45rem",
 },
 postsPerPage: 6,
-recentPostsCount: 7,
 seo: {
-    defaultOgImageAlt: "Astro Modular logo.",
+  defaultOgImageAlt: "Astro Modular logo.",
+},
+homeOptions: {
+  featuredPost: {
+    enabled: true,
+    type: "latest", // "latest" or "featured"
+    slug: "getting-started", // Only used when type is "featured"
   },
-homeBlurb: {
-  enabled: true,
-  placement: "below", // 'above' or 'below'
+  recentPosts: {
+    enabled: true,
+    count: 7,
+  },
+  projects: {
+    enabled: false,
+    count: 2,
+  },
+  docs: {
+    enabled: false,
+    count: 3,
+  },
+  blurb: {
+    placement: "below", // "above", "below", or "none"
+  },
 },
 footer: {
   enabled: true,
@@ -128,28 +144,37 @@ typography: {
 
 The system automatically loads Google Fonts when needed and provides fallbacks to system fonts for optimal performance.
 
+### Homepage Configuration
+
+The homepage content is controlled by the `homeOptions` section:
+
+- **Featured Post**: Show latest post or a specific featured post
+- **Recent Posts**: Display recent posts with configurable count
+- **Projects & Docs**: Show featured projects and documentation
+- **Home Blurb**: Control placement or disable completely
+
+When only one content type is enabled, it gets special treatment with centered "View all" links. When only the blurb is shown, it displays as a proper page with H1 title and rounded container styling.
+
 ### Modular Features
 
 Adjust modular features in the config: 
 
 ```typescript
 features: {
-    flags: {
-      readingTime: true,
-      wordCount: true,
-      tableOfContents: true,
-      tags: true,
-      linkedMentions: true,
-      linkedMentionsCompact: false,
-      scrollToTop: true,
-      darkModeToggleButton: true,
-      commandPalette: true,
-      postNavigation: true,
-      showLatestPost: true,
-      showSocialIconsInFooter: true,
-    },
-    showCoverImages: "latest-and-posts",
-  },
+  readingTime: true,
+  wordCount: true,
+  tableOfContents: true,
+  tags: true,
+  linkedMentions: true,
+  linkedMentionsCompact: false,
+  scrollToTop: true,
+  darkModeToggleButton: true,
+  commandPalette: true,
+  postNavigation: true,
+  showSocialIconsInFooter: true,
+  showCoverImages: "latest-and-posts",
+  comments: false,
+}
 ```
 
 **Linked Mentions Features:**
@@ -309,19 +334,24 @@ src/content/
 ├── posts/                   # Blog posts
 │   ├── images/              # Shared post images
 │   ├── getting-started.md   # File-based post
-│   ├── sample-folder-post/  # Folder-based post
-│   │   ├── index.md         # Main content file
-│   │   ├── hero-image.jpg   # Post-specific assets
-│   │   ├── diagram.png
-│   │   └── document.pdf
-│   └── another-post/        # Another folder-based post
-│       ├── index.md
-│       └── cover.jpg
+│   └── sample-folder-post/  # Folder-based post
+│       ├── index.md         # Main content file
+│       ├── hero-image.jpg   # Post-specific assets
+│       └── diagram.png
 ├── pages/                   # Static pages
 │   ├── images/              # Shared page images
 │   ├── about.md
 │   ├── contact.md
-│   └── privacy.md
+│   ├── privacy-policy.md
+│   └── index.md             # Homepage blurb content
+├── projects/                # Featured projects
+│   ├── images/              # Shared project images
+│   └── sample-project/      # Folder-based project
+│       ├── index.md
+│       └── screenshot.png
+├── docs/                    # Documentation
+│   ├── images/              # Shared doc images
+│   └── sample-guide.md      # Documentation files
 └── .obsidian/               # Obsidian vault setup
     ├── plugins/             # Configured plugins
     ├── themes/              # Minimal theme
@@ -387,7 +417,7 @@ The Contact page has an optional form embedded into it, which leads to the Thank
 
 An optional Privacy Policy page can be edited or removed by deleting it if you don't want it. 
 
-`index.md` controls what goes on the homepage blurb. Adding content to `404.md` will display on any "not found" page.
+`pages/index.md` controls what goes on the homepage blurb. Adding content to `pages/404.md` will display on any "not found" page.
 ## Obsidian Integration
 
 ### Using the Included Vault
