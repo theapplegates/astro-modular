@@ -9,7 +9,7 @@ export const devConfig = {
     // Show placeholder images for missing assets in development
     showPlaceholders: true,
     // Log missing images to console in development
-    logMissingImages: true,
+    logMissingImages: false,
     // Fallback image paths
     fallbacks: {
       posts: '/posts/images/placeholder.jpg',
@@ -23,7 +23,7 @@ export const devConfig = {
     // Continue processing even if some assets are missing
     continueOnMissingAssets: true,
     // Log content processing warnings
-    logWarnings: true
+    logWarnings: false
   },
   
   // Error handling
@@ -39,7 +39,7 @@ export const devConfig = {
     // Gracefully handle missing or deleted tags in development
     handleMissingTags: true,
     // Log tag-related warnings in development
-    logTagWarnings: true,
+    logTagWarnings: false,
     // Continue processing even if some tags are missing
     continueOnMissingTags: true
   }

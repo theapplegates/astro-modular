@@ -4,15 +4,11 @@
  */
 
 function initializeCategoryFiltering() {
-  console.log('Initializing category filtering...');
   const categoryItems = document.querySelectorAll('.category-item');
   const projectCards = document.querySelectorAll('[data-project-categories]');
   let currentActiveCategory = null;
 
-  console.log(`Found ${categoryItems.length} category items and ${projectCards.length} project cards`);
-
   if (categoryItems.length === 0) {
-    console.log('No category items found, skipping initialization');
     return;
   }
 
@@ -27,7 +23,6 @@ function initializeCategoryFiltering() {
       e.stopPropagation();
       
       const category = newItem.getAttribute('data-category');
-      console.log(`Category clicked: ${category}`);
       
       // Visual feedback
       newItem.style.transform = 'scale(0.95)';
@@ -48,27 +43,21 @@ function initializeCategoryFiltering() {
       
       if (isCurrentlyActive) {
         // If clicking the same category, show all projects
-        console.log('Showing all projects');
         projectCards.forEach(card => {
           card.style.display = 'block';
         });
         currentActiveCategory = null;
       } else {
         // Filter projects by category
-        console.log(`Filtering projects by category: ${category}`);
-        let visibleCount = 0;
         projectCards.forEach((card, cardIndex) => {
           const cardCategories = card.getAttribute('data-project-categories') || '';
-          console.log(`Card ${cardIndex} categories: ${cardCategories}`);
           
           if (cardCategories.includes(category)) {
             card.style.display = 'block';
-            visibleCount++;
           } else {
             card.style.display = 'none';
           }
         });
-        console.log(`Showing ${visibleCount} projects for category: ${category}`);
         
         // Make clicked button active
         newItem.classList.remove('bg-primary-100', 'dark:bg-primary-800', 'text-primary-700', 'dark:text-primary-300');
@@ -86,7 +75,6 @@ function initializeCategoryFiltering() {
 
 // Initialize with multiple strategies to ensure it works
 function tryInitialize() {
-  console.log('Attempting to initialize category filtering...');
   initializeCategoryFiltering();
 }
 

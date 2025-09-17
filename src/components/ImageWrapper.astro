@@ -97,16 +97,10 @@ if (isLocal) {
     } else {
       isImageMissing = true;
       // No fallback images - just mark as missing
-      if (isDev && devConfig.images.logMissingImages) {
-        console.warn(`Missing image: ${src} (basePath: ${basePath})`);
-      }
     }
   } catch (error) {
     isImageMissing = true;
     // No fallback images - just mark as missing
-    if (isDev && devConfig.images.logMissingImages) {
-      console.warn(`Error loading image: ${src} (basePath: ${basePath})`, error);
-    }
   }
 }
 
