@@ -1739,13 +1739,19 @@ The comments are styled to match your theme automatically. If you see styling is
 - **Post content** shows images based on `hideCoverImage` frontmatter, NOT config
 - These are completely separate systems - don't mix them up!
 
-#### 3. **H1 Title Handling**
+#### 3. **Wikilink Limitations (Important)**
+- **Wikilinks only work with posts** - `[[Post Title]]` assumes posts collection
+- **For other content types**, use standard markdown links: `[Page Title](page-slug)`, `[Project](projects/project-slug)`, `[Doc](docs/doc-slug)`
+- **Linked mentions only track posts** - pages, projects, and docs are not included in linked mentions
+- **Don't try to extend wikilinks** to other collections - this is intentional to maintain simplicity
+
+#### 4. **H1 Title Handling**
 - **Both Posts and Pages**: NO H1 in markdown content - title comes from frontmatter, content starts with H2
 - **H1 is hardcoded** in both PostLayout and PageLayout using frontmatter title
 - **NEVER add H1** to any markdown content - both posts and pages have hardcoded H1s from frontmatter
 - Both posts and pages should have content sections starting with H2 headings
 
-#### 4. **🚨 FAVICON THEME BEHAVIOR (CRITICAL)**
+#### 5. **🚨 FAVICON THEME BEHAVIOR (CRITICAL)**
 - **Favicon should NOT change with manual theme toggle** - it should only change with browser system theme
 - **System theme detection**: Use `window.matchMedia('(prefers-color-scheme: dark)')` to detect browser preference
 - **Favicon logic**: 
@@ -1756,25 +1762,25 @@ The comments are styled to match your theme automatically. If you see styling is
 - **NEVER update favicon** when user manually toggles theme - only when system theme changes
 - **Implementation**: Use CSS media queries + JavaScript system theme detection, not manual theme state
 
-#### 5. **🎨 COLOR USAGE (CRITICAL)**
+#### 6. **🎨 COLOR USAGE (CRITICAL)**
 - **NEVER use hardcoded colors** - Always use theme variables from `src/themes/index.ts`
 - **Use Tailwind classes** that reference theme variables (`primary-*`, `highlight-*`)
 - **Include dark mode variants** for all color definitions (`dark:bg-primary-800`)
 - **Check existing code** for hardcoded colors and replace them
 - **Reference theme files** to understand available color scales
 
-#### 6. **Package Manager**
+#### 7. **Package Manager**
 - Always use `pnpm` instead of `npm` for all commands
 - Scripts: `pnpm run <script-name>`, not `npm run <script-name>`
 
-#### 7. **Deployment Platform Configuration**
+#### 8. **Deployment Platform Configuration**
 - **Set platform once in config** - Use `deployment.platform` in `src/config.ts`, not environment variables
 - **No environment variables needed** - The build process automatically detects the platform from config
 - **Platform options**: "netlify", "vercel", "github-pages" (all lowercase with hyphens)
 - **Backward compatibility**: Environment variables still work but are not recommended
 - **Configuration files**: Automatically generated based on platform choice
 
-#### 8. **Homepage Configuration Structure**
+#### 9. **Homepage Configuration Structure**
 - **Use `homeOptions`** - All homepage content is now under `homeOptions`, not `features` or `homeBlurb`
 - **Featured Post**: Use `homeOptions.featuredPost` with `type: "latest"` or `type: "featured"`
 - **Slug Flexibility**: Slug can be present even when `type: "latest"` - it will be ignored until switched to "featured"
@@ -1783,7 +1789,7 @@ The comments are styled to match your theme automatically. If you see styling is
 - **Blurb**: Use `homeOptions.blurb` with `placement: "above" | "below" | "none"`
 - **Old References**: `showLatestPost`, `recentPostsCount`, and `homeBlurb` are deprecated
 
-#### 9. **Development vs Production Behavior**
+#### 10. **Development vs Production Behavior**
 - **Development**: Missing images show placeholders, warnings are logged
 - **Production**: Missing images cause build failures
 - Always run `pnpm run check-images` before deploying

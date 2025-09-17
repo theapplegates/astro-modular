@@ -163,54 +163,77 @@ export function remarkWikilinks() {
       if (node.url && isInternalLink(node.url)) {
         const { linkText, anchor } = extractLinkTextFromUrlWithAnchor(node.url);
         if (linkText) {
-          // Convert .md file references to proper /posts/ URLs
+          // Convert .md file references to proper URLs based on collection
           if (node.url.endsWith('.md') || node.url.includes('.md#')) {
-            // Handle both direct .md references and posts/...md references
+            let baseUrl = '';
+            
+            // Determine collection and URL based on path structure
             if (node.url.startsWith('posts/')) {
-              // Already has posts/ prefix, just remove .md and add leading slash
-              let baseUrl = `/${node.url.replace(/\.md.*$/, '')}`;
+              // Posts: /posts/slug/
+              baseUrl = `/${node.url.replace(/\.md.*$/, '')}`;
               // Conservative approach: only remove /index if it follows folder-based pattern
               if (baseUrl.endsWith('/index') && baseUrl.split('/').length === 3) {
                 baseUrl = baseUrl.replace('/index', '');
               }
-              if (anchor) {
-                baseUrl += `#${createAnchorSlug(anchor)}`;
+            } else if (node.url.startsWith('pages/')) {
+              // Pages: /slug/ (no prefix)
+              baseUrl = `/${node.url.replace(/^pages\//, '').replace(/\.md.*$/, '')}`;
+              // Remove /index for folder-based pages
+              if (baseUrl.endsWith('/index') && baseUrl.split('/').length === 2) {
+                baseUrl = baseUrl.replace('/index', '');
               }
-              node.url = baseUrl;
+            } else if (node.url.startsWith('projects/')) {
+              // Projects: /projects/slug/
+              baseUrl = `/${node.url.replace(/\.md.*$/, '')}`;
+              // Remove /index for folder-based projects
+              if (baseUrl.endsWith('/index') && baseUrl.split('/').length === 3) {
+                baseUrl = baseUrl.replace('/index', '');
+              }
+            } else if (node.url.startsWith('docs/')) {
+              // Docs: /docs/slug/
+              baseUrl = `/${node.url.replace(/\.md.*$/, '')}`;
+              // Remove /index for folder-based docs
+              if (baseUrl.endsWith('/index') && baseUrl.split('/').length === 3) {
+                baseUrl = baseUrl.replace('/index', '');
+              }
             } else {
-              // Direct .md reference, convert to /posts/ URL
-              let baseUrl = `/posts/${linkText}`;
+              // Direct .md reference without collection prefix - assume posts for backward compatibility
+              baseUrl = `/posts/${linkText}`;
               // Conservative approach: only remove /index if it follows folder-based pattern
               if (baseUrl.endsWith('/index') && baseUrl.split('/').length === 3) {
                 baseUrl = baseUrl.replace('/index', '');
               }
-              if (anchor) {
-                baseUrl += `#${createAnchorSlug(anchor)}`;
-              }
-              node.url = baseUrl;
             }
+            
+            if (anchor) {
+              baseUrl += `#${createAnchorSlug(anchor)}`;
+            }
+            node.url = baseUrl;
           } else if (anchor) {
             // Handle anchors in non-.md URLs
             node.url += `#${createAnchorSlug(anchor)}`;
           }
 
           // Add wikilink data attributes to make it work with linked mentions
-          if (!node.data) {
-            node.data = {};
-          }
-          if (!node.data.hProperties) {
-            node.data.hProperties = {};
-          }
+          // Only add wikilink attributes for posts (linked mentions only work with posts)
+          if (node.url.startsWith('/posts/')) {
+            if (!node.data) {
+              node.data = {};
+            }
+            if (!node.data.hProperties) {
+              node.data.hProperties = {};
+            }
 
-          // Add wikilink class and data attributes
-          const existingClasses = node.data.hProperties.className || [];
-          node.data.hProperties.className = Array.isArray(existingClasses)
-            ? [...existingClasses, 'wikilink']
-            : [existingClasses, 'wikilink'].filter(Boolean);
+            // Add wikilink class and data attributes
+            const existingClasses = node.data.hProperties.className || [];
+            node.data.hProperties.className = Array.isArray(existingClasses)
+              ? [...existingClasses, 'wikilink']
+              : [existingClasses, 'wikilink'].filter(Boolean);
 
-          node.data.hProperties['data-wikilink'] = linkText;
-          // For standard markdown links, we don't have a display override
-          node.data.hProperties['data-display-override'] = null;
+            node.data.hProperties['data-wikilink'] = linkText;
+            // For standard markdown links, we don't have a display override
+            node.data.hProperties['data-display-override'] = null;
+          }
         }
       }
     });
@@ -310,7 +333,8 @@ export function extractWikilinks(content: string): WikilinkMatch[] {
     }
   }
 
-  // Extract standard markdown links [text](url) that point to internal posts
+  // Extract standard markdown links [text](url) that point to internal content
+  // Note: Only posts are included in linked mentions, but we process all internal links
   const markdownLinkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
   let markdownMatch;
 
@@ -322,35 +346,39 @@ export function extractWikilinks(content: string): WikilinkMatch[] {
       continue;
     }
 
-    // Check if this is an internal link (relative path or pointing to a post)
+    // Check if this is an internal link (relative path or pointing to any content)
     if (isInternalLink(url)) {
       const { linkText } = extractLinkTextFromUrlWithAnchor(url);
       if (linkText) {
-        // Create proper slug for linked mentions
-        let slug = linkText;
-        if (linkText.startsWith('posts/')) {
-          const postPath = linkText.replace('posts/', '');
-          // Conservative approach: only remove /index if it follows folder-based pattern
-          if (postPath.endsWith('/index') && postPath.split('/').length === 2) {
-            slug = postPath.replace('/index', '');
-          } else {
-            slug = postPath;
+        // Only include posts in linked mentions (other content types are processed but not tracked)
+        if (linkText.startsWith('posts/') || (!linkText.includes('/') && !url.startsWith('/'))) {
+          // Create proper slug for linked mentions
+          let slug = linkText;
+          if (linkText.startsWith('posts/')) {
+            const postPath = linkText.replace('posts/', '');
+            // Conservative approach: only remove /index if it follows folder-based pattern
+            if (postPath.endsWith('/index') && postPath.split('/').length === 2) {
+              slug = postPath.replace('/index', '');
+            } else {
+              slug = postPath;
+            }
           }
+          
+          // Convert to slug format
+          const finalSlug = slug.toLowerCase()
+            .replace(/[^a-z0-9\s-]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-')
+            .replace(/^-+|-+$/g, '');
+
+          matches.push({
+            link: linkText,
+            display: displayText.trim(),
+            slug: finalSlug
+          });
         }
-        
-        // Convert to slug format
-        const finalSlug = slug.toLowerCase()
-          .replace(/[^a-z0-9\s-]/g, '')
-          .replace(/\s+/g, '-')
-          .replace(/-+/g, '-')
-          .replace(/^-+|-+$/g, '');
-
-
-        matches.push({
-          link: linkText,
-          display: displayText.trim(),
-          slug: finalSlug
-        });
+        // Note: Other content types (pages, projects, docs) are processed for URL conversion
+        // but not included in linked mentions since linked mentions only work with posts
       }
     }
   }

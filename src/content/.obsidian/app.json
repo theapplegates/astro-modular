@@ -11,7 +11,7 @@
   "mobilePullAction": "file-explorer:new-file",
   "trashOption": "system",
   "alwaysUpdateLinks": true,
-  "useMarkdownLinks": false,
+  "useMarkdownLinks": true,
   "mobileToolbarCommands": [
     "editor:undo",
     "editor:redo",

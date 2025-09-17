@@ -28,9 +28,15 @@ Every feature can be toggled on or off through a single configuration file. Enab
 
 ## Pages to Check Out
 
-- [Contact](/contact) page with a form
-- [Thank You](/thank-you) page where submitters are directed after a successful submission 
-- [Privacy Policy](/privacy-policy) page
+- [Contact](pages/contact.md) page with a form
+- [Thank You](pages/thank-you.md) page where submitters are directed after a successful submission 
+- [Privacy Policy](pages/privacy-policy.md) page
+
+---
+
+## Posts to Check Out
+- [[getting-started|Getting Started]]
+- [Astro Suite Vault (Modular) Guide](posts/astro-suite-vault-modular-guide.md) 
 
 ---
 ![Photograph of a lush, green cove.](images/water.jpg)

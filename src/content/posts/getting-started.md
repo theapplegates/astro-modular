@@ -442,10 +442,21 @@ To remove Obsidian, simply delete the `.obsidian` folder.
 Press `Ctrl+K` (or custom hotkey) for instant navigation, search, and dark/light mode switching.
 
 ### Wikilinks & Connections
-- `[[Post Title]]` - Standard wikilink
-- `[[Post Title|Custom Text]]` - Custom display text
+- `[[Post Title]]` - Standard wikilink (posts only)
+- `[[Post Title|Custom Text]]` - Custom display text (posts only)
 - **Linked mentions** show post connections automatically with collapsible interface
 - **Compact or detailed view** options for linked mentions display
+
+### Linking Between Content Types
+
+**Wikilinks** work seamlessly for posts but are limited to the posts collection only. For linking to other content types (pages, projects, docs), use standard markdown links:
+
+- **Posts**: `[[Post Title]]` or `[Custom Text](posts/post-slug)`
+- **Pages**: `[Page Title](page-slug)` (e.g., `[About](about)`)
+- **Projects**: `[Project Name](projects/project-slug)`
+- **Docs**: `[Documentation](docs/doc-slug)`
+
+**Why this limitation?** Wikilinks assume posts for simplicity and to maintain the seamless Obsidian experience. Standard markdown links provide explicit control over which content type you're linking to, preventing confusion when multiple content types might have similar titles.
 
 ### Image Optimization
 - **WebP conversion** for performance
