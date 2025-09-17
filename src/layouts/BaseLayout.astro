@@ -610,6 +610,10 @@ const { seoData, bodyClass = '' } = Astro.props;
             if (typeof window['initializeImageGalleries'] === 'function') {
               window['initializeImageGalleries']();
             }
+            // Initialize category filtering
+            if (typeof window['initializeCategoryFiltering'] === 'function') {
+              window['initializeCategoryFiltering']();
+            }
             // Re-setup smooth scrolling for anchor links
             setupSmoothScrolling();
           }, 100);
@@ -627,6 +631,10 @@ const { seoData, bodyClass = '' } = Astro.props;
             // Initialize linked mentions
             if (window.initializeLinkedMentions) {
               window.initializeLinkedMentions();
+            }
+            // Initialize category filtering
+            if (typeof window['initializeCategoryFiltering'] === 'function') {
+              window['initializeCategoryFiltering']();
             }
             // Re-setup smooth scrolling for anchor links
             setupSmoothScrolling();
@@ -1096,6 +1104,101 @@ const { seoData, bodyClass = '' } = Astro.props;
     
     // Make function available globally for Swup
     window['initializeImageGalleries'] = initializeImageGalleries;
+  </script>
+
+  <!-- Category Filtering System -->
+  <script>
+    // Global category filtering function - Swup compatible
+    function initializeCategoryFiltering() {
+      console.log('BaseLayout: Initializing category filtering...');
+      
+      const categoryItems = document.querySelectorAll('.category-item');
+      const projectCards = document.querySelectorAll('[data-project-categories]');
+      let currentActiveCategory = null;
+
+      console.log(`BaseLayout: Found ${categoryItems.length} category items and ${projectCards.length} project cards`);
+
+      // Remove existing event listeners to prevent duplicates
+      categoryItems.forEach(item => {
+        const newItem = item.cloneNode(true);
+        item.parentNode?.replaceChild(newItem, item);
+      });
+
+      // Re-query after cloning to get fresh elements
+      const freshCategoryItems = document.querySelectorAll('.category-item');
+
+      // Add click functionality for filtering
+      freshCategoryItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          const category = item.getAttribute('data-category');
+          console.log('BaseLayout: Category clicked:', category);
+          
+          if (!category) {
+            console.warn('BaseLayout: No category found on clicked item');
+            return;
+          }
+          
+          // Check if this category is already active
+          const isCurrentlyActive = currentActiveCategory === category;
+          console.log('BaseLayout: Is currently active:', isCurrentlyActive);
+          
+          // Reset all buttons to inactive state
+          freshCategoryItems.forEach(btn => {
+            btn.classList.remove('bg-highlight-100', 'dark:bg-highlight-900/40', 'text-highlight-800', 'dark:text-highlight-200', 'ring-1', 'ring-highlight-300', 'dark:ring-highlight-700');
+            btn.classList.add('bg-primary-100', 'dark:bg-primary-800', 'text-primary-700', 'dark:text-primary-300');
+          });
+          
+          if (isCurrentlyActive) {
+            // If clicking the same category, show all projects
+            console.log('BaseLayout: Showing all projects');
+            projectCards.forEach(card => {
+              card.style.display = 'block';
+            });
+            currentActiveCategory = null;
+          } else {
+            // Filter projects by category
+            console.log('BaseLayout: Filtering projects by category:', category);
+            let visibleCount = 0;
+            
+            projectCards.forEach((card, index) => {
+              const cardCategories = card.getAttribute('data-project-categories') || '';
+              console.log(`BaseLayout: Card ${index} categories:`, cardCategories);
+              
+              if (cardCategories.includes(category)) {
+                card.style.display = 'block';
+                visibleCount++;
+              } else {
+                card.style.display = 'none';
+              }
+            });
+            
+            console.log(`BaseLayout: Showing ${visibleCount} projects for category: ${category}`);
+            
+            // Make clicked button active
+            item.classList.remove('bg-primary-100', 'dark:bg-primary-800', 'text-primary-700', 'dark:text-primary-300');
+            item.classList.add('bg-highlight-100', 'dark:bg-highlight-900/40', 'text-highlight-800', 'dark:text-highlight-200', 'ring-1', 'ring-highlight-300', 'dark:ring-highlight-700');
+            currentActiveCategory = category;
+          }
+
+          // Dispatch custom event for analytics
+          window.dispatchEvent(new CustomEvent('categoryClicked', {
+            detail: { category, isActive: currentActiveCategory === category }
+          }));
+        });
+      });
+    }
+
+    // Initialize immediately
+    initializeCategoryFiltering();
+    
+    // Initialize on DOM ready
+    document.addEventListener('DOMContentLoaded', initializeCategoryFiltering);
+    
+    // Make function available globally for Swup
+    window['initializeCategoryFiltering'] = initializeCategoryFiltering;
   </script>
 
   <!-- Additional body scripts -->

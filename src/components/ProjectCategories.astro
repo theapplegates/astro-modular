@@ -77,6 +77,17 @@ const sortedCategories = [...categories].sort();
     @apply transform scale-105 shadow-md;
   }
 
+  /* Active category hover state - keep active colors, just add grow effect */
+  .category-item.bg-highlight-100:hover {
+    @apply transform scale-105 shadow-md;
+    /* Keep the active background and text colors - don't override them */
+  }
+  
+  .category-item.dark\:bg-highlight-900\/40:hover {
+    @apply transform scale-105 shadow-md;
+    /* Keep the active background and text colors - don't override them */
+  }
+
   .category-text {
     @apply truncate max-w-32;
   }
@@ -93,71 +104,3 @@ const sortedCategories = [...categories].sort();
   }
 </style>
 
-<script>
-  // Add interactive functionality for categories
-  function initializeCategoryFiltering() {
-    const categoryItems = document.querySelectorAll('.category-item');
-    const projectCards = document.querySelectorAll('[data-project-categories]');
-    let currentActiveCategory: string | null = null;
-
-    // Add click functionality for filtering
-    categoryItems.forEach(item => {
-      item.addEventListener('click', (e) => {
-        e.preventDefault();
-        const category = item.getAttribute('data-category');
-        if (!category) return;
-        
-        // Check if this category is already active
-        const isCurrentlyActive = currentActiveCategory === category;
-        
-        // Reset all buttons to inactive state
-        categoryItems.forEach(btn => {
-          btn.classList.remove('bg-highlight-100', 'dark:bg-highlight-900/40', 'text-highlight-800', 'dark:text-highlight-200', 'ring-1', 'ring-highlight-300', 'dark:ring-highlight-700');
-          btn.classList.add('bg-primary-100', 'dark:bg-primary-800', 'text-primary-700', 'dark:text-primary-300');
-        });
-        
-        if (isCurrentlyActive) {
-          // If clicking the same category, show all projects
-          projectCards.forEach(card => {
-            (card as HTMLElement).style.display = 'block';
-          });
-          currentActiveCategory = null;
-        } else {
-          // Filter projects by category
-          projectCards.forEach((card, index) => {
-            const cardCategories = card.getAttribute('data-project-categories') || '';
-            
-            if (cardCategories.includes(category)) {
-              (card as HTMLElement).style.display = 'block';
-            } else {
-              (card as HTMLElement).style.display = 'none';
-            }
-          });
-          
-          // Make clicked button active
-          item.classList.remove('bg-primary-100', 'dark:bg-primary-800', 'text-primary-700', 'dark:text-primary-300');
-          item.classList.add('bg-highlight-100', 'dark:bg-highlight-900/40', 'text-highlight-800', 'dark:text-highlight-200', 'ring-1', 'ring-highlight-300', 'dark:ring-highlight-700');
-          currentActiveCategory = category;
-        }
-
-        // Dispatch custom event for analytics
-        window.dispatchEvent(new CustomEvent('categoryClicked', {
-          detail: { category, isActive: currentActiveCategory === category }
-        }));
-      });
-    });
-  }
-
-  // Initialize on DOM ready
-  document.addEventListener('DOMContentLoaded', initializeCategoryFiltering);
-  
-  // Re-initialize after Swup page transitions
-  document.addEventListener('swup:contentReplaced', initializeCategoryFiltering);
-  
-  // Also try to initialize immediately in case DOM is already ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeCategoryFiltering);
-  } else {
-    initializeCategoryFiltering();
-  }
-</script>
