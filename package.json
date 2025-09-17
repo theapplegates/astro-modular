@@ -1,6 +1,6 @@
 {
   "name": "astro-modular",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "type": "module",
   "description": "A minimal, elegant blog theme for Astro heavily inspired by Obsidian, designed for clarity, performance, and seamless compatibility with Obsidian markdown workflows.",
   "main": "index.js",

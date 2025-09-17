@@ -175,10 +175,11 @@ function shouldAllowUpdates() {
     return false;
   }
   
-  if (!isFork()) {
-    logInfo('This appears to be a template installation. Update functionality is not available.');
-    logInfo('To enable updates, fork the repository and add an upstream remote.');
-    return false;
+  // Template installations (no upstream remote) are the PRIMARY use case for updates
+  // Forks (with upstream remote) can use git-based updates instead
+  if (isFork()) {
+    logInfo('This appears to be a fork installation. Consider using git-based updates instead.');
+    logInfo('Template installations get the best update experience with this command.');
   }
   
   return true;
@@ -963,9 +964,7 @@ async function updateTheme(updateContent = false) {
   // Step 1: Check if updates should be allowed
   logStep(1, 'Checking update eligibility');
   if (!shouldAllowUpdates()) {
-    logError('Update functionality is not available for this installation.');
-    logInfo('This appears to be a template installation.');
-    logInfo('To enable updates, fork the repository and add an upstream remote.');
+    logError('Not in a git repository. Please initialize git first.');
     process.exit(1);
   }
   logSuccess('Update functionality available');
