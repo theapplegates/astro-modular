@@ -3,6 +3,7 @@ import type { Docs } from '@/types';
 import { siteConfig } from '@/config';
 import { generateDocumentationSEO } from '@/utils/seo';
 import { isValidDate } from '@/utils/markdown';
+import { optimizeContentImagePath } from '@/utils/images';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import TableOfContents from '@/components/TableOfContents.astro';
 import Lightbox from '@/components/Lightbox.astro';
@@ -60,7 +61,7 @@ const structuredData = {
       <link 
         rel="preload" 
         as="image" 
-        href={`/documentation/images/${documentation.data.image}`}
+        href={optimizeContentImagePath(documentation.data.image, 'documentation', documentation.slug, documentation.id)}
         fetchpriority="high"
       />
     )}
@@ -72,43 +73,14 @@ const structuredData = {
       <article class={`bg-primary-50 dark:bg-primary-900 rounded-lg border border-primary-200 dark:border-primary-700 shadow-sm ${documentation.data.image ? 'overflow-hidden' : ''}`}>
         {documentation.data.image && (
           <div class="h-40 sm:h-48 md:h-56 lg:h-64 overflow-hidden rounded-t-lg bg-primary-100 dark:bg-primary-800">
-            <ImageWrapper
-              src={documentation.data.image}
-              basePath={(() => {
-                // 1. External URLs - no basePath needed
-                if (documentation.data.image.startsWith('http')) {
-                  return '';
-                }
-                
-                // 2. Check if this is a folder-based doc by looking at the file path
-                // Folder-based docs have their content in a subdirectory with index.md
-                const isFolderBasedDoc = documentation.id.includes('/') && documentation.id.endsWith('/index.md');
-                
-                if (isFolderBasedDoc) {
-                  // Remove Obsidian brackets to get the actual image path
-                  let cleanImagePath = documentation.data.image;
-                  if (cleanImagePath.startsWith('[[') && cleanImagePath.endsWith(']]')) {
-                    cleanImagePath = cleanImagePath.slice(2, -2);
-                  }
-                  
-                  // For folder-based docs, check if image is in images/ subfolder
-                  if (cleanImagePath.startsWith('images/')) {
-                    return `/docs/${documentation.slug}/images/`;
-                  }
-                  // Image in same folder as index.md
-                  return `/docs/${documentation.slug}/`;
-                }
-                
-                // 3. Regular docs - use global images directory
-                return "/docs/images/";
-              })()}
+            <img 
+              src={optimizeContentImagePath(documentation.data.image, 'documentation', documentation.slug, documentation.id)}
               alt={documentation.data.imageAlt || `Featured image for documentation: ${documentation.data.title}`}
               class="w-full h-full object-cover"
-              width={800}
-              height={450}
-              format="webp"
-              quality={85}
+              width="800"
+              height="450"
               loading="eager"
+              decoding="async"
               fetchpriority="high"
             />
           </div>

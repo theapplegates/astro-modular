@@ -5,10 +5,12 @@ date: 2025-09-09
 tags:
   - folder-based
   - astro
-draft: false
 image: "[[cover.png]]"
 imageAlt: A beautiful multi-tiered waterfall cascading into a turquoise lake surrounded by lush green forest.
+imageOG: false
 hideCoverImage: false
+targetKeyword: ""
+draft: false
 ---
 This is a test post to demonstrate how the folder-based approach works. The folder name `sample-folder-post` should become the slug for this post.
 

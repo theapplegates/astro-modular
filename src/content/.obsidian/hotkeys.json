@@ -125,5 +125,13 @@
       ],
       "key": "R"
     }
+  ],
+  "astro-composer:rename-content": [
+    {
+      "modifiers": [
+        "Mod"
+      ],
+      "key": "R"
+    }
   ]
 }

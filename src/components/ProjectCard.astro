@@ -89,7 +89,7 @@ const showCoverImage = shouldShowCoverImage && image && !hideCoverImage;
       </div>
     ) : (
       <!-- Fallback background when no image -->
-      <div class="absolute inset-0 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-700 dark:to-primary-800"></div>
+      <div class="absolute inset-0 bg-gradient-to-br from-primary-200 to-primary-300 dark:from-primary-700 dark:to-primary-800"></div>
     )}
 
     <!-- Status badge -->
@@ -108,7 +108,11 @@ const showCoverImage = shouldShowCoverImage && image && !hideCoverImage;
     <!-- Date -->
     {isValidDate(date) && (
       <div class="absolute top-3 left-3 z-10">
-        <time datetime={date.toISOString()} class="text-xs text-white/90 font-mono bg-black/20 px-2 py-1 rounded backdrop-blur-sm">
+        <time datetime={date.toISOString()} class={`text-xs font-mono px-2 py-1 rounded backdrop-blur-sm ${
+          showCoverImage 
+            ? 'text-white/90 bg-black/20' 
+            : 'text-primary-700 dark:text-primary-200 bg-white/80 dark:bg-black/20'
+        }`}>
           {formatDate(date)}
         </time>
       </div>
@@ -117,7 +121,11 @@ const showCoverImage = shouldShowCoverImage && image && !hideCoverImage;
     <!-- Content Overlay -->
     <div class="absolute inset-0 flex flex-col justify-end p-6 z-10">
       <!-- Title -->
-      <h3 class="text-xl font-bold text-white mb-2 group-hover:text-highlight-300 transition-colors line-clamp-2 drop-shadow-lg text-center">
+      <h3 class={`text-xl font-bold mb-2 transition-colors line-clamp-2 text-center ${
+        showCoverImage 
+          ? 'text-white group-hover:text-highlight-300 drop-shadow-lg' 
+          : 'text-primary-900 dark:text-primary-50 group-hover:text-highlight-600 dark:group-hover:text-highlight-400'
+      }`}>
         {title}
       </h3>
 
@@ -125,7 +133,11 @@ const showCoverImage = shouldShowCoverImage && image && !hideCoverImage;
       <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
         <!-- Description -->
         {description && (
-          <p class="text-sm text-white/90 mb-3 line-clamp-2 drop-shadow-lg text-left">
+          <p class={`text-sm mb-3 line-clamp-2 text-left ${
+            showCoverImage 
+              ? 'text-white/90 drop-shadow-lg' 
+              : 'text-primary-700 dark:text-primary-300'
+          }`}>
             {description}
           </p>
         )}
@@ -134,12 +146,20 @@ const showCoverImage = shouldShowCoverImage && image && !hideCoverImage;
         {categories.length > 0 && (
           <div class="flex flex-wrap gap-1 mb-3">
             {categories.slice(0, 3).map(category => (
-              <span class="inline-flex items-center px-2 py-1 bg-white/20 text-white/90 text-xs font-medium rounded backdrop-blur-sm">
+              <span class={`inline-flex items-center px-2 py-1 text-xs font-medium rounded backdrop-blur-sm ${
+                showCoverImage 
+                  ? 'bg-white/20 text-white/90' 
+                  : 'bg-primary-100 dark:bg-primary-700 text-primary-700 dark:text-primary-200'
+              }`}>
                 {category}
               </span>
             ))}
             {categories.length > 3 && (
-              <span class="inline-flex items-center px-2 py-1 bg-white/20 text-white/90 text-xs font-medium rounded backdrop-blur-sm">
+              <span class={`inline-flex items-center px-2 py-1 text-xs font-medium rounded backdrop-blur-sm ${
+                showCoverImage 
+                  ? 'bg-white/20 text-white/90' 
+                  : 'bg-primary-100 dark:bg-primary-700 text-primary-700 dark:text-primary-200'
+              }`}>
                 +{categories.length - 3} more
               </span>
             )}
@@ -148,7 +168,11 @@ const showCoverImage = shouldShowCoverImage && image && !hideCoverImage;
 
         <!-- View project link -->
         <div class="text-center">
-          <span class="text-sm font-medium text-highlight-300 group-hover:text-highlight-200 transition-colors">
+          <span class={`text-sm font-medium transition-colors ${
+            showCoverImage 
+              ? 'text-highlight-300 group-hover:text-highlight-200' 
+              : 'text-highlight-600 dark:text-highlight-400 group-hover:text-highlight-700 dark:group-hover:text-highlight-300'
+          }`}>
             View project →
           </span>
         </div>

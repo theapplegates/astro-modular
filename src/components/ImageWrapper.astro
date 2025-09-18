@@ -40,14 +40,20 @@ const {
 
 const className = Astro.props.class;
 
-// Determine image type
+// Clean the src path first - remove Obsidian brackets if present
+let cleanSrc = src;
+if (cleanSrc.startsWith('[[') && cleanSrc.endsWith(']]')) {
+  cleanSrc = cleanSrc.slice(2, -2);
+}
+
+// Determine image type using cleaned src
 const isLocal = !(
-  src.startsWith("/") ||
-  src.startsWith("http") ||
-  src.startsWith("https") ||
-  src.startsWith("data:")
+  cleanSrc.startsWith("/") ||
+  cleanSrc.startsWith("http") ||
+  cleanSrc.startsWith("https") ||
+  cleanSrc.startsWith("data:")
 );
-const isPublic = src.startsWith("/");
+const isPublic = cleanSrc.startsWith("/");
 
 // Dynamic import for local images
 let img: any = null;
@@ -60,12 +66,6 @@ if (isLocal) {
       import: "default",
     });
     
-    // Clean the src path - remove Obsidian brackets if present
-    let cleanSrc = src;
-    if (cleanSrc.startsWith('[[') && cleanSrc.endsWith(']]')) {
-      cleanSrc = cleanSrc.slice(2, -2);
-    }
-    
     // Remove leading "./" if present for folder-based posts
     if (cleanSrc.startsWith('./')) {
       cleanSrc = cleanSrc.slice(2);
@@ -74,6 +74,12 @@ if (isLocal) {
     // Remove leading "images/" if present since basePath already includes it
     // But only for global images, not folder-based images
     if (cleanSrc.startsWith('images/') && (basePath === '/posts/images/' || basePath === '/projects/images/' || basePath === '/docs/images/')) {
+      cleanSrc = cleanSrc.slice(7);
+    }
+    
+    // For folder-based content, if basePath already includes 'images/' and cleanSrc starts with 'images/',
+    // remove the prefix from cleanSrc to avoid double 'images/'
+    if (cleanSrc.startsWith('images/') && basePath.includes('/images/') && basePath !== '/posts/images/' && basePath !== '/projects/images/' && basePath !== '/docs/images/') {
       cleanSrc = cleanSrc.slice(7);
     }
     
@@ -89,6 +95,12 @@ if (isLocal) {
     
     // Debug logging
     if (isDev && devConfig.images.logMissingImages) {
+      console.log('ImageWrapper Debug:', {
+        originalSrc: src,
+        cleanSrc: cleanSrc,
+        basePath: basePath,
+        normalizedPath: normalizedPath
+      });
     }
     
     const file = files[normalizedPath];
@@ -126,7 +138,7 @@ const imageStyle = `object-position: ${position}`;
     />
   ) : isPublic ? (
     <img 
-      src={src} 
+      src={cleanSrc} 
       alt={alt} 
       class={imageClass} 
       style={imageStyle}
@@ -141,7 +153,7 @@ const imageStyle = `object-position: ${position}`;
     null
   ) : (
     <img 
-      src={src} 
+      src={cleanSrc} 
       alt={alt} 
       class={imageClass} 
       style={imageStyle}

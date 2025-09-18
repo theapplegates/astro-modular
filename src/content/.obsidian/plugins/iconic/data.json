@@ -32,8 +32,14 @@
   "bookmarkIcons": {},
   "tagIcons": {},
   "propertyIcons": {
+    "demoUrl": {
+      "icon": "lucide-square-dashed-mouse-pointer"
+    },
     "description": {
       "icon": "lucide-letter-text"
+    },
+    "featured": {
+      "icon": "lucide-star"
     },
     "hideCoverImage": {
       "icon": "lucide-image-off"
@@ -47,14 +53,26 @@
     "imageOG": {
       "icon": "lucide-images"
     },
+    "lastModified": {
+      "icon": "lucide-history"
+    },
     "noIndex": {
       "icon": "lucide-list-x"
+    },
+    "repositoryUrl": {
+      "icon": "lucide-github"
+    },
+    "status": {
+      "icon": "lucide-octagon-alert"
     },
     "targetKeyword": {
       "icon": "lucide-search-check"
     },
     "title": {
       "icon": "lucide-type"
+    },
+    "version": {
+      "icon": "lucide-tag"
     }
   },
   "ribbonIcons": {},

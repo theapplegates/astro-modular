@@ -5,8 +5,8 @@ category: Reference
 order: 3
 version: 1.0.0
 lastModified: 2024-01-15
-image: "[[code.png]]"
-imageAlt: Lines of code on a screen
+image:
+imageAlt:
 hideCoverImage: false
 draft: false
 featured: false

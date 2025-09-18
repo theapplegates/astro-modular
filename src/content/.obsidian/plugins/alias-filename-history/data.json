@@ -1,7 +1,8 @@
 {
   "ignoreRegexes": [
     "^_",
-    "^Untitled$"
+    "^Untitled$",
+    "^Untitled \\d+$"
   ],
   "timeoutSeconds": 5,
   "caseSensitive": false,

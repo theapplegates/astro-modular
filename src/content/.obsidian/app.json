@@ -4,8 +4,7 @@
   "showIndentGuide": false,
   "attachmentFolderPath": "./images",
   "userIgnoreFilters": [
-    "_bases/",
-    "pages/"
+    "_bases/"
   ],
   "focusNewTab": false,
   "mobilePullAction": "file-explorer:new-file",

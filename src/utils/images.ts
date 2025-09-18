@@ -235,9 +235,12 @@ export function optimizePostImagePath(imagePath: string, postSlug?: string, post
 
 // Generic image optimization function for all content types
 export function optimizeContentImagePath(imagePath: string, contentType: 'posts' | 'projects' | 'documentation' | 'pages', contentSlug?: string, contentId?: string): string {
+  // Map content types to their URL paths
+  const urlPath = contentType === 'documentation' ? 'docs' : contentType;
+  
   // Handle null, undefined, or empty strings
   if (!imagePath || typeof imagePath !== 'string') {
-    return `/${contentType}/images/placeholder.jpg`; // Fallback to placeholder
+    return `/${urlPath}/images/placeholder.jpg`; // Fallback to placeholder
   }
 
   // Strip Obsidian brackets first
@@ -245,7 +248,7 @@ export function optimizeContentImagePath(imagePath: string, contentType: 'posts'
   
   // Handle empty path after cleaning
   if (!cleanPath) {
-    return `/${contentType}/images/placeholder.jpg`;
+    return `/${urlPath}/images/placeholder.jpg`;
   }
 
   // Handle different image path formats
@@ -258,7 +261,7 @@ export function optimizeContentImagePath(imagePath: string, contentType: 'posts'
   }
 
   // Prevent double processing - if already optimized, return as-is
-  if (cleanPath.startsWith(`/${contentType}/images/`)) {
+  if (cleanPath.startsWith(`/${urlPath}/images/`)) {
     return cleanPath;
   }
 
@@ -268,29 +271,29 @@ export function optimizeContentImagePath(imagePath: string, contentType: 'posts'
   
   if (isFolderBasedContent && (cleanPath.startsWith('./') || (!cleanPath.startsWith('/') && !cleanPath.startsWith('http')))) {
     const imageName = cleanPath.startsWith('./') ? cleanPath.slice(2) : cleanPath;
-    return `/${contentType}/${contentSlug}/${imageName}`;
+    return `/${urlPath}/${contentSlug}/${imageName}`;
   }
 
   // Handle Obsidian-style relative paths from markdown content
   if (cleanPath.startsWith('./images/')) {
-    return cleanPath.replace('./images/', `/${contentType}/images/`);
+    return cleanPath.replace('./images/', `/${urlPath}/images/`);
   }
 
   if (cleanPath.startsWith('images/')) {
-    return `/${contentType}/${cleanPath}`;
+    return `/${urlPath}/${cleanPath}`;
   }
 
   // Handle case where filename is provided without path
   if (!cleanPath.includes('/')) {
     // For folder-based content, check if the image exists in the content folder first
     if (isFolderBasedContent && contentSlug) {
-      return `/${contentType}/${contentSlug}/${cleanPath}`;
+      return `/${urlPath}/${contentSlug}/${cleanPath}`;
     }
-    return `/${contentType}/images/${cleanPath}`;
+    return `/${urlPath}/images/${cleanPath}`;
   }
 
   // Default - assume it's a relative path in the content directory
-  return `/${contentType}/images/${cleanPath}`;
+  return `/${urlPath}/images/${cleanPath}`;
 }
 
 // Generate responsive image srcset
