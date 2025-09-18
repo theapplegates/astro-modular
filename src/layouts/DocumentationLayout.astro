@@ -57,7 +57,7 @@ const structuredData = {
     <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
     
     <!-- Preload documentation image if exists -->
-    {documentation.data.image && !documentation.data.image.startsWith('http') && (
+    {documentation.data.image && documentation.data.hideCoverImage !== true && !documentation.data.image.startsWith('http') && (
       <link 
         rel="preload" 
         as="image" 
@@ -70,8 +70,8 @@ const structuredData = {
   <div class="py-8 relative">
     <div class="mx-auto px-4 sm:px-6 lg:px-8 relative" style={`max-width: ${siteConfig.layout.contentWidth}`}>
       <!-- Documentation content -->
-      <article class={`bg-primary-50 dark:bg-primary-900 rounded-lg border border-primary-200 dark:border-primary-700 shadow-sm ${documentation.data.image ? 'overflow-hidden' : ''}`}>
-        {documentation.data.image && (
+      <article class={`bg-primary-50 dark:bg-primary-900 rounded-lg border border-primary-200 dark:border-primary-700 shadow-sm ${documentation.data.image && documentation.data.hideCoverImage !== true ? 'overflow-hidden' : ''}`}>
+        {documentation.data.image && documentation.data.hideCoverImage !== true && (
           <div class="h-40 sm:h-48 md:h-56 lg:h-64 overflow-hidden rounded-t-lg bg-primary-100 dark:bg-primary-800">
             <img 
               src={optimizeContentImagePath(documentation.data.image, 'documentation', documentation.slug, documentation.id)}
@@ -87,7 +87,7 @@ const structuredData = {
         )}
 
         <!-- Documentation content wrapper -->
-        <div class={`p-6 ${documentation.data.image ? 'rounded-b-lg' : 'rounded-lg'}`}>
+        <div class={`p-6 ${documentation.data.image && documentation.data.hideCoverImage !== true ? 'rounded-b-lg' : 'rounded-lg'}`}>
           <!-- Documentation header -->
           <header class="mb-4">
             <h1 class="text-xl font-bold text-primary-900 dark:text-primary-50 mb-6 leading-tight">

@@ -22,7 +22,6 @@ const description = project.data.description || excerpt;
 const date = project.data.date;
 const image = project.data.image;
 const imageAlt = project.data.imageAlt || `Cover image for ${title}`;
-const hideCoverImage = project.data.hideCoverImage || false;
 const categories = project.data.categories || [];
 const status = project.data.status;
 const repositoryUrl = project.data.repositoryUrl;
@@ -39,7 +38,7 @@ const shouldShowCoverImage = siteConfig.features.showCoverImages !== 'none' &&
    (siteConfig.features.showCoverImages === 'posts' && context === 'projects') ||
    (siteConfig.features.showCoverImages === 'latest-and-posts' && (context === 'latest' || context === 'projects' || context === 'home')));
 
-const showCoverImage = shouldShowCoverImage && image && !hideCoverImage;
+const showCoverImage = shouldShowCoverImage && image;
 ---
 
 <div class="group relative bg-white dark:bg-primary-800 rounded-xl border border-primary-200 dark:border-primary-700 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 aspect-[4/3]" data-project-categories={categories.join(',')}>
