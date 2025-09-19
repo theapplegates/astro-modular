@@ -422,6 +422,7 @@ The theme includes intelligent category handling that adapts based on your conte
   image?: string;
   imageAlt?: string;
   hideCoverImage?: boolean;
+  hideTOC?: boolean;
   noIndex?: boolean;  // Commonly used for pages
 }
 ```
@@ -439,6 +440,7 @@ The theme includes intelligent category handling that adapts based on your conte
   image?: string;
   imageAlt?: string;
   hideCoverImage?: boolean;
+  hideTOC?: boolean;
   draft?: boolean;
   noIndex?: boolean;
   featured?: boolean;
@@ -486,6 +488,28 @@ The theme includes intelligent category handling that adapts based on your conte
 - **Content starts with H2**: Since H1 is hardcoded in the layout, all content should start with `##` headings
 - **Consistency**: Both use the same approach for titles and content structure
 - **AI Agents**: NEVER add H1 to any markdown content - both posts and pages have hardcoded H1s from frontmatter
+
+### Table of Contents (TOC) Behavior - CRITICAL DISTINCTION
+
+**IMPORTANT**: Posts have different TOC behavior than other content types:
+
+#### Posts (PostLayout)
+- **Uses global setting**: Controlled by `siteConfig.postOptions.tableOfContents` in `config.ts`
+- **Can be overridden**: Use `hideTOC: true` in post frontmatter to hide TOC
+- **Global control**: All posts respect the global setting unless individually overridden
+- **Example**: If `tableOfContents: false` in config, all posts hide TOC unless `hideTOC: false` in frontmatter
+
+#### Pages, Projects, Documentation (PageLayout, ProjectLayout, DocumentationLayout)
+- **Independent TOC logic**: NOT affected by global `postOptions.tableOfContents` setting
+- **Default behavior**: TOC shows by default (equivalent to `true`)
+- **Frontmatter control**: Use `hideTOC: true` to hide TOC, `showTOC: false` to hide TOC
+- **Per-content control**: Each content type has its own TOC behavior independent of posts
+
+#### Why This Matters
+- **Posts**: Global setting controls all posts, individual posts can override
+- **Other content types**: Each has independent TOC behavior, not affected by posts setting
+- **AI Agents**: Don't assume all content types use the same TOC logic - posts are different
+- **Configuration**: Only `postOptions.tableOfContents` affects posts, not other content types
 
 ## Obsidian Integration
 
@@ -1533,6 +1557,8 @@ draft: true
 ---
 title: "{{title}}"
 description: ""
+hideCoverImage: false
+hideTOC: false
 noIndex: false
 ---
 ```
@@ -1550,6 +1576,7 @@ status: "completed"  # "in-progress" or "completed"
 image: "cover.jpg"
 imageAlt: "Project screenshot"
 hideCoverImage: false
+hideTOC: false
 draft: false
 featured: true
 ---

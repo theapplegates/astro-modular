@@ -71,8 +71,9 @@ const projectsHaveCategories = hasProjectCategories(visibleProjectsForCategories
 // Process the project content and get processed data including word count
 const { Content, headings } = await processPost(project as any);
 
-// Generate table of contents if enabled
-const shouldShowTOC = siteConfig.postOptions.tableOfContents && headings.length > 0;
+// Generate table of contents if enabled - use hideTOC frontmatter (default true for projects)
+const hideTOC = project.data.hideTOC === true;
+const shouldShowTOC = !hideTOC && headings.length > 0;
 const toc = shouldShowTOC ? generateTOC(headings) : [];
 
 // Get adjacent projects for navigation

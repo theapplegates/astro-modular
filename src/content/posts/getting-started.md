@@ -211,6 +211,10 @@ postOptions: {
 }
 ```
 
+**Table of Contents:**
+
+Enabling table of contents is a global toggle for all posts. This is different from the other content types, like pages, which get a per-page TOC toggle via frontmatter.
+
 **Linked Mentions Features:**
 - `linkedMentions: true` - enable linked mentions section at the end of the page showing which posts reference the current post
 - `linkedMentionsCompact: false` - choose between detailed view (default) or compact view for linked mentions
@@ -404,6 +408,7 @@ The About page represents a standard page you can duplicate easily. Its frontmat
 ---
 title: "{{title}}"
 description: ""
+hideTOC: false
 noIndex: false
 ---
 
@@ -438,6 +443,7 @@ status: "completed"  # "in-progress" or "completed"
 image: "cover.jpg"
 imageAlt: "Project screenshot"
 hideCoverImage: false
+hideTOC: false
 draft: false
 featured: true
 ---
@@ -466,7 +472,7 @@ featured: true
 ---
 ```
 
-Sort docs within categories by `order` number. Use `hideTOC: true` to hide table of contents for that project specifically. Use `featured` to show on homepage when enabled.
+Sort docs within categories by `order` number. Use `featured` to show on homepage when enabled.
 
 ## Automatic Aliases & Redirects
 

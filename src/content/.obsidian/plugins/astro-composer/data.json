@@ -12,7 +12,7 @@
   "onlyAutomateInPostsFolder": false,
   "enablePages": true,
   "pagesFolder": "pages",
-  "pageTemplate": "---\ntitle: \"{{title}}\"\ndescription: \"\"\nnoIndex: false\n---\n",
+  "pageTemplate": "---\ntitle: \"{{title}}\"\ndescription: \"\"\nnoIndex: false\nhideTOC: false\n---\n",
   "enableCopyHeadingLink": true,
   "copyHeadingLinkFormat": "obsidian",
   "customContentTypes": [
@@ -20,7 +20,7 @@
       "id": "custom-1758090445018",
       "name": "Projects",
       "folder": "projects",
-      "template": "---\ntitle: \"{{title}}\"\ndescription: \"\"\ndate: {{date}}\ncategories: []\nrepositoryUrl: \"\"\ndemoURL: \"\"\nstatus: \"\"\nimage: \"\"\nimageAlt: \"\"\nhideCoverImage: false\nnoIndex: false\nfeatured: false\n---\n",
+      "template": "---\ntitle: \"{{title}}\"\ndescription: \"\"\ndate: {{date}}\ncategories: []\nrepositoryUrl: \"\"\ndemoURL: \"\"\nstatus: \"\"\nimage: \"\"\nimageAlt: \"\"\nhideCoverImage: false\nhideTOC: false\nnoIndex: false\nfeatured: false\n---\n",
       "enabled": true
     },
     {

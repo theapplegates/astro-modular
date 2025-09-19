@@ -13,6 +13,7 @@ status: completed
 image: "[[images/glacier.png]]"
 imageAlt:
 hideCoverImage: false
+hideTOC: false
 draft: false
 featured: true
 ---

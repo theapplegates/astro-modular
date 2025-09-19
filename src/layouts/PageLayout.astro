@@ -25,9 +25,10 @@ const seoData = generatePageSEO(page, Astro.url.href);
 // Generate table of contents from headings
 const toc = headings.filter(h => h.depth >= 2 && h.depth <= 4);
 
-// Check if TOC should be shown - use frontmatter preference or global setting
-const showTOC = page.data.showTOC !== undefined ? page.data.showTOC : siteConfig.postOptions.tableOfContents;
-const shouldShowTOC = showTOC && toc.length > 0;
+// Check if TOC should be shown - use hideTOC frontmatter, then showTOC frontmatter (default true for pages)
+const hideTOC = page.data.hideTOC === true;
+const showTOC = page.data.showTOC !== undefined ? page.data.showTOC : true;
+const shouldShowTOC = !hideTOC && showTOC && toc.length > 0;
 
 // Generate structured data
 const structuredData = {

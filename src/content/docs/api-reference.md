@@ -1,7 +1,7 @@
 ---
 title: API Reference
 description: Complete API reference for the Astro Modular theme
-category: Reference
+category:
 order: 3
 version: 1.0.0
 lastModified: 2024-01-15

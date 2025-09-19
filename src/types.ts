@@ -39,8 +39,12 @@ export interface PageData {
   image?: string;
   imageAlt?: string;
   imageOG?: boolean;
+  hideCoverImage?: boolean;
+  hideTOC?: boolean;
   draft?: boolean;
   showTOC?: boolean;
+  noIndex?: boolean;
+  lastModified?: Date;
 }
 
 export interface Project {
@@ -63,6 +67,7 @@ export interface ProjectData {
   image?: string;
   imageAlt?: string;
   hideCoverImage?: boolean;
+  hideTOC?: boolean;
   draft?: boolean;
   noIndex?: boolean;
   featured?: boolean;
@@ -80,7 +85,7 @@ export interface Docs {
 export interface DocsData {
   title: string;
   description: string;
-  category: string;
+  category?: string | null;
   order: number;
   lastModified?: Date;
   version?: string;

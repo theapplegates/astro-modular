@@ -30,6 +30,7 @@ const pagesCollection = defineCollection({
     image: z.string().nullable().optional(),
     imageAlt: z.string().nullable().optional(),
     hideCoverImage: z.boolean().optional(),
+    hideTOC: z.boolean().optional(),
     noIndex: z.boolean().optional(),
   }),
 });
@@ -48,6 +49,7 @@ const projectsCollection = defineCollection({
     image: z.string().nullable().optional(),
     imageAlt: z.string().nullable().optional(),
     hideCoverImage: z.boolean().optional(),
+    hideTOC: z.boolean().optional(),
     draft: z.boolean().optional(),
     noIndex: z.boolean().optional(),
     featured: z.boolean().optional(),
@@ -60,7 +62,7 @@ const docsCollection = defineCollection({
   schema: z.object({
     title: z.string().default('Untitled Documentation'),
     description: z.string().nullable().optional().default('No description provided'),
-    category: z.string().default('General'),
+    category: z.string().nullable().optional().default('General'),
     order: z.number().default(0),
     lastModified: z.coerce.date().optional(),
     version: z.string().nullable().optional(),

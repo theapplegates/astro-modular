@@ -12,6 +12,7 @@ status: completed
 image: "[[images/rock.png]]"
 imageAlt: Gray, rocky wall
 hideCoverImage: false
+hideTOC: false
 draft: false
 featured: true
 ---
