@@ -1,7 +1,7 @@
 ---
 title: Obsidian Astro Suite
 description: A comprehensive set of Obsidian vaults designed to plug into your Astro website for seamless writing and publishing workflows.
-date: 2024-01-15
+date: 2025-08-25
 categories:
   - Obsidian
   - Astro
@@ -9,7 +9,7 @@ categories:
   - Template
 repositoryUrl: https://github.com/davidvkimball/obsidian-astro-suite
 demoUrl:
-status: completed
+status: in-progress
 image: "[[images/glacier.png]]"
 imageAlt:
 hideCoverImage: false
@@ -71,8 +71,4 @@ The suite can be easily integrated into existing Astro projects by copying the v
 
 ## Project Status
 
-This project is **completed** and actively maintained. The suite provides a complete solution for Obsidian-based content management with Astro publishing workflows.
-
-## Repository
-
-You can find the source code, documentation, and setup instructions on [GitHub](https://github.com/davidvkimball/obsidian-astro-suite).
+This project is in-progress and actively maintained. The suite provides a complete solution for Obsidian-based content management with Astro publishing workflows.

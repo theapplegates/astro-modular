@@ -1719,7 +1719,7 @@ date: {{date}}
 categories: ["Web Development", "Open Source"]
 repositoryUrl: "https://github.com/username/repo"
 demoUrl: "https://your-demo.com"
-status: "completed"  # "in-progress" or "completed"
+status: "completed"  # Any string value - "completed", "in-progress", "On Hold", etc.
 image: "cover.jpg"
 imageAlt: "Project screenshot"
 hideCoverImage: false
@@ -1968,7 +1968,11 @@ typography: {
 - Support both folder-based and single-file organization
 - Images in `src/content/projects/images/` or co-located with content
 - Frontmatter includes: title, description, date, categories, repositoryUrl, demoUrl, status, image, imageAlt, hideCoverImage, draft, noIndex, featured
-- Status: "in-progress" or "completed"
+- Status: Any string value with intelligent handling:
+  - **Recognized values**: "completed", "in-progress" (case-insensitive)
+  - **Case normalization**: "In Progress" → "in-progress", "Completed" → "completed"
+  - **Custom values**: "On Hold", "Paused", etc. display as-is with neutral theme colors
+  - **Styling**: Recognized values get green/yellow colors, custom values use theme colors
 - Featured: `true` to show on homepage (requires `homeProjects: true` in config)
 - URL structure: `/projects/project-slug`
 

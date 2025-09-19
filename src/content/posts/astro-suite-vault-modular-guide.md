@@ -1,7 +1,7 @@
 ---
 title: Astro Suite Vault (Modular) Guide
 date: 2025-09-10
-description: How to use this Astro Suite Obsidian vault.
+description: How to use the included Astro Suite Obsidian vault.
 tags:
   - tutorial
   - setup

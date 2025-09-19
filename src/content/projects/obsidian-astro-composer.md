@@ -1,14 +1,14 @@
 ---
 title: Obsidian Astro Composer
 description: A plugin to create and manage Astro blog posts in Obsidian easily with automated file renaming, note properties management, and internal link conversion.
-date: 2024-01-15
+date: 2025-08-20
 categories:
   - Obsidian
   - Astro
   - Plugin
 repositoryUrl: https://github.com/davidvkimball/obsidian-astro-composer
 demoUrl:
-status: completed
+status: in-progress
 image: "[[images/rock.png]]"
 imageAlt: Gray, rocky wall
 hideCoverImage: false
@@ -46,8 +46,4 @@ The plugin can be installed directly into Obsidian's `.obsidian/plugins/` direct
 
 ## Project Status
 
-This project is **completed** and actively maintained. The latest version (0.6.1) includes robust automation features and comprehensive configuration options for various Astro workflows.
-
-## Repository
-
-You can find the source code, documentation, and installation instructions on [GitHub](https://github.com/davidvkimball/obsidian-astro-composer).
+This project is in-progress and actively maintained. The latest version includes robust automation features and comprehensive configuration options for various Astro workflows.

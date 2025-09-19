@@ -7,6 +7,7 @@ import { processWikilinksInHTML } from '@/utils/internallinks';
 import { getCollection } from 'astro:content';
 import { shouldShowPost, processPost, generateTOC, getAdjacentPosts, formatDate, formatDateMobile, isValidDate } from '@/utils/markdown';
 import { hasProjectCategories } from '@/utils/categories';
+import { normalizeStatus, getStatusDisplayText, hasStatusStyling, getStatusClasses } from '@/utils/status';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import TableOfContents from '@/components/TableOfContents.astro';
 import LinkedMentions from '@/components/LinkedMentions.astro';
@@ -22,6 +23,9 @@ export interface Props {
 }
 
 const { project } = Astro.props;
+
+// Normalize status for consistent handling
+const status = normalizeStatus(project.data.status);
 
 // Check if we're in development mode
 const isDev = import.meta.env.DEV;
@@ -178,20 +182,16 @@ const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProject
                 </time>
               )}
 
-              {isValidDate(project.data.date) && project.data.status && (project.data.status === 'in-progress' || project.data.status === 'completed') && (
+              {isValidDate(project.data.date) && status && hasStatusStyling(status) && (
                 <>
                   <span class="text-primary-300 dark:text-primary-600 hidden sm:inline">•</span>
                   <span class="text-primary-300 dark:text-primary-600 sm:hidden">•</span>
                 </>
               )}
               
-              {project.data.status && (project.data.status === 'in-progress' || project.data.status === 'completed') && (
-                <span class={`px-2 py-1 rounded-full text-xs font-medium ${
-                  project.data.status === 'completed' 
-                    ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' 
-                    : 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200'
-                }`}>
-                  {project.data.status === 'completed' ? 'Completed' : 'In Progress'}
+              {status && (
+                <span class={`px-2 py-1 rounded-full text-xs font-medium ${getStatusClasses(status)}`}>
+                  {getStatusDisplayText(status)}
                 </span>
               )}
 

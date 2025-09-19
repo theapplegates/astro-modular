@@ -63,7 +63,7 @@ export interface ProjectData {
   categories?: string[];
   repositoryUrl?: string;
   demoUrl?: string;
-  status?: 'in-progress' | 'completed' | '' | null;
+  status?: string | null;
   image?: string;
   imageAlt?: string;
   hideCoverImage?: boolean;

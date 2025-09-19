@@ -2,6 +2,7 @@
 import type { CollectionEntry } from 'astro:content';
 import { formatDate, processMarkdown, isValidDate } from '../utils/markdown';
 import { siteConfig, getPostCardAspectRatio } from '../config';
+import { normalizeStatus, getStatusDisplayText, hasStatusStyling, getStatusClasses } from '../utils/status';
 import ImageWrapper from './ImageWrapper.astro';
 import Icon from './Icon.astro';
 
@@ -24,7 +25,7 @@ const date = project.data.date;
 const image = project.data.image;
 const imageAlt = project.data.imageAlt || `Cover image for ${title}`;
 const categories = project.data.categories || [];
-const status = project.data.status;
+const status = normalizeStatus(project.data.status);
 const repositoryUrl = project.data.repositoryUrl;
 const demoUrl = project.data.demoUrl;
 
@@ -93,14 +94,10 @@ const showCoverImage = shouldShowCoverImage && image;
     )}
 
     <!-- Status badge -->
-    {status && (status === 'in-progress' || status === 'completed') && (
+    {status && (
       <div class="absolute top-3 right-3 z-10">
-        <span class={`px-2 py-1 rounded-full text-xs font-medium shadow-sm ${
-          status === 'completed' 
-            ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' 
-            : 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200'
-        }`}>
-          {status === 'completed' ? 'Completed' : 'In Progress'}
+        <span class={`px-2 py-1 rounded-full text-xs font-medium shadow-sm ${getStatusClasses(status)}`}>
+          {getStatusDisplayText(status)}
         </span>
       </div>
     )}

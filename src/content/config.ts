@@ -45,7 +45,7 @@ const projectsCollection = defineCollection({
     categories: z.array(z.string()).nullable().optional().default([]),
     repositoryUrl: z.string().url().nullable().optional(),
     demoUrl: z.string().url().nullable().optional(),
-    status: z.union([z.enum(['in-progress', 'completed']), z.literal(''), z.null()]).optional(),
+    status: z.string().nullable().optional(),
     image: z.string().nullable().optional(),
     imageAlt: z.string().nullable().optional(),
     hideCoverImage: z.boolean().optional(),
