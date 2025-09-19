@@ -130,6 +130,12 @@ export interface SiteConfig {
       loading: string;
     };
   };
+  
+  // Optional Content Types
+  optionalContentTypes: {
+    projects: boolean;
+    docs: boolean;
+  };
 }
 
 // Set your values HERE
@@ -236,6 +242,12 @@ export const siteConfig: SiteConfig = {
     blurb: {
       placement: "below", // 'above' (at the top), 'below' (after content), or 'none' (disabled)
     },
+  },
+
+  // Optional Content Types - Enable/disable optional content sections
+  optionalContentTypes: {
+    projects: true, // Enable projects section
+    docs: true,     // Enable documentation section
   },
 
   // Post Options

@@ -4,11 +4,11 @@ import { siteConfig } from '@/config';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Icon from '@/components/Icon.astro';
 
-// Try to get 404 page content from collection
+// Try to get 404 page content from special collection
 let pageContent = null;
 try {
-  const pages = await getCollection('pages');
-  const notFoundPage = pages.find(page => page.slug === '404');
+  const specialPages = await getCollection('special');
+  const notFoundPage = specialPages.find(page => page.slug === '404');
   if (notFoundPage) {
     pageContent = await notFoundPage.render();
   }

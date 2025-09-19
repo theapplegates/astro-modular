@@ -77,10 +77,23 @@ const docsCollection = defineCollection({
   }),
 });
 
+// Define schema for special index pages (homepage blurb, 404, projects index, docs index)
+const specialCollection = defineCollection({
+  type: 'content',
+  schema: z.object({
+    title: z.string().default('Untitled Page'),
+    description: z.string().nullable().optional().default('No description provided'),
+    hideTOC: z.boolean().optional(),
+    // These pages have fixed URLs and special logic
+    // URLs are determined by the file location, not frontmatter
+  }),
+});
+
 // Export collections
 export const collections = {
   posts: postsCollection,
   pages: pagesCollection,
   projects: projectsCollection,
   docs: docsCollection,
+  special: specialCollection,
 };

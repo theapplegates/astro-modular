@@ -42,7 +42,7 @@ const previewPosts = featuredPost
 // Get featured projects if enabled
 let featuredProjects: any[] = [];
 let projectsHaveCategories = false;
-if (siteConfig.homeOptions.projects.enabled) {
+if (siteConfig.homeOptions.projects.enabled && siteConfig.optionalContentTypes.projects) {
   const allProjects = await getCollection('projects');
   const visibleProjects = allProjects.filter(project => shouldShowContent(project, isDev));
   
@@ -76,7 +76,7 @@ if (siteConfig.homeOptions.projects.enabled) {
 
 // Get featured docs if enabled
 let featuredDocs: any[] = [];
-if (siteConfig.homeOptions.docs.enabled) {
+if (siteConfig.homeOptions.docs.enabled && siteConfig.optionalContentTypes.docs) {
   const allDocs = await getCollection('docs');
   const visibleDocs = allDocs.filter(doc => shouldShowContent(doc, isDev));
   
@@ -106,13 +106,13 @@ if (siteConfig.homeOptions.docs.enabled) {
   }
 }
 
-// Get home blurb content from markdown file
+// Get home blurb content from special collection
 let homeBlurbContent = null;
 let HomeBlurbContent = null;
 
 if (siteConfig.homeOptions.blurb.placement !== 'none') {
   try {
-    homeBlurbContent = await getEntry('pages', 'index');
+    homeBlurbContent = await getEntry('special', 'index');
     if (homeBlurbContent) {
       const { Content } = await homeBlurbContent.render();
       HomeBlurbContent = Content;

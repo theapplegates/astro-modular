@@ -531,6 +531,28 @@ Press `Ctrl+K` (or custom hotkey) for instant navigation, search, and dark/light
 
 ## Content Organization
 
+### Special Content Collection
+Special index pages (homepage blurb, 404, projects index, docs index) are handled by the `special` content collection in `src/content/special/`:
+
+- **`index.md`** - Homepage blurb content
+- **`404.md`** - 404 error page
+- **`projects.md`** - Projects index page content
+- **`docs.md`** - Documentation index page content
+
+These pages have minimal frontmatter and fixed URLs to prevent accidental breakage of core functionality.
+
+### Optional Content Types
+You can globally enable/disable optional content sections in `src/config.ts`:
+
+```typescript
+optionalContentTypes: {
+  projects: true, // Enable projects section
+  docs: true,     // Enable documentation section
+},
+```
+
+When disabled, the dynamic index pages redirect to 404, allowing you to create static fallback pages in `src/content/pages/` (e.g., `pages/projects.md`).
+
 ### Tags
 Tags sync between Obsidian and your blog, creating:
 - Tag pages for related posts

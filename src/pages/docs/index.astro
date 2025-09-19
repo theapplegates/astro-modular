@@ -5,9 +5,28 @@ import { generatePostsListSEO } from '@/utils/seo';
 import { shouldShowContent } from '@/utils/markdown';
 import { hasDocCategories, getDocCategories, groupDocsByCategory } from '@/utils/categories';
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageLayout from '@/layouts/PageLayout.astro';
 import DocumentationCard from '@/components/DocumentationCard.astro';
 import TableOfContents from '@/components/TableOfContents.astro';
 import Icon from '@/components/Icon.astro';
+
+// Check if docs are enabled and handle fallback
+let fallbackPage = null;
+
+if (!siteConfig.optionalContentTypes.docs) {
+  // Check for fallback page in pages collection
+  try {
+    fallbackPage = await getEntry('pages', 'docs');
+    if (fallbackPage) {
+      // PageLayout will handle the rendering
+    } else {
+      return Astro.redirect('/404');
+    }
+  } catch (error) {
+    // No fallback page found, redirect to 404
+    return Astro.redirect('/404');
+  }
+}
 
 // Get all docs
 const allDocs = await getCollection('docs');
@@ -15,6 +34,22 @@ const isDev = import.meta.env.DEV;
 
 // Filter documentation
 const visibleDocs = allDocs.filter(doc => shouldShowContent(doc, isDev));
+
+// Get docs page content from special collection
+let docsPageContent = null;
+let docsPageHideTOC = false;
+let DocsPageContent = null;
+
+try {
+  docsPageContent = await getEntry('special', 'docs');
+  if (docsPageContent) {
+    const { Content } = await docsPageContent.render();
+    DocsPageContent = Content;
+    docsPageHideTOC = docsPageContent.data.hideTOC === true;
+  }
+} catch (error) {
+  // Fallback to default if docs.md doesn't exist
+}
 
 // Check if any docs have categories
 const docsHaveCategories = hasDocCategories(visibleDocs);
@@ -25,48 +60,36 @@ let sortedCategories: string[];
 let tocHeadings: any[];
 let shouldShowTOC: boolean;
 
+// Always group docs by category (creates "Unsorted" for docs without categories)
+docsByCategory = groupDocsByCategory(visibleDocs);
+sortedCategories = Object.keys(docsByCategory).sort();
+
 if (docsHaveCategories) {
-  // Group by category with "Unsorted" for docs without categories
-  docsByCategory = groupDocsByCategory(visibleDocs);
-  sortedCategories = Object.keys(docsByCategory).sort();
-  
   // Generate TOC headings from categories
   tocHeadings = sortedCategories.map(category => ({
     depth: 2,
     slug: `category-${category.toLowerCase().replace(/\s+/g, '-')}`,
     text: category
   }));
-  
-  shouldShowTOC = siteConfig.postOptions.tableOfContents && tocHeadings.length > 0;
 } else {
-  // No categories - just list docs by order
-  docsByCategory = { 'All Documentation': visibleDocs };
-  sortedCategories = ['All Documentation'];
+  // No real categories - just list docs by order without TOC headings
   tocHeadings = [];
-  shouldShowTOC = false;
 }
 
-// Get docs page content from markdown file
-let docsPageContent = null;
-let DocsPageContent = null;
+// Show TOC if not hidden and there are headings to show
+shouldShowTOC = !docsPageHideTOC && tocHeadings.length > 0;
 
-try {
-  docsPageContent = await getEntry('pages', 'docs');
-  if (docsPageContent) {
-    const { Content } = await docsPageContent.render();
-    DocsPageContent = Content;
-  }
-} catch (error) {
-  // Fallback to default if docs.md doesn't exist
-}
 
 // Generate SEO data
 const seoData = generatePostsListSEO(Astro.site?.toString() || '', undefined);
 seoData.title = docsPageContent?.data.title ? `${docsPageContent.data.title} | ${siteConfig.title}` : `Documentation | ${siteConfig.title}`;
 seoData.description = docsPageContent?.data.description || `Browse all documentation on ${siteConfig.title}`;
-seoData.noIndex = docsPageContent?.data.noIndex || false;
+seoData.noIndex = (docsPageContent?.data as any)?.noIndex || false;
 ---
 
+{fallbackPage ? (
+  <PageLayout page={fallbackPage as any} />
+) : (
 <BaseLayout seoData={seoData}>
   <div class="py-8 relative">
     <div class="mx-auto px-4 sm:px-6 lg:px-8" style={`max-width: ${siteConfig.layout.contentWidth}`}>
@@ -207,3 +230,4 @@ seoData.noIndex = docsPageContent?.data.noIndex || false;
     </script>
   </Fragment>
 </BaseLayout>
+)}

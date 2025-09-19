@@ -6,15 +6,30 @@ import PageLayout from '@/layouts/PageLayout.astro';
 export const getStaticPaths: GetStaticPaths = async () => {
   // Get all pages
   const pages = await getCollection('pages');
+  
+  // Get all special pages
+  const specialPages = await getCollection('special');
 
-  // Filter out 404 page (handled separately)
-  const visiblePages = pages.filter(page => page.slug !== '404');
+  // Filter out special pages that are handled by dedicated routes
+  // Note: 'projects' and 'docs' are NOT filtered out here because they can be fallback pages
+  const specialPageSlugs = ['index', '404'];
+  const visiblePages = pages.filter(page => !specialPageSlugs.includes(page.slug));
 
-  // Generate paths
-  return visiblePages.map(page => ({
+  // Generate paths for regular pages
+  const pagePaths = visiblePages.map(page => ({
     params: { slug: page.slug },
     props: { page }
   }));
+
+  // Generate paths for special pages (excluding index and 404 which have special handling)
+  const specialPaths = specialPages
+    .filter(page => !['index', '404'].includes(page.slug))
+    .map(page => ({
+      params: { slug: page.slug },
+      props: { page }
+    }));
+
+  return [...pagePaths, ...specialPaths];
 };
 
 export interface Props {

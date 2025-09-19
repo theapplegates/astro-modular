@@ -24,22 +24,21 @@ export const GET: APIRoute = async ({ site }) => {
     shouldShowPost(post, isDev) && !post.data.noIndex  
   );  
     
-  // Filter pages (exclude drafts, 404, and noIndex)  
+  // Filter pages (exclude drafts, special pages, and noIndex)  
   const visiblePages = pages.filter(page =>   
     !page.data.draft &&   
-    page.slug !== '404' &&  
     !page.data.noIndex &&  
     !shouldExcludeFromSitemap(page.slug)  
   );
 
-  // Filter projects and docs based on environment
-  const visibleProjects = projects.filter(project => 
-    shouldShowContent(project, isDev) && !project.data.noIndex
-  );
+  // Filter projects and docs based on environment and optional content type settings
+  const visibleProjects = siteConfig.optionalContentTypes.projects 
+    ? projects.filter(project => shouldShowContent(project, isDev) && !project.data.noIndex)
+    : [];
   
-  const visibleDocs = docs.filter(doc => 
-    shouldShowContent(doc, isDev) && !doc.data.noIndex
-  ); 
+  const visibleDocs = siteConfig.optionalContentTypes.docs 
+    ? docs.filter(doc => shouldShowContent(doc, isDev) && !doc.data.noIndex)
+    : []; 
   
   // Generate URLs
   const urls: string[] = [];
@@ -64,25 +63,29 @@ export const GET: APIRoute = async ({ site }) => {
     </url>
   `);
 
-  // Projects index page
-  urls.push(`
-    <url>
-      <loc>${siteUrl}/projects/</loc>
-      <lastmod>${new Date().toISOString()}</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.7</priority>
-    </url>
-  `);
+  // Projects index page (only if projects are enabled)
+  if (siteConfig.optionalContentTypes.projects) {
+    urls.push(`
+      <url>
+        <loc>${siteUrl}/projects/</loc>
+        <lastmod>${new Date().toISOString()}</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.7</priority>
+      </url>
+    `);
+  }
 
-  // Documentation index page
-  urls.push(`
-    <url>
-      <loc>${siteUrl}/docs/</loc>
-      <lastmod>${new Date().toISOString()}</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.7</priority>
-    </url>
-  `);
+  // Documentation index page (only if docs are enabled)
+  if (siteConfig.optionalContentTypes.docs) {
+    urls.push(`
+      <url>
+        <loc>${siteUrl}/docs/</loc>
+        <lastmod>${new Date().toISOString()}</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.7</priority>
+      </url>
+    `);
+  }
   
   // Individual posts
   visiblePosts.forEach(post => {

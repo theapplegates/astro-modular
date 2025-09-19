@@ -32,6 +32,12 @@
   "bookmarkIcons": {},
   "tagIcons": {},
   "propertyIcons": {
+    "category": {
+      "icon": "lucide-list"
+    },
+    "customSlug": {
+      "icon": "lucide-text-cursor-input"
+    },
     "demoUrl": {
       "icon": "lucide-square-dashed-mouse-pointer"
     },

@@ -100,10 +100,9 @@ export function remarkWikilinks() {
             url = `/posts/${cleanPath}`;
             wikilinkData = cleanPath;
           } else if (link.includes('/')) {
-            // Handle other path formats
-            const slugifiedLink = createSlugFromTitle(link);
-            url = `/posts/${slugifiedLink}`;
-            wikilinkData = link.trim();
+            // Paths with slashes that don't start with posts/ are not valid for wikilinks
+            // Skip processing - this would not work in Obsidian
+            return;
           } else {
             // Handle simple slug format
             const slugifiedLink = createSlugFromTitle(link);
@@ -168,7 +167,24 @@ export function remarkWikilinks() {
             let baseUrl = '';
             
             // Determine collection and URL based on path structure
-            if (node.url.startsWith('posts/')) {
+            if (node.url.startsWith('special/')) {
+              // Special pages: handle special routing
+              const specialPath = node.url.replace('special/', '').replace(/\.md.*$/, '');
+              if (specialPath === 'index') {
+                baseUrl = '/'; // Homepage
+              } else if (specialPath === '404') {
+                baseUrl = '/404'; // 404 page
+              } else {
+                // Other special pages - use normal page routing
+                baseUrl = `/${specialPath}`;
+              }
+            } else if (linkText === 'homepage') {
+              // Handle special homepage marker
+              baseUrl = '/';
+            } else if (linkText === '404') {
+              // Handle special 404 marker
+              baseUrl = '/404';
+            } else if (node.url.startsWith('posts/')) {
               // Posts: /posts/slug/
               baseUrl = `/${node.url.replace(/\.md.*$/, '')}`;
               // Conservative approach: only remove /index if it follows folder-based pattern
@@ -197,11 +213,22 @@ export function remarkWikilinks() {
                 baseUrl = baseUrl.replace('/index', '');
               }
             } else {
-              // Direct .md reference without collection prefix - assume posts for backward compatibility
-              baseUrl = `/posts/${linkText}`;
-              // Conservative approach: only remove /index if it follows folder-based pattern
-              if (baseUrl.endsWith('/index') && baseUrl.split('/').length === 3) {
-                baseUrl = baseUrl.replace('/index', '');
+              // Direct .md reference without collection prefix - check for special pages first
+              if (linkText === 'special/index') {
+                baseUrl = '/'; // Homepage
+              } else if (linkText === 'special/404') {
+                baseUrl = '/404'; // 404 page
+              } else if (linkText.startsWith('special/')) {
+                // Other special pages - use normal page routing
+                const specialPath = linkText.replace('special/', '');
+                baseUrl = `/${specialPath}`;
+              } else {
+                // Assume posts for backward compatibility
+                baseUrl = `/posts/${linkText}`;
+                // Conservative approach: only remove /index if it follows folder-based pattern
+                if (baseUrl.endsWith('/index') && baseUrl.split('/').length === 3) {
+                  baseUrl = baseUrl.replace('/index', '');
+                }
               }
             }
             
@@ -618,6 +645,27 @@ function extractLinkTextFromUrlWithAnchor(url: string, allPosts: any[] = [], all
     };
   }
   
+  // Handle special pages first
+  if (link.startsWith('special/')) {
+    const specialPath = link.replace('special/', '').replace(/\.md$/, '');
+    if (specialPath === 'index') {
+      return {
+        linkText: 'homepage', // Special marker for homepage
+        anchor: anchor
+      };
+    } else if (specialPath === '404') {
+      return {
+        linkText: '404', // Special marker for 404 page
+        anchor: anchor
+      };
+    } else {
+      return {
+        linkText: specialPath,
+        anchor: anchor
+      };
+    }
+  }
+  
   // Handle .md files - these should be treated as post references
   if (link.endsWith('.md')) {
     let linkText = link.replace(/\.md$/, '');
@@ -637,6 +685,27 @@ function extractLinkTextFromUrlWithAnchor(url: string, allPosts: any[] = [], all
       linkText: link.replace('/posts/', ''),
       anchor: anchor
     };
+  }
+
+  // Handle /special/ URLs
+  if (link.startsWith('/special/')) {
+    const specialPath = link.replace('/special/', '');
+    if (specialPath === 'index') {
+      return {
+        linkText: 'homepage', // Special marker for homepage
+        anchor: anchor
+      };
+    } else if (specialPath === '404') {
+      return {
+        linkText: '404', // Special marker for 404 page
+        anchor: anchor
+      };
+    } else {
+      return {
+        linkText: specialPath,
+        anchor: anchor
+      };
+    }
   }
 
   // If it's just a slug (no slashes), use it directly
