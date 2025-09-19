@@ -3,7 +3,7 @@ import type { Project, Heading } from '@/types';
 import { siteConfig } from '@/config';
 import { generateProjectSEO } from '@/utils/seo';
 import { optimizePostImagePath, optimizeContentImagePath } from '@/utils/images';
-import { processWikilinksInHTML } from '@/utils/wikilinks';
+import { processWikilinksInHTML } from '@/utils/internallinks';
 import { getCollection } from 'astro:content';
 import { shouldShowPost, processPost, generateTOC, getAdjacentPosts, formatDate, formatDateMobile, isValidDate } from '@/utils/markdown';
 import { hasProjectCategories } from '@/utils/categories';

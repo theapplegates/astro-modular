@@ -603,13 +603,53 @@ When working with the Obsidian vault, these hotkeys are crucial:
 5. **Publish** with `CTRL + SHIFT + S` (git commit and sync)
 6. **Content appears** on your Astro blog automatically
 
+### Linking Behavior: Wikilinks vs Standard Links
+
+This theme supports two distinct linking behaviors, each with specific use cases:
+
+#### **Wikilinks (Obsidian-style) - Posts Only**
+- **Syntax**: `[[Post Title]]` or `[[Post Title|Custom Text]]`
+- **Purpose**: Obsidian's special linking syntax for seamless vault-to-blog publishing
+- **Scope**: **ONLY works with posts collection**
+- **Examples**:
+  - `[[Getting Started]]` → `/posts/getting-started`
+  - `[[My Post|Custom Link Text]]` → `/posts/my-post` with custom display text
+  - `![[image.jpg]]` → Image reference (works in any content type)
+- **Why posts only**: Maintains simplicity and matches Obsidian's primary use case for blog content
+
+#### **Standard Markdown Links - All Content Types**
+- **Syntax**: `[text](url)` 
+- **Purpose**: Standard markdown linking that works everywhere
+- **Scope**: **Works with ALL content types** (posts, pages, projects, docs)
+- **Examples**:
+  - `[Post Title](posts/post-slug)` or `[Post Title](post-slug)` → Posts
+  - `[Page Title](pages/page-slug)` or `[Page Title](page-slug)` → Pages  
+  - `[Project Title](projects/project-slug)` → Projects
+  - `[Doc Title](docs/doc-slug)` → Documentation
+  - `[Home](special/index)` or `[Home](homepage)` → Special pages
+
+#### **When to Use Which**
+- **Use Wikilinks** when writing in Obsidian for posts - they feel natural and work seamlessly
+- **Use Standard Links** when linking between different content types or when you need explicit control
+- **Both work together** - you can mix wikilinks and standard links in the same document
+
+#### **Technical Implementation**
+- **File**: `src/utils/internallinks.ts` (renamed from `wikilinks.ts` for clarity)
+- **Wikilink Processing**: `remarkWikilinks()` - handles `[[...]]` syntax (posts only)
+- **Standard Link Processing**: `remarkStandardLinks()` - handles `[text](url)` syntax (all content types)
+- **Combined Processing**: `remarkInternalLinks()` - combines both for Astro configuration
+
 ### Automatic Aliases & Redirects
 When you rename a post or page in Obsidian, the old filename is automatically stored as an alias. Astro processes these aliases and creates redirect rules, so old URLs continue to work. You don't need to add aliases manually - they appear automatically when you use Obsidian's rename functionality.
 
-### Vault Structure
+### Content Collections Structure
+
+The theme uses Astro's content collections system with predefined collections:
+
+#### **Standard Collections**
 ```
 src/content/
-├── posts/                   # Blog posts
+├── posts/                   # Blog posts collection
 │   ├── images/              # Shared post images
 │   ├── getting-started.md   # File-based post
 │   ├── sample-folder-post/  # Folder-based post
@@ -620,11 +660,118 @@ src/content/
 │   └── another-post/        # Another folder-based post
 │       ├── index.md
 │       └── cover.jpg
-├── pages/                   # Static pages
+├── pages/                   # Static pages collection
 │   ├── images/              # Shared page images
 │   ├── about.md
 │   ├── contact.md
 │   └── privacy.md
+├── projects/                # Projects collection
+│   ├── images/              # Shared project images
+│   ├── project-1.md
+│   └── project-2/
+│       ├── index.md
+│       └── screenshot.png
+├── docs/                    # Documentation collection
+│   ├── images/              # Shared doc images
+│   ├── guide-1.md
+│   └── guide-2/
+│       ├── index.md
+│       └── diagram.png
+└── special/                 # Special pages collection
+    ├── index.md             # Homepage blurb content
+    ├── 404.md               # 404 page content
+    ├── projects.md          # Projects index page content
+    └── docs.md              # Docs index page content
+```
+
+#### **Special Collection**
+
+The `special` collection contains content for specific pages that have special routing logic:
+
+**Purpose**: Provides content for pages that need custom behavior or fixed URLs
+
+**Files and Their Uses**:
+- **`index.md`** - Homepage blurb content (controlled by `homeOptions.blurb.placement`)
+- **`404.md`** - 404 error page content
+- **`projects.md`** - Projects index page content (if `homeOptions.projects.enabled: true`)
+- **`docs.md`** - Documentation index page content (if `homeOptions.docs.enabled: true`)
+
+**URL Mapping**:
+- `special/index.md` → `/` (homepage blurb)
+- `special/404.md` → `/404` (404 error page)
+- `special/projects.md` → `/projects` (projects index)
+- `special/docs.md` → `/docs` (documentation index)
+
+**Important Notes**:
+- These files have **fixed URLs** determined by their filename, not frontmatter
+- They use a simplified schema (title, description, hideTOC only)
+- They're processed by the `[...slug].astro` catch-all route
+- They're excluded from the main pages collection to avoid conflicts
+
+#### **Custom Collections**
+
+**Recommended Approach: Use Subfolders Within Pages Collection**
+
+Instead of creating custom collections at the content level (which triggers Astro's auto-generation warnings), use subfolders within the existing `pages` collection:
+
+**Example Structure**:
+```
+src/content/pages/
+├── about.md
+├── contact.md
+├── services/
+│   ├── web-development.md
+│   ├── consulting.md
+│   └── design.md
+└── products/
+    ├── software-solutions.md
+    └── consulting-services.md
+```
+
+**URL Generation**:
+- `src/content/pages/services/web-development.md` → `/services/web-development`
+- `src/content/pages/services/consulting.md` → `/services/consulting`
+- `src/content/pages/products/software-solutions.md` → `/products/software-solutions`
+
+**Alternative: Nested Folders with index.md**:
+```
+src/content/pages/services/
+├── web-development/
+│   └── index.md
+└── consulting/
+    └── index.md
+```
+
+**Same URL Results**:
+- `src/content/pages/services/web-development/index.md` → `/services/web-development`
+- `src/content/pages/services/consulting/index.md` → `/services/consulting`
+
+**Benefits of This Approach**:
+- **No Astro warnings** - works within existing pages collection
+- **No configuration needed** - uses standard Astro folder-based routing
+- **Same URL structure** - creates the same `/services/...` URLs you want
+- **Easy linking** - all internal links work automatically
+- **Standard frontmatter** - uses the same schema as regular pages
+
+**Linking to Custom Pages**:
+- **From other pages**: `[Web Development](/services/web-development)`
+- **From posts**: `[Our Services](/services/consulting)`
+- **From any content**: Standard markdown links work out of the box
+
+**Why This Design**:
+- **Avoids Astro auto-generation** - no deprecation warnings
+- **Maximum flexibility** - create any URL structure you want
+- **Zero configuration** - works out of the box
+- **Clean and simple** - leverages Astro's built-in folder routing
+
+### Vault Structure
+```
+src/content/
+├── posts/                   # Blog posts
+├── pages/                   # Static pages  
+├── projects/                # Projects
+├── docs/                    # Documentation
+├── special/                 # Special pages
 └── .obsidian/               # Obsidian vault setup
     ├── plugins/             # Configured plugins
     ├── themes/              # Minimal theme
@@ -1975,12 +2122,12 @@ Common documentation categories:
 
 - **ImageWrapper.astro**: Handles image rendering with fallbacks
 - **PostLayout.astro**: Manages post-specific image handling
-- **wikilinks.ts**: Processes Obsidian-style image references
+- **internallinks.ts**: Processes both Obsidian-style wikilinks and standard markdown links
 - **images.ts**: Utility functions for image path optimization
 
 ### Content Processing
 
-- **remarkWikilinks**: Converts Obsidian wikilinks to standard markdown
+- **remarkInternalLinks**: Processes both Obsidian wikilinks (posts only) and standard markdown links (all content types)
 - **remarkFolderImages**: Handles folder-based post image paths
 - **Content Collections**: Astro's content management system
 
@@ -2135,19 +2282,28 @@ The comments are styled to match your theme automatically. If you see styling is
 - **Post content** shows images based on `hideCoverImage` frontmatter, NOT config
 - These are completely separate systems - don't mix them up!
 
-#### 3. **Wikilink Limitations (Important)**
-- **Wikilinks only work with posts** - `[[Post Title]]` assumes posts collection
-- **For other content types**, use standard markdown links: `[Page Title](page-slug)`, `[Project](projects/project-slug)`, `[Doc](docs/doc-slug)`
+#### 3. **Linking Behavior Confusion (Important)**
+- **Wikilinks (`[[...]]`) only work with posts** - this is intentional and matches Obsidian's primary use case
+- **Standard markdown links (`[text](url)`) work with all content types** - use these for pages, projects, docs
+- **Don't try to extend wikilinks to other collections** - use standard links instead: `[Page Title](page-slug)`, `[Project](projects/project-slug)`, `[Doc](docs/doc-slug)`
 - **Linked mentions only track posts** - pages, projects, and docs are not included in linked mentions
-- **Don't try to extend wikilinks** to other collections - this is intentional to maintain simplicity
+- **File renamed for clarity**: `wikilinks.ts` → `internallinks.ts` to distinguish between the two behaviors
 
 #### 4. **H1 Title Handling**
 - **Both Posts and Pages**: NO H1 in markdown content - title comes from frontmatter, content starts with H2
 - **H1 is hardcoded** in both PostLayout and PageLayout using frontmatter title
 - **NEVER add H1** to any markdown content - both posts and pages have hardcoded H1s from frontmatter
-- Both posts and pages should have content sections starting with H2 headings
 
-#### 5. **🚨 FAVICON THEME BEHAVIOR (CRITICAL)**
+#### 5. **Custom Collections Approach**
+- **Use subfolders within pages collection** - avoid creating custom collections at content level
+- **No Astro warnings** - subfolders within pages don't trigger auto-generation warnings
+- **Same URL structure** - `/services/web-development` works the same way
+- **No configuration needed** - leverages Astro's built-in folder routing
+- **Two approaches work identically**:
+  - `pages/services/web-development.md` → `/services/web-development`
+  - `pages/services/web-development/index.md` → `/services/web-development`
+
+#### 6. **🚨 FAVICON THEME BEHAVIOR (CRITICAL)**
 - **Favicon should NOT change with manual theme toggle** - it should only change with browser system theme
 - **System theme detection**: Use `window.matchMedia('(prefers-color-scheme: dark)')` to detect browser preference
 - **Favicon logic**: 
@@ -2158,25 +2314,25 @@ The comments are styled to match your theme automatically. If you see styling is
 - **NEVER update favicon** when user manually toggles theme - only when system theme changes
 - **Implementation**: Use CSS media queries + JavaScript system theme detection, not manual theme state
 
-#### 6. **🎨 COLOR USAGE (CRITICAL)**
+#### 7. **🎨 COLOR USAGE (CRITICAL)**
 - **NEVER use hardcoded colors** - Always use theme variables from `src/themes/index.ts`
 - **Use Tailwind classes** that reference theme variables (`primary-*`, `highlight-*`)
 - **Include dark mode variants** for all color definitions (`dark:bg-primary-800`)
 - **Check existing code** for hardcoded colors and replace them
 - **Reference theme files** to understand available color scales
 
-#### 7. **Package Manager**
+#### 8. **Package Manager**
 - Always use `pnpm` instead of `npm` for all commands
 - Scripts: `pnpm run <script-name>`, not `npm run <script-name>`
 
-#### 8. **Deployment Platform Configuration**
+#### 9. **Deployment Platform Configuration**
 - **Set platform once in config** - Use `deployment.platform` in `src/config.ts`, not environment variables
 - **No environment variables needed** - The build process automatically detects the platform from config
 - **Platform options**: "netlify", "vercel", "github-pages" (all lowercase with hyphens)
 - **Backward compatibility**: Environment variables still work but are not recommended
 - **Configuration files**: Automatically generated based on platform choice
 
-#### 9. **Homepage Configuration Structure**
+#### 10. **Homepage Configuration Structure**
 - **Use `homeOptions`** - All homepage content is now under `homeOptions`, not `features` or `homeBlurb`
 - **Featured Post**: Use `homeOptions.featuredPost` with `type: "latest"` or `type: "featured"`
 - **Slug Flexibility**: Slug can be present even when `type: "latest"` - it will be ignored until switched to "featured"
@@ -2185,7 +2341,7 @@ The comments are styled to match your theme automatically. If you see styling is
 - **Blurb**: Use `homeOptions.blurb` with `placement: "above" | "below" | "none"`
 - **Old References**: `showLatestPost`, `recentPostsCount`, and `homeBlurb` are deprecated
 
-#### 10. **Development vs Production Behavior**
+#### 11. **Development vs Production Behavior**
 - **Development**: Missing images show placeholders, warnings are logged
 - **Production**: Missing images cause build failures
 - Always run `pnpm run check-images` before deploying

@@ -2,7 +2,7 @@ import { defineConfig } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
 import sitemap from '@astrojs/sitemap';
 import mdx from '@astrojs/mdx';
-import { remarkWikilinks, remarkFolderImages, remarkImageCaptions } from './src/utils/wikilinks.ts';
+import { remarkInternalLinks, remarkFolderImages, remarkImageCaptions } from './src/utils/internallinks.ts';
 import remarkCallouts from './src/utils/remark-callouts.ts';
 import remarkReadingTime from 'remark-reading-time';
 import remarkToc from 'remark-toc';
@@ -87,8 +87,8 @@ export default defineConfig({
     })
   ],
   markdown: {
-    remarkPlugins: [
-      remarkWikilinks,
+        remarkPlugins: [
+          remarkInternalLinks,
       remarkFolderImages,
       remarkImageCaptions,
       remarkCallouts,

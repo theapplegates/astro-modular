@@ -1,6 +1,10 @@
 import type { Post, WikilinkMatch } from '@/types';
 import { visit } from 'unist-util-visit';
 
+// ============================================================================
+// UTILITY FUNCTIONS
+// ============================================================================
+
 // Utility functions for content-aware URL processing
 function isFolderBasedContent(collection: 'posts' | 'pages', slug: string, allContent: any[]): boolean {
   const content = allContent.find(item => item.slug === slug);
@@ -19,7 +23,221 @@ function shouldRemoveIndexFromUrl(url: string, allPosts: any[], allPages: any[])
   return false; // Don't remove /index for other URLs
 }
 
-// Remark plugin for processing wikilinks
+// Create slug from title for wikilink resolution
+function createSlugFromTitle(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+// Create anchor slug from text (for heading anchors)
+function createAnchorSlug(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+// Parse link with potential anchor fragment
+function parseLinkWithAnchor(linkText: string): { link: string; anchor: string | null } {
+  const anchorIndex = linkText.indexOf('#');
+  if (anchorIndex === -1) {
+    return { link: linkText, anchor: null };
+  }
+  
+  const link = linkText.substring(0, anchorIndex);
+  const anchor = linkText.substring(anchorIndex + 1);
+  
+  return { link, anchor };
+}
+
+// Helper function to check if a node is inside a code block
+function isInsideCodeBlock(parent: any, tree: any): boolean {
+  // Check if the immediate parent is a code-related node
+  if (!parent) return false;
+
+  // Check for inline code or code blocks
+  if (parent.type === 'inlineCode' || parent.type === 'code') {
+    return true;
+  }
+
+  // Walk up the AST to check for code block ancestors
+  let currentNode = parent;
+  while (currentNode) {
+    if (currentNode.type === 'inlineCode' || currentNode.type === 'code') {
+      return true;
+    }
+    // Try to find the parent node in the tree (simplified check)
+    currentNode = currentNode.parent;
+  }
+
+  return false;
+}
+
+// Helper function to check if a wikilink is inside backticks in raw content
+function isWikilinkInCode(content: string, wikilinkIndex: number): boolean {
+  // Find all backtick pairs in the content
+  const backtickRegex = /`([^`]*)`/g;
+  let match;
+
+  while ((match = backtickRegex.exec(content)) !== null) {
+    const codeStart = match.index;
+    const codeEnd = match.index + match[0].length;
+
+    // Check if the wikilink is inside this code block
+    if (wikilinkIndex >= codeStart && wikilinkIndex < codeEnd) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+// Helper function to check if a URL is an internal link
+function isInternalLink(url: string): boolean {
+  // Remove any leading/trailing whitespace
+  url = url.trim();
+
+  // Skip external URLs (http/https)
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return false;
+  }
+
+  // Skip email links
+  if (url.startsWith('mailto:')) {
+    return false;
+  }
+
+  // Skip anchors only
+  if (url.startsWith('#')) {
+    return false;
+  }
+
+  // Parse anchor if present to check the base URL
+  const { link } = parseLinkWithAnchor(url);
+
+  // Check if it's a post link (ends with .md, starts with /posts/, or is a slug)
+  const isInternal = link.endsWith('.md') || link.startsWith('/posts/') || link.startsWith('posts/') || !link.includes('/');
+  
+  return isInternal;
+}
+
+// Helper function to extract link text and anchor from URL for internal links
+function extractLinkTextFromUrlWithAnchor(url: string, allPosts: any[] = [], allPages: any[] = []): { linkText: string | null; anchor: string | null } {
+  url = url.trim();
+  
+  // Parse anchor if present
+  const { link, anchor } = parseLinkWithAnchor(url);
+
+  // Handle posts/ prefixed links first
+  if (link.startsWith('posts/')) {
+    let linkText = link.replace('posts/', '').replace(/\.md$/, '');
+    // Conservative approach: only remove /index if it follows folder-based pattern
+    if (linkText.endsWith('/index') && linkText.split('/').length === 2) {
+      linkText = linkText.replace('/index', '');
+    }
+    return {
+      linkText: linkText,
+      anchor: anchor
+    };
+  }
+  
+  // Handle special pages first
+  if (link.startsWith('special/')) {
+    const specialPath = link.replace('special/', '').replace(/\.md$/, '');
+    if (specialPath === 'index') {
+      return {
+        linkText: 'homepage', // Special marker for homepage
+        anchor: anchor
+      };
+    } else if (specialPath === '404') {
+      return {
+        linkText: '404', // Special marker for 404 page
+        anchor: anchor
+      };
+    } else {
+      return {
+        linkText: specialPath,
+        anchor: anchor
+      };
+    }
+  }
+  
+  // Handle .md files - these should be treated as post references
+  if (link.endsWith('.md')) {
+    let linkText = link.replace(/\.md$/, '');
+    // Conservative approach: only remove /index if it follows folder-based pattern
+    if (linkText.endsWith('/index') && linkText.split('/').length === 1) {
+      linkText = linkText.replace('/index', '');
+    }
+    return {
+      linkText: linkText,
+      anchor: anchor
+    };
+  }
+
+  // Handle /posts/ URLs
+  if (link.startsWith('/posts/')) {
+    return {
+      linkText: link.replace('/posts/', ''),
+      anchor: anchor
+    };
+  }
+
+  // Handle /special/ URLs
+  if (link.startsWith('/special/')) {
+    const specialPath = link.replace('/special/', '');
+    if (specialPath === 'index') {
+      return {
+        linkText: 'homepage', // Special marker for homepage
+        anchor: anchor
+      };
+    } else if (specialPath === '404') {
+      return {
+        linkText: '404', // Special marker for 404 page
+        anchor: anchor
+      };
+    } else {
+      return {
+        linkText: specialPath,
+        anchor: anchor
+      };
+    }
+  }
+
+  // If it's just a slug (no slashes), use it directly
+  if (!link.includes('/')) {
+    return {
+      linkText: link,
+      anchor: anchor
+    };
+  }
+
+  return { linkText: null, anchor: null };
+}
+
+// ============================================================================
+// WIKILINKS (OBSIDIAN-STYLE) - POSTS ONLY
+// ============================================================================
+
+/**
+ * WIKILINKS: Obsidian-style [[Post Title]] syntax
+ * 
+ * IMPORTANT: Wikilinks ONLY work with posts collection
+ * - [[Post Title]] → /posts/post-title
+ * - [[Post Title|Custom Text]] → /posts/post-title with custom display text
+ * - ![[image.jpg]] → image reference
+ * 
+ * This is Obsidian's special linking syntax and is intentionally limited to posts
+ * to maintain simplicity and avoid confusion with standard markdown links.
+ */
+
+// Remark plugin for processing wikilinks (Obsidian-style)
 export function remarkWikilinks() {
   return function transformer(tree: any, file: any) {
     const nodesToReplace: Array<{ parent: any; index: number; newChildren: any[] }> = [];
@@ -82,7 +300,7 @@ export function remarkWikilinks() {
             }
           });
         } else {
-          // Process link wikilink
+          // Process link wikilink - WIKILINKS ONLY WORK WITH POSTS
           const { link, anchor } = parseLinkWithAnchor(linkText);
           
           // Handle different link formats
@@ -104,7 +322,7 @@ export function remarkWikilinks() {
             // Skip processing - this would not work in Obsidian
             return;
           } else {
-            // Handle simple slug format
+            // Handle simple slug format - ASSUMES POSTS COLLECTION
             const slugifiedLink = createSlugFromTitle(link);
             url = `/posts/${slugifiedLink}`;
             wikilinkData = link.trim();
@@ -157,6 +375,129 @@ export function remarkWikilinks() {
       }
     });
 
+    // Replace nodes with wikilinks
+    nodesToReplace.reverse().forEach(({ parent, index, newChildren }) => {
+      if (parent && parent.children && Array.isArray(parent.children)) {
+        parent.children.splice(index, 1, ...newChildren);
+      }
+    });
+  };
+}
+
+// Extract wikilinks from content (Obsidian-style)
+export function extractWikilinks(content: string): WikilinkMatch[] {
+  const matches: WikilinkMatch[] = [];
+
+  // Extract wikilinks [[...]] and image wikilinks ![[...]]
+  const wikilinkRegex = /!?\[\[([^\]]+)\]\]/g;
+  let wikilinkMatch;
+
+  while ((wikilinkMatch = wikilinkRegex.exec(content)) !== null) {
+    const [fullMatch, linkContent] = wikilinkMatch;
+    const isImageWikilink = fullMatch.startsWith('!');
+
+    // Skip if wikilink is inside backticks (code)
+    if (isWikilinkInCode(content, wikilinkMatch.index)) {
+      continue;
+    }
+
+    // Only process link wikilinks for linked mentions, not image wikilinks
+    if (!isImageWikilink) {
+      const [link, displayText] = linkContent.includes('|')
+        ? linkContent.split('|', 2)
+        : [linkContent, linkContent];
+
+      // Parse anchor if present
+      const { link: baseLink } = parseLinkWithAnchor(link.trim());
+
+      // Create proper slug for linked mentions
+      let slug = baseLink;
+      if (baseLink.startsWith('posts/')) {
+        const postPath = baseLink.replace('posts/', '');
+        // Conservative approach: only remove /index if it follows folder-based pattern
+        if (postPath.endsWith('/index') && postPath.split('/').length === 2) {
+          slug = postPath.replace('/index', '');
+        } else {
+          slug = postPath;
+        }
+      }
+      
+      // Convert to slug format
+      const finalSlug = slug.toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-+|-+$/g, '');
+
+      matches.push({
+        link: baseLink,
+        display: displayText.trim(),
+        slug: finalSlug
+      });
+    }
+  }
+
+  return matches;
+}
+
+// Resolve wikilink to actual post (posts only)
+export function resolveWikilink(posts: Post[], linkText: string): Post | null {
+  const targetSlug = createSlugFromTitle(linkText);
+
+  // First try exact slug match
+  let post = posts.find(p => p.slug === targetSlug);
+
+  // If not found, try title match
+  if (!post) {
+    post = posts.find(p =>
+      createSlugFromTitle(p.data.title) === targetSlug
+    );
+  }
+
+  return post || null;
+}
+
+// Validate wikilinks in content (posts only)
+export function validateWikilinks(posts: Post[], content: string): {
+  valid: WikilinkMatch[];
+  invalid: WikilinkMatch[];
+} {
+  const wikilinks = extractWikilinks(content);
+  const valid: WikilinkMatch[] = [];
+  const invalid: WikilinkMatch[] = [];
+
+  wikilinks.forEach(wikilink => {
+    const resolved = resolveWikilink(posts, wikilink.link);
+    if (resolved) {
+      valid.push(wikilink);
+    } else {
+      invalid.push(wikilink);
+    }
+  });
+
+  return { valid, invalid };
+}
+
+// ============================================================================
+// STANDARD MARKDOWN LINKS - ALL CONTENT TYPES
+// ============================================================================
+
+/**
+ * STANDARD MARKDOWN LINKS: [text](url) syntax
+ * 
+ * These work with ALL content types:
+ * - Posts: [Post Title](posts/post-slug) or [Post Title](post-slug)
+ * - Pages: [Page Title](pages/page-slug) or [Page Title](page-slug)  
+ * - Projects: [Project Title](projects/project-slug)
+ * - Documentation: [Doc Title](docs/doc-slug)
+ * - Special pages: [Home](special/index) or [Home](homepage)
+ * 
+ * This is the standard markdown linking behavior that works everywhere.
+ */
+
+// Remark plugin for processing standard markdown links (all content types)
+export function remarkStandardLinks() {
+  return function transformer(tree: any, file: any) {
     // Process existing link nodes to add wikilink data attributes for internal links
     visit(tree, 'link', (node: any) => {
       if (node.url && isInternalLink(node.url)) {
@@ -264,104 +605,14 @@ export function remarkWikilinks() {
         }
       }
     });
-
-    // Replace nodes with wikilinks
-    nodesToReplace.reverse().forEach(({ parent, index, newChildren }) => {
-      if (parent && parent.children && Array.isArray(parent.children)) {
-        parent.children.splice(index, 1, ...newChildren);
-      }
-    });
   };
 }
 
-// Create slug from title for wikilink resolution
-function createSlugFromTitle(title: string): string {
-  return title
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-+|-+$/g, '');
-}
-
-// Create anchor slug from text (for heading anchors)
-function createAnchorSlug(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-+|-+$/g, '');
-}
-
-// Parse link with potential anchor fragment
-function parseLinkWithAnchor(linkText: string): { link: string; anchor: string | null } {
-  const anchorIndex = linkText.indexOf('#');
-  if (anchorIndex === -1) {
-    return { link: linkText, anchor: null };
-  }
-  
-  const link = linkText.substring(0, anchorIndex);
-  const anchor = linkText.substring(anchorIndex + 1);
-  
-  return { link, anchor };
-}
-
-// Extract wikilinks and standard markdown links from content
-export function extractWikilinks(content: string): WikilinkMatch[] {
+// Extract standard markdown links from content (all content types)
+export function extractStandardLinks(content: string): WikilinkMatch[] {
   const matches: WikilinkMatch[] = [];
 
-  // Extract wikilinks [[...]] and image wikilinks ![[...]]
-  const wikilinkRegex = /!?\[\[([^\]]+)\]\]/g;
-  let wikilinkMatch;
-
-  while ((wikilinkMatch = wikilinkRegex.exec(content)) !== null) {
-    const [fullMatch, linkContent] = wikilinkMatch;
-    const isImageWikilink = fullMatch.startsWith('!');
-
-    // Skip if wikilink is inside backticks (code)
-    if (isWikilinkInCode(content, wikilinkMatch.index)) {
-      continue;
-    }
-
-    // Only process link wikilinks for linked mentions, not image wikilinks
-    if (!isImageWikilink) {
-      const [link, displayText] = linkContent.includes('|')
-        ? linkContent.split('|', 2)
-        : [linkContent, linkContent];
-
-      // Parse anchor if present
-      const { link: baseLink } = parseLinkWithAnchor(link.trim());
-
-      // Create proper slug for linked mentions
-      let slug = baseLink;
-      if (baseLink.startsWith('posts/')) {
-        const postPath = baseLink.replace('posts/', '');
-        // Conservative approach: only remove /index if it follows folder-based pattern
-        if (postPath.endsWith('/index') && postPath.split('/').length === 2) {
-          slug = postPath.replace('/index', '');
-        } else {
-          slug = postPath;
-        }
-      }
-      
-      // Convert to slug format
-      const finalSlug = slug.toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-')
-        .replace(/^-+|-+$/g, '');
-
-      matches.push({
-        link: baseLink,
-        display: displayText.trim(),
-        slug: finalSlug
-      });
-    }
-  }
-
   // Extract standard markdown links [text](url) that point to internal content
-  // Note: Only posts are included in linked mentions, but we process all internal links
   const markdownLinkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
   let markdownMatch;
 
@@ -412,6 +663,56 @@ export function extractWikilinks(content: string): WikilinkMatch[] {
 
   return matches;
 }
+
+// ============================================================================
+// COMBINED LINK PROCESSING
+// ============================================================================
+
+/**
+ * COMBINED LINK PROCESSING: Both wikilinks and standard links
+ * 
+ * This combines both wikilink processing (posts only) and standard link processing (all content types)
+ * into a single remark plugin for use in Astro configuration.
+ */
+
+// Combined remark plugin for both wikilinks and standard links
+export function remarkInternalLinks() {
+  return function transformer(tree: any, file: any) {
+    // First process wikilinks (Obsidian-style, posts only)
+    const wikilinkPlugin = remarkWikilinks();
+    wikilinkPlugin(tree, file);
+    
+    // Then process standard markdown links (all content types)
+    const standardLinkPlugin = remarkStandardLinks();
+    standardLinkPlugin(tree, file);
+  };
+}
+
+// Extract all internal links (both wikilinks and standard links)
+export function extractAllInternalLinks(content: string): WikilinkMatch[] {
+  const wikilinks = extractWikilinks(content);
+  const standardLinks = extractStandardLinks(content);
+  
+  // Combine and deduplicate
+  const allLinks = [...wikilinks, ...standardLinks];
+  const uniqueLinks = allLinks.filter((link, index, self) => 
+    index === self.findIndex(l => l.slug === link.slug)
+  );
+  
+  return uniqueLinks;
+}
+
+// ============================================================================
+// LINKED MENTIONS (POSTS ONLY)
+// ============================================================================
+
+/**
+ * LINKED MENTIONS: Find which posts reference a target post
+ * 
+ * IMPORTANT: Linked mentions only work with posts collection
+ * This is because wikilinks only work with posts, and linked mentions
+ * are primarily designed for the Obsidian workflow where posts are the main content.
+ */
 
 // Find linked mentions (backlinks) for a post
 export function findLinkedMentions(posts: Post[], targetSlug: string, allPosts: any[] = [], allPages: any[] = []) {
@@ -509,215 +810,9 @@ function extractExcerptAtPosition(content: string, position: number, linkLength:
   return excerpt;
 }
 
-// Resolve wikilink to actual post
-export function resolveWikilink(posts: Post[], linkText: string): Post | null {
-  const targetSlug = createSlugFromTitle(linkText);
-
-  // First try exact slug match
-  let post = posts.find(p => p.slug === targetSlug);
-
-  // If not found, try title match
-  if (!post) {
-    post = posts.find(p =>
-      createSlugFromTitle(p.data.title) === targetSlug
-    );
-  }
-
-  return post || null;
-}
-
-// Validate wikilinks in content
-export function validateWikilinks(posts: Post[], content: string): {
-  valid: WikilinkMatch[];
-  invalid: WikilinkMatch[];
-} {
-  const wikilinks = extractWikilinks(content);
-  const valid: WikilinkMatch[] = [];
-  const invalid: WikilinkMatch[] = [];
-
-  wikilinks.forEach(wikilink => {
-    const resolved = resolveWikilink(posts, wikilink.link);
-    if (resolved) {
-      valid.push(wikilink);
-    } else {
-      invalid.push(wikilink);
-    }
-  });
-
-  return { valid, invalid };
-}
-
-// Helper function to check if a node is inside a code block
-function isInsideCodeBlock(parent: any, tree: any): boolean {
-  // Check if the immediate parent is a code-related node
-  if (!parent) return false;
-
-  // Check for inline code or code blocks
-  if (parent.type === 'inlineCode' || parent.type === 'code') {
-    return true;
-  }
-
-  // Walk up the AST to check for code block ancestors
-  let currentNode = parent;
-  while (currentNode) {
-    if (currentNode.type === 'inlineCode' || currentNode.type === 'code') {
-      return true;
-    }
-    // Try to find the parent node in the tree (simplified check)
-    currentNode = currentNode.parent;
-  }
-
-  return false;
-}
-
-// Helper function to check if a wikilink is inside backticks in raw content
-function isWikilinkInCode(content: string, wikilinkIndex: number): boolean {
-  // Find all backtick pairs in the content
-  const backtickRegex = /`([^`]*)`/g;
-  let match;
-
-  while ((match = backtickRegex.exec(content)) !== null) {
-    const codeStart = match.index;
-    const codeEnd = match.index + match[0].length;
-
-    // Check if the wikilink is inside this code block
-    if (wikilinkIndex >= codeStart && wikilinkIndex < codeEnd) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
-// Helper function to check if a URL is an internal link
-function isInternalLink(url: string): boolean {
-  // Remove any leading/trailing whitespace
-  url = url.trim();
-
-  // Skip external URLs (http/https)
-  if (url.startsWith('http://') || url.startsWith('https://')) {
-    return false;
-  }
-
-  // Skip email links
-  if (url.startsWith('mailto:')) {
-    return false;
-  }
-
-  // Skip anchors only
-  if (url.startsWith('#')) {
-    return false;
-  }
-
-  // Parse anchor if present to check the base URL
-  const { link } = parseLinkWithAnchor(url);
-
-  // Check if it's a post link (ends with .md, starts with /posts/, or is a slug)
-  const isInternal = link.endsWith('.md') || link.startsWith('/posts/') || link.startsWith('posts/') || !link.includes('/');
-  
-  
-  return isInternal;
-}
-
-// Helper function to extract link text from URL for internal links
-function extractLinkTextFromUrl(url: string, allPosts: any[] = [], allPages: any[] = []): string | null {
-  const result = extractLinkTextFromUrlWithAnchor(url, allPosts, allPages);
-  return result.linkText;
-}
-
-// Helper function to extract link text and anchor from URL for internal links
-function extractLinkTextFromUrlWithAnchor(url: string, allPosts: any[] = [], allPages: any[] = []): { linkText: string | null; anchor: string | null } {
-  url = url.trim();
-  
-  // Parse anchor if present
-  const { link, anchor } = parseLinkWithAnchor(url);
-
-  // Handle posts/ prefixed links first
-  if (link.startsWith('posts/')) {
-    let linkText = link.replace('posts/', '').replace(/\.md$/, '');
-    // Conservative approach: only remove /index if it follows folder-based pattern
-    if (linkText.endsWith('/index') && linkText.split('/').length === 2) {
-      linkText = linkText.replace('/index', '');
-    }
-    return {
-      linkText: linkText,
-      anchor: anchor
-    };
-  }
-  
-  // Handle special pages first
-  if (link.startsWith('special/')) {
-    const specialPath = link.replace('special/', '').replace(/\.md$/, '');
-    if (specialPath === 'index') {
-      return {
-        linkText: 'homepage', // Special marker for homepage
-        anchor: anchor
-      };
-    } else if (specialPath === '404') {
-      return {
-        linkText: '404', // Special marker for 404 page
-        anchor: anchor
-      };
-    } else {
-      return {
-        linkText: specialPath,
-        anchor: anchor
-      };
-    }
-  }
-  
-  // Handle .md files - these should be treated as post references
-  if (link.endsWith('.md')) {
-    let linkText = link.replace(/\.md$/, '');
-    // Conservative approach: only remove /index if it follows folder-based pattern
-    if (linkText.endsWith('/index') && linkText.split('/').length === 1) {
-      linkText = linkText.replace('/index', '');
-    }
-    return {
-      linkText: linkText,
-      anchor: anchor
-    };
-  }
-
-  // Handle /posts/ URLs
-  if (link.startsWith('/posts/')) {
-    return {
-      linkText: link.replace('/posts/', ''),
-      anchor: anchor
-    };
-  }
-
-  // Handle /special/ URLs
-  if (link.startsWith('/special/')) {
-    const specialPath = link.replace('/special/', '');
-    if (specialPath === 'index') {
-      return {
-        linkText: 'homepage', // Special marker for homepage
-        anchor: anchor
-      };
-    } else if (specialPath === '404') {
-      return {
-        linkText: '404', // Special marker for 404 page
-        anchor: anchor
-      };
-    } else {
-      return {
-        linkText: specialPath,
-        anchor: anchor
-      };
-    }
-  }
-
-  // If it's just a slug (no slashes), use it directly
-  if (!link.includes('/')) {
-    return {
-      linkText: link,
-      anchor: anchor
-    };
-  }
-
-  return { linkText: null, anchor: null };
-}
+// ============================================================================
+// HTML PROCESSING
+// ============================================================================
 
 // Process HTML content to resolve wikilink display text with post titles
 export function processWikilinksInHTML(posts: Post[], html: string, allPosts: any[] = [], allPages: any[] = []): string {
@@ -735,6 +830,10 @@ export function processContentAwareWikilinks(content: string, allPosts: any[], a
   // This function is a placeholder for future enhancements
   return content;
 }
+
+// ============================================================================
+// IMAGE PROCESSING
+// ============================================================================
 
 // Custom remark plugin to handle folder-based post images
 export function remarkFolderImages() {
