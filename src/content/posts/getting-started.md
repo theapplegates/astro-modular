@@ -414,10 +414,6 @@ Write using markdown with enhanced features.
 
 H1s are hardcoded from the title frontmatter like posts, but pages get a unique `noIndex` property that sets whether or not the page should be indexed in search engines or included on the sitemap. Helpful for pages that you don't want indexed like a thank-you page.
 
-### Automatic Aliases & Redirects
-
-When you rename a post or page in Obsidian, the old filename is automatically stored as an alias. Astro processes these aliases and creates redirect rules, so old URLs continue to work. You don't need to add aliases manually - they appear automatically when you use Obsidian's rename functionality.
-
 ### Other Page Details
 
 The Contact page has an optional form embedded into it, which leads to the Thank You page when filled out. It's preconfigured to work with Netlify out of the box, you just have to [enable form detection](https://docs.netlify.com/manage/forms/setup/) on your project.
@@ -425,6 +421,56 @@ The Contact page has an optional form embedded into it, which leads to the Thank
 An optional Privacy Policy page can be edited or removed by deleting it if you don't want it. 
 
 `pages/index.md` controls what goes on the homepage blurb. Adding content to `pages/404.md` will display on any "not found" page.
+
+## Creating Projects
+
+Create projects in `src/content/projects/` to showcase your work. Projects support both single files and folder-based organization:
+
+```markdown
+---
+title: "{{title}}"
+description: "Project description"
+date: {{date}}
+categories: ["Web Development", "Open Source"]
+repositoryUrl: "https://github.com/username/repo"
+demoUrl: "https://your-demo.com"
+status: "completed"  # "in-progress" or "completed"
+image: "cover.jpg"
+imageAlt: "Project screenshot"
+hideCoverImage: false
+draft: false
+featured: true
+---
+```
+
+**Featured flag**: Show on homepage when enabled.
+
+## Creating Documentation
+
+Create documentation in `src/content/docs/` for guides and references:
+
+```markdown
+---
+title: "{{title}}"
+description: "Documentation description"
+category: "Setup"  # Optional - creates "Unsorted" if missing
+order: 1
+version: "1.0.0"
+lastModified: 2024-01-15
+image: "hero.jpg"
+imageAlt: "Documentation screenshot"
+hideCoverImage: false
+hideTOC: false
+draft: false
+featured: true
+---
+```
+
+Sort docs within categories by `order` number. Use `hideTOC: true` to hide table of contents for that project specifically. Use `featured` to show on homepage when enabled.
+
+## Automatic Aliases & Redirects
+
+When you rename a content type (post or page by default, but configurable in settings) in Obsidian, the old filename is automatically stored as an alias. Astro processes these aliases and creates redirect rules, so old URLs continue to work. You don't need to add aliases manually - they appear automatically when you use Obsidian's rename functionality.
 
 ## Obsidian Integration
 

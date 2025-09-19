@@ -87,6 +87,7 @@ export interface DocsData {
   image?: string;
   imageAlt?: string;
   hideCoverImage?: boolean;
+  hideTOC?: boolean;
   draft?: boolean;
   noIndex?: boolean;
   showTOC?: boolean;

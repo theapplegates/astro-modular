@@ -3,6 +3,7 @@ import { getCollection, getEntry } from 'astro:content';
 import { siteConfig } from '@/config';
 import { generatePostsListSEO } from '@/utils/seo';
 import { shouldShowContent } from '@/utils/markdown';
+import { hasDocCategories, getDocCategories, groupDocsByCategory } from '@/utils/categories';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import DocumentationCard from '@/components/DocumentationCard.astro';
 import TableOfContents from '@/components/TableOfContents.astro';
@@ -15,38 +16,35 @@ const isDev = import.meta.env.DEV;
 // Filter documentation
 const visibleDocs = allDocs.filter(doc => shouldShowContent(doc, isDev));
 
-// Group by category and sort by order
-const docsByCategory = visibleDocs.reduce((acc, doc) => {
-  const category = doc.data.category || 'General';
-  if (!acc[category]) {
-    acc[category] = [];
-  }
-  acc[category].push(doc);
-  return acc;
-}, {} as Record<string, typeof visibleDocs>);
+// Check if any docs have categories
+const docsHaveCategories = hasDocCategories(visibleDocs);
 
-// Sort docs within each category by order, then by title
-Object.keys(docsByCategory).forEach(category => {
-  docsByCategory[category].sort((a, b) => {
-    if (a.data.order !== b.data.order) {
-      return a.data.order - b.data.order;
-    }
-    return a.data.title.localeCompare(b.data.title);
-  });
-});
+// Group docs by category or list them without categories
+let docsByCategory: Record<string, typeof visibleDocs>;
+let sortedCategories: string[];
+let tocHeadings: any[];
+let shouldShowTOC: boolean;
 
-// Sort categories alphabetically
-const sortedCategories = Object.keys(docsByCategory).sort();
-
-// Generate TOC headings from categories
-const tocHeadings = sortedCategories.map(category => ({
-  depth: 2,
-  slug: `category-${category.toLowerCase().replace(/\s+/g, '-')}`,
-  text: category
-}));
-
-// Check if TOC should be shown
-const shouldShowTOC = siteConfig.postOptions.tableOfContents && tocHeadings.length > 0;
+if (docsHaveCategories) {
+  // Group by category with "Unsorted" for docs without categories
+  docsByCategory = groupDocsByCategory(visibleDocs);
+  sortedCategories = Object.keys(docsByCategory).sort();
+  
+  // Generate TOC headings from categories
+  tocHeadings = sortedCategories.map(category => ({
+    depth: 2,
+    slug: `category-${category.toLowerCase().replace(/\s+/g, '-')}`,
+    text: category
+  }));
+  
+  shouldShowTOC = siteConfig.postOptions.tableOfContents && tocHeadings.length > 0;
+} else {
+  // No categories - just list docs by order
+  docsByCategory = { 'All Documentation': visibleDocs };
+  sortedCategories = ['All Documentation'];
+  tocHeadings = [];
+  shouldShowTOC = false;
+}
 
 // Get docs page content from markdown file
 let docsPageContent = null;
@@ -94,11 +92,13 @@ seoData.noIndex = docsPageContent?.data.noIndex || false;
           <div class="space-y-12">
             {sortedCategories.map(category => (
               <section id={`category-${category.toLowerCase().replace(/\s+/g, '-')}`}>
-                <h2 class="text-lg font-semibold text-primary-900 dark:text-primary-50 mb-6 pb-2 border-b border-primary-200 dark:border-primary-700">
-                  <a href={`#category-${category.toLowerCase().replace(/\s+/g, '-')}`} class="anchor-link text-primary-900 dark:text-primary-50 hover:text-highlight-600 dark:hover:text-highlight-400 no-underline transition-colors duration-200" aria-label="Link to this section">
-                    {category}
-                  </a>
-                </h2>
+                {docsHaveCategories && (
+                  <h2 class="text-lg font-semibold text-primary-900 dark:text-primary-50 mb-6 pb-2 border-b border-primary-200 dark:border-primary-700">
+                    <a href={`#category-${category.toLowerCase().replace(/\s+/g, '-')}`} class="anchor-link text-primary-900 dark:text-primary-50 hover:text-highlight-600 dark:hover:text-highlight-400 no-underline transition-colors duration-200" aria-label="Link to this section">
+                      {category}
+                    </a>
+                  </h2>
+                )}
               
               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {docsByCategory[category].map((doc, index) => (

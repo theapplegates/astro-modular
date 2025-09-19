@@ -6,6 +6,7 @@ import { optimizePostImagePath, optimizeContentImagePath } from '@/utils/images'
 import { processWikilinksInHTML } from '@/utils/wikilinks';
 import { getCollection } from 'astro:content';
 import { shouldShowPost, processPost, generateTOC, getAdjacentPosts, formatDate, formatDateMobile, isValidDate } from '@/utils/markdown';
+import { hasProjectCategories } from '@/utils/categories';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import TableOfContents from '@/components/TableOfContents.astro';
 import LinkedMentions from '@/components/LinkedMentions.astro';
@@ -62,6 +63,11 @@ const structuredData = {
 const allPosts = await getCollection('posts');
 const visiblePosts = allPosts.filter(p => shouldShowPost(p as any, isDev));
 
+// Get all projects to check if any have categories
+const allProjectsForCategories = await getCollection('projects');
+const visibleProjectsForCategories = allProjectsForCategories.filter(p => shouldShowPost(p as any, isDev));
+const projectsHaveCategories = hasProjectCategories(visibleProjectsForCategories);
+
 // Process the project content and get processed data including word count
 const { Content, headings } = await processPost(project as any);
 
@@ -70,9 +76,7 @@ const shouldShowTOC = siteConfig.postOptions.tableOfContents && headings.length 
 const toc = shouldShowTOC ? generateTOC(headings) : [];
 
 // Get adjacent projects for navigation
-const allProjects = await getCollection('projects');
-const visibleProjects = allProjects.filter(p => shouldShowPost(p as any, isDev));
-const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProjects as any, project.slug);
+const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProjectsForCategories as any, project.slug);
 ---
 
 <BaseLayout seoData={seoData}>
@@ -99,7 +103,7 @@ const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProject
     )}
 
     <!-- Project-specific meta tags -->
-    {project.data.categories && project.data.categories.length > 0 && (
+    {projectsHaveCategories && project.data.categories && project.data.categories.length > 0 && (
       <meta name="keywords" content={project.data.categories.join(', ')}>
     )}
   </Fragment>
@@ -193,7 +197,7 @@ const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProject
             </div>
 
             <!-- Categories -->
-            {project.data.categories && project.data.categories.length > 0 && (
+            {projectsHaveCategories && project.data.categories && project.data.categories.length > 0 && (
               <div class="flex flex-wrap gap-2 mb-8">
                 {project.data.categories.map(category => (
                   <span

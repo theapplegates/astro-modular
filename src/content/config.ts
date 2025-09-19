@@ -67,6 +67,7 @@ const docsCollection = defineCollection({
     image: z.string().nullable().optional(),
     imageAlt: z.string().nullable().optional(),
     hideCoverImage: z.boolean().optional(),
+    hideTOC: z.boolean().optional(),
     draft: z.boolean().optional(),
     noIndex: z.boolean().optional(),
     showTOC: z.boolean().optional(),

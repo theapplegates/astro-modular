@@ -8,6 +8,7 @@ lastModified: 2024-01-15
 image: "[[sourcetree.png]]"
 imageAlt:
 hideCoverImage: false
+hideTOC: false
 draft: false
 featured: false
 ---

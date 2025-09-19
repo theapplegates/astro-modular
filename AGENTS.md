@@ -365,7 +365,32 @@ The theme supports multiple content types for different purposes:
 - **URL Structure**: `/docs/doc-slug`
 - **Features**: Categories, version control, table of contents, featured flag
 - **Organization**: Single files or folder-based with co-located assets
-- **Frontmatter**: `title`, `description`, `category`, `order`, `lastModified`, `version`, `image`, `imageAlt`, `hideCoverImage`, `draft`, `noIndex`, `showTOC`, `featured`
+- **Frontmatter**: `title`, `description`, `category`, `order`, `lastModified`, `version`, `image`, `imageAlt`, `hideCoverImage`, `hideTOC`, `draft`, `noIndex`, `showTOC`, `featured`
+
+### Category Logic
+
+The theme includes intelligent category handling that adapts based on your content:
+
+#### Projects Categories
+- **If NO projects have categories**: Hide the entire category system
+  - Remove category display from project cards
+  - Remove category display from individual project pages  
+  - Remove the category filtering block from the projects index page
+- **If SOME projects have categories**: Show categories normally
+
+#### Documentation Categories
+- **If NO docs have categories**: Remove category system entirely
+  - Remove category headings and TOC-like structure on the docs index page
+  - Just list docs by their `order` number
+- **If SOME docs have categories**: 
+  - Docs with categories go to their assigned category
+  - Docs without categories go to a new "Unsorted" category
+  - Keep the category structure
+
+#### Individual Documentation TOC Control
+- **`hideTOC` field**: Each doc can hide its table of contents with `hideTOC: true` in frontmatter
+- **Separate from global setting**: This is independent of the global posts TOC setting
+- **Default behavior**: TOC shows unless explicitly hidden
 
 ### Content Schema
 
@@ -398,6 +423,45 @@ The theme supports multiple content types for different purposes:
   imageAlt?: string;
   hideCoverImage?: boolean;
   noIndex?: boolean;  // Commonly used for pages
+}
+```
+
+#### Projects Collection
+```typescript
+{
+  title: string;
+  description: string;
+  date: Date;
+  categories?: string[];
+  repositoryUrl?: string;
+  demoUrl?: string;
+  status?: 'in-progress' | 'completed';
+  image?: string;
+  imageAlt?: string;
+  hideCoverImage?: boolean;
+  draft?: boolean;
+  noIndex?: boolean;
+  featured?: boolean;
+}
+```
+
+#### Documentation Collection
+```typescript
+{
+  title: string;
+  description: string;
+  category: string;
+  order: number;
+  lastModified?: Date;
+  version?: string;
+  image?: string;
+  imageAlt?: string;
+  hideCoverImage?: boolean;
+  hideTOC?: boolean;
+  draft?: boolean;
+  noIndex?: boolean;
+  showTOC?: boolean;
+  featured?: boolean;
 }
 ```
 
@@ -1470,6 +1534,42 @@ draft: true
 title: "{{title}}"
 description: ""
 noIndex: false
+---
+```
+
+#### Projects Frontmatter
+```yaml
+---
+title: "{{title}}"
+description: "Project description"
+date: {{date}}
+categories: ["Web Development", "Open Source"]
+repositoryUrl: "https://github.com/username/repo"
+demoUrl: "https://your-demo.com"
+status: "completed"  # "in-progress" or "completed"
+image: "cover.jpg"
+imageAlt: "Project screenshot"
+hideCoverImage: false
+draft: false
+featured: true
+---
+```
+
+#### Documentation Frontmatter
+```yaml
+---
+title: "{{title}}"
+description: "Documentation description"
+category: "Setup"  # Optional - creates "Unsorted" if missing
+order: 1
+version: "1.0.0"
+lastModified: 2024-01-15
+image: "hero.jpg"
+imageAlt: "Documentation screenshot"
+hideCoverImage: false
+hideTOC: false
+draft: false
+featured: true
 ---
 ```
 

@@ -3,6 +3,7 @@ import { getCollection, getEntry } from 'astro:content';
 import { siteConfig } from '@/config';
 import { generatePostsListSEO } from '@/utils/seo';
 import { shouldShowContent, sortPostsByDate, isValidDate } from '@/utils/markdown';
+import { hasProjectCategories, getProjectCategories } from '@/utils/categories';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import ProjectCard from '@/components/ProjectCard.astro';
 import ProjectCategories from '@/components/ProjectCategories.astro';
@@ -21,12 +22,9 @@ const visibleProjects = allProjects
     return dateB.getTime() - dateA.getTime();
   });
 
-// Extract all unique categories
-const allCategories = Array.from(new Set(
-  visibleProjects
-    .flatMap(project => project.data.categories || [])
-    .filter(Boolean)
-));
+// Check if any projects have categories and get them
+const projectsHaveCategories = hasProjectCategories(visibleProjects);
+const allCategories = projectsHaveCategories ? getProjectCategories(visibleProjects) : [];
 
 // Get projects page content from markdown file
 let projectsPageContent = null;
@@ -75,13 +73,14 @@ seoData.noIndex = projectsPageContent?.data.noIndex || false;
             <>
               <!-- Projects grid -->
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-                {visibleProjects.map((project, index) => (
-                  <ProjectCard 
-                    project={project} 
-                    eager={index === 0}
-                    context="projects"
-                  />
-                ))}
+            {visibleProjects.map((project, index) => (
+              <ProjectCard 
+                project={project} 
+                eager={index === 0}
+                context="projects"
+                showCategories={projectsHaveCategories}
+              />
+            ))}
               </div>
             </>
           ) : (
@@ -100,7 +99,7 @@ seoData.noIndex = projectsPageContent?.data.noIndex || false;
         <!-- Mobile sidebar - appears below content on mobile/tablet -->
         <div class="xl:hidden mt-12 space-y-6">
           <!-- Categories -->
-          {siteConfig.postOptions.tags && allCategories.length > 0 && (
+          {siteConfig.postOptions.tags && projectsHaveCategories && allCategories.length > 0 && (
             <ProjectCategories categories={allCategories} />
           )}
         </div>
@@ -109,7 +108,7 @@ seoData.noIndex = projectsPageContent?.data.noIndex || false;
         <div class="hidden xl:block absolute top-0 left-full ml-8 w-64">
           <div class="sticky top-24 space-y-3 max-h-[calc(100vh-12rem)] overflow-y-auto pb-6">
             <!-- Categories -->
-            {siteConfig.postOptions.tags && allCategories.length > 0 && (
+            {siteConfig.postOptions.tags && projectsHaveCategories && allCategories.length > 0 && (
               <ProjectCategories categories={allCategories} />
             )}
           </div>

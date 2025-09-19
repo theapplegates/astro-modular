@@ -8,6 +8,7 @@ lastModified: 2025-09-17
 image: "[[images/obsidian-cover.png]]"
 imageAlt:
 hideCoverImage: false
+hideTOC: false
 draft: false
 featured: false
 ---

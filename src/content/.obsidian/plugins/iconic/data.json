@@ -44,6 +44,9 @@
     "hideCoverImage": {
       "icon": "lucide-image-off"
     },
+    "hideTOC": {
+      "icon": "lucide-equal-not"
+    },
     "image": {
       "icon": "lucide-image"
     },
