@@ -576,7 +576,7 @@ The project includes custom Swup behavior in `BaseLayout.astro`:
 **IMPORTANT**: There are two completely separate image systems in this project:
 
 #### 1. Post Card Images (Listings, Homepage, Tag Pages)
-- **Controlled by**: `siteConfig.features.showCoverImages` in `config.ts`
+- **Controlled by**: `siteConfig.postOptions.showPostCardCoverImages` in `config.ts`
 - **Options**: `"all"`, `"latest"`, `"home"`, `"posts"`, `"latest-and-posts"`, `"none"`
 - **Current Setting**: `"latest-and-posts"` (shows on latest posts and posts/tags pages)
 - **Frontmatter**: The `image` field in post frontmatter is used for card images
@@ -591,7 +591,7 @@ The project includes custom Swup behavior in `BaseLayout.astro`:
 
 #### Key Rules for AI Agents
 - **Never confuse these two systems** - they are completely independent
-- **Post card visibility** is controlled by `showCoverImages` config, not frontmatter
+- **Post card visibility** is controlled by `showPostCardCoverImages` config, not frontmatter
 - **Post content visibility** is controlled by `hideCoverImage` frontmatter
 - **Performance warnings** about "unoptimized loading" typically refer to post card images
 - **Accessibility warnings** about "redundant alt text" can affect both systems
@@ -1229,7 +1229,7 @@ features: {
   commandPalette: true,
   postNavigation: true,
   showSocialIconsInFooter: true,
-  showCoverImages: "latest-and-posts", // See cover image options below
+  showPostCardCoverImages: "latest-and-posts", // See cover image options below
 }
 ```
 
@@ -1877,7 +1877,7 @@ All SEO features work with folder-based posts:
 2. **Image loading issues**: Check if `eager` prop is being passed correctly to PostCard components.
 
 ### Image System Confusion (Common AI Agent Mistake)
-- **Post cards** show images based on `showCoverImages` config, NOT `hideCoverImage` frontmatter
+- **Post cards** show images based on `showPostCardCoverImages` config, NOT `hideCoverImage` frontmatter
 - **Post content** shows images based on `hideCoverImage` frontmatter, NOT config
 - **Post card aspect ratio** is controlled by `postCardAspectRatio` config, NOT individual post settings
 - These are completely separate systems - don't mix them up!
@@ -1900,7 +1900,7 @@ All SEO features work with folder-based posts:
 - **ImageWrapper.astro**: Handles image optimization and fallbacks
 
 ### Key Configuration Files
-- **`src/config.ts`**: Main site configuration including `showCoverImages`
+- **`src/config.ts`**: Main site configuration including `showPostCardCoverImages`
 - **`astro.config.mjs`**: Astro and Swup configuration
 - **`src/config/dev.ts`**: Development-specific settings
 
@@ -2004,7 +2004,7 @@ The comments are styled to match your theme automatically. If you see styling is
 - **Keep console output clean** for professional deployments
 
 #### 2. **Image System Confusion (Most Common)**
-- **Post cards** show images based on `showCoverImages` config, NOT `hideCoverImage` frontmatter
+- **Post cards** show images based on `showPostCardCoverImages` config, NOT `hideCoverImage` frontmatter
 - **Post content** shows images based on `hideCoverImage` frontmatter, NOT config
 - These are completely separate systems - don't mix them up!
 

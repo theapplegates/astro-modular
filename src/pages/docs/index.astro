@@ -46,7 +46,7 @@ const tocHeadings = sortedCategories.map(category => ({
 }));
 
 // Check if TOC should be shown
-const shouldShowTOC = siteConfig.features.tableOfContents && tocHeadings.length > 0;
+const shouldShowTOC = siteConfig.postOptions.tableOfContents && tocHeadings.length > 0;
 
 // Get docs page content from markdown file
 let docsPageContent = null;

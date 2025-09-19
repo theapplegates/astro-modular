@@ -24,7 +24,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
     if (isDev && allTags.length === 0) {
     }
 
-    const postsPerPage = siteConfig.postsPerPage;
+    const postsPerPage = siteConfig.postOptions.postsPerPage;
     const paths: any[] = [];
 
     // Generate paths for each tag and its pagination
@@ -97,7 +97,7 @@ try {
 }
 
 // Pagination
-const postsPerPage = siteConfig.postsPerPage;
+const postsPerPage = siteConfig.postOptions.postsPerPage;
 const totalPosts = filteredPosts.length;
 const totalPages = Math.ceil(totalPosts / postsPerPage);
 const startIndex = (currentPage - 1) * postsPerPage;
@@ -192,7 +192,7 @@ const pagination = {
         <!-- Mobile sidebar - appears below content on mobile/tablet -->
         <div class="xl:hidden mt-12 space-y-6">
           <!-- Tags -->
-          {siteConfig.features.tags && allTags.length > 0 && (
+          {siteConfig.postOptions.tags && allTags.length > 0 && (
             <Tags tags={allTags} currentTag={tag} />
           )}
         </div>
@@ -201,7 +201,7 @@ const pagination = {
         <div class="hidden xl:block absolute top-0 left-full ml-8 w-64">
           <div class="sticky top-24 space-y-3 max-h-[calc(100vh-12rem)] overflow-y-auto pb-6">
             <!-- Tags -->
-            {siteConfig.features.tags && allTags.length > 0 && (
+            {siteConfig.postOptions.tags && allTags.length > 0 && (
               <Tags tags={allTags} currentTag={tag} />
             )}
           </div>

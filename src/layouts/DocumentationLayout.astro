@@ -25,7 +25,7 @@ const seoData = generateDocumentationSEO(documentation, Astro.url.href);
 const toc = headings.filter(h => h.depth >= 2 && h.depth <= 4);
 
 // Check if TOC should be shown - use frontmatter preference or global setting
-const showTOC = documentation.data.showTOC !== undefined ? documentation.data.showTOC : siteConfig.features.tableOfContents;
+const showTOC = documentation.data.showTOC !== undefined ? documentation.data.showTOC : siteConfig.postOptions.tableOfContents;
 const shouldShowTOC = showTOC && toc.length > 0;
 
 // Generate structured data

@@ -66,7 +66,7 @@ const visiblePosts = allPosts.filter(p => shouldShowPost(p as any, isDev));
 const { Content, headings } = await processPost(project as any);
 
 // Generate table of contents if enabled
-const shouldShowTOC = siteConfig.features.tableOfContents && headings.length > 0;
+const shouldShowTOC = siteConfig.postOptions.tableOfContents && headings.length > 0;
 const toc = shouldShowTOC ? generateTOC(headings) : [];
 
 // Get adjacent projects for navigation
@@ -84,7 +84,7 @@ const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProject
     {(() => {
       if (!project.data.image || project.data.hideCoverImage === true) return false;
       
-      const showCoverImages = siteConfig.features.showCoverImages;
+      const showCoverImages = siteConfig.postOptions.showPostCardCoverImages;
       // Only preload for projects that are likely to show the image immediately
       const shouldPreload = ['all', 'posts', 'latest-and-posts'].includes(showCoverImages);
       
@@ -107,9 +107,9 @@ const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProject
   <div class="py-8 relative">
     <div class="mx-auto px-4 sm:px-6 lg:px-8 relative" style={`max-width: ${siteConfig.layout.contentWidth}`}>
       <!-- Main content -->
-      <article class={`bg-primary-50 dark:bg-primary-900 rounded-lg border border-primary-200 dark:border-primary-700 shadow-sm ${siteConfig.features.showCoverImages !== 'none' && project.data.image && project.data.hideCoverImage !== true ? 'overflow-hidden' : ''}`}>
+      <article class={`bg-primary-50 dark:bg-primary-900 rounded-lg border border-primary-200 dark:border-primary-700 shadow-sm ${siteConfig.postOptions.showPostCardCoverImages !== 'none' && project.data.image && project.data.hideCoverImage !== true ? 'overflow-hidden' : ''}`}>
         {/* Cover image - shown if global config allows and not hidden by frontmatter */}
-        {siteConfig.features.showCoverImages !== 'none' && project.data.image && project.data.hideCoverImage !== true && (
+        {siteConfig.postOptions.showPostCardCoverImages !== 'none' && project.data.image && project.data.hideCoverImage !== true && (
           <div class="h-40 sm:h-48 md:h-56 lg:h-64 overflow-hidden rounded-t-lg bg-primary-100 dark:bg-primary-800">
             <ImageWrapper
               src={project.data.image}
@@ -154,7 +154,7 @@ const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProject
         )}
 
         <!-- Project content wrapper -->
-        <div class={`p-6 ${siteConfig.features.showCoverImages !== 'none' && project.data.image && project.data.hideCoverImage !== true ? 'rounded-b-lg' : 'rounded-lg'}`}>
+        <div class={`p-6 ${siteConfig.postOptions.showPostCardCoverImages !== 'none' && project.data.image && project.data.hideCoverImage !== true ? 'rounded-b-lg' : 'rounded-lg'}`}>
           <!-- Project header -->
           <header class="mb-4">
             <h1 class="text-xl font-bold text-primary-900 dark:text-primary-50 mb-6 leading-tight">
@@ -237,12 +237,12 @@ const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProject
             <Content />
           </div>
 
-          {siteConfig.features.linkedMentions && (
+          {siteConfig.postOptions.linkedMentions.enabled && (
             <LinkedMentions currentSlug={project.slug} />
           )}
 
           <!-- Project navigation -->
-          {siteConfig.features.postNavigation && (prevProject || nextProject) && (
+          {siteConfig.postOptions.postNavigation && (prevProject || nextProject) && (
             <nav class="mt-8 pt-8 border-t border-primary-200 dark:border-primary-700">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {prevProject && (
@@ -281,7 +281,7 @@ const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProject
           )}
 
           <!-- Giscus Comments -->
-          {siteConfig.features.comments && (
+          {siteConfig.postOptions.comments.enabled && (
             <div class="mt-16">
               <GiscusComments
                 postTitle={project.data.title}
@@ -306,7 +306,7 @@ const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProject
   </div>
 
   <Fragment slot="scripts">
-    <script define:vars={{ posts: visiblePosts, commentsEnabled: siteConfig.features.comments, postTitle: project.data.title, postSlug: project.slug }}>
+    <script define:vars={{ posts: visiblePosts, commentsEnabled: siteConfig.postOptions.comments.enabled, postTitle: project.data.title, postSlug: project.slug }}>
       // Remove duplicate H1 from project content (since we render it in header)
       document.addEventListener('DOMContentLoaded', function() {
         const projectContent = document.getElementById('project-content');

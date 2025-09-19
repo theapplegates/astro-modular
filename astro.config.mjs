@@ -113,7 +113,11 @@ export default defineConfig({
           ariaLabel: 'Link to this section'
         }
       }]
-    ]
+    ],
+    shikiConfig: {
+      theme: 'github-dark',
+      wrap: true
+    }
   },
   vite: {
     resolve: {

@@ -100,7 +100,7 @@ seoData.noIndex = projectsPageContent?.data.noIndex || false;
         <!-- Mobile sidebar - appears below content on mobile/tablet -->
         <div class="xl:hidden mt-12 space-y-6">
           <!-- Categories -->
-          {siteConfig.features.tags && allCategories.length > 0 && (
+          {siteConfig.postOptions.tags && allCategories.length > 0 && (
             <ProjectCategories categories={allCategories} />
           )}
         </div>
@@ -109,7 +109,7 @@ seoData.noIndex = projectsPageContent?.data.noIndex || false;
         <div class="hidden xl:block absolute top-0 left-full ml-8 w-64">
           <div class="sticky top-24 space-y-3 max-h-[calc(100vh-12rem)] overflow-y-auto pb-6">
             <!-- Categories -->
-            {siteConfig.features.tags && allCategories.length > 0 && (
+            {siteConfig.postOptions.tags && allCategories.length > 0 && (
               <ProjectCategories categories={allCategories} />
             )}
           </div>

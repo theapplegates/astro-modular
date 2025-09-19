@@ -2,11 +2,11 @@
 import { siteConfig } from '@/config';
 
 // Only render if comments are enabled
-if (!siteConfig.features.comments) {
+if (!siteConfig.postOptions.comments.enabled) {
   return null;
 }
 
-const { comments } = siteConfig;
+const { comments } = siteConfig.postOptions;
 
 ---
 

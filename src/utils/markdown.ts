@@ -1,5 +1,4 @@
 import type { Post, PostData, ReadingTime, Heading } from '@/types';
-import { siteConfig } from '@/config';
 
 // Check if a date is valid (not January 1, 1970 or invalid)
 export function isValidDate(date: Date): boolean {
@@ -274,14 +273,11 @@ export function extractTags(posts: Post[]): string[] {
         postTags.forEach(tag => {
           if (tag && typeof tag === 'string' && tag.trim()) {
             tags.add(tag.trim());
-          } else if (isDev) {
           }
         });
       }
     });
   } catch (error) {
-    if (isDev) {
-    }
     return [];
   }
 
@@ -293,8 +289,6 @@ export function filterPostsByTag(posts: Post[], tag: string): Post[] {
   const isDev = import.meta.env.DEV;
   
   if (!tag || typeof tag !== 'string') {
-    if (isDev) {
-    }
     return [];
   }
 
@@ -309,8 +303,6 @@ export function filterPostsByTag(posts: Post[], tag: string): Post[] {
       );
     });
   } catch (error) {
-    if (isDev) {
-    }
     return [];
   }
 }

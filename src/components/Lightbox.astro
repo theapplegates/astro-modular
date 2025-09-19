@@ -142,7 +142,7 @@
             const imageData = {
               src: imgElement.src,
               alt: imgElement.alt || 'Image',
-              caption: undefined
+              caption: imgElement.getAttribute('data-caption') || imgElement.title || undefined
             };
             return imageData;
           });
@@ -150,15 +150,15 @@
         }
       }
       
-      // Fallback: collect all gallery images if no specific gallery found
-      const galleryImages = document.querySelectorAll('img[data-lightbox="gallery"]');
+      // Fallback: collect all images (both gallery and regular images)
+      const allImages = document.querySelectorAll('img');
       
-      this.images = Array.from(galleryImages).map(img => {
+      this.images = Array.from(allImages).map(img => {
         const imgElement = img as HTMLImageElement;
         const imageData = {
           src: imgElement.src,
           alt: imgElement.alt || 'Image',
-          caption: undefined
+          caption: imgElement.getAttribute('data-caption') || imgElement.title || undefined
         };
         return imageData;
       });

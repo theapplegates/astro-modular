@@ -82,7 +82,7 @@ const { Content, headings, wordCount, remarkPluginFrontmatter } = await processP
 const readingTime = calculateReadingTime(post.body);
 
 // Generate table of contents if enabled
-const shouldShowTOC = siteConfig.features.tableOfContents && headings.length > 0;
+const shouldShowTOC = siteConfig.postOptions.tableOfContents && headings.length > 0;
 const toc = shouldShowTOC ? generateTOC(headings) : [];
 
 // Get adjacent posts for navigation
@@ -98,7 +98,7 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
     {(() => {
       if (!post.data.image || post.data.hideCoverImage === true) return false;
       
-      const showCoverImages = siteConfig.features.showCoverImages;
+      const showCoverImages = siteConfig.postOptions.showPostCardCoverImages;
       // Only preload for posts that are likely to show the image immediately
       // Skip preload for complex posts that might have delayed rendering
       const shouldPreload = ['all', 'posts', 'latest-and-posts'].includes(showCoverImages) && 
@@ -123,9 +123,9 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
   <div class="py-8 relative">
     <div class="mx-auto px-4 sm:px-6 lg:px-8 relative" style={`max-width: ${siteConfig.layout.contentWidth}`}>
       <!-- Main content -->
-      <article class={`bg-primary-50 dark:bg-primary-900 rounded-lg border border-primary-200 dark:border-primary-700 shadow-sm ${siteConfig.features.showCoverImages !== 'none' && post.data.image && post.data.hideCoverImage !== true ? 'overflow-hidden' : ''}`}>
+      <article class={`bg-primary-50 dark:bg-primary-900 rounded-lg border border-primary-200 dark:border-primary-700 shadow-sm ${siteConfig.postOptions.showPostCardCoverImages !== 'none' && post.data.image && post.data.hideCoverImage !== true ? 'overflow-hidden' : ''}`}>
         {/* Cover image - shown if global config allows and not hidden by frontmatter */}
-        {siteConfig.features.showCoverImages !== 'none' && post.data.image && post.data.hideCoverImage !== true && (
+        {siteConfig.postOptions.showPostCardCoverImages !== 'none' && post.data.image && post.data.hideCoverImage !== true && (
           <div class="h-40 sm:h-48 md:h-56 lg:h-64 overflow-hidden rounded-t-lg bg-primary-100 dark:bg-primary-800">
             {post.data.image.startsWith('http') ? (
               <img 
@@ -166,7 +166,7 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
         )}
 
         <!-- Post content wrapper -->
-        <div class={`p-6 ${siteConfig.features.showCoverImages !== 'none' && post.data.image && post.data.hideCoverImage !== true ? 'rounded-b-lg' : 'rounded-lg'}`}>
+        <div class={`p-6 ${siteConfig.postOptions.showPostCardCoverImages !== 'none' && post.data.image && post.data.hideCoverImage !== true ? 'rounded-b-lg' : 'rounded-lg'}`}>
           <!-- Post header -->
           <header class="mb-4">
           <h1 class="text-xl font-bold text-primary-900 dark:text-primary-50 mb-6 leading-tight">
@@ -183,7 +183,7 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
               </span>
             </time>
 
-            {siteConfig.features.readingTime && readingTime && (
+            {siteConfig.postOptions.readingTime && readingTime && (
               <>
                 <span class="text-primary-300 dark:text-primary-600 hidden sm:inline">•</span>
                 <span class="text-primary-300 dark:text-primary-600 sm:hidden">•</span>
@@ -194,7 +194,7 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
               </>
             )}
 
-            {siteConfig.features.wordCount && wordCount !== undefined && (
+            {siteConfig.postOptions.wordCount && wordCount !== undefined && (
               <>
                 <span class="text-primary-300 dark:text-primary-600 hidden sm:inline">•</span>
                 <span class="text-primary-300 dark:text-primary-600 sm:hidden">•</span>
@@ -206,7 +206,7 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
             )}
           </div>
 
-          {siteConfig.features.tags && post.data.tags && post.data.tags.length > 0 && (
+          {siteConfig.postOptions.tags && post.data.tags && post.data.tags.length > 0 && (
             <div class="flex flex-wrap gap-2 mb-8">
               {post.data.tags.map(tag => (
                 <a
@@ -225,12 +225,12 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
           <Content />
         </div>
 
-        {siteConfig.features.linkedMentions && (
+        {siteConfig.postOptions.linkedMentions.enabled && (
           <LinkedMentions currentSlug={post.slug} />
         )}
 
         <!-- Post navigation -->
-        {siteConfig.features.postNavigation && (prevPost || nextPost) && (
+        {siteConfig.postOptions.postNavigation && (prevPost || nextPost) && (
           <nav class="mt-8 pt-8 border-t border-primary-200 dark:border-primary-700">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               {prevPost && (
@@ -269,7 +269,7 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
         )}
 
         <!-- Giscus Comments -->
-        {siteConfig.features.comments && (
+        {siteConfig.postOptions.comments.enabled && (
           <div class="mt-16">
             <GiscusComments
               postTitle={post.data.title}
@@ -293,7 +293,7 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
   </div>
 
   <Fragment slot="scripts">
-    <script define:vars={{ posts: visiblePosts, commentsEnabled: siteConfig.features.comments, postTitle: post.data.title, postSlug: post.slug }}>
+    <script define:vars={{ posts: visiblePosts, commentsEnabled: siteConfig.postOptions.comments.enabled, postTitle: post.data.title, postSlug: post.slug }}>
 
       // Process wikilinks and initialize layouts after content loads
       document.addEventListener('DOMContentLoaded', () => {
@@ -334,6 +334,16 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
 
         // Initialize image grids
         initializeImageGrids();
+        
+        // Process external links in captions to open in new tabs
+        const captionLinks = document.querySelectorAll('p em a, .image-caption-container a');
+        captionLinks.forEach(link => {
+          const href = link.getAttribute('href');
+          if (href && (href.startsWith('http://') || href.startsWith('https://'))) {
+            link.setAttribute('target', '_blank');
+            link.setAttribute('rel', 'noopener noreferrer');
+          }
+        });
         
         // Make initializeImageGrids globally accessible
         window.initializeImageGrids = initializeImageGrids;

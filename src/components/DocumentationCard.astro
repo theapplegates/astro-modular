@@ -26,12 +26,12 @@ const category = documentation.data.category;
 const version = documentation.data.version;
 
 // Determine if we should show the cover image
-const shouldShowCoverImage = siteConfig.features.showCoverImages !== 'none' && 
-  (siteConfig.features.showCoverImages === 'all' || 
-   (siteConfig.features.showCoverImages === 'latest' && context === 'latest') ||
-   (siteConfig.features.showCoverImages === 'home' && (context === 'latest' || context === 'recent' || context === 'home')) ||
-   (siteConfig.features.showCoverImages === 'posts' && context === 'docs') ||
-   (siteConfig.features.showCoverImages === 'latest-and-posts' && (context === 'latest' || context === 'docs')));
+const shouldShowCoverImage = siteConfig.postOptions.showPostCardCoverImages !== 'none' && 
+  (siteConfig.postOptions.showPostCardCoverImages === 'all' || 
+   (siteConfig.postOptions.showPostCardCoverImages === 'latest' && context === 'latest') ||
+   (siteConfig.postOptions.showPostCardCoverImages === 'home' && (context === 'latest' || context === 'recent' || context === 'home')) ||
+   (siteConfig.postOptions.showPostCardCoverImages === 'posts' && context === 'docs') ||
+   (siteConfig.postOptions.showPostCardCoverImages === 'latest-and-posts' && (context === 'latest' || context === 'docs')));
 
 // Hide images for docs on homepage for cleaner look
 const showCoverImage = shouldShowCoverImage && image && context !== 'home';

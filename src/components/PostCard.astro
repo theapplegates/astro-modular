@@ -40,7 +40,7 @@ const shouldShowCoverImage = (() => {
     return false;
   }
 
-  const showCoverImages = siteConfig.features.showCoverImages;
+  const showCoverImages = siteConfig.postOptions.showPostCardCoverImages;
 
   switch (showCoverImages) {
     case 'all':
@@ -130,7 +130,7 @@ const shouldShowCoverImage = (() => {
           <span class="sm:hidden">{formatDateMobile(date)}</span>
         </time>
 
-        {siteConfig.features.readingTime && readingTime && (
+        {siteConfig.postOptions.readingTime && readingTime && (
           <>
             <span class="text-primary-300 dark:text-primary-600 hidden sm:inline">•</span>
             <span class="text-primary-300 dark:text-primary-600 sm:hidden">•</span>
@@ -141,7 +141,7 @@ const shouldShowCoverImage = (() => {
           </>
         )}
 
-        {siteConfig.features.wordCount && wordCount !== undefined && (
+        {siteConfig.postOptions.wordCount && wordCount !== undefined && (
           <>
             <span class="text-primary-300 dark:text-primary-600 hidden sm:inline">•</span>
             <span class="text-primary-300 dark:text-primary-600 sm:hidden">•</span>
@@ -165,7 +165,7 @@ const shouldShowCoverImage = (() => {
         </p>
       )}
 
-      {tags && tags.length > 0 && siteConfig.features.tags && (
+      {tags && tags.length > 0 && siteConfig.postOptions.tags && (
         <div class="mt-3">
           {tags.slice(0, 3).map((tag) => (
             <a

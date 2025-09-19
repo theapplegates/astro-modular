@@ -409,14 +409,14 @@ const { seoData, bodyClass = '' } = Astro.props;
   <Footer />
 
   <!-- Command Palette -->
-  {siteConfig.features.commandPalette && <CommandPalette />}
+  {siteConfig.commandPalette.enabled && <CommandPalette />}
 
   <!-- Scroll to Top -->
-  {siteConfig.features.scrollToTop && <ScrollToTop />}
+  {siteConfig.scrollToTop && <ScrollToTop />}
 
 
   <!-- Global scripts - Defer non-critical JavaScript -->
-  <script define:vars={{ commentsEnabled: siteConfig.features.comments }} defer>
+  <script define:vars={{ commentsEnabled: siteConfig.postOptions.comments.enabled }} defer>
     // Logger removed - no console output in production
 
     // Define isDev in client-side JavaScript (always false in production)
@@ -1039,7 +1039,7 @@ const { seoData, bodyClass = '' } = Astro.props;
           const galleryContainer = document.createElement('div');
           
           if (imageCount === 1) {
-            galleryContainer.className = 'image-grid image-grid-1 my-8';
+            galleryContainer.className = 'image-grid image-grid-1 my-2';
           } else if (imageCount === 2) {
             galleryContainer.className = 'image-grid image-grid-2 my-8';
           } else if (imageCount === 3) {
@@ -1050,6 +1050,44 @@ const { seoData, bodyClass = '' } = Astro.props;
           
           // Get all images from this paragraph
           const images = Array.from(paragraph.querySelectorAll('img'));
+          
+          // Check if there's any non-image content (like captions)
+          // ONLY for single images - grids don't have captions
+          let nonImageContent = [];
+          if (imageCount === 1) {
+            nonImageContent = Array.from(paragraph.childNodes).filter(node => {
+              if (node.nodeType === Node.ELEMENT_NODE) {
+                const element = node as Element;
+                return element.tagName !== 'IMG' && element.tagName !== 'PICTURE';
+              }
+              if (node.nodeType === Node.TEXT_NODE) {
+                return (node.textContent || '').trim() !== '';
+              }
+              return true;
+            });
+            
+            // If no caption content found in the same paragraph, check the next paragraph
+            // BUT only if it looks like a caption (has italic text or links, and is not a heading)
+            if (nonImageContent.length === 0) {
+              const nextParagraph = paragraph.nextElementSibling;
+              if (nextParagraph && nextParagraph.tagName === 'P') {
+                // Check if the next paragraph looks like a caption (contains italic text or links)
+                const hasItalic = nextParagraph.querySelector('em, i');
+                const hasLinks = nextParagraph.querySelector('a');
+                const isHeading = nextParagraph.querySelector('h1, h2, h3, h4, h5, h6');
+                const hasOnlyText = nextParagraph.textContent && nextParagraph.textContent.trim() !== '' && 
+                                  nextParagraph.children.length <= 2; // Allow for simple formatting
+                
+                // Only treat as caption if it has italic/links AND is not a heading
+                if ((hasItalic || hasLinks || hasOnlyText) && !isHeading) {
+                  // This looks like a caption, include it
+                  nonImageContent = Array.from(nextParagraph.childNodes);
+                  // Mark the next paragraph for removal since we're moving its content
+                  nextParagraph.style.display = 'none';
+                }
+              }
+            }
+          }
           
           // Add each image to gallery
           images.forEach((img, imgIndex) => {
@@ -1092,8 +1130,23 @@ const { seoData, bodyClass = '' } = Astro.props;
             galleryContainer.appendChild(imageItem);
           });
           
-          // Replace the paragraph with the gallery
-          paragraph.parentNode?.replaceChild(galleryContainer, paragraph);
+          // Create a container for the gallery and any non-image content
+          const container = document.createElement('div');
+          container.className = 'image-container';
+          container.appendChild(galleryContainer);
+          
+          // Add any non-image content (like captions) after the gallery
+          if (nonImageContent.length > 0) {
+            const captionContainer = document.createElement('div');
+            captionContainer.className = 'image-caption-container mt-2';
+            nonImageContent.forEach(node => {
+              captionContainer.appendChild(node.cloneNode(true));
+            });
+            container.appendChild(captionContainer);
+          }
+          
+          // Replace the paragraph with the container
+          paragraph.parentNode?.replaceChild(container, paragraph);
         }
       });
       

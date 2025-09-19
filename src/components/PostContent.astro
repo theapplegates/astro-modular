@@ -54,7 +54,7 @@ const processedImage = (() => {
             </span>
           </time>
           
-          {siteConfig.features.readingTime && readingTime && (
+          {siteConfig.postOptions.readingTime && readingTime && (
             <>
               <span class="hidden sm:inline">•</span>
               <span class="sm:hidden">•</span>
@@ -65,7 +65,7 @@ const processedImage = (() => {
             </>
           )}
           
-          {siteConfig.features.wordCount && wordCount && (
+          {siteConfig.postOptions.wordCount && wordCount && (
             <>
               <span class="hidden sm:inline">•</span>
               <span class="sm:hidden">•</span>
@@ -77,7 +77,7 @@ const processedImage = (() => {
           )}
         </div>
         
-        {post.data.tags && post.data.tags.length > 0 && siteConfig.features.tags && (
+        {post.data.tags && post.data.tags.length > 0 && siteConfig.postOptions.tags && (
           <div class="flex flex-wrap gap-2 mb-8">
             {post.data.tags.map(tag => (
               <a 
@@ -139,7 +139,7 @@ const processedImage = (() => {
     <div class="lg:col-span-4 xl:col-span-3">
       <div class="sticky top-24 space-y-6">
         <!-- Table of Contents -->
-        {siteConfig.features.tableOfContents && toc && toc.length > 0 && (
+        {siteConfig.postOptions.tableOfContents && toc && toc.length > 0 && (
           <TableOfContents headings={toc} />
         )}
         

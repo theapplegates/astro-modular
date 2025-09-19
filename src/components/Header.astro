@@ -55,7 +55,7 @@ const paletteIcon = allSectionsDisabled ? 'search' : 'command';
         <!-- Smart Navigation (single system with style variants) -->
         {siteConfig.navigation.showNavigation && (  
     <nav class={`hidden md:flex items-center ${  
-      siteConfig.navigation.style === 'minimal' ? `space-x-5 ${!siteConfig.features.darkModeToggleButton && !siteConfig.features.commandPalette ? '' : 'mr-4'}` : 'space-x-5' }`} aria-label="Main navigation">
+      siteConfig.navigation.style === 'minimal' ? `space-x-5 ${!siteConfig.darkModeToggleButton && !siteConfig.commandPalette.enabled ? '' : 'mr-4'}` : 'space-x-5' }`} aria-label="Main navigation">
             {siteConfig.navigation.pages.map(page => (
               <a 
                 href={page.url}
@@ -80,9 +80,9 @@ const paletteIcon = allSectionsDisabled ? 'search' : 'command';
       <!-- Action buttons -->
       <div class="flex items-center space-x-4">
         <!-- Theme Toggle -->
-        {siteConfig.features.darkModeToggleButton && <ThemeToggle />}
+        {siteConfig.darkModeToggleButton && <ThemeToggle />}
         <!-- Command palette trigger -->
-        {siteConfig.features.commandPalette && (
+        {siteConfig.commandPalette.enabled && (
           hasShortcut ? (
             <button
               id="command-palette-trigger"

@@ -44,7 +44,7 @@ pnpm run build
 
 ### Core Settings
 
-Configure everything in `src/config.ts`. The configuration is organized in logical sections:
+Configure everything in `src/config.ts`. The configuration is organized in sections:
 
 ```typescript
 export const siteConfig = {
@@ -63,44 +63,29 @@ export const siteConfig = {
 Select theme and layout options in the config:
 
 ```typescript
+// Global Settings
 theme: "oxygen",
 customThemeFile: "custom",
-deployment: {
-  platform: "netlify",
+typography: {
+  headingFont: "Inter",
+  proseFont: "Inter",
 },
 layout: {
   contentWidth: "45rem",
 },
-postsPerPage: 6,
-seo: {
-  defaultOgImageAlt: "Astro Modular logo.",
-},
-homeOptions: {
-  featuredPost: {
-    enabled: true,
-    type: "latest", // "latest" or "featured"
-    slug: "getting-started", // Only used when type is "featured"
-  },
-  recentPosts: {
-    enabled: true,
-    count: 7,
-  },
-  projects: {
-    enabled: false,
-    count: 2,
-  },
-  docs: {
-    enabled: false,
-    count: 3,
-  },
-  blurb: {
-    placement: "below", // "above", "below", or "none"
-  },
-},
 footer: {
   enabled: true,
   content: `© 2025 {author}. Built with Astro Modular.`,
-}
+  showSocialIconsInFooter: true,
+},
+scrollToTop: true,
+darkModeToggleButton: true,
+seo: {
+  defaultOgImageAlt: "Astro Modular logo.",
+},
+deployment: {
+  platform: "netlify",
+},
 ```
 
 The theme options are currently Oxygen, Minimal, Atom, Ayu, Catppuccin, Charcoal, Dracula, Everforest, Flexoki, Gruvbox, macOS, Nord, Obsidian, Rosé Pine, Sky, Solarized, Things, and Custom. Theme changes are visible in real-time with `pnpm dev`.
@@ -144,6 +129,50 @@ typography: {
 
 The system automatically loads Google Fonts when needed and provides fallbacks to system fonts for optimal performance.
 
+### Command Palette
+
+The command palette provides instant navigation and search functionality:
+
+```typescript
+commandPalette: {
+  enabled: true,
+  shortcut: "ctrl+K",
+  placeholder: "Search posts",
+  sections: {
+    quickActions: true,
+    pages: true,
+    social: true,
+  },
+}
+```
+
+**Features:**
+- **Instant Search**: Press `Ctrl+K` to search posts, pages, and projects
+- **Quick Actions**: Theme switching, navigation shortcuts
+- **Customizable**: Change shortcut, placeholder text, and enabled sections
+
+### Profile Picture
+
+Add a personal touch with a configurable profile picture:
+
+```typescript
+profilePicture: {
+  enabled: true,
+  image: "/profile.jpg",        // Path to your image (place in public/ directory)
+  alt: "Profile picture",       // Alt text for accessibility
+  size: "md",                   // "sm" (32px), "md" (48px), or "lg" (64px)
+  url: "/about",                // Optional URL to link to when clicked
+  placement: "footer",          // "footer" or "header"
+  style: "circle",              // "circle", "square", or "none"
+}
+```
+
+**Features:**
+- **Flexible Placement**: Header (replaces text logo) or Footer
+- **Multiple Styles**: Circle (profile photos), Square (logos), None (banners)
+- **Responsive**: Different layouts for mobile and desktop
+- **Theme-Aware**: Styling adapts to all available themes
+
 ### Homepage Configuration
 
 The homepage content is controlled by the `homeOptions` section:
@@ -155,25 +184,30 @@ The homepage content is controlled by the `homeOptions` section:
 
 When only one content type is enabled, it gets special treatment with centered "View all" links. When only the blurb is shown, it displays as a proper page with H1 title and rounded container styling.
 
-### Modular Features
+### Post Options
 
-Adjust modular features in the config: 
+Configure post-related features in the `postOptions` section:
 
 ```typescript
-features: {
+postOptions: {
+  postsPerPage: 6,
   readingTime: true,
   wordCount: true,
   tableOfContents: true,
   tags: true,
-  linkedMentions: true,
-  linkedMentionsCompact: false,
-  scrollToTop: true,
-  darkModeToggleButton: true,
-  commandPalette: true,
+  linkedMentions: {
+    enabled: true,
+    linkedMentionsCompact: false,
+  },
   postNavigation: true,
-  showSocialIconsInFooter: true,
-  showCoverImages: "latest-and-posts",
-  comments: false,
+  showPostCardCoverImages: "latest-and-posts",
+  postCardAspectRatio: "og",
+  customPostCardAspectRatio: "2.5/1",
+  comments: {
+    enabled: false,
+    provider: "giscus",
+    // ... other comment settings
+  },
 }
 ```
 
@@ -193,9 +227,9 @@ features: {
 Configure the aspect ratio for post card cover images:
 
 ```typescript
-features: {
+postOptions: {
   postCardAspectRatio: "og", // Default: OpenGraph standard
-  customAspectRatio: undefined, // For custom ratios
+  customPostCardAspectRatio: undefined, // For custom ratios
 }
 ```
 
@@ -210,8 +244,10 @@ features: {
 
 **Custom Aspect Ratio Example:**
 ```typescript
-postCardAspectRatio: "custom",
-customAspectRatio: "2.5/1" // Custom 2.5:1 ratio
+postOptions: {
+  postCardAspectRatio: "custom",
+  customPostCardAspectRatio: "2.5/1" // Custom 2.5:1 ratio
+}
 ```
 
 *Note: This only affects post cards (listings, homepage, tag pages). Individual post cover images maintain their original aspect ratio.*
@@ -225,8 +261,11 @@ The theme includes a Giscus-powered commenting system that uses GitHub Discussio
 In your `src/config.ts`, enable comments:
 
 ```typescript
-features: {
-  comments: true,  // Enable/disable comments
+postOptions: {
+  comments: {
+    enabled: true,  // Enable/disable comments
+    // ... other comment settings
+  }
 }
 ```
 
@@ -254,21 +293,24 @@ features: {
 1. **Update Your Config**:
 
 ```typescript
-   comments: {
-     provider: "giscus",
-     repo: "username/repo-name",        // Your GitHub repository
-     repoId: "R_kgDO...",              // Repository ID from Giscus
-     category: "General",               // Discussion category
-     categoryId: "DIC_kwDO...",        // Category ID from Giscus
-     mapping: "pathname",               // How posts map to discussions
-     strict: "0",                      // Allow comments on any post
-     reactions: "1",                   // Enable reactions
-     metadata: "0",                    // Hide discussion metadata
-     inputPosition: "bottom",          // Comment input position
-     theme: "preferred_color_scheme",  // Follows user's theme preference
-     lang: "en",                       // Language
-     loading: "lazy",                  // Lazy load comments
-   }
+postOptions: {
+  comments: {
+    enabled: true,
+    provider: "giscus",
+    repo: "username/repo-name",        // Your GitHub repository
+    repoId: "R_kgDO...",              // Repository ID from Giscus
+    category: "General",               // Discussion category
+    categoryId: "DIC_kwDO...",        // Category ID from Giscus
+    mapping: "pathname",               // How posts map to discussions
+    strict: "0",                      // Allow comments on any post
+    reactions: "1",                   // Enable reactions
+    metadata: "0",                    // Hide discussion metadata
+    inputPosition: "bottom",          // Comment input position
+    theme: "preferred_color_scheme",  // Follows user's theme preference
+    lang: "en",                       // Language
+    loading: "lazy",                  // Lazy load comments
+  }
+}
 ```
 
 #### How It Works
@@ -291,41 +333,6 @@ features: {
 
 Comments are publicly visible and associated with users' GitHub profiles. Consider adding a privacy policy section about comments (see the included Privacy Policy page for reference).
 
-### Navigation
-
-Navigation is also set in the config:
-
-```
-navigation: {
-  showNavigation: true,
-  style: "traditional", // or 'minimal'
-  showMobileMenu: true,
-  pages: [
-    { title: "Posts", url: "/posts" },
-    { title: "About", url: "/about" },
-    { title: "External", url: "https://example.com" }
-  ],
-  social: [
-    { title: "GitHub", url: "https://github.com/username", icon: "github" }
-  ],
-}
-```
-
-### Profile Picture
-
-Add a personal touch with a configurable profile picture that can appear in the header or footer:
-
-```typescript
-profilePicture: {
-  enabled: true,
-  image: "/profile.jpg",        // Path to your image (place in public/ directory)
-  alt: "Profile picture",       // Alt text for accessibility
-  size: "md",                   // "sm" (32px), "md" (48px), or "lg" (64px)
-  url: "/about",                // Optional URL to link to when clicked
-  placement: "footer",          // "footer" or "header"
-  style: "circle",              // "circle", "square", or "none"
-}
-```
 
 ## Content Structure
 
@@ -380,7 +387,7 @@ draft: true
 
 Write using markdown with enhanced features.
 
-Use [[wikilinks]] to connect posts.
+Use [[wikilinks]] or [markdown links](/posts/post.md) to connect posts.
 
 > [!note] Obsidian Callouts
 > Work exactly like in Obsidian!
@@ -418,6 +425,7 @@ The Contact page has an optional form embedded into it, which leads to the Thank
 An optional Privacy Policy page can be edited or removed by deleting it if you don't want it. 
 
 `pages/index.md` controls what goes on the homepage blurb. Adding content to `pages/404.md` will display on any "not found" page.
+
 ## Obsidian Integration
 
 ### Using the Included Vault
@@ -441,9 +449,9 @@ To remove Obsidian, simply delete the `.obsidian` folder.
 ### Command Palette
 Press `Ctrl+K` (or custom hotkey) for instant navigation, search, and dark/light mode switching.
 
-### Wikilinks & Connections
-- `[[Post Title]]` - Standard wikilink (posts only)
-- `[[Post Title|Custom Text]]` - Custom display text (posts only)
+### Post Internal Linking & Connections
+- `[[Post Title|Custom Text]]` - wikilinks (posts only)
+- `[Post Title](posts/post-slug.md)` - standard markdown links
 - **Linked mentions** show post connections automatically with collapsible interface
 - **Compact or detailed view** options for linked mentions display
 
@@ -451,10 +459,10 @@ Press `Ctrl+K` (or custom hotkey) for instant navigation, search, and dark/light
 
 **Wikilinks** work seamlessly for posts but are limited to the posts collection only. For linking to other content types (pages, projects, docs), use standard markdown links:
 
-- **Posts**: `[[Post Title]]` or `[Custom Text](posts/post-slug)`
-- **Pages**: `[Page Title](page-slug)` (e.g., `[About](about)`)
-- **Projects**: `[Project Name](projects/project-slug)`
-- **Docs**: `[Documentation](docs/doc-slug)`
+- **Posts**: `[[Post Title]]` or `[Custom Text](posts/post-slug.md)`
+- **Pages**: `[Page Title](page-slug)` (e.g., `[About](pages/about.md)`)
+- **Projects**: `[Project Name](projects/project-slug.md)`
+- **Docs**: `[Documentation](docs/doc-slug.md)`
 
 **Why this limitation?** Wikilinks assume posts for simplicity and to maintain the seamless Obsidian experience. Standard markdown links provide explicit control over which content type you're linking to, preventing confusion when multiple content types might have similar titles.
 

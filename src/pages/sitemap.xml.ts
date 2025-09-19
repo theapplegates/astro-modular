@@ -135,7 +135,7 @@ export const GET: APIRoute = async ({ site }) => {
   });
   
   // Posts pagination pages
-  const postsPerPage = siteConfig.postsPerPage;
+  const postsPerPage = siteConfig.postOptions.postsPerPage;
   const totalPages = Math.ceil(visiblePosts.length / postsPerPage);
   
   for (let page = 2; page <= totalPages; page++) {

@@ -11,23 +11,70 @@ export type AspectRatio =
   | "custom";
 
 export interface SiteConfig {
+  // Site Information
   site: string;
   title: string;
   description: string;
   author: string;
   language: string;
+  
+  // Global Settings
   theme: "minimal" | "oxygen" | "atom" | "ayu" | "catppuccin" | "charcoal" | "dracula" | "everforest" | "flexoki" | "gruvbox" | "macos" | "nord" | "obsidian" | "rose-pine" | "sky" | "solarized" | "things" | "custom";
   customThemeFile?: string; // Filename in src/themes/custom/ (e.g., "my-cool-theme" for my-cool-theme.ts)
-  deployment: {
-    platform: "netlify" | "vercel" | "github-pages";
+  typography: {
+    headingFont: string;
+    proseFont: string;
   };
   layout: {
     contentWidth: string;
   };
-  postsPerPage: number;
+  footer: {
+    enabled: boolean;
+    content: string;
+    showSocialIconsInFooter: boolean;
+  };
+  scrollToTop: boolean;
+  darkModeToggleButton: boolean;
   seo: {
     defaultOgImageAlt: string;
   };
+  deployment: {
+    platform: "netlify" | "vercel" | "github-pages";
+  };
+  
+  // Command Palette
+  commandPalette: {
+    enabled: boolean;
+    shortcut: string;
+    placeholder: string;
+    sections: {
+      quickActions: boolean;
+      pages: boolean;
+      social: boolean;
+    };
+  };
+  
+  // Profile Picture
+  profilePicture: {
+    enabled: boolean;
+    image: string;
+    alt: string;
+    size: "sm" | "md" | "lg";
+    url?: string;
+    placement: "footer" | "header";
+    style: "circle" | "square" | "none";
+  };
+  
+  // Navigation
+  navigation: {
+    showNavigation: boolean;
+    style: "minimal" | "traditional";
+    showMobileMenu: boolean;
+    pages: Array<{ title: string; url: string }>;
+    social: Array<{ title: string; url: string; icon: string }>;
+  };
+  
+  // Home Options
   homeOptions: {
     featuredPost: {
       enabled: boolean;
@@ -50,154 +97,77 @@ export interface SiteConfig {
       placement: "above" | "below" | "none";
     };
   };
-  footer: {
-    enabled: boolean;
-    content: string;
-  };
-  profilePicture: {
-    enabled: boolean;
-    image: string;
-    alt: string;
-    size: "sm" | "md" | "lg";
-    url?: string;
-    placement: "footer" | "header";
-    style: "circle" | "square" | "none";
-  };
-  features: {
+  
+  // Post Options
+  postOptions: {
+    postsPerPage: number;
     readingTime: boolean;
     wordCount: boolean;
     tableOfContents: boolean;
     tags: boolean;
-    linkedMentions: boolean;
-    linkedMentionsCompact: boolean;
-    scrollToTop: boolean;
-    darkModeToggleButton: boolean;
-    showCoverImages: "all" | "latest" | "home" | "posts" | "latest-and-posts" | "none";
-    showSocialIconsInFooter: boolean;
-    commandPalette: boolean;
-    postNavigation: boolean;
-    comments: boolean;
-    postCardAspectRatio: AspectRatio;
-    customAspectRatio?: string;
-  };
-  typography: {
-    headingFont: string;
-    proseFont: string;
-  };
-  commandPalette: {
-    shortcut: string;
-    placeholder: string;
-    sections: {
-      quickActions: boolean;
-      pages: boolean;
-      social: boolean;
+    linkedMentions: {
+      enabled: boolean;
+      linkedMentionsCompact: boolean;
     };
-  };
-  navigation: {
-    showNavigation: boolean;
-    style: "minimal" | "traditional";
-    showMobileMenu: boolean;
-    pages: Array<{ title: string; url: string }>;
-    social: Array<{ title: string; url: string; icon: string }>;
-  };
-  comments: {
-    provider: string;
-    repo: string;
-    repoId: string;
-    category: string;
-    categoryId: string;
-    mapping: string;
-    strict: string;
-    reactions: string;
-    metadata: string;
-    inputPosition: string;
-    theme: string;
-    lang: string;
-    loading: string;
+    postNavigation: boolean;
+    showPostCardCoverImages: "all" | "latest" | "home" | "posts" | "latest-and-posts" | "none";
+    postCardAspectRatio: AspectRatio;
+    customPostCardAspectRatio?: string;
+    comments: {
+      enabled: boolean;
+      provider: string;
+      repo: string;
+      repoId: string;
+      category: string;
+      categoryId: string;
+      mapping: string;
+      strict: string;
+      reactions: string;
+      metadata: string;
+      inputPosition: string;
+      theme: string;
+      lang: string;
+      loading: string;
+    };
   };
 }
 
 // Set your values HERE
 export const siteConfig: SiteConfig = {
+  // Site Information
   site: "https://astro-modular.netlify.app",
   title: "Astro Modular",
   description: "A flexible blog theme designed for Obsidian users.",
   author: "David V. Kimball",
   language: "en",
 
+  // Global Settings
   theme: "oxygen", // Available themes: "minimal" | "oxygen" | "atom" | "ayu" | "catppuccin" | "charcoal" | "dracula" | "everforest" | "flexoki" | "gruvbox" | "macos" | "nord" | "obsidian" | "rose-pine" | "sky" | "solarized" | "things" | "custom"
   customThemeFile: "custom", // Only used if theme is set to "custom" above. Filename in src/themes/custom/ (without .ts extension)
-  deployment: {
-    platform: "netlify", // "netlify" | "vercel" | "github-pages" - sets redirect configuration for the chosen platform
-  },
-  layout: {
-    contentWidth: "45rem",
-  },
-  postsPerPage: 6,
-  seo: {
-    defaultOgImageAlt: "Astro Modular logo.", // Alt text for the default Open Graph image, public/open-graph.png
-  },
-  homeOptions: {
-    featuredPost: {
-      enabled: true, // Show featured post on homepage
-      type: "latest", // "latest" or "featured"
-      slug: "getting-started", // Slug of post after '/posts/' to be featured (e.g. "post-title"). Only used when type is "featured"
-    },
-    recentPosts: {
-      enabled: true, // Show recent posts on homepage
-      count: 7, // Number of recent posts to show
-    },
-    projects: {
-      enabled: true, // Show featured projects on homepage
-      count: 2, // Number of projects to show
-    },
-    docs: {
-      enabled: true, // Show featured docs on homepage
-      count: 3, // Number of docs to show
-    },
-    blurb: {
-      placement: "below", // 'above' (at the top), 'below' (after content), or 'none' (disabled)
-    },
-  },
-  footer: {
-    enabled: true,
-    content: `© 2025 {author}. Built with the <a href="https://github.com/davidvkimball/astro-modular" target="_blank">Astro Modular</a> theme.`,
-  },
-
-  profilePicture: {
-    enabled: false, 
-    image: "/profile.jpg", // Path to your profile image (place in public/ directory)
-    alt: "Profile picture",
-    style: "circle", // "circle", "square", or "none"
-    placement: "footer", // "footer" or "header"
-    size: "md", // "sm" (32px), "md" (48px), or "lg" (64px) - only affects footer placement
-    url: "/about", // Optional
-  },
-
-  features: {
-    readingTime: true,
-    wordCount: true,
-    tableOfContents: true,
-    tags: true,
-    linkedMentions: true,
-    linkedMentionsCompact: false,
-    scrollToTop: true,
-    darkModeToggleButton: true,
-    commandPalette: true,
-    postNavigation: true,
-    showSocialIconsInFooter: true,
-    showCoverImages: "latest-and-posts", // "all" | "latest" | "home" | "posts" | "latest-and-posts" | "none"
-    postCardAspectRatio: "og", // "16:9" | "4:3" | "3:2" | "og" | "square" | "golden" | "custom"
-    customAspectRatio: "2.5/1", // Only used when postCardAspectRatio is "custom" (e.g., "2.5/1")
-    comments: false,
-  },
-
   typography: {
     headingFont: "Inter", // Font for headings (h1, h2, h3, h4, h5, h6), most Google fonts are supported. Default is Inter
     proseFont: "Inter",   // Font for body text and prose content, most Google fonts are supported. Default is Inter
   },
+  layout: {
+    contentWidth: "45rem",
+  },
+  footer: {
+    enabled: true,
+    content: `© 2025 {author}. Built with the <a href="https://github.com/davidvkimball/astro-modular" target="_blank">Astro Modular</a> theme.`,
+    showSocialIconsInFooter: true,
+  },
+  scrollToTop: true,
+  darkModeToggleButton: true,
+  seo: {
+    defaultOgImageAlt: "Astro Modular logo.", // Alt text for the default Open Graph image, public/open-graph.png
+  },
+  deployment: {
+    platform: "netlify", // "netlify" | "vercel" | "github-pages" - sets redirect configuration for the chosen platform
+  },
 
+  // Command Palette
   commandPalette: {
+    enabled: true,
     shortcut: "ctrl+K",
     placeholder: "Search posts",
     sections: {
@@ -207,22 +177,18 @@ export const siteConfig: SiteConfig = {
     },
   },
 
-  comments: {
-    provider: "giscus",
-    repo: "davidvkimball/astro-modular",
-    repoId: "R_kgDOPllfKw",
-    category: "General",
-    categoryId: "DIC_kwDOPllfK84CvUpx",
-    mapping: "pathname",
-    strict: "0",
-    reactions: "1",
-    metadata: "0",
-    inputPosition: "bottom",
-    theme: "preferred_color_scheme",
-    lang: "en",
-    loading: "lazy",
+  // Profile Picture
+  profilePicture: {
+    enabled: false, 
+    image: "/profile.jpg", // Path to your profile image (place in public/ directory)
+    alt: "Profile picture",
+    size: "md", // "sm" (32px), "md" (48px), or "lg" (64px) - only affects footer placement
+    url: "/about", // Optional
+    placement: "footer", // "footer" or "header"
+    style: "circle", // "circle", "square", or "none"
   },
 
+  // Navigation
   navigation: {
     showNavigation: true,
     style: "traditional", // 'minimal' or 'traditional'
@@ -247,11 +213,68 @@ export const siteConfig: SiteConfig = {
       },
     ],
   },
+
+  // Home Options
+  homeOptions: {
+    featuredPost: {
+      enabled: true, // Show featured post on homepage
+      type: "latest", // "latest" or "featured"
+      slug: "getting-started", // Slug of post after '/posts/' to be featured (e.g. "post-title"). Only used when type is "featured"
+    },
+    recentPosts: {
+      enabled: true, // Show recent posts on homepage
+      count: 7, // Number of recent posts to show
+    },
+    projects: {
+      enabled: true, // Show featured projects on homepage
+      count: 2, // Number of projects to show
+    },
+    docs: {
+      enabled: true, // Show featured docs on homepage
+      count: 3, // Number of docs to show
+    },
+    blurb: {
+      placement: "below", // 'above' (at the top), 'below' (after content), or 'none' (disabled)
+    },
+  },
+
+  // Post Options
+  postOptions: {
+    postsPerPage: 6,
+    readingTime: true,
+    wordCount: true,
+    tableOfContents: true,
+    tags: true,
+    linkedMentions: {
+      enabled: true,
+      linkedMentionsCompact: false,
+    },
+    postNavigation: true,
+    showPostCardCoverImages: "latest-and-posts", // "all" | "latest" | "home" | "posts" | "latest-and-posts" | "none"
+    postCardAspectRatio: "og", // "16:9" | "4:3" | "3:2" | "og" | "square" | "golden" | "custom"
+    customPostCardAspectRatio: "2.5/1", // Only used when postCardAspectRatio is "custom" (e.g., "2.5/1")
+    comments: {
+      enabled: false,
+      provider: "giscus",
+      repo: "davidvkimball/astro-modular",
+      repoId: "R_kgDOPllfKw",
+      category: "General",
+      categoryId: "DIC_kwDOPllfK84CvUpx",
+      mapping: "pathname",
+      strict: "0",
+      reactions: "1",
+      metadata: "0",
+      inputPosition: "bottom",
+      theme: "preferred_color_scheme",
+      lang: "en",
+      loading: "lazy",
+    },
+  },
 };
 
 // Utility functions
-export function getFeature(feature: keyof Omit<SiteConfig["features"], "showCoverImages" | "postCardAspectRatio" | "customAspectRatio">): boolean {
-  return siteConfig.features[feature];
+export function getFeature(feature: keyof Omit<SiteConfig["postOptions"], "postsPerPage" | "showPostCardCoverImages" | "postCardAspectRatio" | "customPostCardAspectRatio" | "linkedMentions" | "comments">): boolean {
+  return siteConfig.postOptions[feature];
 }
 
 export function getCommandPaletteShortcut(): string {
@@ -266,9 +289,8 @@ export function getTheme(): "minimal" | "oxygen" | "atom" | "ayu" | "catppuccin"
   return siteConfig.theme;
 }
 
-
 export function getPostCardAspectRatio(): string {
-  const { postCardAspectRatio, customAspectRatio } = siteConfig.features;
+  const { postCardAspectRatio, customPostCardAspectRatio } = siteConfig.postOptions;
   
   switch (postCardAspectRatio) {
     case "16:9":
@@ -284,7 +306,7 @@ export function getPostCardAspectRatio(): string {
     case "golden":
       return "1.618 / 1";
     case "custom":
-      return customAspectRatio || "1.91 / 1"; // Fallback to OpenGraph if custom not provided
+      return customPostCardAspectRatio || "1.91 / 1"; // Fallback to OpenGraph if custom not provided
     default:
       return "1.91 / 1"; // Default to OpenGraph
   }
@@ -389,8 +411,8 @@ function validateSiteConfig(config: SiteConfig): { isValid: boolean; errors: str
   }
 
   // Numeric validations
-  if (config.postsPerPage < 1 || config.postsPerPage > 50) {
-    errors.push('postsPerPage must be between 1 and 50');
+  if (config.postOptions.postsPerPage < 1 || config.postOptions.postsPerPage > 50) {
+    errors.push('postOptions.postsPerPage must be between 1 and 50');
   }
   if (config.homeOptions.recentPosts.count < 1) {
     errors.push('homeOptions.recentPosts.count must be at least 1');
@@ -414,20 +436,20 @@ function validateSiteConfig(config: SiteConfig): { isValid: boolean; errors: str
 
   // Cover image options validation
   const validCoverImageOptions = ['all', 'latest', 'home', 'posts', 'latest-and-posts', 'none'];
-  if (!validCoverImageOptions.includes(config.features.showCoverImages)) {
-    errors.push(`features.showCoverImages must be one of: ${validCoverImageOptions.join(', ')}`);
+  if (!validCoverImageOptions.includes(config.postOptions.showPostCardCoverImages)) {
+    errors.push(`postOptions.showPostCardCoverImages must be one of: ${validCoverImageOptions.join(', ')}`);
   }
 
   // Aspect ratio validation
   const validAspectRatios = ['16:9', '4:3', '3:2', 'og', 'square', 'golden', 'custom'];
-  if (!validAspectRatios.includes(config.features.postCardAspectRatio)) {
-    errors.push(`features.postCardAspectRatio must be one of: ${validAspectRatios.join(', ')}`);
+  if (!validAspectRatios.includes(config.postOptions.postCardAspectRatio)) {
+    errors.push(`postOptions.postCardAspectRatio must be one of: ${validAspectRatios.join(', ')}`);
   }
 
   // Custom aspect ratio validation
-  if (config.features.postCardAspectRatio === 'custom') {
-    if (!config.features.customAspectRatio || !config.features.customAspectRatio.match(/^\d+(\.\d+)?\s*\/\s*\d+(\.\d+)?$/)) {
-      errors.push('features.customAspectRatio must be provided and in format "width / height" (e.g., "2.5 / 1") when postCardAspectRatio is "custom"');
+  if (config.postOptions.postCardAspectRatio === 'custom') {
+    if (!config.postOptions.customPostCardAspectRatio || !config.postOptions.customPostCardAspectRatio.match(/^\d+(\.\d+)?\s*\/\s*\d+(\.\d+)?$/)) {
+      errors.push('postOptions.customPostCardAspectRatio must be provided and in format "width / height" (e.g., "2.5 / 1") when postCardAspectRatio is "custom"');
     }
   }
 
@@ -457,6 +479,9 @@ function validateSiteConfig(config: SiteConfig): { isValid: boolean; errors: str
   }
   if (config.footer.enabled && (!config.footer.content || config.footer.content.trim() === '')) {
     errors.push('footer.content is required when footer.enabled is true');
+  }
+  if (typeof config.footer.showSocialIconsInFooter !== 'boolean') {
+    errors.push('footer.showSocialIconsInFooter must be a boolean value');
   }
 
   // Profile picture validation

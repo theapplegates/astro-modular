@@ -674,6 +674,7 @@ export function remarkFolderImages() {
       // Check if this is a folder-based post by looking at the file path
       const isFolderPost = file.path && file.path.includes('/posts/') && file.path.endsWith('/index.md');
       
+      
       if (isFolderPost && node.url && !node.url.startsWith('/') && !node.url.startsWith('http')) {
         // Extract the post slug from the file path
         const pathParts = file.path.split('/');
@@ -690,6 +691,7 @@ export function remarkFolderImages() {
         
         // Update the image URL to point to the correct folder (preserving subdirectory structure)
         node.url = `/posts/${postSlug}/${imagePath}`;
+        
         
         // Also update the hProperties if they exist (for wikilink images)
         if (node.data && node.data.hProperties) {
