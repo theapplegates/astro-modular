@@ -1,0 +1,226 @@
+/* Property Over Filename Plugin Styles */
+
+/* Enhanced suggestion styling */
+.suggestion-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.suggestion-title {
+  font-weight: 500;
+  color: var(--text-normal);
+}
+
+.suggestion-note {
+  font-size: 0.85em;
+  color: var(--text-muted);
+  opacity: 0.8;
+}
+
+/* Highlight matching text in suggestions */
+.suggestion-highlight {
+  background-color: var(--text-highlight-bg);
+  color: var(--text-highlight-bg-active);
+  font-weight: 600;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+/* Property-based display indicator */
+.suggestion-content .suggestion-title[data-custom-display="true"] {
+  color: var(--interactive-accent);
+  font-weight: 600;
+}
+
+/* Recent files styling */
+.suggestion-content[data-recent="true"] .suggestion-title {
+  color: var(--text-accent);
+}
+
+/* New note creation styling */
+.suggestion-content[data-new-note="true"] .suggestion-title {
+  color: var(--interactive-accent);
+  font-style: italic;
+}
+
+.suggestion-content[data-new-note="true"] .suggestion-title::before {
+  content: "📝 ";
+  margin-right: 4px;
+}
+
+/* Remove duplicate prompt instructions - use the ones below */
+
+/* Quick switcher enhancements */
+.modal .suggestion-item {
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: background-color 0.1s ease;
+}
+
+.modal .suggestion-item:hover {
+  background-color: var(--background-modifier-hover);
+}
+
+.modal .suggestion-item.is-selected {
+  background-color: var(--interactive-accent);
+  color: var(--text-on-accent);
+}
+
+/* Settings tab enhancements */
+.setting-item-description {
+  color: var(--text-muted);
+  font-size: 0.9em;
+  line-height: 1.4;
+}
+
+.setting-item-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Button styling for settings */
+.setting-item .setting-button {
+  background-color: var(--interactive-accent);
+  color: var(--text-on-accent);
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 0.9em;
+  cursor: pointer;
+  transition: background-color 0.1s ease;
+}
+
+.setting-item .setting-button:hover {
+  background-color: var(--interactive-accent-hover);
+}
+
+.setting-item .setting-button.setting-button-warning {
+  background-color: var(--text-error);
+}
+
+.setting-item .setting-button.setting-button-warning:hover {
+  background-color: var(--text-error-hover);
+}
+
+/* Mobile-specific adjustments */
+@media (max-width: 768px) {
+  .suggestion-content {
+    padding: 4px 0;
+  }
+  
+  .suggestion-title {
+    font-size: 0.95em;
+  }
+  
+  .suggestion-note {
+    font-size: 0.8em;
+  }
+}
+
+/* Dark mode adjustments */
+.theme-dark .suggestion-highlight {
+  background-color: rgba(255, 255, 0, 0.3);
+  color: var(--text-normal);
+}
+
+/* Animation for smooth transitions */
+.suggestion-item {
+  transition: all 0.15s ease;
+}
+
+/* Focus states for accessibility */
+.suggestion-item:focus-visible {
+  outline: 2px solid var(--interactive-accent);
+  outline-offset: 2px;
+}
+
+/* Quick Switcher specific styles to match Obsidian's exact structure */
+
+/* Suggestion items with mod-complex class */
+.suggestion-item.mod-complex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: background-color 0.1s ease;
+  min-height: 40px;
+}
+
+.suggestion-item.mod-complex .suggestion-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.suggestion-item.mod-complex .suggestion-aux {
+  flex-shrink: 0;
+  margin-left: 8px;
+  display: flex;
+  align-items: center;
+}
+
+.suggestion-item.mod-complex .suggestion-flair {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+.suggestion-item.mod-complex .suggestion-flair svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Footer using Obsidian's exact structure */
+.prompt-instructions {
+  border-top: 1px solid var(--background-secondary);
+  user-select: none;
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+  padding: var(--size-4-2);
+  text-align: center;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--size-4-3);
+}
+
+.prompt-instruction {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.prompt-instruction-command {
+  background-color: var(--background-modifier-border);
+  color: var(--text-normal);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: var(--font-monospace);
+  font-size: 0.8em;
+  font-weight: 500;
+}
+
+/* Remove incorrect modal flex layout */
+
+/* Override any conflicting styles */
+.modal .suggestion-item .suggestion-title {
+  font-weight: 500;
+  color: var(--text-normal);
+  font-size: 0.95em;
+}
+
+.modal .suggestion-item .suggestion-note {
+  font-size: 0.8em;
+  color: var(--text-muted);
+  opacity: 0.8;
+}
