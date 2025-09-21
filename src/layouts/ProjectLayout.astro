@@ -362,6 +362,19 @@ const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProject
         // Initialize image grids
         initializeImageGrids();
         
+        // Process all external links in content to open in new tabs (including reference links)
+        const allLinks = document.querySelectorAll('.prose a[href]');
+        allLinks.forEach(link => {
+          const href = link.getAttribute('href');
+          if (href && (href.startsWith('http://') || href.startsWith('https://'))) {
+            // Skip if already has target attribute (e.g., manually set)
+            if (!link.hasAttribute('target')) {
+              link.setAttribute('target', '_blank');
+              link.setAttribute('rel', 'noopener noreferrer');
+            }
+          }
+        });
+        
         // Make initializeImageGrids globally accessible
         window.initializeImageGrids = initializeImageGrids;
 

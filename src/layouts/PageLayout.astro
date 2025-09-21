@@ -192,6 +192,19 @@ const structuredData = {
         // Initialize image grids
         initializeImageGrids();
         
+        // Process all external links in content to open in new tabs (including reference links)
+        const allLinks = document.querySelectorAll('.prose a[href]');
+        allLinks.forEach(link => {
+          const href = link.getAttribute('href');
+          if (href && (href.startsWith('http://') || href.startsWith('https://'))) {
+            // Skip if already has target attribute (e.g., manually set)
+            if (!link.hasAttribute('target')) {
+              link.setAttribute('target', '_blank');
+              link.setAttribute('rel', 'noopener noreferrer');
+            }
+          }
+        });
+        
         // Wrap tables in responsive containers for better mobile experience
         const tables = document.querySelectorAll('.prose table');
         tables.forEach((table) => {

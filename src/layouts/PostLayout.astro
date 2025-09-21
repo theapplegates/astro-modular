@@ -345,6 +345,19 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
           }
         });
         
+        // Process all external links in content to open in new tabs (including reference links)
+        const allLinks = document.querySelectorAll('.prose a[href]');
+        allLinks.forEach(link => {
+          const href = link.getAttribute('href');
+          if (href && (href.startsWith('http://') || href.startsWith('https://'))) {
+            // Skip if already has target attribute (e.g., manually set)
+            if (!link.hasAttribute('target')) {
+              link.setAttribute('target', '_blank');
+              link.setAttribute('rel', 'noopener noreferrer');
+            }
+          }
+        });
+        
         // Make initializeImageGrids globally accessible
         window.initializeImageGrids = initializeImageGrids;
 
@@ -399,6 +412,29 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
           if (window.initializeImageGrids) {
             window.initializeImageGrids();
           }
+
+          // Process external links in captions to open in new tabs
+          const captionLinks = document.querySelectorAll('p em a, .image-caption-container a');
+          captionLinks.forEach(link => {
+            const href = link.getAttribute('href');
+            if (href && (href.startsWith('http://') || href.startsWith('https://'))) {
+              link.setAttribute('target', '_blank');
+              link.setAttribute('rel', 'noopener noreferrer');
+            }
+          });
+          
+          // Process all external links in content to open in new tabs (including reference links)
+          const allLinks = document.querySelectorAll('.prose a[href]');
+          allLinks.forEach(link => {
+            const href = link.getAttribute('href');
+            if (href && (href.startsWith('http://') || href.startsWith('https://'))) {
+              // Skip if already has target attribute (e.g., manually set)
+              if (!link.hasAttribute('target')) {
+                link.setAttribute('target', '_blank');
+                link.setAttribute('rel', 'noopener noreferrer');
+              }
+            }
+          });
 
           // Comments are now handled globally by BaseLayout Swup hooks
         }, 100);
