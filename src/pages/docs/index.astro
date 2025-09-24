@@ -136,15 +136,16 @@ seoData.noIndex = (docsPageContent?.data as any)?.noIndex || false;
             ))}
           </div>
 
-          <!-- Desktop TOC - floats to the right of the content container -->
-          {shouldShowTOC && (
-            <div class="hidden xl:block absolute top-0 left-full ml-8 w-64">
-              <div class="sticky top-24" id="toc">
-                <TableOfContents headings={tocHeadings} />
-              </div>
-            </div>
-          )}
         </div>
+
+        <!-- Desktop TOC - floats to the right of the content container -->
+        {shouldShowTOC && (
+          <div class="hidden xl:block absolute top-0 left-full ml-8 w-64">
+            <div class="sticky top-24" id="toc">
+              <TableOfContents headings={tocHeadings} />
+            </div>
+          </div>
+        )}
       ) : (
         <div class="text-center py-12">
           <Icon name="book-open" class="w-12 h-12 text-primary-300 dark:text-primary-600 mx-auto mb-4" />

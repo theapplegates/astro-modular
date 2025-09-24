@@ -220,6 +220,12 @@ export const siteConfig: SiteConfig = {
     ],
   },
 
+  // Optional Content Types - Enable/disable optional content sections (takes priority over homeOptions)
+  optionalContentTypes: {
+    projects: false, // Enable projects section
+    docs: false,     // Enable documentation section
+  },
+
   // Home Options
   homeOptions: {
     featuredPost: {
@@ -242,12 +248,6 @@ export const siteConfig: SiteConfig = {
     blurb: {
       placement: "below", // 'above' (at the top), 'below' (after content), or 'none' (disabled)
     },
-  },
-
-  // Optional Content Types - Enable/disable optional content sections
-  optionalContentTypes: {
-    projects: true, // Enable projects section
-    docs: true,     // Enable documentation section
   },
 
   // Post Options

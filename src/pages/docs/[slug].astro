@@ -1,9 +1,15 @@
 ---
 import { getCollection } from 'astro:content';
 import { shouldShowContent } from '@/utils/markdown';
+import { siteConfig } from '@/config';
 import DocumentationLayout from '@/layouts/DocumentationLayout.astro';
 
 export async function getStaticPaths() {
+  // If docs are disabled, don't generate any paths
+  if (!siteConfig.optionalContentTypes.docs) {
+    return [];
+  }
+  
   const docs = await getCollection('docs');
   const isDev = import.meta.env.DEV;
   

@@ -1,9 +1,15 @@
 ---
 import { getCollection } from 'astro:content';
 import { shouldShowContent } from '@/utils/markdown';
+import { siteConfig } from '@/config';
 import ProjectLayout from '@/layouts/ProjectLayout.astro';
 
 export async function getStaticPaths() {
+  // If projects are disabled, don't generate any paths
+  if (!siteConfig.optionalContentTypes.projects) {
+    return [];
+  }
+  
   const projects = await getCollection('projects');
   const isDev = import.meta.env.DEV;
   

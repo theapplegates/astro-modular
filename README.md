@@ -66,23 +66,28 @@ A flexible blog theme designed for Obsidian users.
 
 ### Setup
 
-1. **Install:**
+1. **Install pnpm (if you don't have it):**
+   ```bash
+   npm install -g pnpm
+   ```
+
+2. **Install dependencies:**
    ```bash
    pnpm install
    ```
 
-2. **Preview:**
+3. **Preview:**
    ```bash
    pnpm dev
    ```
    Your blog will be available at `http://localhost:5000`
 
-3. **Build for production:**
+4. **Build for production:**
    ```bash
    pnpm build
    ```
 
-4. **Update theme (optional):**
+5. **Update theme (optional):**
    ```bash
    # Safe update (recommended) - preserves your content
    pnpm run update-theme
