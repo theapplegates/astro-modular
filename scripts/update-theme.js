@@ -192,11 +192,18 @@ async function getLatestRelease() {
     logInfo('Fetching release information...');
     
     // First check what releases are available
-    const releasesResponse = await fetch(`${GITHUB_API_BASE}/releases`);
+    const releasesResponse = await fetch(`${GITHUB_API_BASE}/releases`, {
+      timeout: 30000 // 30 second timeout
+    });
     
     if (!releasesResponse.ok) {
       if (releasesResponse.status === 404) {
         logWarning('No releases found in upstream repository.');
+        logInfo('This is normal for template installations - using current state instead.');
+        return null;
+      }
+      if (releasesResponse.status === 403) {
+        logWarning('GitHub API rate limit exceeded or authentication required.');
         logInfo('This is normal for template installations - using current state instead.');
         return null;
       }
@@ -542,6 +549,158 @@ function checkUpstreamRemote() {
 }
 
 /**
+ * Check GitHub authentication and provide guidance
+ */
+function checkGitHubAuth() {
+  try {
+    // Test if we can access GitHub without authentication prompts
+    execSync('git ls-remote https://github.com/davidvkimball/astro-modular.git HEAD', { 
+      encoding: 'utf8',
+      stdio: 'pipe',
+      timeout: 10000 // 10 second timeout
+    });
+    return true;
+  } catch (error) {
+    logWarning('GitHub authentication may be required during the update process.');
+    logInfo('If you see a GitHub account selection dialog, please:');
+    logInfo('  1. Select your preferred GitHub account');
+    logInfo('  2. Click "Continue" to proceed');
+    logInfo('  3. Consider setting up persistent authentication (see below)');
+    logInfo('');
+    return false;
+  }
+}
+
+/**
+ * Detect which GitHub account was used during authentication
+ */
+async function detectGitHubAccount() {
+  try {
+    // Try to get the current user from GitHub API
+    const response = await fetch('https://api.github.com/user', {
+      timeout: 10000
+    });
+    
+    if (response.ok) {
+      const user = await response.json();
+      return {
+        username: user.login,
+        name: user.name,
+        email: user.email
+      };
+    }
+  } catch (error) {
+    // If API call fails, try to get info from git config
+    try {
+      const username = execSync('git config --global user.name', { encoding: 'utf8' }).trim();
+      const email = execSync('git config --global user.email', { encoding: 'utf8' }).trim();
+      return { username: username || 'Unknown', name: username, email };
+    } catch (gitError) {
+      return null;
+    }
+  }
+  return null;
+}
+
+/**
+ * Offer to set up the detected GitHub account for future use
+ */
+async function offerAccountSetup(detectedAccount) {
+  if (!detectedAccount) return;
+  
+  logInfo('');
+  logInfo(`Great! I detected you're using GitHub account: ${detectedAccount.username}`);
+  if (detectedAccount.name) {
+    logInfo(`   Name: ${detectedAccount.name}`);
+  }
+  if (detectedAccount.email) {
+    logInfo(`   Email: ${detectedAccount.email}`);
+  }
+  logInfo('');
+  
+  const readline = await import('readline');
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+  
+  const answer = await new Promise((resolve) => {
+    rl.question(`Would you like to set up "${detectedAccount.username}" as your default GitHub account for future updates? (y/N): `, resolve);
+  });
+  rl.close();
+  
+  if (answer.toLowerCase() === 'y' || answer.toLowerCase() === 'yes') {
+    await setupPersistentAuth(detectedAccount);
+  } else {
+    logInfo('No problem! You can set this up later if needed.');
+  }
+}
+
+/**
+ * Set up persistent authentication for the detected account
+ */
+async function setupPersistentAuth(account) {
+  logInfo('');
+  logInfo('Setting up persistent authentication...');
+  logInfo('');
+  
+  try {
+    // Set the username for GitHub credentials
+    execSync(`git config --global credential.https://github.com.username ${account.username}`, { stdio: 'pipe' });
+    logSuccess(`✅ Set GitHub username to: ${account.username}`);
+    
+    // Also set up credential helper if not already configured
+    try {
+      execSync('git config --global credential.helper', { stdio: 'pipe' });
+      logInfo('✅ Credential helper already configured');
+    } catch (error) {
+      // No credential helper set, let's set one up
+      execSync('git config --global credential.helper store', { stdio: 'pipe' });
+      logSuccess('✅ Set up credential helper to store credentials');
+    }
+    
+    logInfo('');
+    logInfo(`Perfect! Next time you run the update command, ${account.username} will be used automatically.`);
+    
+  } catch (error) {
+    logWarning('Could not automatically configure Git credentials.');
+    logInfo('');
+    logInfo('You can set this up manually by running:');
+    logInfo(`  git config --global credential.https://github.com.username ${account.username}`);
+    logInfo('  git config --global credential.helper store');
+    logInfo('');
+    logInfo('This will make future updates seamless!');
+  }
+}
+
+/**
+ * Provide guidance for setting up persistent GitHub authentication
+ */
+function provideAuthGuidance() {
+  logInfo('To avoid GitHub authentication prompts in the future:');
+  logInfo('');
+  logInfo('Option 1 - Set GitHub Username (Simplest):');
+  logInfo('  git config --global credential.https://github.com.username <your-username>');
+  logInfo('  git config --global credential.helper store');
+  logInfo('');
+  logInfo('Option 2 - Use Personal Access Token:');
+  logInfo('  1. Go to GitHub Settings > Developer settings > Personal access tokens');
+  logInfo('  2. Generate a new token with "repo" permissions');
+  logInfo('  3. Use the token as your password when prompted');
+  logInfo('');
+  logInfo('Option 3 - Use GitHub CLI:');
+  logInfo('  1. Install GitHub CLI: https://cli.github.com/');
+  logInfo('  2. Run: gh auth login');
+  logInfo('  3. Follow the prompts to authenticate');
+  logInfo('');
+  logInfo('Option 4 - Use SSH (Advanced):');
+  logInfo('  1. Generate SSH key: ssh-keygen -t ed25519 -C "your-email@example.com"');
+  logInfo('  2. Add to GitHub: https://github.com/settings/keys');
+  logInfo('  3. Change remote to SSH: git remote set-url upstream git@github.com:davidvkimball/astro-modular.git');
+  logInfo('');
+}
+
+/**
  * Add upstream remote if it doesn't exist
  */
 function addUpstreamRemote() {
@@ -580,7 +739,14 @@ function fetchUpstream() {
     logSuccess('Fetched latest changes');
     return true;
   } catch (error) {
-    logError('Failed to fetch from upstream');
+    if (error.message.includes('authentication') || error.message.includes('credential')) {
+      logError('Authentication failed while fetching from upstream');
+      logInfo('This is likely due to GitHub authentication issues.');
+      logInfo('Please check your GitHub credentials and try again.');
+      provideAuthGuidance();
+    } else {
+      logError('Failed to fetch from upstream');
+    }
     return false;
   }
 }
@@ -888,6 +1054,14 @@ async function updateObsidianFilesIntelligently() {
     output: process.stdout
   });
   
+  logInfo('Obsidian configuration update will affect:');
+  logInfo('  • Core Obsidian settings (app.json, hotkeys.json, etc.)');
+  logInfo('  • Plugin files (main.js, manifest.json, styles.css)');
+  logInfo('  • Plugin preferences (data.json) will be preserved');
+  logInfo('  • Your workspace layout will NOT be changed');
+  logInfo('  • Your custom snippets and themes will NOT be changed');
+  logInfo('');
+  
   const answer = await new Promise((resolve) => {
     rl.question('Update Obsidian configuration? (y/N): ', resolve);
   });
@@ -925,6 +1099,14 @@ async function updateObsidianFiles(upstreamBranch) {
     input: process.stdin,
     output: process.stdout
   });
+  
+  logInfo('Obsidian configuration update will affect:');
+  logInfo('  • Core Obsidian settings (app.json, hotkeys.json, etc.)');
+  logInfo('  • Plugin files (main.js, manifest.json, styles.css)');
+  logInfo('  • Plugin preferences (data.json) will be preserved');
+  logInfo('  • Your workspace layout will NOT be changed');
+  logInfo('  • Your custom snippets and themes will NOT be changed');
+  logInfo('');
   
   const answer = await new Promise((resolve) => {
     rl.question('Update Obsidian configuration? (y/N): ', resolve);
@@ -994,6 +1176,12 @@ async function updateObsidianCoreConfigsIntelligently() {
  * Update core Obsidian configuration files (git-based)
  */
 async function updateObsidianCoreConfigs(upstreamBranch) {
+  // Validate that upstreamBranch is a proper Git reference
+  if (!upstreamBranch || upstreamBranch.includes('.')) {
+    logWarning(`Invalid Git reference: ${upstreamBranch}. Skipping core config updates.`);
+    return;
+  }
+  
   for (const configFile of FILE_CATEGORIES.OBSIDIAN_FILES.CORE_CONFIGS) {
     try {
       execSync(`git checkout ${upstreamBranch} -- "${configFile}"`, { stdio: 'pipe' });
@@ -1052,6 +1240,12 @@ async function updateObsidianPluginsIntelligently() {
  * Update Obsidian plugin files (excluding data.json) - git-based
  */
 async function updateObsidianPlugins(upstreamBranch) {
+  // Validate that upstreamBranch is a proper Git reference
+  if (!upstreamBranch || upstreamBranch.includes('.')) {
+    logWarning(`Invalid Git reference: ${upstreamBranch}. Skipping plugin updates.`);
+    return;
+  }
+  
   const pluginsDir = 'src/content/.obsidian/plugins';
   
   if (!existsSync(pluginsDir)) {
@@ -1111,6 +1305,12 @@ async function checkForNewPluginsIntelligently() {
  */
 async function checkForNewPlugins(upstreamBranch) {
   try {
+    // Validate that upstreamBranch is a proper Git reference
+    if (!upstreamBranch || upstreamBranch.includes('.')) {
+      logWarning(`Invalid Git reference: ${upstreamBranch}. Skipping plugin check.`);
+      return;
+    }
+    
     // Get list of plugins in upstream
     const upstreamPlugins = execSync(`git ls-tree -r --name-only ${upstreamBranch} -- src/content/.obsidian/plugins/`, { encoding: 'utf8' })
       .split('\n')
@@ -1215,6 +1415,18 @@ async function updateTheme(updateContent = false) {
     process.exit(1);
   }
   logSuccess('Git repository found');
+  
+  // Step 2.5: Check GitHub authentication
+  logStep('2.5', 'Checking GitHub authentication');
+  const authOk = checkGitHubAuth();
+  if (!authOk) {
+    provideAuthGuidance();
+    logInfo('The update will continue, but you may see authentication prompts.');
+    logInfo('Please respond to any GitHub dialogs that appear.');
+    logInfo('');
+  } else {
+    logSuccess('GitHub authentication looks good');
+  }
   
   // Step 3: Check for uncommitted changes
   logStep(3, 'Checking for uncommitted changes');
@@ -1334,6 +1546,33 @@ async function updateTheme(updateContent = false) {
   }
   
   logInfo('Run "pnpm run dev" to start the development server');
+  
+  // If authentication was an issue, try to detect the account and offer setup
+  if (!authOk) {
+    logInfo('');
+    logInfo('🔍 Detecting which GitHub account you used...');
+    
+    try {
+      const detectedAccount = await detectGitHubAccount();
+      if (detectedAccount) {
+        await offerAccountSetup(detectedAccount);
+      } else {
+        logInfo('Could not detect your GitHub account automatically.');
+        logInfo('');
+        logInfo('💡 TIP: To avoid GitHub authentication prompts in future updates:');
+        logInfo('   Run: gh auth login (if you have GitHub CLI installed)');
+        logInfo('   Or set up a Personal Access Token in GitHub settings');
+        logInfo('   This will make future updates smoother and faster!');
+      }
+    } catch (error) {
+      logInfo('Could not detect your GitHub account automatically.');
+      logInfo('');
+      logInfo('💡 TIP: To avoid GitHub authentication prompts in future updates:');
+      logInfo('   Run: gh auth login (if you have GitHub CLI installed)');
+      logInfo('   Or set up a Personal Access Token in GitHub settings');
+      logInfo('   This will make future updates smoother and faster!');
+    }
+  }
 }
 
 // Handle command line arguments
