@@ -35,6 +35,8 @@ var PasteImageIntoProperty = class extends import_obsidian.Plugin {
   handlePaste(evt) {
     var _a;
     const activeEl = document.activeElement;
+    if (!evt.clipboardData || evt.clipboardData.types[0] != "Files")
+      return false;
     const isFrontmatterFieldSupported = this.isSupportedFrontmatterField(activeEl);
     if (isFrontmatterFieldSupported)
       this.handleImagePaste(evt, activeEl);
@@ -52,10 +54,6 @@ var PasteImageIntoProperty = class extends import_obsidian.Plugin {
     return element.matches(".metadata-input-longtext");
   }
   async handleImagePaste(evt, target) {
-    if (!evt.clipboardData)
-      return;
-    if (evt.clipboardData.types[0] != "Files")
-      return;
     const items = evt.clipboardData.items;
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
@@ -70,7 +68,7 @@ var PasteImageIntoProperty = class extends import_obsidian.Plugin {
     }
   }
   async saveImageAndWriteLink(file, target) {
-    var _a, _b;
+    var _a;
     const arrayBuffer = await file.arrayBuffer();
     const fileExtension = file.type.split("/")[1] || "png";
     const fileName = `Pasted image ${Date.now()}.${fileExtension}`;
@@ -81,7 +79,7 @@ var PasteImageIntoProperty = class extends import_obsidian.Plugin {
     }
     const savePath = await this.app.fileManager.getAvailablePathForAttachment(fileName, activeFile.path);
     const activeEl = document.activeElement;
-    const propertyName = (_b = (_a = activeEl.parentNode) == null ? void 0 : _a.parentNode) == null ? void 0 : _b.children[0].children[1].getAttribute("aria-label");
+    const propertyName = (_a = activeEl.closest(".metadata-property")) == null ? void 0 : _a.getAttribute("data-property-key");
     const newFile = await this.app.vault.createBinary(savePath, arrayBuffer);
     const linkName = savePath.split("/").last();
     await this.writeLinkIntoFrontmatter(activeFile, `[[${linkName}]]`, activeEl, propertyName, newFile);
@@ -92,7 +90,7 @@ var PasteImageIntoProperty = class extends import_obsidian.Plugin {
     await new Promise((resolve) => setTimeout(resolve, 50));
     try {
       if (!propertyName)
-        throw new Error("aria-label attribute not found on the expected element.");
+        throw new Error("data-property-key attribute not found on the expected element.");
       await this.app.fileManager.processFrontMatter(activeFile, (frontmatter) => {
         frontmatter[propertyName] = filePath;
       });

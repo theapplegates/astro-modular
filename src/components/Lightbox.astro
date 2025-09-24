@@ -69,7 +69,7 @@
     private closeButton: HTMLElement;
     private images: Array<{ src: string; alt: string; caption?: string }> = [];
     private currentIndex: number = 0;
-    private isOpen: boolean = false;
+    public isOpen: boolean = false;
 
     constructor() {
       this.overlay = document.getElementById('lightbox-overlay')!;
@@ -202,6 +202,10 @@
       document.body.style.overflow = '';
     }
 
+    public closeLightbox() {
+      this.close();
+    }
+
     private prev() {
       if (this.images.length <= 1) return;
       this.currentIndex = (this.currentIndex - 1 + this.images.length) % this.images.length;
@@ -270,6 +274,10 @@
     }
 
     lightboxInstance = new Lightbox();
+    // Make lightbox instance globally accessible for Swup cleanup
+    if (typeof window !== 'undefined') {
+      window.lightboxInstance = lightboxInstance;
+    }
     return lightboxInstance;
   }
 
@@ -282,4 +290,7 @@
   if (document.readyState !== 'loading') {
     initializeLightbox();
   }
+
+  // Cleanup lightbox on Swup page transitions
+  // This will be handled by BaseLayout Swup hooks
 </script>

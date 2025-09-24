@@ -7,6 +7,7 @@ import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
 import CommandPalette from '@/components/CommandPalette.astro';
 import ScrollToTop from '@/components/ScrollToTop.astro';
+import Lightbox from '@/components/Lightbox.astro';
 import '@/styles/global.css';
 
 export interface Props {
@@ -593,6 +594,10 @@ const { seoData, bodyClass = '' } = Astro.props;
         window.swup.hooks.on('content:replace', () => {
           if (isDev) {
           }
+          // Close any open lightbox before content replacement
+          if (window.lightboxInstance && window.lightboxInstance.isOpen) {
+            window.lightboxInstance.closeLightbox();
+          }
           // Reinitialize favicon after page transition
           setFavicon();
           // Initialize table wrappers after content replacement
@@ -1009,6 +1014,7 @@ const { seoData, bodyClass = '' } = Astro.props;
     declare global {
       interface Window {
         initializeImageGalleries: () => void;
+        lightboxInstance: any;
       }
     }
     
@@ -1238,6 +1244,9 @@ const { seoData, bodyClass = '' } = Astro.props;
     // Make function available globally for Swup
     window['initializeCategoryFiltering'] = initializeCategoryFiltering;
   </script>
+
+  <!-- Lightbox for images (global) -->
+  <Lightbox />
 
   <!-- Additional body scripts -->
   <slot name="scripts" />
