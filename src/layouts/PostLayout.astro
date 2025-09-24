@@ -298,42 +298,6 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
       // Process wikilinks and initialize layouts after content loads
       document.addEventListener('DOMContentLoaded', () => {
 
-        // Initialize image grid layouts (fallback for browsers without :has() support)
-        function initializeImageGrids() {
-          // Check if browser supports :has() selector
-          const supportsHas = CSS.supports('selector(:has(img))');
-          
-          if (supportsHas) {
-            // Browser supports :has(), CSS will handle it automatically
-            return;
-          }
-
-          // Fallback for browsers without :has() support
-          const paragraphs = document.querySelectorAll('.prose p');
-
-          paragraphs.forEach(p => {
-            const images = p.querySelectorAll('img, picture');
-            const textNodes = Array.from(p.childNodes).filter(node => 
-              node.nodeType === Node.TEXT_NODE && node.textContent.trim() !== ''
-            );
-            const otherElements = Array.from(p.childNodes).filter(node => 
-              node.nodeType === Node.ELEMENT_NODE && !['IMG', 'PICTURE', 'BR'].includes(node.tagName)
-            );
-
-            // Only process if paragraph contains 2+ images and no other meaningful content
-            if (images.length >= 2 && textNodes.length === 0 && otherElements.length === 0) {
-              // Remove any existing image-grid classes first
-              p.classList.remove('image-grid', 'image-grid-2', 'image-grid-3', 'image-grid-4', 'image-grid-5', 'image-grid-6');
-
-              // Add the appropriate grid class
-              const gridClass = `image-grid-${Math.min(images.length, 6)}`;
-              p.classList.add('image-grid', gridClass);
-            }
-          });
-        }
-
-        // Initialize image grids
-        initializeImageGrids();
         
         // Process external links in captions to open in new tabs
         const captionLinks = document.querySelectorAll('p em a, .image-caption-container a');
@@ -358,8 +322,6 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
           }
         });
         
-        // Make initializeImageGrids globally accessible
-        window.initializeImageGrids = initializeImageGrids;
 
         // Process wikilinks - unified logic for all wikilink types
         const wikilinks = document.querySelectorAll('.wikilink[data-wikilink]');
@@ -407,11 +369,7 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
 
       // Handle Swup page transitions for comments
       document.addEventListener('swup:contentReplaced', () => {
-        // Re-initialize image grids after content replacement
         setTimeout(() => {
-          if (window.initializeImageGrids) {
-            window.initializeImageGrids();
-          }
 
           // Process external links in captions to open in new tabs
           const captionLinks = document.querySelectorAll('p em a, .image-caption-container a');
@@ -444,7 +402,7 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
           const images = document.querySelectorAll('img');
           images.forEach((img, index) => {
             // Skip images that are already clickable (like in galleries)
-            if (img.closest('a') || img.closest('.image-grid')) {
+            if (img.closest('a')) {
               return;
             }
 

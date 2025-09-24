@@ -55,6 +55,22 @@
       display: none !important;
     }
   }
+  
+  /* Improve button spacing on mobile */
+  @media (max-width: 480px) {
+    #lightbox-prev {
+      left: 8px !important;
+    }
+    
+    #lightbox-next {
+      right: 8px !important;
+    }
+    
+    #lightbox-close {
+      top: 8px !important;
+      right: 8px !important;
+    }
+  }
 </style>
 
 <script>
@@ -92,9 +108,19 @@
         this.next();
       });
 
-      // Close on overlay click
+      // Close on click outside the image (but not during drag)
       this.overlay.addEventListener('click', (e) => {
-        if (e.target === this.overlay) this.close();
+        // Don't close if we just finished dragging
+        if (isDragging) return;
+        
+        // Close if clicking on the overlay itself or any element that's not the image or buttons
+        const target = e.target as HTMLElement;
+        const isImage = target === this.image || target.closest('img');
+        const isButton = target === this.closeButton || target === this.prevButton || target === this.nextButton || target.closest('button');
+        
+        if (!isImage && !isButton) {
+          this.close();
+        }
       });
 
       // Keyboard navigation
@@ -112,6 +138,108 @@
             this.next();
             break;
         }
+      });
+
+      // Touch/swipe navigation for mobile and mouse drag for desktop with animation
+      let startX = 0;
+      let startY = 0;
+      let isDragging = false;
+      let currentX = 0;
+      let dragOffset = 0;
+      
+      // Touch events for mobile
+      this.overlay.addEventListener('touchstart', (e) => {
+        if (!this.isOpen) return;
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+        currentX = startX;
+        isDragging = true;
+        dragOffset = 0;
+        this.image.style.transition = 'none';
+      });
+      
+      this.overlay.addEventListener('touchmove', (e) => {
+        if (!this.isOpen || !isDragging) return;
+        currentX = e.touches[0].clientX;
+        dragOffset = currentX - startX;
+        
+        // Apply drag offset to image with some resistance
+        const resistance = 0.3;
+        this.image.style.transform = `translateX(${dragOffset * resistance}px)`;
+        e.preventDefault();
+      });
+      
+      this.overlay.addEventListener('touchend', (e) => {
+        if (!this.isOpen || !isDragging) return;
+        
+        const endX = e.changedTouches[0].clientX;
+        const endY = e.changedTouches[0].clientY;
+        const deltaX = endX - startX;
+        const deltaY = endY - startY;
+        
+        // Reset image position
+        this.image.style.transition = 'transform 0.3s ease-out';
+        this.image.style.transform = 'translateX(0)';
+        
+        // Only handle horizontal swipes (ignore vertical scrolling)
+        if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
+          if (deltaX > 0) {
+            // Swipe right - go to previous image
+            this.prev();
+          } else {
+            // Swipe left - go to next image
+            this.next();
+          }
+        }
+        isDragging = false;
+      });
+      
+      // Mouse events for desktop drag
+      this.overlay.addEventListener('mousedown', (e) => {
+        if (!this.isOpen) return;
+        startX = e.clientX;
+        startY = e.clientY;
+        currentX = startX;
+        isDragging = true;
+        dragOffset = 0;
+        this.image.style.transition = 'none';
+        e.preventDefault(); // Prevent text selection
+      });
+      
+      this.overlay.addEventListener('mousemove', (e) => {
+        if (!this.isOpen || !isDragging) return;
+        currentX = e.clientX;
+        dragOffset = currentX - startX;
+        
+        // Apply drag offset to image with some resistance
+        const resistance = 0.3;
+        this.image.style.transform = `translateX(${dragOffset * resistance}px)`;
+        e.preventDefault();
+      });
+      
+      this.overlay.addEventListener('mouseup', (e) => {
+        if (!this.isOpen || !isDragging) return;
+        
+        const endX = e.clientX;
+        const endY = e.clientY;
+        const deltaX = endX - startX;
+        const deltaY = endY - startY;
+        
+        // Reset image position
+        this.image.style.transition = 'transform 0.3s ease-out';
+        this.image.style.transform = 'translateX(0)';
+        
+        // Only handle horizontal drags (ignore vertical scrolling)
+        if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
+          if (deltaX > 0) {
+            // Drag right - go to previous image
+            this.prev();
+          } else {
+            // Drag left - go to next image
+            this.next();
+          }
+        }
+        isDragging = false;
       });
 
       // Prevent body scroll when lightbox is open

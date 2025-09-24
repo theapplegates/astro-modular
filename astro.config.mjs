@@ -4,6 +4,7 @@ import sitemap from '@astrojs/sitemap';
 import mdx from '@astrojs/mdx';
 import { remarkInternalLinks, remarkFolderImages, remarkImageCaptions } from './src/utils/internallinks.ts';
 import remarkCallouts from './src/utils/remark-callouts.ts';
+import remarkImageGrids from './src/utils/remark-image-grids.ts';
 import remarkReadingTime from 'remark-reading-time';
 import remarkToc from 'remark-toc';
 import rehypeMark from './src/utils/rehype-mark.ts';
@@ -69,6 +70,7 @@ export default defineConfig({
       remarkFolderImages,
       remarkImageCaptions,
       remarkCallouts,
+      remarkImageGrids,
       [remarkReadingTime, {}],
       [remarkToc, { 
         tight: true,
