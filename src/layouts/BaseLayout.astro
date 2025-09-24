@@ -1,7 +1,7 @@
 
 ---
 import { ViewTransitions } from 'astro:transitions';
-import { siteConfig, getFontFamily, getGoogleFontsUrl } from '@/config';
+import { siteConfig, getFontFamily, getGoogleFontsUrl, shouldLoadLocalFonts, shouldLoadCdnFonts, getFontDisplay } from '@/config';
 import type { SEOData } from '@/types';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
@@ -9,6 +9,27 @@ import CommandPalette from '@/components/CommandPalette.astro';
 import ScrollToTop from '@/components/ScrollToTop.astro';
 import Lightbox from '@/components/Lightbox.astro';
 import '@/styles/global.css';
+
+// Import local fonts if configured
+if (shouldLoadLocalFonts()) {
+  // Import Inter font
+  if (siteConfig.fonts.families.body === 'Inter' || siteConfig.fonts.families.heading === 'Inter') {
+    import('@fontsource/inter/300.css');
+    import('@fontsource/inter/400.css');
+    import('@fontsource/inter/500.css');
+    import('@fontsource/inter/600.css');
+    import('@fontsource/inter/700.css');
+  }
+  
+  // Import JetBrains Mono font
+  if (siteConfig.fonts.families.mono === 'JetBrains Mono') {
+    import('@fontsource/jetbrains-mono/300.css');
+    import('@fontsource/jetbrains-mono/400.css');
+    import('@fontsource/jetbrains-mono/500.css');
+    import('@fontsource/jetbrains-mono/600.css');
+    import('@fontsource/jetbrains-mono/700.css');
+  }
+}
 
 export interface Props {
   seoData: SEOData;
@@ -93,13 +114,21 @@ const { seoData, bodyClass = '' } = Astro.props;
   <meta name="command-palette-shortcut" content={siteConfig.commandPalette.shortcut || ''}>
 
   <!-- Preconnect to external domains for faster resource loading -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  {shouldLoadCdnFonts() && (
+    <>
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    </>
+  )}
   <link rel="preconnect" href="https://cdnjs.cloudflare.com">
   
   <!-- Fonts with optimized loading -->
-  <link href={getGoogleFontsUrl(siteConfig.typography.headingFont, siteConfig.typography.proseFont)} rel="stylesheet" media="print" onload="this.media='all'">
-  <noscript><link href={getGoogleFontsUrl(siteConfig.typography.headingFont, siteConfig.typography.proseFont)} rel="stylesheet"></noscript>
+  {shouldLoadCdnFonts() && (
+    <>
+      <link href={getGoogleFontsUrl(siteConfig.fonts.families.heading, siteConfig.fonts.families.body)} rel="stylesheet" media="print" onload="this.media='all'">
+      <noscript><link href={getGoogleFontsUrl(siteConfig.fonts.families.heading, siteConfig.fonts.families.body)} rel="stylesheet"></noscript>
+    </>
+  )}
 
   <!-- Font Awesome Icons - Load asynchronously -->
   <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -109,12 +138,16 @@ const { seoData, bodyClass = '' } = Astro.props;
   
   <!-- Font CSS Variables -->
   <style define:vars={{
-    fontHeading: getFontFamily(siteConfig.typography.headingFont),
-    fontProse: getFontFamily(siteConfig.typography.proseFont)
+    fontHeading: getFontFamily(siteConfig.fonts.families.heading),
+    fontProse: getFontFamily(siteConfig.fonts.families.body),
+    fontMono: getFontFamily(siteConfig.fonts.families.mono),
+    fontDisplay: getFontDisplay()
   }}>
     :root {
       --font-heading: var(--fontHeading);
       --font-prose: var(--fontProse);
+      --font-mono: var(--fontMono);
+      --font-display: var(--fontDisplay);
     }
   </style>
 

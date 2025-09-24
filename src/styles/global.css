@@ -40,6 +40,7 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-display: var(--font-display, swap);
 }
 
 /* Scrollbar Hiding */
@@ -87,6 +88,7 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 500;
   line-height: 1.3;
   color: rgb(var(--color-foreground));
+  font-display: var(--font-display, swap);
 }
 
 /* Links */
@@ -113,6 +115,21 @@ a:hover {
 
 /* Code Styles - Working with Tailwind prose plugin */
 
+/* Monospace font support */
+code, pre, .astro-code, kbd, .font-mono {
+  font-family: var(--font-mono, 'JetBrains Mono'), 'Monaco', 'Consolas', 'Courier New', monospace;
+  font-display: var(--font-display, swap);
+}
+
+/* Inline code styling */
+code:not(pre code),
+.prose code:not(pre code) {
+  font-size: 0.875em !important;
+  padding: 0.125rem 0.25rem !important;
+  @apply bg-primary-100 dark:bg-primary-800 text-primary-900 dark:text-primary-100;
+  border-radius: 0.25rem !important;
+}
+
 /* Syntax highlighting (astro-code) */
 .astro-code,
 pre.astro-code {
@@ -121,7 +138,7 @@ pre.astro-code {
   padding: 1rem !important;
   border-radius: 0.5rem !important;
   overflow-x: auto !important;
-  font-size: 1em !important;
+  font-size: 0.875rem !important;
 }
 
 
@@ -481,12 +498,14 @@ textarea {
 .prose {
   @apply text-primary-700 dark:text-primary-300;
   font-family: var(--font-prose, 'Inter'), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-display: var(--font-display, swap);
 }
 
 .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
   @apply font-semibold text-primary-900 dark:text-primary-50;
   font-family: var(--font-heading, 'Inter'), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   scroll-margin-top: 8rem;
+  font-display: var(--font-display, swap);
 }
 
 .prose h1 { @apply text-xl mt-8 mb-6; }

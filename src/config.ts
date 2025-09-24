@@ -21,9 +21,14 @@ export interface SiteConfig {
   // Global Settings
   theme: "minimal" | "oxygen" | "atom" | "ayu" | "catppuccin" | "charcoal" | "dracula" | "everforest" | "flexoki" | "gruvbox" | "macos" | "nord" | "obsidian" | "rose-pine" | "sky" | "solarized" | "things" | "custom";
   customThemeFile?: string; // Filename in src/themes/custom/ (e.g., "my-cool-theme" for my-cool-theme.ts)
-  typography: {
-    headingFont: string;
-    proseFont: string;
+  fonts: {
+    source: "local" | "cdn";
+    families: {
+      body: string;
+      heading: string;
+      mono: string;
+    };
+    display: "swap" | "fallback" | "optional";
   };
   layout: {
     contentWidth: string;
@@ -150,9 +155,14 @@ export const siteConfig: SiteConfig = {
   // Global Settings
   theme: "oxygen", // Available themes: "minimal" | "oxygen" | "atom" | "ayu" | "catppuccin" | "charcoal" | "dracula" | "everforest" | "flexoki" | "gruvbox" | "macos" | "nord" | "obsidian" | "rose-pine" | "sky" | "solarized" | "things" | "custom"
   customThemeFile: "custom", // Only used if theme is set to "custom" above. Filename in src/themes/custom/ (without .ts extension)
-  typography: {
-    headingFont: "Inter", // Font for headings (h1, h2, h3, h4, h5, h6), most Google fonts are supported. Default is Inter
-    proseFont: "Inter",   // Font for body text and prose content, most Google fonts are supported. Default is Inter
+  fonts: {
+    source: "local", // "local" for self-hosted @fontsource fonts, "cdn" for Google Fonts CDN
+    families: {
+      body: "Inter",      // Body text font family
+      heading: "Inter",   // Heading font family  
+      mono: "JetBrains Mono", // Monospace font family
+    },
+    display: "swap", // Font display strategy: "swap" (recommended), "fallback", or "optional"
   },
   layout: {
     contentWidth: "45rem",
@@ -325,11 +335,11 @@ export function getPostCardAspectRatio(): string {
 }
 
 export function getHeadingFont(): string {
-  return siteConfig.typography.headingFont;
+  return siteConfig.fonts.families.heading;
 }
 
 export function getProseFont(): string {
-  return siteConfig.typography.proseFont;
+  return siteConfig.fonts.families.body;
 }
 
 export function getFontFamily(fontName: string): string {
@@ -359,7 +369,7 @@ export function getFontFamily(fontName: string): string {
   return fontMap[fontName] || `'${fontName}', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
 }
 
-export function getGoogleFontsUrl(headingFont: string, proseFont: string): string {
+export function getGoogleFontsUrl(headingFont: string, bodyFont: string): string {
   // Google Fonts that are commonly used and available
   const googleFonts = [
     'Inter', 'Roboto', 'Open Sans', 'Lato', 'Poppins', 'Source Sans Pro', 
@@ -374,8 +384,8 @@ export function getGoogleFontsUrl(headingFont: string, proseFont: string): strin
   if (googleFonts.includes(headingFont)) {
     fonts.add(headingFont);
   }
-  if (googleFonts.includes(proseFont)) {
-    fonts.add(proseFont);
+  if (googleFonts.includes(bodyFont)) {
+    fonts.add(bodyFont);
   }
   
   // If no Google Fonts are needed, return empty string
@@ -391,6 +401,27 @@ export function getGoogleFontsUrl(headingFont: string, proseFont: string): strin
   }).join('&family=');
   
   return `https://fonts.googleapis.com/css2?family=${fontList}&display=swap`;
+}
+
+// Font loading utilities
+export function getFontSource(): "local" | "cdn" {
+  return siteConfig.fonts.source;
+}
+
+export function getFontDisplay(): "swap" | "fallback" | "optional" {
+  return siteConfig.fonts.display;
+}
+
+export function getFontFamilies() {
+  return siteConfig.fonts.families;
+}
+
+export function shouldLoadLocalFonts(): boolean {
+  return siteConfig.fonts.source === "local";
+}
+
+export function shouldLoadCdnFonts(): boolean {
+  return siteConfig.fonts.source === "cdn";
 }
 
 // Validation function for siteConfig
@@ -420,6 +451,23 @@ function validateSiteConfig(config: SiteConfig): { isValid: boolean; errors: str
     if (!config.customThemeFile || config.customThemeFile.trim() === '') {
       errors.push('customThemeFile is required when theme is "custom"');
     }
+  }
+
+  // Font configuration validation
+  if (!['local', 'cdn'].includes(config.fonts.source)) {
+    errors.push('fonts.source must be either "local" or "cdn"');
+  }
+  if (!config.fonts.families.body || config.fonts.families.body.trim() === '') {
+    errors.push('fonts.families.body is required');
+  }
+  if (!config.fonts.families.heading || config.fonts.families.heading.trim() === '') {
+    errors.push('fonts.families.heading is required');
+  }
+  if (!config.fonts.families.mono || config.fonts.families.mono.trim() === '') {
+    errors.push('fonts.families.mono is required');
+  }
+  if (!['swap', 'fallback', 'optional'].includes(config.fonts.display)) {
+    errors.push('fonts.display must be one of: swap, fallback, optional');
   }
 
   // Numeric validations

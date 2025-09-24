@@ -12,9 +12,9 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        'sans': getFontFamily(siteConfig.typography.proseFont).split(', '),
-        'heading': getFontFamily(siteConfig.typography.headingFont).split(', '),
-        'prose': getFontFamily(siteConfig.typography.proseFont).split(', ')
+        'sans': getFontFamily(siteConfig.fonts.families.body).split(', '),
+        'heading': getFontFamily(siteConfig.fonts.families.heading).split(', '),
+        'prose': getFontFamily(siteConfig.fonts.families.body).split(', ')
       },
       colors: {
         // Dynamic theme colors based on config
@@ -31,7 +31,7 @@ export default {
               marginBottom: '1.25em',
             },
             'h1, h2, h3, h4, h5, h6': {
-              fontFamily: getFontFamily(siteConfig.typography.headingFont),
+              fontFamily: getFontFamily(siteConfig.fonts.families.heading),
               fontWeight: '600',
               scrollMarginTop: '2rem',
             },

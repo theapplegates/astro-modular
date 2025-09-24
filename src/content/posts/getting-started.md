@@ -105,29 +105,49 @@ The system automatically finds and uses your custom theme!
 
 See `src/themes/custom/README.md` for detailed instructions and best practices.
 
-### Typography Configuration
+### Font Configuration
 
-Customize fonts for headings and body text:
+Customize fonts for headings, body text, and code with flexible loading options:
 
 ```typescript
-typography: {
-  headingFont: "Inter", // Font for headings (h1, h2, h3, h4, h5, h6)
-  proseFont: "Inter",   // Font for body text and prose content
+fonts: {
+  source: "local", // "local" for self-hosted fonts, "cdn" for Google Fonts CDN
+  families: {
+    body: "Inter",      // Body text font family
+    heading: "Inter",   // Heading font family  
+    mono: "JetBrains Mono", // Monospace font family
+  },
+  display: "swap", // Font loading strategy: "swap", "fallback", or "optional"
 }
 ```
 
-**Suggested Font Combinations:**
-- **Default**: `headingFont: "Inter"`, `proseFont: "Inter"`
-- **Modern: `headingFont: "Montserrat"`, `proseFont: "Lato"`
-- **Elegant: `headingFont: "Playfair Display"`, `proseFont: "Source Sans Pro"`
-- **Serif: `headingFont: "Merriweather"`, `proseFont: "Merriweather"`
+**Font Loading Options:**
+- **Local fonts** (`source: "local"`): Self-hosted fonts for better performance and privacy
+- **CDN fonts** (`source: "cdn"`): Google Fonts CDN for unlimited font choices
 
-**Supported Fonts:**
+**Suggested Font Combinations:**
+- **Default**: `heading: "Inter"`, `body: "Inter"`, `mono: "JetBrains Mono"`
+- **Modern**: `heading: "Montserrat"`, `body: "Lato"`, `mono: "Fira Code"`
+- **Elegant**: `heading: "Playfair Display"`, `body: "Source Sans Pro"`, `mono: "Source Code Pro"`
+- **Serif**: `heading: "Merriweather"`, `body: "Merriweather"`, `mono: "IBM Plex Mono"`
+
+**Supported Fonts (Local Mode):**
 - **Sans-Serif**: Inter, Roboto, Open Sans, Lato, Poppins, Source Sans Pro, Nunito, Montserrat
 - **Serif**: Playfair Display, Merriweather, Lora, Crimson Text, PT Serif, Libre Baskerville
 - **Monospace**: Fira Code, JetBrains Mono, Source Code Pro, IBM Plex Mono, Cascadia Code
 
-The system automatically loads Google Fonts when needed and provides fallbacks to system fonts for optimal performance.
+**CDN Mode Benefits:**
+- Any Google Font works instantly
+- No package installation needed
+- Unlimited font choices
+
+**Local Mode Benefits:**
+- Better performance (no external requests)
+- Enhanced privacy (no tracking)
+- Works offline
+- Faster loading times
+
+The system gracefully handles unsupported fonts by falling back to system fonts, ensuring your site never breaks.
 
 ### Command Palette
 
