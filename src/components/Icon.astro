@@ -1,4 +1,7 @@
 ---
+import { library, icon } from '@fortawesome/fontawesome-svg-core';
+import { fab } from '@fortawesome/free-brands-svg-icons';
+
 export interface Props {
   name: string;
   class?: string;
@@ -6,6 +9,9 @@ export interface Props {
 }
 
 const { name, class: className = '', size = 24 } = Astro.props;
+
+// Add ALL Font Awesome brand icons to library at once
+library.add(fab);
 
 const icons = {
   // Navigation icons
@@ -62,9 +68,14 @@ const icons = {
 };
 
 const iconPath = icons[name as keyof typeof icons];
+
+// Try Font Awesome brands first (for social icons)
+const faIcon = icon({ prefix: 'fab', iconName: name as any });
 ---
 
-{iconPath ? (
+{faIcon ? (
+  <div class={className} style={`width: ${size}px; height: ${size}px; display: inline-block; transform: scale(0.7);`} set:html={faIcon.html[0]} />
+) : iconPath ? (
   <svg 
     width={size} 
     height={size} 

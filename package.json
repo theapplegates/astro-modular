@@ -30,6 +30,8 @@
     "@astrojs/tailwind": "^6.0.2",
     "@fontsource/inter": "^5.2.8",
     "@fontsource/jetbrains-mono": "^5.2.8",
+    "@fortawesome/fontawesome-svg-core": "^7.0.1",
+    "@fortawesome/free-brands-svg-icons": "^7.0.1",
     "@swup/astro": "^1.0.0",
     "@tailwindcss/typography": "^0.5.16",
     "astro": "^5.13.4",

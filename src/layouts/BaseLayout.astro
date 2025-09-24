@@ -130,9 +130,7 @@ const { seoData, bodyClass = '' } = Astro.props;
     </>
   )}
 
-  <!-- Font Awesome Icons - Load asynchronously -->
-  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
+  <!-- Font Awesome Icons now handled by hybrid Icon component -->
 
   <!-- Swup handled via Astro integration -->
   
