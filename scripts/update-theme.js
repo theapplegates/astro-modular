@@ -823,9 +823,8 @@ async function updateThemeFiles(upstreamBranch) {
       return false;
     }
     
-    // Commit the theme file updates
+    // Stage the theme file updates (don't commit automatically)
     execSync('git add .', { stdio: 'pipe' });
-    execSync('git commit -m "Update core theme files"', { stdio: 'pipe' });
     
     // Switch back to main and merge
     execSync('git checkout main', { stdio: 'pipe' });
@@ -1538,7 +1537,7 @@ async function updateTheme(updateContent = false) {
   // Let user review changes before committing
   logInfo('Changes have been applied to your working directory');
   logInfo('Review the changes with: git status && git diff');
-  logInfo('When ready, commit with: git add . && git commit -m "Update theme to ' + release.tag_name + '"');
+  logInfo('Files are staged and ready for you to review and commit when you\'re satisfied');
   } else {
     logInfo('Template installation verified and ready to use');
     logInfo('Your installation is up to date with the latest template');
