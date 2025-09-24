@@ -1,6 +1,24 @@
 import type { Post, WikilinkMatch } from '@/types';
 import { visit } from 'unist-util-visit';
 
+// Global posts cache for build-time wikilink resolution
+let globalPostsCache: any[] = [];
+
+// Function to set the global posts cache
+export function setGlobalPostsCache(posts: any[]) {
+  globalPostsCache = posts;
+}
+
+// Function to get the global posts cache
+export function getGlobalPostsCache(): any[] {
+  return globalPostsCache;
+}
+
+// Function to populate the global posts cache (called from layouts)
+export function populateGlobalPostsCache(posts: any[]) {
+  globalPostsCache = posts;
+}
+
 // ============================================================================
 // UTILITY FUNCTIONS
 // ============================================================================
@@ -237,7 +255,7 @@ function extractLinkTextFromUrlWithAnchor(url: string, allPosts: any[] = [], all
  * to maintain simplicity and avoid confusion with standard markdown links.
  */
 
-// Remark plugin for processing wikilinks (Obsidian-style)
+// Remark plugin for processing wikilinks (Obsidian-style) - original behavior
 export function remarkWikilinks() {
   return function transformer(tree: any, file: any) {
     const nodesToReplace: Array<{ parent: any; index: number; newChildren: any[] }> = [];
@@ -578,12 +596,13 @@ export function remarkStandardLinks() {
             }
             node.url = baseUrl;
           } else if (anchor) {
-            // Handle anchors in non-.md URLs
-            node.url += `#${createAnchorSlug(anchor)}`;
+            // Handle anchors in non-.md URLs - only add if not already present
+            if (!node.url.includes('#')) {
+              node.url += `#${createAnchorSlug(anchor)}`;
+            }
           }
 
-          // Add wikilink data attributes to make it work with linked mentions
-          // Only add wikilink attributes for posts (linked mentions only work with posts)
+          // Add wikilink styling to internal links for visual consistency
           if (node.url.startsWith('/posts/')) {
             if (!node.data) {
               node.data = {};
@@ -592,15 +611,11 @@ export function remarkStandardLinks() {
               node.data.hProperties = {};
             }
 
-            // Add wikilink class and data attributes
+            // Add wikilink class for styling consistency
             const existingClasses = node.data.hProperties.className || [];
             node.data.hProperties.className = Array.isArray(existingClasses)
               ? [...existingClasses, 'wikilink']
               : [existingClasses, 'wikilink'].filter(Boolean);
-
-            node.data.hProperties['data-wikilink'] = linkText;
-            // For standard markdown links, we don't have a display override
-            node.data.hProperties['data-display-override'] = null;
           }
         }
       }
@@ -678,7 +693,7 @@ export function extractStandardLinks(content: string): WikilinkMatch[] {
 // Combined remark plugin for both wikilinks and standard links
 export function remarkInternalLinks() {
   return function transformer(tree: any, file: any) {
-    // First process wikilinks (Obsidian-style, posts only)
+    // First process wikilinks (Obsidian-style, posts only) with build-time resolution
     const wikilinkPlugin = remarkWikilinks();
     wikilinkPlugin(tree, file);
     

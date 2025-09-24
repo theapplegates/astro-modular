@@ -791,18 +791,90 @@ This project uses **Swup** for client-side page transitions to provide a smooth,
 - **Smooth Scrolling**: Disabled (handled by custom implementation)
 - **Caching**: Enabled for better performance
 - **Preloading**: Enabled for faster navigation
+- **Back/Forward Navigation**: Completely disabled for Swup (`skipPopStateHandling: true`) to let browser handle naturally
 
-#### Important Notes for AI Agents
+#### 🚨 CRITICAL: Scroll Behavior Issues
+
+**⚠️ AI AGENTS MUST READ THIS SECTION CAREFULLY ⚠️**
+
+**The most common and frustrating issue with Swup is scroll behavior during back/forward navigation.** This section documents the exact cause and solution.
+
+#### **The Problem: "Dumb Little Scroll Thing"**
+
+When users navigate back/forward using browser buttons, they experience:
+- Page jumps to top, then slowly scrolls down
+- Unnatural scroll behavior that feels broken
+- Loss of scroll position restoration
+
+#### **Root Cause: `handleInitialHashScroll()` Function**
+
+The issue is caused by the `handleInitialHashScroll()` function in `BaseLayout.astro` being called in the `visit:end` hook:
+
+```javascript
+// ❌ WRONG - This causes scroll issues
+swup.hooks.on('visit:end', () => {
+  // ... other code ...
+  handleInitialHashScroll(); // ← THIS IS THE CULPRIT
+});
+```
+
+**What `handleInitialHashScroll()` does:**
+1. Calls `window.scrollTo(0, 0)` - Forces scroll to top
+2. Performs custom smooth scroll animation
+3. Interferes with browser's natural scroll restoration
+
+#### **The Solution: Remove from `visit:end` Hook**
+
+**✅ CORRECT - Fixed version:**
+```javascript
+swup.hooks.on('visit:end', () => {
+  // Update navigation highlighting after page transition is complete
+  updateNavigationHighlighting();
+  // Initialize linked mentions after page transition is complete
+  if (window.initializeLinkedMentions) {
+    window.initializeLinkedMentions();
+  }
+  // Don't call handleInitialHashScroll() here - it interferes with back/forward navigation
+});
+```
+
+#### **Why This Works**
+
+1. **Browser handles scroll naturally** - No JavaScript interference
+2. **Back/forward navigation preserved** - Browser's scroll restoration works
+3. **No forced scrolling** - No `window.scrollTo(0, 0)` calls
+4. **No custom animations** - No interference with natural behavior
+
+#### **Additional Swup Scroll Configuration**
+
+The project also uses these Swup configurations to prevent scroll issues:
+
+```javascript
+// In astro.config.mjs
+swup({
+  smoothScrolling: false,           // Disable Swup's smooth scrolling
+  plugins: [],                      // Disable all plugins including scroll
+  skipPopStateHandling: (event) => {
+    // ALWAYS skip Swup handling for back/forward navigation
+    return true;
+  }
+})
+```
+
+#### **Important Notes for AI Agents**
+- **NEVER call `handleInitialHashScroll()` in Swup hooks** - It breaks back/forward navigation
+- **Let browser handle scroll restoration** - Don't interfere with natural behavior
 - **Accessibility Warnings**: Swup can add `tabindex` attributes to body elements, causing accessibility warnings. This is why `accessibility: false` is set in the config.
 - **Container Structure**: All page content must be wrapped in `#swup-container` for transitions to work
 - **Image Loading**: Swup doesn't interfere with image loading attributes - these are handled by the PostCard and ImageWrapper components
 - **Navigation**: Internal links automatically use Swup transitions when available
 
-#### Swup Hooks and Custom Behavior
+#### **Swup Hooks and Custom Behavior**
 The project includes custom Swup behavior in `BaseLayout.astro`:
 - **Scroll Management**: Custom scroll behavior to prevent unwanted scrolling during transitions
 - **Content Replacement**: Handles content updates after page transitions
 - **Mobile Menu**: Closes mobile menu on navigation
+- **NO scroll interference**: Back/forward navigation is handled entirely by the browser
 
 ## Image Handling
 

@@ -53,34 +53,11 @@ export default defineConfig({
       updateHead: true,
       updateBodyClass: false,
       globalInstance: true,
+      plugins: [], // Disable all plugins including scroll
       skipPopStateHandling: (event) => {
-        // Skip Swup handling for non-HTML content and special pages
-        const url = event.state?.url || event.target?.location?.pathname;
-        if (!url) return false;
-        
-        // Skip file extensions that aren't HTML
-        const nonHtmlExtensions = ['.xml', '.json', '.txt', '.csv', '.pdf', '.zip', '.tar', '.gz'];
-        if (nonHtmlExtensions.some(ext => url.endsWith(ext))) {
-          return true;
-        }
-        
-        // Skip special pages that should use regular navigation
-        const specialPages = [
-          '/sitemap.xml',
-          '/robots.txt', 
-          '/llms.txt',
-          '/rss.xml',
-          '/feed.xml',
-          '/sitemap-index.xml',
-          '/humans.txt',
-          '/security.txt',
-          '/.well-known/',
-          '/api/',
-          '/_astro/',
-          '/_image/'
-        ];
-        
-        return specialPages.some(page => url.startsWith(page));
+        // ALWAYS skip Swup handling for back/forward navigation
+        // Let the browser handle it naturally
+        return true;
       },
       // Simplified link selector for better compatibility
       linkSelector: 'a[href]:not([data-no-swup]):not([href^="mailto:"]):not([href^="tel:"])'

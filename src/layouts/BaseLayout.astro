@@ -902,86 +902,36 @@ const { seoData, bodyClass = '' } = Astro.props;
         if (window.initializeTableWrappers) {
           window.initializeTableWrappers();
         }
-        setupSmoothScrolling();
+        // Don't call setupSmoothScrolling() here - let browser handle scroll naturally
       }, 50);
     }
 
     // Listen for browser back/forward button
     window.addEventListener('popstate', handlePopState);
 
-    // Smart scroll behavior: preserve scroll position for back/forward, scroll to top for new navigation
+    // Simple scroll behavior: let browser handle everything naturally
     function setupSwupScrollBehavior() {
       if (typeof window !== 'undefined' && window.swup) {
         const swup = window.swup;
         
-        // Track if this is a back/forward navigation
-        let isBackForwardNavigation = false;
-        
-        // Override Swup's scroll methods to handle different navigation types
-        if (swup.scrollToElement) {
-          swup.scrollToElement = () => {
-            // Only scroll to top for new page navigation, not back/forward
-            if (!isBackForwardNavigation) {
-              window.scrollTo(0, 0);
-            }
-          };
-        }
-        
-        if (swup.scrollToTop) {
-          swup.scrollToTop = () => {
-            // Only scroll to top for new page navigation, not back/forward
-            if (!isBackForwardNavigation) {
-              window.scrollTo(0, 0);
-            }
-          };
-        }
-        
-        // Handle page navigation - distinguish between new navigation and back/forward
-        swup.hooks.on('visit:start', () => {
-          // Check if this is a back/forward navigation by looking at the navigation type
-          isBackForwardNavigation = swup.history?.popstate || false;
-          
-          // Ensure instant scrolling during page navigation
-          document.documentElement.style.scrollBehavior = 'auto';
-        });
-        
-        swup.hooks.on('content:replace', () => {
-          // Only scroll to top for new page navigation, not back/forward
-          if (!isBackForwardNavigation) {
-            window.scrollTo(0, 0);
-          }
-        });
-        
-        // Handle page view - only scroll to top for new navigation
+        // Completely disable all scroll behavior - let browser handle it naturally
         swup.hooks.on('page:view', () => {
-          // Only scroll to top for new page navigation, not back/forward
-          if (!isBackForwardNavigation) {
-            window.scrollTo(0, 0);
-          }
-          
-          // Update navigation highlighting after page transition
+          // Do nothing - let browser handle scroll position naturally
+          // Still update navigation highlighting and linked mentions
           updateNavigationHighlighting();
-          // Initialize linked mentions after page transition
           if (window.initializeLinkedMentions) {
             window.initializeLinkedMentions();
           }
-          // Handle anchor scrolling after page transition
-          // Handle initial hash scroll if present
-        handleInitialHashScroll();
         });
         
         swup.hooks.on('visit:end', () => {
-          // Keep instant scrolling for page navigation, but enable smooth for anchors
-          document.documentElement.style.scrollBehavior = 'auto';
           // Update navigation highlighting after page transition is complete
           updateNavigationHighlighting();
           // Initialize linked mentions after page transition is complete
           if (window.initializeLinkedMentions) {
             window.initializeLinkedMentions();
           }
-          // Handle anchor scrolling after page transition is complete
-          // Handle initial hash scroll if present
-        handleInitialHashScroll();
+          // Don't call handleInitialHashScroll() here - it interferes with back/forward navigation
         });
         
       }
