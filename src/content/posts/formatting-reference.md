@@ -245,6 +245,128 @@ This is a [reference link][1] and this is another [reference link][markdown].
 [1]: https://example.com
 [markdown]: https://daringfireball.net/projects/markdown/
 
+## Mathematical Notation
+
+This theme includes comprehensive LaTeX math support using KaTeX for fast, client-side rendering. All math works seamlessly in both light and dark themes.
+
+### Inline Math
+
+Use single dollar signs for inline math: $E = mc^2$ or $\int_0^{2\pi} d\theta x+e^{-i\theta}$.
+
+### Display Math
+
+Use double dollar signs for centered display math:
+
+$$
+\begin{vmatrix}a & b\\
+c & d
+\end{vmatrix}=ad-bc
+$$
+
+$$
+f(x) = x^2 + 3x + 2
+$$
+
+### Common Mathematical Notation
+
+#### Fractions and Superscripts
+- Fractions: $\frac{a}{b}$, $\frac{x^2 + 1}{x - 1}$
+- Superscripts: $x^2$, $e^{i\pi} + 1 = 0$
+- Subscripts: $x_1$, $H_2O$
+
+#### Greek Letters
+- $\alpha, \beta, \gamma, \delta, \epsilon, \theta, \lambda, \mu, \pi, \sigma, \phi, \omega$
+- $\Gamma, \Delta, \Theta, \Lambda, \Pi, \Sigma, \Phi, \Omega$
+
+#### Mathematical Symbols
+- Summation: $\sum_{i=1}^{n} x_i$
+- Product: $\prod_{i=1}^{n} x_i$
+- Integral: $\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}$
+- Limit: $\lim_{x \to 0} \frac{\sin x}{x} = 1$
+
+#### Matrices and Vectors
+$$
+\begin{pmatrix}
+a & b \\
+c & d
+\end{pmatrix}
+\begin{pmatrix}
+x \\
+y
+\end{pmatrix}
+=
+\begin{pmatrix}
+ax + by \\
+cx + dy
+\end{pmatrix}
+$$
+
+#### Complex Equations
+$$
+\nabla \times \vec{E} = -\frac{\partial \vec{B}}{\partial t}
+$$
+
+$$
+i\hbar\frac{\partial}{\partial t}\Psi(\vec{r},t) = \hat{H}\Psi(\vec{r},t)
+$$
+
+### Math in Callouts
+
+Math works perfectly within callouts:
+
+> [!note] Mathematical Proof
+> The Pythagorean theorem states that for a right triangle:
+> $$a^2 + b^2 = c^2$$
+> 
+> Where $c$ is the hypotenuse and $a$ and $b$ are the other two sides.
+
+> [!tip] Integration by Parts
+> The formula for integration by parts is:
+> $$\int u \, dv = uv - \int v \, du$$
+> 
+> This is particularly useful for integrals involving products of functions.
+
+### Advanced Mathematical Typesetting
+
+#### Aligned Equations
+$$
+\begin{align}
+f(x) &= ax^2 + bx + c \\
+f'(x) &= 2ax + b \\
+f''(x) &= 2a
+\end{align}
+$$
+
+#### Cases and Piecewise Functions
+$$
+f(x) = \begin{cases}
+x^2 & \text{if } x \geq 0 \\
+-x^2 & \text{if } x < 0
+\end{cases}
+$$
+
+#### Set Notation
+- Natural numbers: $\mathbb{N} = \{1, 2, 3, \ldots\}$
+- Real numbers: $\mathbb{R}$
+- Complex numbers: $\mathbb{C}$
+- Set union: $A \cup B$
+- Set intersection: $A \cap B$
+- Subset: $A \subseteq B$
+
+### Math with Text
+
+You can mix math with regular text seamlessly. For example, the quadratic formula is $x = \frac{1}{2}$, which gives us the roots of any quadratic equation $ax^2 + bx + c = 0$.
+
+### Obsidian Compatibility
+
+All math notation works identically in Obsidian and your published blog:
+
+- **Inline math**: `$...$` syntax
+- **Display math**: `$$...$$` syntax  
+- **LaTeX commands**: Full support for standard LaTeX math commands
+- **Greek letters**: Use `\alpha`, `\beta`, etc.
+- **Symbols**: Use `\sum`, `\int`, `\infty`, etc. 
+
 ## Code Blocks
 
 ### Inline Code
@@ -318,7 +440,7 @@ echo "Development server started on http://localhost:3000"
 | Markdown | ✅ | Full CommonMark support |
 | Wikilinks | ✅ | Obsidian-style double brackets |
 | Callouts | ✅ | Multiple types with icons |
-| Math | ❌ | Not implemented yet |
+| Math | ✅ | LaTeX math with KaTeX rendering |
 | Diagrams | 🔄 | Planned for future release |
 
 ### Advanced Tables

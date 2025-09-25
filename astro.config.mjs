@@ -5,8 +5,10 @@ import mdx from '@astrojs/mdx';
 import { remarkInternalLinks, remarkFolderImages, remarkImageCaptions } from './src/utils/internallinks.ts';
 import remarkCallouts from './src/utils/remark-callouts.ts';
 import remarkImageGrids from './src/utils/remark-image-grids.ts';
+import remarkMath from 'remark-math';
 import remarkReadingTime from 'remark-reading-time';
 import remarkToc from 'remark-toc';
+import rehypeKatex from 'rehype-katex';
 import rehypeMark from './src/utils/rehype-mark.ts';
 import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
@@ -69,6 +71,7 @@ export default defineConfig({
           remarkInternalLinks,
       remarkFolderImages,
       remarkImageCaptions,
+      remarkMath,
       remarkCallouts,
       remarkImageGrids,
       [remarkReadingTime, {}],
@@ -80,6 +83,7 @@ export default defineConfig({
       }],
     ],
     rehypePlugins: [
+      rehypeKatex,
       rehypeMark,
       [rehypeSlug, {
         test: (node) => node.tagName !== 'h1'

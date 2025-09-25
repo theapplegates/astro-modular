@@ -3,6 +3,131 @@
 @tailwind components;
 @tailwind utilities;
 
+/* KaTeX Math Rendering */
+@import 'katex/dist/katex.css';
+
+/* KaTeX Theme Integration */
+.katex {
+  font-size: 1.1em;
+  color: rgb(var(--color-foreground));
+}
+
+/* Fix KaTeX SVG sizing issues - constrain the problematic 400em width */
+.katex svg {
+  max-width: 100% !important;
+  width: auto !important;
+  overflow: hidden;
+}
+
+.katex .hide-tail {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.katex .hide-tail svg {
+  max-width: 100% !important;
+  width: auto !important;
+  height: auto !important;
+}
+
+/* Force SVG colors to match theme */
+.katex svg {
+  fill: currentColor;
+}
+
+.dark .katex svg {
+  filter: brightness(0) invert(1);
+}
+
+/* Hide HTML and show only MathML output to prevent duplication */
+.katex-mathml {
+  display: inline-block !important;
+}
+
+.katex-html {
+  display: none !important;
+}
+
+
+.katex-display {
+  margin: 1.5rem 0;
+  text-align: center;
+  overflow-x: auto;
+  overflow-y: hidden;
+  display: block;
+}
+
+/* Ensure display math is properly centered and separated */
+.katex-display > .katex {
+  display: inline-block;
+  white-space: nowrap;
+  max-width: 100%;
+  text-align: initial;
+}
+
+/* Ensure display math blocks are properly separated */
+p:has(.katex-display) {
+  text-align: center;
+  margin: 1.5rem 0;
+}
+
+/* Handle multiple display math blocks */
+.katex-display + .katex-display {
+  margin-top: 1.5rem;
+}
+
+/* KaTeX in dark mode */
+.dark .katex {
+  color: rgb(var(--color-foreground));
+}
+
+
+
+
+/* KaTeX error styling */
+.katex-error {
+  color: #cc0000;
+  border-color: #cc0000;
+}
+
+.dark .katex-error {
+  color: #ff6b6b;
+  border-color: #ff6b6b;
+}
+
+/* Math in callouts */
+.callout .katex,
+.callout .katex-display {
+  margin: 0.5rem 0;
+}
+
+.callout .katex-display {
+  margin: 1rem 0;
+  text-align: center;
+  display: block;
+}
+
+/* Ensure callout paragraphs with display math are centered */
+.callout p:has(.katex-display) {
+  text-align: center;
+  margin: 1rem 0;
+}
+
+/* Force callout display math to be block-level and centered */
+.callout .katex-display {
+  display: block !important;
+  text-align: center !important;
+  margin: 1rem 0 !important;
+  width: 100% !important;
+}
+
+/* Fix spacing for inline math in callouts */
+.callout p .katex {
+  margin: 0 0.25rem;
+}
+
+
+
 /* CSS Custom Properties - Essential globals only */
 :root {
   /* Code block colors for light theme */

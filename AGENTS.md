@@ -22,15 +22,16 @@ This document contains essential information for AI agents working with this Ast
 3. [Content Organization](#content-organization)
 4. [Obsidian Integration](#obsidian-integration)
 5. [Image Handling](#image-handling)
-6. [Build Process](#build-process)
+6. [Mathematical Notation Support](#mathematical-notation-support)
+7. [Build Process](#build-process)
    - [RSS and Atom Feeds](#rss-and-atom-feeds)
-7. [Theme Updates](#theme-updates)
-8. [Version Management](#version-management)
-9. [Configuration & Customization](#configuration--customization)
+8. [Theme Updates](#theme-updates)
+9. [Version Management](#version-management)
+10. [Configuration & Customization](#configuration--customization)
    - [Typography Configuration](#typography-configuration)
-10. [Troubleshooting](#troubleshooting)
-11. [Best Practices](#best-practices)
-12. [Common AI Agent Mistakes](#common-ai-agent-mistakes)
+11. [Troubleshooting](#troubleshooting)
+12. [Best Practices](#best-practices)
+13. [Common AI Agent Mistakes](#common-ai-agent-mistakes)
 
 ## Project Vision & Philosophy
 
@@ -2254,6 +2255,287 @@ All SEO features work with folder-based posts:
 - **`astro.config.mjs`**: Astro and Swup configuration
 - **`src/config/dev.ts`**: Development-specific settings
 
+## Mathematical Notation Support
+
+### Overview
+
+The theme includes comprehensive LaTeX math support using KaTeX for fast, client-side rendering. All math works seamlessly in both light and dark themes and maintains full compatibility with Obsidian workflows.
+
+### Implementation Details
+
+#### Dependencies
+- **`remark-math`**: ^6.0.0 - Parses LaTeX math syntax in markdown
+- **`rehype-katex`**: ^7.0.0 - Renders math using KaTeX
+- **`katex`**: ^0.16.9 - Core KaTeX library for math rendering
+
+#### Plugin Chain Integration
+The math processing is integrated into the existing markdown pipeline:
+
+**Remark Plugins (Processing Order):**
+1. `remarkInternalLinks` - Process wikilinks and standard links
+2. `remarkFolderImages` - Handle folder-based images
+3. `remarkImageCaptions` - Process image captions
+4. `remarkCallouts` - Process Obsidian-style callouts
+5. `remarkImageGrids` - Handle image grid layouts
+6. **`remarkMath`** - Parse LaTeX math syntax
+7. `remarkReadingTime` - Calculate reading time
+8. `remarkToc` - Generate table of contents
+
+**Rehype Plugins (Rendering Order):**
+1. **`rehypeKatex`** - Render math with KaTeX (first in chain)
+2. `rehypeMark` - Process mark highlighting
+3. `rehypeSlug` - Generate heading slugs
+4. `rehypeAutolinkHeadings` - Add heading links
+
+#### Styling Integration
+- **KaTeX CSS**: Imported in `src/styles/global.css`
+- **Theme Compatibility**: Works with all 17+ available themes
+- **Light/Dark Mode**: Automatic color adaptation
+- **Responsive Design**: Math scales properly on all devices
+- **Callout Integration**: Math works within all callout types
+
+### Supported Math Syntax
+
+#### Inline Math
+- **Syntax**: `$...$` (single dollar signs)
+- **Example**: `$E = mc^2$` → $E = mc^2$
+- **Use Cases**: Mathematical expressions within text
+
+#### Display Math
+- **Syntax**: `$$...$$` (double dollar signs)
+- **Example**: 
+  ```markdown
+  $$
+  \int_0^{2\pi} d\theta x+e^{-i\theta}
+  $$
+  ```
+- **Use Cases**: Centered mathematical equations
+
+#### Common Mathematical Notation
+
+**Fractions and Superscripts:**
+- Fractions: `\frac{a}{b}`, `\frac{x^2 + 1}{x - 1}`
+- Superscripts: `x^2`, `e^{i\pi} + 1 = 0`
+- Subscripts: `x_1`, `H_2O`
+
+**Greek Letters:**
+- Lowercase: `\alpha`, `\beta`, `\gamma`, `\delta`, `\epsilon`, `\theta`, `\lambda`, `\mu`, `\pi`, `\sigma`, `\phi`, `\omega`
+- Uppercase: `\Gamma`, `\Delta`, `\Theta`, `\Lambda`, `\Pi`, `\Sigma`, `\Phi`, `\Omega`
+
+**Mathematical Symbols:**
+- Summation: `\sum_{i=1}^{n} x_i`
+- Product: `\prod_{i=1}^{n} x_i`
+- Integral: `\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}`
+- Limit: `\lim_{x \to 0} \frac{\sin x}{x} = 1`
+
+**Matrices:**
+```markdown
+$$
+\begin{pmatrix}
+a & b \\
+c & d
+\end{pmatrix}
+\begin{pmatrix}
+x \\
+y
+\end{pmatrix}
+=
+\begin{pmatrix}
+ax + by \\
+cx + dy
+\end{pmatrix}
+$$
+```
+
+**Aligned Equations:**
+```markdown
+$$
+\begin{align}
+f(x) &= ax^2 + bx + c \\
+f'(x) &= 2ax + b \\
+f''(x) &= 2a
+\end{align}
+$$
+```
+
+**Piecewise Functions:**
+```markdown
+$$
+f(x) = \begin{cases}
+x^2 & \text{if } x \geq 0 \\
+-x^2 & \text{if } x < 0
+\end{cases}
+$$
+```
+
+### Integration Features
+
+#### Math in Callouts
+Math works perfectly within all callout types:
+
+```markdown
+> [!note] Pythagorean Theorem
+> For a right triangle: $$a^2 + b^2 = c^2$$
+```
+
+#### Math in Tables
+Mathematical expressions render correctly in table cells:
+
+| Feature | Formula | Example |
+|---------|---------|---------|
+| Quadratic | $ax^2 + bx + c = 0$ | $x^2 - 5x + 6 = 0$ |
+| Derivative | $\frac{d}{dx}f(x)$ | $\frac{d}{dx}x^2 = 2x$ |
+
+#### Math in Lists
+- Mathematical expressions work in both ordered and unordered lists
+- Complex equations can be included in list items
+- Proper spacing and alignment maintained
+
+### Obsidian Compatibility
+
+The math implementation maintains full compatibility with Obsidian:
+
+- **Identical Syntax**: Same `$...$` and `$$...$$` syntax
+- **LaTeX Commands**: All standard LaTeX math commands supported
+- **Greek Letters**: `\alpha`, `\beta`, `\gamma`, etc.
+- **Mathematical Symbols**: `\sum`, `\int`, `\infty`, etc.
+- **Complex Notation**: Matrices, aligned equations, piecewise functions
+- **Seamless Workflow**: Write in Obsidian, publish to blog with identical rendering
+
+### Performance Considerations
+
+- **Client-side Rendering**: KaTeX renders math in the browser for fast loading
+- **No Server Dependencies**: No need for server-side math processing
+- **Optimized CSS**: Only necessary KaTeX styles included
+- **Responsive Design**: Math scales properly on all devices
+- **Theme Integration**: Math colors adapt to light/dark themes automatically
+
+### Browser Support
+
+- **Modern Browsers**: Full support in Chrome, Firefox, Safari, Edge
+- **Mobile Devices**: Responsive math rendering on all screen sizes
+- **Accessibility**: Proper ARIA labels and screen reader support
+- **Print Styles**: Math renders correctly in print layouts
+
+### Common Math Examples
+
+#### Basic Physics
+```markdown
+Einstein's mass-energy equivalence: $E = mc^2$
+
+The Schrödinger equation:
+$$
+i\hbar\frac{\partial}{\partial t}\Psi(\vec{r},t) = \hat{H}\Psi(\vec{r},t)
+$$
+```
+
+#### Calculus
+```markdown
+The derivative of $x^2$ is $\frac{d}{dx}x^2 = 2x$
+
+Integration by parts:
+$$\int u \, dv = uv - \int v \, du$$
+```
+
+#### Linear Algebra
+```markdown
+Matrix multiplication:
+$$
+\begin{pmatrix}
+a & b \\
+c & d
+\end{pmatrix}
+\begin{pmatrix}
+x \\
+y
+\end{pmatrix}
+=
+\begin{pmatrix}
+ax + by \\
+cx + dy
+\end{pmatrix}
+$$
+```
+
+### Troubleshooting Math Rendering
+
+#### Common Issues
+1. **Math not rendering**: Check that `remarkMath` and `rehypeKatex` are properly configured
+2. **Styling issues**: Verify KaTeX CSS is imported in `src/styles/global.css`
+3. **Theme compatibility**: Math should adapt to all themes automatically
+4. **Mobile rendering**: Math should be responsive on all devices
+
+#### Development Tools
+- **Test Post**: Use `src/content/posts/math-test.md` for testing
+- **Formatting Reference**: See `src/content/posts/formatting-reference.md` for examples
+- **Browser DevTools**: Check for KaTeX CSS loading and math element rendering
+
+### Best Practices for AI Agents
+
+#### Math Implementation
+- **Always use KaTeX**: Client-side rendering for performance
+- **Maintain plugin order**: `remarkMath` before reading time, `rehypeKatex` first in rehype chain
+- **Test with themes**: Verify math works in both light and dark modes
+- **Check responsiveness**: Ensure math scales on mobile devices
+
+#### Content Creation
+- **Use standard LaTeX**: Stick to common LaTeX math commands
+- **Test in Obsidian**: Verify math renders correctly in Obsidian
+- **Include examples**: Provide comprehensive math examples in documentation
+- **Error handling**: Graceful fallbacks for malformed math
+
+#### Performance Optimization
+- **Client-side rendering**: No server-side math processing needed
+- **CSS optimization**: Only include necessary KaTeX styles
+- **Responsive design**: Math should work on all screen sizes
+- **Theme integration**: Math colors should adapt automatically
+
+### Technical Implementation Notes
+
+#### CSS Custom Properties
+```css
+/* KaTeX Theme Integration */
+.katex {
+  font-size: 1.1em;
+  color: rgb(var(--color-foreground));
+}
+
+.katex-display {
+  margin: 1.5rem 0;
+  text-align: center;
+}
+
+/* KaTeX in dark mode */
+.dark .katex {
+  color: rgb(var(--color-foreground));
+}
+```
+
+#### Plugin Configuration
+```javascript
+// astro.config.mjs
+remarkPlugins: [
+  // ... other plugins
+  remarkMath,  // Parse LaTeX math syntax
+  // ... other plugins
+],
+rehypePlugins: [
+  rehypeKatex,  // Render math with KaTeX (first)
+  // ... other plugins
+]
+```
+
+#### Dependencies
+```json
+{
+  "remark-math": "^6.0.0",
+  "rehype-katex": "^7.0.0", 
+  "katex": "^0.16.9"
+}
+```
+
+This comprehensive math support maintains the theme's core principles of clarity, performance, and Obsidian compatibility while adding powerful mathematical typesetting capabilities.
+
 ## Comments System (Giscus Integration)
 
 ### Overview
@@ -2348,12 +2630,27 @@ The comments are styled to match your theme automatically. If you see styling is
 
 ### Critical Distinctions to Remember
 
-#### 1. **🚨 PRODUCTION LOGGING (MOST CRITICAL)**
+#### 1. **🚨 MATH RENDERING DUPLICATION (MOST CRITICAL)**
+- **NEVER hide MathML output** - MathML is the properly formatted version
+- **ALWAYS hide HTML output** - HTML output is the broken, plain text version
+- **The correct CSS is:**
+  ```css
+  .katex-mathml { display: inline-block !important; }
+  .katex-html { display: none !important; }
+  ```
+- **WRONG approach (causes duplication):**
+  ```css
+  .katex-mathml { display: none !important; }  /* DON'T DO THIS */
+  .katex-html { display: inline-block !important; }  /* DON'T DO THIS */
+  ```
+- **This mistake causes "E=mc2E=mc2" duplication where math appears twice**
+
+#### 2. **🚨 PRODUCTION LOGGING (CRITICAL)**
 - **NEVER use raw `console.log()`** in production code
 - **Use the project's logger utility** (`src/utils/logger.ts`) for any logging needs
 - **Keep console output clean** for professional deployments
 
-#### 2. **Image System Confusion (Most Common)**
+#### 3. **Image System Confusion (Most Common)**
 - **Post cards** show images based on `showPostCardCoverImages` config, NOT `hideCoverImage` frontmatter
 - **Post content** shows images based on `hideCoverImage` frontmatter, NOT config
 - These are completely separate systems - don't mix them up!
