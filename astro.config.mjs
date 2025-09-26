@@ -5,6 +5,7 @@ import mdx from '@astrojs/mdx';
 import { remarkInternalLinks, remarkFolderImages, remarkImageCaptions } from './src/utils/internallinks.ts';
 import remarkCallouts from './src/utils/remark-callouts.ts';
 import remarkImageGrids from './src/utils/remark-image-grids.ts';
+import remarkMermaid from './src/utils/remark-mermaid.ts';
 import remarkMath from 'remark-math';
 import remarkReadingTime from 'remark-reading-time';
 import remarkToc from 'remark-toc';
@@ -74,6 +75,7 @@ export default defineConfig({
       remarkMath,
       remarkCallouts,
       remarkImageGrids,
+      remarkMermaid,
       [remarkReadingTime, {}],
       [remarkToc, { 
         tight: true,

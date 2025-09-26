@@ -365,6 +365,8 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
             link.title = 'Link not found';
           }
         });
+
+
       });
 
       // Handle Swup page transitions for comments
@@ -393,6 +395,7 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
               }
             }
           });
+
 
           // Comments are now handled globally by BaseLayout Swup hooks
         }, 100);

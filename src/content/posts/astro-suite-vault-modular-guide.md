@@ -56,6 +56,7 @@ Here's a guide for some important hotkeys set especially for this theme:
 - Navigate forward: `ALT + →`
 - Open homepage: `CTRL + M` 
 - Add a new property: `CTRL + ;`
+- Toggle property visibility for current note: `CTRL + ALT + P`
 - Toggle reading view: `CTRL + E`
 - Toggle Zen mode: `CTRL + SHIFT + Z`
 - Insert image: `CTRL + '`
