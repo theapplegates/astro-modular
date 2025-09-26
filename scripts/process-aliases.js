@@ -47,7 +47,7 @@ function parseFrontmatter(content) {
       continue;
     }
     
-    if (trimmed.includes(':') && !inArray) {
+    if (trimmed.includes(':') && (!inArray || !trimmed.startsWith('  '))) {
       // Save previous key-value pair
       if (currentKey) {
         if (currentValue.length === 1) {
@@ -61,6 +61,9 @@ function parseFrontmatter(content) {
       const colonIndex = trimmed.indexOf(':');
       currentKey = trimmed.substring(0, colonIndex).trim();
       const value = trimmed.substring(colonIndex + 1).trim();
+      
+      // Reset array state when starting a new key
+      inArray = false;
       
       if (value.startsWith('[')) {
         // Array value

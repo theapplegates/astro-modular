@@ -11,6 +11,8 @@ hideCoverImage: false
 hideTOC: false
 draft: false
 featured: false
+aliases:
+  - sourcetree-and-git
 ---
 ## SourceTree and Git Setup Guide
 

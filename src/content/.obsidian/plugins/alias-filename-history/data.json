@@ -9,11 +9,13 @@
   "autoCreateFrontmatter": true,
   "includeFolders": [
     "posts",
-    "pages"
+    "pages",
+    "projects",
+    "docs"
   ],
   "excludeFolders": [],
   "fileExtensions": [
     "md"
   ],
-  "trackFolderRenames": false
+  "trackFolderRenames": true
 }

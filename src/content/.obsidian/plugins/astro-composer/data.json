@@ -8,7 +8,7 @@
   "creationMode": "file",
   "indexFileName": "index",
   "dateFormat": "YYYY-MM-DD",
-  "excludedDirectories": "",
+  "excludedDirectories": "special",
   "onlyAutomateInPostsFolder": false,
   "enablePages": true,
   "pagesFolder": "pages",

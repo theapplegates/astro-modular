@@ -24,12 +24,17 @@ export default defineConfig({
   deployment: {
     platform: DEPLOYMENT_PLATFORM
   },
+  devToolbar: {
+    enabled: false
+  },
   redirects: {
   '/about-me': '/about',
   '/about-us': '/about',
   '/contact-me': '/contact',
   '/contact-us': '/contact',
-  '/privacy': '/privacy-policy'
+  '/privacy': '/privacy-policy',
+  '/posts/mermaid-test': '/posts/mermaid-diagram-test',
+  '/projects/obsidian-astro-composer': '/projects/astro-composer'
 },
   image: {
     service: {

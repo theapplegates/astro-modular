@@ -455,6 +455,9 @@ const { seoData, bodyClass = '' } = Astro.props;
   <CategoryFilter />
 
 
+    <!-- Mermaid utility (bundled) -->
+    <script src="/src/scripts/mermaid-client.ts" type="module"></script>
+
   <!-- Global scripts - Defer non-critical JavaScript -->
   <script define:vars={{ commentsEnabled: siteConfig.postOptions.comments.enabled }} defer>
     // Logger removed - no console output in production
@@ -948,7 +951,7 @@ const { seoData, bodyClass = '' } = Astro.props;
     // Listen for browser back/forward button
     window.addEventListener('popstate', handlePopState);
 
-    // Initialize Mermaid diagrams
+    // Initialize Mermaid diagrams (bundled version)
     function initializeMermaid() {
       // Find all mermaid diagrams
       const mermaidDiagrams = document.querySelectorAll('.mermaid-diagram[data-mermaid-source]');
@@ -957,177 +960,29 @@ const { seoData, bodyClass = '' } = Astro.props;
         return; // No diagrams found, exit early
       }
       
-      console.log(`Initializing Mermaid for ${mermaidDiagrams.length} diagrams...`);
-
       // Check if any diagrams are already rendered
       const alreadyRendered = Array.from(mermaidDiagrams).filter(diagram => diagram.querySelector('svg'));
-      console.log(`Found ${alreadyRendered.length} already rendered diagrams`);
       
       if (alreadyRendered.length === mermaidDiagrams.length) {
-        console.log('All diagrams already rendered, skipping initialization');
         return;
       }
 
-      // Load Mermaid from CDN if not already loaded
-      if (typeof window.mermaid === 'undefined') {
-        console.log('Loading Mermaid from CDN...');
-        const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/mermaid@11.12.0/dist/mermaid.min.js';
-        script.onload = () => {
-          console.log('Mermaid loaded from CDN');
-          setTimeout(() => {
-            initializeMermaidDiagrams();
-          }, 100);
-        };
-        script.onerror = () => {
-          console.error('Failed to load Mermaid from CDN');
-          // Show simple error message in diagrams
-          mermaidDiagrams.forEach(diagram => {
-            diagram.classList.add('error');
-            const contentDiv = diagram.querySelector('.mermaid-diagram-content');
-            if (contentDiv) {
-              contentDiv.innerHTML = '<div class="p-4 text-center"><p class="text-red-600 dark:text-red-400 text-sm">Diagram unavailable</p></div>';
-            }
-          });
-        };
-        document.head.appendChild(script);
-        return;
-      }
-
-      // Mermaid already loaded, initialize diagrams
-      console.log('Mermaid already loaded, initializing diagrams...');
-      initializeMermaidDiagrams();
-    }
-
-    function initializeMermaidDiagrams() {
-      console.log('Initializing Mermaid diagrams...');
-
-      try {
-        // Configure Mermaid with default theme (no dynamic theme changes)
-        window.mermaid.initialize({
-          startOnLoad: false,
-          theme: 'default', // Always use default theme
-          securityLevel: 'loose',
-          flowchart: {
-            useMaxWidth: true,
-            htmlLabels: true
-          },
-          gantt: {
-            useMaxWidth: true,
-            leftPadding: 30,
-            gridLineStartPadding: 5,
-            fontSize: 12,
-            sectionFontSize: 12,
-            numberSectionStyles: 4,
-            axisFormat: '%Y-%m-%d'
-          }
-          // No themeVariables - let CSS overrides handle everything
-        });
-
-        // Find all mermaid diagrams and render them
-        const mermaidDiagrams = document.querySelectorAll('.mermaid-diagram[data-mermaid-source]');
-        console.log(`Processing ${mermaidDiagrams.length} diagrams`);
-        
-        // Check if any diagrams are already rendered
-        const alreadyRendered = document.querySelectorAll('.mermaid-diagram svg');
-        console.log(`Found ${alreadyRendered.length} already rendered diagrams`);
-
-        mermaidDiagrams.forEach((diagram, index) => {
-          const source = diagram.getAttribute('data-mermaid-source');
-          
-          // Skip if already rendered
-          if (diagram.querySelector('svg')) {
-            console.log(`Diagram ${index} already rendered, skipping`);
-            return;
-          }
-          
-              if (source) {
-                try {
-                  // Add loading state
-                  diagram.classList.add('loading');
-                  
-                  const decodedSource = decodeURIComponent(source);
-                  console.log(`Rendering diagram ${index}:`, decodedSource);
-
-                  // Check for common syntax errors before rendering
-                  if (decodedSource.includes('A[Invalid syntax') && !decodedSource.includes('A[Invalid syntax]')) {
-                    // This is the known syntax error diagram - show our custom error
-                    diagram.classList.remove('loading');
-                    diagram.classList.add('error');
-                    
-                    const contentDiv = diagram.querySelector('.mermaid-diagram-content');
-                    if (contentDiv) {
-                      contentDiv.innerHTML = `
-                        <div class="p-4 border border-red-200 dark:border-red-800 rounded bg-red-50 dark:bg-red-900/20">
-                          <p class="text-red-600 dark:text-red-400 text-sm">Diagram syntax error</p>
-                          <details class="mt-2">
-                            <summary class="text-red-500 dark:text-red-400 text-xs cursor-pointer">Show source</summary>
-                            <pre class="mt-2 text-xs text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 p-2 rounded overflow-auto">${decodedSource}</pre>
-                          </details>
-                        </div>
-                      `;
-                    }
-                    return;
-                  }
-
-                  // Create a unique ID for this diagram
-                  const diagramId = `mermaid-${index}-${Date.now()}`;
-
-                  // Render the diagram using mermaid.render
-                  window.mermaid.render(diagramId, decodedSource).then(({ svg }) => {
-                console.log(`Diagram ${index} SVG:`, svg.substring(0, 200) + '...');
-                
-                // Replace the content with the rendered SVG
-                const contentDiv = diagram.querySelector('.mermaid-diagram-content');
-                if (contentDiv) {
-                  contentDiv.innerHTML = svg;
-                  console.log(`Diagram ${index} content updated, SVG length:`, svg.length);
-                  
-                  // Check if SVG is actually in the DOM
-                  const svgElement = contentDiv.querySelector('svg');
-                  if (svgElement) {
-                    console.log(`Diagram ${index} SVG found in DOM, dimensions:`, svgElement.getBoundingClientRect());
-                  } else {
-                    console.log(`Diagram ${index} No SVG found in DOM after insertion`);
-                  }
-                }
-
-                // Remove loading state
-                diagram.classList.remove('loading');
-                diagram.classList.remove('error');
-                console.log(`Diagram ${index} rendered successfully`);
-
-              }).catch(error => {
-                console.error(`Error rendering diagram ${index}:`, error);
-                diagram.classList.remove('loading');
-                diagram.classList.add('error');
-
-                const contentDiv = diagram.querySelector('.mermaid-diagram-content');
-                if (contentDiv) {
-                  contentDiv.innerHTML = `
-                    <div class="p-4 border border-red-200 dark:border-red-800 rounded bg-red-50 dark:bg-red-900/20">
-                      <p class="text-red-600 dark:text-red-400 text-sm">Diagram syntax error</p>
-                      <details class="mt-2">
-                        <summary class="text-red-500 dark:text-red-400 text-xs cursor-pointer">Show source</summary>
-                        <pre class="mt-2 text-xs text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 p-2 rounded overflow-auto">${decodedSource}</pre>
-                      </details>
-                    </div>
-                  `;
-                }
-              });
-
-            } catch (error) {
-              console.error(`Error processing diagram ${index}:`, error);
-              diagram.classList.remove('loading');
-              diagram.classList.add('error');
-            }
+      // Use bundled Mermaid (imported via module)
+      if (typeof window.initializeMermaid === 'function') {
+        window.initializeMermaid();
+      } else {
+        // Show error message in diagrams
+        mermaidDiagrams.forEach(diagram => {
+          diagram.classList.add('error');
+          const contentDiv = diagram.querySelector('.mermaid-diagram-content');
+          if (contentDiv) {
+            contentDiv.innerHTML = '<div class="p-4 text-center"><p class="text-red-600 dark:text-red-400 text-sm">Diagram unavailable</p></div>';
           }
         });
-
-      } catch (error) {
-        console.error('Error initializing Mermaid:', error);
       }
     }
+
+    // This function is now handled by the bundled Mermaid utility
 
     // Debounce Mermaid initialization to prevent excessive calls
     let mermaidInitializationTimeout;
@@ -1143,10 +998,10 @@ const { seoData, bodyClass = '' } = Astro.props;
 
     // Handle theme changes for Mermaid diagrams
     function handleThemeChange() {
-      // Disable dynamic theme changes completely
-      // We rely on CSS overrides for theme consistency
-      console.log('Theme change detected, but Mermaid diagrams stay in original theme');
-      return;
+      // Use bundled Mermaid theme change handler
+      if (typeof window.handleMermaidThemeChange === 'function') {
+        window.handleMermaidThemeChange();
+      }
     }
 
     // Listen for theme changes

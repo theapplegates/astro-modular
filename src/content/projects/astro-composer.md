@@ -1,6 +1,6 @@
 ---
-title: Obsidian Astro Composer
-description: A plugin to create and manage Astro blog posts in Obsidian easily with automated file renaming, note properties management, and internal link conversion.
+title: Astro Composer
+description: An Obsidian plugin to create and manage Astro blog posts easily with automated file renaming, note properties management, and internal link conversion.
 date: 2025-08-20
 categories:
   - Obsidian
@@ -15,10 +15,12 @@ hideCoverImage: false
 hideTOC: false
 draft: false
 featured: true
+aliases:
+  - obsidian-astro-composer
 ---
 ## Project Overview
 
-Obsidian Astro Composer is a powerful Obsidian plugin designed to streamline the blogging workflow for Astro static sites. It provides automated file renaming, note properties management for post frontmatter, and seamless internal link conversion between Obsidian and Astro formats.
+Astro Composer is a powerful Obsidian plugin designed to streamline the blogging workflow for Astro static sites. It provides automated file renaming, note properties management for post frontmatter, and seamless internal link conversion between Obsidian and Astro formats.
 
 ## Key Features
 

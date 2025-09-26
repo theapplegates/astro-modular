@@ -6,13 +6,14 @@ tags:
   - formatting
   - obsidian
 draft: false
-image: ""
-imageAlt: ""
+image:
+imageAlt:
 imageOG: false
 hideCoverImage: false
-targetKeyword: ""
+targetKeyword:
+aliases:
+  - mermaid-test
 ---
-
 This post tests the Mermaid diagram integration with various diagram types to ensure proper rendering and theme compatibility.
 
 ## Flowchart
@@ -160,6 +161,7 @@ This should show an error state:
 graph TD
     A[Invalid syntax
     B --> C
+    INVALID_COMMAND
 ```
 
 ## Theme Integration

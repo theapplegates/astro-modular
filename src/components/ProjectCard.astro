@@ -116,7 +116,10 @@ const showCoverImage = shouldShowCoverImage && image;
     )}
 
     <!-- Content Overlay -->
-    <div class="absolute inset-0 flex flex-col justify-end p-6 z-10">
+    <div class="absolute inset-0 flex flex-col p-6 z-10" style="padding-top: 4rem;">
+      <!-- Spacer to push content down from top elements -->
+      <div class="flex-1"></div>
+      
       <!-- Title -->
       <h3 class={`text-xl font-bold mb-2 transition-colors line-clamp-2 text-center ${
         showCoverImage 
@@ -141,7 +144,7 @@ const showCoverImage = shouldShowCoverImage && image;
 
         <!-- Categories -->
         {showCategories && categories.length > 0 && (
-          <div class="flex flex-wrap gap-1 mb-3">
+          <div class="flex flex-wrap gap-1 mb-3 justify-center">
             {categories.slice(0, 3).map(category => (
               <span class={`inline-flex items-center px-2 py-1 text-xs font-medium rounded backdrop-blur-sm ${
                 showCoverImage 
@@ -163,16 +166,6 @@ const showCoverImage = shouldShowCoverImage && image;
           </div>
         )}
 
-        <!-- View project link -->
-        <div class="text-center">
-          <span class={`text-sm font-medium transition-colors ${
-            showCoverImage 
-              ? 'text-highlight-300 group-hover:text-highlight-200' 
-              : 'text-highlight-600 dark:text-highlight-400 group-hover:text-highlight-700 dark:group-hover:text-highlight-300'
-          }`}>
-            View project →
-          </span>
-        </div>
       </div>
     </div>
   </a>

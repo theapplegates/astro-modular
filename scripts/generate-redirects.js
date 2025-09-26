@@ -55,7 +55,7 @@ function parseFrontmatter(content) {
       continue;
     }
     
-    if (trimmed.includes(':') && !inArray) {
+    if (trimmed.includes(':') && (!inArray || !trimmed.startsWith('  '))) {
       // Save previous key-value pair
       if (currentKey) {
         if (currentValue.length === 1) {
@@ -69,6 +69,9 @@ function parseFrontmatter(content) {
       const colonIndex = trimmed.indexOf(':');
       currentKey = trimmed.substring(0, colonIndex).trim();
       const value = trimmed.substring(colonIndex + 1).trim();
+      
+      // Reset array state when starting a new key
+      inArray = false;
       
       if (value.startsWith('[')) {
         // Array value
@@ -117,16 +120,28 @@ function parseFrontmatter(content) {
 
 // Function to get the final URL for a content file
 function getContentUrl(filePath, isPost = false) {
-  const relativePath = path.relative(process.cwd(), filePath);
-  const fileName = path.basename(filePath, '.md');
+  // Normalize path separators and extract the relevant part
+  const normalizedPath = filePath.replace(/\\/g, '/');
   
   if (isPost) {
-    return `/posts/${fileName}`;
+    // For posts: extract path after 'src/content/posts/' and remove '.md'
+    const postPath = normalizedPath.replace(/^.*src\/content\/posts\//, '').replace(/\.md$/, '');
+    return `/posts/${postPath}`;
+  } else if (normalizedPath.includes('src/content/projects/')) {
+    // For projects: extract path after 'src/content/projects/' and remove '.md'
+    const projectPath = normalizedPath.replace(/^.*src\/content\/projects\//, '').replace(/\.md$/, '');
+    return `/projects/${projectPath}`;
+  } else if (normalizedPath.includes('src/content/docs/')) {
+    // For docs: extract path after 'src/content/docs/' and remove '.md'
+    const docPath = normalizedPath.replace(/^.*src\/content\/docs\//, '').replace(/\.md$/, '');
+    return `/docs/${docPath}`;
   } else {
-    if (fileName === 'index') {
+    // For pages: extract path after 'src/content/pages/' and remove '.md'
+    const pagePath = normalizedPath.replace(/^.*src\/content\/pages\//, '').replace(/\.md$/, '');
+    if (pagePath === 'index') {
       return '/';
     }
-    return `/${fileName}`;
+    return `/${pagePath}`;
   }
 }
 
@@ -153,8 +168,27 @@ async function processMarkdownFile(filePath, isPost = false) {
     for (const alias of aliasesArray) {
       const cleanAlias = alias.startsWith('/') ? alias.substring(1) : alias;
       
+      // Normalize path separators for consistent checking
+      const normalizedFilePath = filePath.replace(/\\/g, '/');
+      
+      // Determine redirect pattern based on content type
+      let redirectFrom;
+      if (isPost) {
+        // Posts: /posts/alias → /posts/actual-slug
+        redirectFrom = `/posts/${cleanAlias}`;
+      } else if (normalizedFilePath.includes('src/content/projects/')) {
+        // Projects: /projects/alias → /projects/actual-slug
+        redirectFrom = `/projects/${cleanAlias}`;
+      } else if (normalizedFilePath.includes('src/content/docs/')) {
+        // Docs: /docs/alias → /docs/actual-slug
+        redirectFrom = `/docs/${cleanAlias}`;
+      } else {
+        // Pages: /alias → /actual-slug
+        redirectFrom = `/${cleanAlias}`;
+      }
+      
       redirects.push({
-        from: `/${cleanAlias}`,
+        from: redirectFrom,
         to: targetUrl,
         alias: cleanAlias
       });
@@ -436,9 +470,33 @@ async function generateRedirects() {
     // Posts directory doesn't exist, skipping
   }
   
+  // Process projects
+  const projectsPath = path.join(projectRoot, 'src/content/projects');
+  try {
+    await fs.access(projectsPath);
+    const projectResult = await processDirectory(projectsPath, false);
+    allRedirects = allRedirects.concat(projectResult.redirects);
+    totalProcessedFiles += projectResult.processedFiles;
+  } catch (error) {
+    // Projects directory doesn't exist, skipping
+  }
+  
+  // Process docs
+  const docsPath = path.join(projectRoot, 'src/content/docs');
+  try {
+    await fs.access(docsPath);
+    const docResult = await processDirectory(docsPath, false);
+    allRedirects = allRedirects.concat(docResult.redirects);
+    totalProcessedFiles += docResult.processedFiles;
+  } catch (error) {
+    // Docs directory doesn't exist, skipping
+  }
+  
   if (allRedirects.length > 0) {
     log.info(`📁 Processing pages directory...`);
     log.info(`📁 Processing posts directory...`);
+    log.info(`📁 Processing projects directory...`);
+    log.info(`📁 Processing docs directory...`);
     log.info(`   Processed ${totalProcessedFiles} files with redirects`);
     
     // Update Astro config (platform-agnostic)
