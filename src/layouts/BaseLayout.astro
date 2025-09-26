@@ -1281,7 +1281,7 @@ const { seoData, bodyClass = '' } = Astro.props;
           
           // Check if there's any non-image content (like captions)
           // ONLY for single images - grids don't have captions
-          let nonImageContent = [];
+          let nonImageContent: Node[] = [];
           if (imageCount === 1) {
             nonImageContent = Array.from(paragraph.childNodes).filter(node => {
               if (node.nodeType === Node.ELEMENT_NODE) {
@@ -1311,7 +1311,7 @@ const { seoData, bodyClass = '' } = Astro.props;
                   // This looks like a caption, include it
                   nonImageContent = Array.from(nextParagraph.childNodes);
                   // Mark the next paragraph for removal since we're moving its content
-                  nextParagraph.style.display = 'none';
+                  (nextParagraph as HTMLElement).style.display = 'none';
                 }
               }
             }
@@ -1393,7 +1393,7 @@ const { seoData, bodyClass = '' } = Astro.props;
     function initializeCategoryFiltering() {
       const categoryItems = document.querySelectorAll('.category-item');
       const projectCards = document.querySelectorAll('[data-project-categories]');
-      let currentActiveCategory = null;
+      let currentActiveCategory: string | null = null;
 
       // Remove existing event listeners to prevent duplicates
       categoryItems.forEach(item => {
@@ -1428,7 +1428,7 @@ const { seoData, bodyClass = '' } = Astro.props;
           if (isCurrentlyActive) {
             // If clicking the same category, show all projects
             projectCards.forEach(card => {
-              card.style.display = 'block';
+              (card as HTMLElement).style.display = 'block';
             });
             currentActiveCategory = null;
           } else {
@@ -1437,9 +1437,9 @@ const { seoData, bodyClass = '' } = Astro.props;
               const cardCategories = card.getAttribute('data-project-categories') || '';
               
               if (cardCategories.includes(category)) {
-                card.style.display = 'block';
+                (card as HTMLElement).style.display = 'block';
               } else {
-                card.style.display = 'none';
+                (card as HTMLElement).style.display = 'none';
               }
             });
             
