@@ -6,6 +6,7 @@ import type { SEOData } from '@/types';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
 import CommandPalette from '@/components/CommandPalette.astro';
+import GraphModal from '@/components/GraphModal.astro';
 import ScrollToTop from '@/components/ScrollToTop.astro';
 import Lightbox from '@/components/Lightbox.astro';
 import ImageGalleryManager from '@/components/ImageGalleryManager.astro';
@@ -444,6 +445,9 @@ const { seoData, bodyClass = '' } = Astro.props;
 
   <!-- Command Palette -->
   {siteConfig.commandPalette.enabled && <CommandPalette />}
+  
+  <!-- Graph Modal -->
+  <GraphModal />
 
   <!-- Scroll to Top -->
   {siteConfig.scrollToTop && <ScrollToTop />}
@@ -821,8 +825,10 @@ const { seoData, bodyClass = '' } = Astro.props;
             if (document.querySelector('#giscus-comments')) {
               window.initializeGiscusComments();
             }
-            // Initialize table wrappers
-            window.initializeTableWrappers();
+            // Initialize table wrappers with small delay to ensure DOM is ready
+            setTimeout(() => {
+              window.initializeTableWrappers();
+            }, 50);
             // Initialize linked mentions
             if (window.initializeLinkedMentions) {
               window.initializeLinkedMentions();
@@ -830,6 +836,16 @@ const { seoData, bodyClass = '' } = Astro.props;
             // Initialize category filtering
             if (typeof window['initializeCategoryFiltering'] === 'function') {
               window['initializeCategoryFiltering']();
+            }
+            // Reset and initialize local graph
+            if (window.resetGraph) {
+              window.resetGraph();
+            }
+            if (window.initializeGraph) {
+              window.initializeGraph();
+            }
+            if (window.setupGraphButtons) {
+              window.setupGraphButtons();
             }
             // Re-setup smooth scrolling for anchor links
             setupSmoothScrolling();
@@ -960,8 +976,16 @@ const { seoData, bodyClass = '' } = Astro.props;
 
     // Initialize table wrappers for responsive tables
     function initializeTableWrappers() {
-      const tables = document.querySelectorAll('.prose table');
-      tables.forEach(table => {
+      // Try multiple selectors to catch all tables
+      const proseTables = document.querySelectorAll('.prose table');
+      const allTables = document.querySelectorAll('table');
+      const tables = proseTables.length > 0 ? proseTables : allTables;
+      
+      if (isDev) {
+        console.log('Table wrapper initialization: Found', tables.length, 'tables (prose:', proseTables.length, ', all:', allTables.length, ')');
+      }
+      
+      tables.forEach((table, index) => {
         if (!table.parentElement?.classList.contains('table-wrapper')) {
           const wrapper = document.createElement('div');
           wrapper.className = 'table-wrapper';
@@ -972,6 +996,12 @@ const { seoData, bodyClass = '' } = Astro.props;
           
           // Reset table margin since wrapper handles it
           table.style.margin = '0';
+          
+          if (isDev) {
+            console.log('Wrapped table', index + 1);
+          }
+        } else if (isDev) {
+          console.log('Table', index + 1, 'already wrapped');
         }
       });
     }
@@ -1163,7 +1193,6 @@ const { seoData, bodyClass = '' } = Astro.props;
             
             // Only re-render if theme actually changed
             if (isDark !== wasDark) {
-              console.log(`Theme changed: ${wasDark ? 'dark' : 'light'} → ${isDark ? 'dark' : 'light'}`);
               handleThemeChange();
             }
           }
@@ -1203,6 +1232,7 @@ const { seoData, bodyClass = '' } = Astro.props;
           if (window.initializeMermaid) {
             window.initializeMermaid();
           }
+          // Graph initialization is handled in page:view hook to prevent duplicates
           // Don't call handleInitialHashScroll() here - it interferes with back/forward navigation
         });
         

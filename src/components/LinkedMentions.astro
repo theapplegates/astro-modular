@@ -2,7 +2,7 @@
 import type { Post, LinkedMention } from '@/types';
 import { findLinkedMentions } from '@/utils/internallinks';
 import { getCollection } from 'astro:content';
-import { getFeature } from '@/config';
+import { getFeature, siteConfig } from '@/config';
 import Icon from './Icon.astro';
 
 export interface Props {
@@ -10,7 +10,7 @@ export interface Props {
 }
 
 const { currentSlug } = Astro.props;
-const isCompact = getFeature('linkedMentionsCompact');
+const isCompact = (siteConfig.postOptions.linkedMentions as any).linkedMentionsCompact;
 
 // Get all posts and pages to find linked mentions
 const posts = await getCollection('posts');
@@ -181,8 +181,9 @@ function processExcerptLinks(text: string, targetSlug: string): string {
               {mention.excerpt && (
                 <p 
                   class="text-sm text-primary-600 dark:text-primary-300 leading-relaxed"
-                  set:html={`...${processExcerptLinks(mention.excerpt, currentSlug)}...`}
-                />
+                >
+                  ...{processExcerptLinks(mention.excerpt, currentSlug)}...
+                </p>
               )}
               
               <div class="mt-3 flex items-center text-xs text-primary-500 dark:text-primary-400">

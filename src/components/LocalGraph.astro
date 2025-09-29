@@ -1,0 +1,1356 @@
+---
+import type { Post } from '@/types';
+import { getCollection } from 'astro:content';
+import { shouldShowPost } from '@/utils/markdown';
+import { siteConfig } from '@/config';
+import Icon from './Icon.astro';
+
+export interface Props {
+  currentSlug?: string;
+}
+
+const { currentSlug } = Astro.props;
+
+// Get all posts for graph data
+const allPosts = await getCollection('posts');
+const isDev = import.meta.env.DEV;
+const visiblePosts = allPosts.filter(p => shouldShowPost(p, isDev));
+
+// Check if we have enough content to show a graph
+const hasConnections = visiblePosts.length > 1; // Need at least 2 posts for connections
+const hasTags = visiblePosts.some(post => post.data.tags && post.data.tags.length > 0);
+
+// Only show if we have connections or tags
+const shouldShowGraph = hasConnections || hasTags;
+---
+
+{shouldShowGraph && (
+  <div id="graph-container" class="relative w-full bg-primary-50 dark:bg-primary-800 rounded-xl border border-primary-200 dark:border-primary-700 shadow-lg backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95 overflow-hidden" style="width: 280px; max-width: 280px; height: 280px;">
+    <!-- Tags toggle in top left corner -->
+    <div class="absolute top-3 left-3 z-20">
+      <button 
+        id="local-graph-tags-toggle"
+        class="px-2 py-1 text-xs text-primary-600 dark:text-primary-300 hover:text-primary-800 dark:hover:text-primary-100 transition-colors rounded border border-primary-200 dark:border-primary-600 bg-primary-100 dark:bg-primary-800 hover:bg-primary-200 dark:hover:bg-primary-700 pointer-events-auto"
+        title="Toggle tag visibility"
+      >
+        <span class="flex items-center gap-1">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+            <line x1="7" y1="7" x2="7.01" y2="7"/>
+          </svg>
+          Tags
+        </span>
+      </button>
+    </div>
+
+    <!-- Icons in top right corner -->
+    <div class="absolute top-3 right-3 z-20 flex items-center gap-2">
+      <!-- Global graph modal button -->
+      <button 
+        id="local-graph-modal-btn"
+        class="p-1 text-primary-500 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-200 transition-colors pointer-events-auto"
+        title="Open global graph"
+      >
+        <Icon name="git-fork" class="w-4 h-4" />
+      </button>
+      <!-- Fullscreen button -->
+      <button 
+        id="local-graph-fullscreen-btn"
+        class="p-1 text-primary-500 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-200 transition-colors pointer-events-auto"
+        title="Open in fullscreen"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-right">
+          <path d="M7 7h10v10"/>
+          <path d="M7 17 17 7"/>
+        </svg>
+      </button>
+    </div>
+    
+    <!-- Graph content -->
+    <div id="graph-content" class="w-full h-full">
+      <!-- Graph will be rendered here -->
+    </div>
+  </div>
+)}
+
+<script>
+  // Get theme colors from CSS custom properties
+  function getThemeColors() {
+    const root = document.documentElement;
+    const computedStyle = getComputedStyle(root);
+    
+    // Get the actual CSS custom properties that the theme system generates
+    const highlight400 = computedStyle.getPropertyValue('--color-highlight-400').trim();
+    const highlight600 = computedStyle.getPropertyValue('--color-highlight-600').trim();
+    const primary200 = computedStyle.getPropertyValue('--color-primary-200').trim();
+    const primary400 = computedStyle.getPropertyValue('--color-primary-400').trim();
+    const primary500 = computedStyle.getPropertyValue('--color-primary-500').trim();
+    const primary600 = computedStyle.getPropertyValue('--color-primary-600').trim();
+    const primary700 = computedStyle.getPropertyValue('--color-primary-700').trim();
+    const primary800 = computedStyle.getPropertyValue('--color-primary-800').trim();
+    const primary900 = computedStyle.getPropertyValue('--color-primary-900').trim();
+    
+    // Check current theme state dynamically
+    const isDarkMode = document.documentElement.classList.contains('dark');
+    
+    return {
+      // Tag colors (use theme highlight colors for nodes, but same text as posts)
+      tagFill: highlight400 || (isDarkMode ? '#38bdf8' : '#0284c7'),
+      tagStroke: highlight600 || (isDarkMode ? '#0284c7' : '#0369a1'),
+      tagText: primary800 || (isDarkMode ? '#f1f5f9' : '#1e293b'), // Same as post text
+      
+      // Post colors (light in dark mode, dark in light mode)
+      postFill: isDarkMode ? '#e2e8f0' : '#64748b',
+      postStroke: isDarkMode ? '#cbd5e1' : '#475569',
+      postText: isDarkMode ? '#f1f5f9' : '#1e293b',
+      
+      // Link colors (light in dark mode, dark in light mode)
+      linkStroke: isDarkMode ? '#94a3b8' : '#64748b',
+      tagLinkStroke: isDarkMode ? '#94a3b8' : '#64748b' // Same as regular links
+    };
+  }
+
+  // Function to close all open modals
+  function closeAllModals() {
+    // Close global graph modal
+    const globalModal = document.getElementById('graph-modal-overlay');
+    if (globalModal) {
+      globalModal.remove();
+      document.body.style.overflow = '';
+    }
+    
+    // Close any fullscreen local graph modals
+    const fullscreenModals = document.querySelectorAll('.fixed.inset-0.z-50');
+    fullscreenModals.forEach(modal => {
+      if (modal.id !== 'command-palette-overlay') { // Don't close command palette
+        modal.remove();
+      }
+    });
+    
+    // Reset flags
+    fullscreenModalOpen = false;
+    
+    // Reset body overflow
+    document.body.style.overflow = '';
+  }
+
+  // Enhanced Graph Visualization with Professional Features
+  class GraphVisualization {
+    container: HTMLElement;
+    data: any;
+    width: number;
+    height: number;
+    nodes: any[];
+    links: any[];
+    simulation: any;
+    isDragging: boolean;
+    isZooming: boolean;
+    isPanning: boolean;
+    selectedNode: any;
+    dragStart: { x: number; y: number };
+    panStart: { x: number; y: number };
+    nodeDragStart: { x: number; y: number };
+    nodeDragOffset: { x: number; y: number };
+    alpha: number;
+    alphaDecay: number;
+    velocityDecay: number;
+    svg!: SVGElement;
+    linksGroup!: SVGElement;
+    nodesGroup!: SVGElement;
+    dragOffset: { x: number; y: number };
+    
+    constructor(container: HTMLElement, data: any) {
+      this.container = container;
+      this.data = data;
+      this.width = container.offsetWidth;
+      this.height = container.offsetHeight;
+      
+      // Graph state
+      this.nodes = [];
+      this.links = [];
+      this.simulation = null;
+      
+      // Interaction state
+      this.isDragging = false;
+      this.isZooming = false;
+      this.isPanning = false;
+      this.selectedNode = null;
+      this.dragStart = { x: 0, y: 0 };
+      this.dragOffset = { x: 0, y: 0 };
+      this.panStart = { x: 0, y: 0 };
+      this.nodeDragStart = { x: 0, y: 0 };
+      this.nodeDragOffset = { x: 0, y: 0 };
+      
+      // Performance settings
+      this.alpha = 0.3;
+      this.alphaDecay = 0.02;
+      this.velocityDecay = 0.6;
+      
+      this.init();
+    }
+    
+    init() {
+      this.setupSVG();
+      this.processData();
+      this.setupSimulation();
+      this.setupInteractions();
+      this.render();
+      // Don't start simulation at all - use manual positioning only
+      // NO PHYSICS SIMULATION - COMPLETELY DISABLED
+    }
+    
+    setupSVG() {
+      // Clear container
+      this.container.innerHTML = '';
+      
+      // Create SVG with proper viewBox for scaling
+      this.svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      this.svg.setAttribute('width', '100%');
+      this.svg.setAttribute('height', '100%');
+      this.svg.setAttribute('viewBox', `0 0 ${this.width} ${this.height}`);
+      this.svg.style.background = 'transparent';
+      this.svg.style.cursor = 'grab';
+      
+      // Create groups for different elements
+      this.linksGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      this.linksGroup.setAttribute('class', 'graph-links');
+      this.svg.appendChild(this.linksGroup);
+      
+      this.nodesGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      this.nodesGroup.setAttribute('class', 'graph-nodes');
+      this.svg.appendChild(this.nodesGroup);
+      
+      this.container.appendChild(this.svg);
+    }
+    
+    processData() {
+      // Process nodes
+      this.nodes = this.data.nodes.map((node: any) => ({
+        ...node,
+        x: Math.random() * (this.width - 100) + 50,
+        y: Math.random() * (this.height - 100) + 50,
+        vx: 0,
+        vy: 0,
+        fx: null,
+        fy: null,
+        element: null,
+        textElement: null,
+        isDragging: false
+      }));
+      
+      // Process links
+      this.links = this.data.connections.map((conn: any) => ({
+        source: this.nodes.find((n: any) => n.id === conn.source),
+        target: this.nodes.find((n: any) => n.id === conn.target),
+        type: conn.type,
+        element: null
+      })).filter((link: any) => link.source && link.target);
+    }
+    
+    setupSimulation() {
+      // COMPLETELY DISABLED - NO PHYSICS SIMULATION
+      this.simulation = {
+        alpha: 0,
+        alphaDecay: 0,
+        velocityDecay: 0,
+        isRunning: false,
+        
+        tick: () => {
+          // DO NOTHING - NO PHYSICS
+          return;
+        },
+        
+        restart: () => {
+          // DO NOTHING
+        },
+        
+        stop: () => {
+          // DO NOTHING
+        }
+      };
+    }
+    
+    setupInteractions() {
+      // Drag behavior
+      this.setupDrag();
+      
+      // Zoom behavior
+      this.setupZoom();
+      
+      // Click behavior
+      this.setupClick();
+      
+      // Hover behavior
+      this.setupHover();
+    }
+    
+    setupDrag() {
+      // Use instance variables to persist state
+      this.isDragging = false;
+      this.isPanning = false;
+      this.panStart = { x: 0, y: 0 };
+      this.nodeDragStart = { x: 0, y: 0 };
+      this.nodeDragOffset = { x: 0, y: 0 };
+      
+      // Pan the entire graph - only when clicking on empty space (not on nodes)
+      this.svg.addEventListener('mousedown', (e: MouseEvent) => {
+        // Check if we're clicking on a button - if so, don't start panning
+        const target = e.target as Element;
+        const isButton = target.closest('button') || target.tagName === 'BUTTON';
+        if (isButton) {
+          return; // Don't start panning if clicking on a button
+        }
+        
+        // Check if we're clicking on empty space (not on a circle or text)
+        if (target === this.svg || target.tagName === 'g' || target.tagName === 'line') {
+          this.isPanning = true;
+          this.panStart.x = e.clientX;
+          this.panStart.y = e.clientY;
+          this.svg.style.cursor = 'grabbing';
+          // Stop physics simulation during panning
+          this.simulation.stop();
+          this.simulation.isRunning = false;
+          // Completely disable all physics updates
+          // Physics disabled
+          e.preventDefault();
+        }
+      });
+      
+      // Individual node dragging
+      this.nodesGroup.addEventListener('mousedown', (e: MouseEvent) => {
+        const circle = (e.target as Element)?.closest('circle');
+        if (circle) {
+          const nodeId = circle.getAttribute('data-node-id');
+          const node = this.nodes.find((n: any) => n.id === nodeId);
+          
+          if (node) {
+            this.isDragging = true;
+            node.isDragging = true;
+            node.fx = node.x;
+            node.fy = node.y;
+            this.selectedNode = node;
+            this.nodeDragStart.x = e.clientX;
+            this.nodeDragStart.y = e.clientY;
+            this.nodeDragOffset.x = node.x - e.clientX;
+            this.nodeDragOffset.y = node.y - e.clientY;
+            // Stop physics simulation during node dragging
+            this.simulation.stop();
+            this.simulation.isRunning = false;
+            // Completely disable all physics updates
+            // Physics disabled
+            e.stopPropagation();
+          }
+        }
+      });
+      
+      document.addEventListener('mousemove', (e: MouseEvent) => {
+        if (this.isPanning) {
+          const dx = e.clientX - this.panStart.x;
+          const dy = e.clientY - this.panStart.y;
+          
+          // Move ALL nodes together as one unit
+          this.nodes.forEach((node: any, index: number) => {
+            node.x += dx;
+            node.y += dy;
+          });
+          
+          this.panStart.x = e.clientX;
+          this.panStart.y = e.clientY;
+          
+          // Update ALL visual positions immediately
+          this.updateVisualPositions();
+        } else if (this.isDragging && this.selectedNode) {
+          const newX = e.clientX + this.nodeDragOffset.x;
+          const newY = e.clientY + this.nodeDragOffset.y;
+          
+          this.selectedNode.fx = Math.max(30, Math.min(this.width - 30, newX));
+          this.selectedNode.fy = Math.max(30, Math.min(this.height - 30, newY));
+          
+          // Update visual positions immediately
+          this.updateVisualPositions();
+        }
+      });
+      
+      document.addEventListener('mouseup', () => {
+        if (this.isPanning) {
+          this.isPanning = false;
+          this.svg.style.cursor = 'grab';
+          // Restart physics simulation after panning
+          // Physics enabled
+          this.simulation.isRunning = true;
+          this.simulation.restart();
+        }
+        if (this.isDragging && this.selectedNode) {
+          this.isDragging = false;
+          this.selectedNode.isDragging = false;
+          this.selectedNode.fx = null;
+          this.selectedNode.fy = null;
+          this.selectedNode = null;
+          // Restart physics simulation after node dragging
+          // Physics enabled
+          this.simulation.isRunning = true;
+          this.simulation.restart();
+        }
+      });
+    }
+    
+    setupZoom() {
+      this.svg.addEventListener('wheel', (e: WheelEvent) => {
+        // Allow zoom with or without Ctrl key
+        if (e.ctrlKey || e.metaKey) {
+          e.preventDefault();
+          
+          const scale = e.deltaY > 0 ? 0.9 : 1.1;
+          const rect = this.svg.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          
+          // Apply zoom to all nodes
+          this.nodes.forEach((node: any) => {
+            if (!node.isDragging) {
+              const dx = node.x - x;
+              const dy = node.y - y;
+              node.x = x + dx * scale;
+              node.y = y + dy * scale;
+            }
+          });
+          
+          // Update visual positions immediately
+          this.updateVisualPositions();
+        }
+      });
+    }
+    
+    setupClick() {
+      this.nodesGroup.addEventListener('click', (e: MouseEvent) => {
+        const circle = (e.target as Element)?.closest('circle');
+        if (circle) {
+          const nodeId = circle.getAttribute('data-node-id');
+          const node = this.nodes.find((n: any) => n.id === nodeId);
+          
+          if (node && node.type === 'post') {
+            // Close any open modals first
+            closeAllModals();
+            // Use Swup for navigation if available
+            if ((window as any).swup) {
+              (window as any).swup.navigate(`/posts/${node.slug}`);
+            } else {
+              window.location.href = `/posts/${node.slug}`;
+            }
+          } else if (node && node.type === 'tag') {
+            // Close any open modals first
+            closeAllModals();
+            // Navigate to tag page
+            const tagName = node.name || node.id || node.slug;
+            if ((window as any).swup) {
+              (window as any).swup.navigate(`/posts/tag/${tagName}`);
+            } else {
+              window.location.href = `/posts/tag/${tagName}`;
+            }
+          }
+        }
+      });
+    }
+    
+    setupHover() {
+      // DISABLED - hover effects cause circles to shift
+      // this.nodesGroup.addEventListener('mouseover', (e: MouseEvent) => {
+      //   if (this.isPanning || this.isDragging) return;
+      //   
+      //   const circle = (e.target as Element)?.closest('circle');
+      //   if (circle) {
+      //     circle.style.transform = 'scale(1.1)';
+      //     circle.style.filter = 'brightness(1.1)';
+      //     circle.style.cursor = 'pointer';
+      //   }
+      // });
+      // 
+      // this.nodesGroup.addEventListener('mouseout', (e: MouseEvent) => {
+      //   if (this.isPanning || this.isDragging) return;
+      //   
+      //   const circle = (e.target as Element)?.closest('circle');
+      //   if (circle) {
+      //     circle.style.transform = 'scale(1)';
+      //     circle.style.filter = 'brightness(1)';
+      //   }
+      // });
+    }
+    
+    updateVisualPositions() {
+      // Update link positions
+      this.links.forEach((link: any) => {
+        if (link.element && link.source && link.target) {
+          link.element.setAttribute('x1', link.source.x);
+          link.element.setAttribute('y1', link.source.y);
+          link.element.setAttribute('x2', link.target.x);
+          link.element.setAttribute('y2', link.target.y);
+        }
+      });
+      
+      // Update node positions - FORCE IMMEDIATE UPDATE
+      this.nodes.forEach((node: any) => {
+        if (node.element) {
+          // Force immediate update without any delays
+          node.element.setAttribute('cx', node.x);
+          node.element.setAttribute('cy', node.y);
+          // Completely lock the node position to prevent physics interference
+          node.fx = node.x;
+          node.fy = node.y;
+          node.vx = 0;
+          node.vy = 0;
+        }
+        if (node.textElement) {
+          const radius = Math.max(6, Math.min(16, (node.connections || 0) + 6));
+          const textOffset = radius + 12;
+          node.textElement.setAttribute('x', node.x);
+          node.textElement.setAttribute('y', node.y + textOffset);
+        }
+      });
+    }
+    
+    
+    updateColors() {
+      const colors = getThemeColors();
+      
+      // Update text colors
+      const textElements = this.container.querySelectorAll('text');
+      textElements.forEach((text: any) => {
+        const nodeType = text.getAttribute('data-node-type');
+        if (nodeType === 'tag') {
+          text.setAttribute('fill', colors.tagText);
+        } else {
+          text.setAttribute('fill', colors.postText);
+        }
+      });
+      
+      // Update circle colors
+      const circleElements = this.container.querySelectorAll('circle');
+      circleElements.forEach((circle: any) => {
+        const nodeType = circle.getAttribute('data-node-type');
+        if (nodeType === 'tag') {
+          circle.setAttribute('fill', colors.tagFill);
+          circle.setAttribute('stroke', colors.tagStroke);
+        } else {
+          circle.setAttribute('fill', colors.postFill);
+          circle.setAttribute('stroke', colors.postStroke);
+        }
+      });
+      
+      // Update link colors
+      const lineElements = this.container.querySelectorAll('line');
+      lineElements.forEach((line: any) => {
+        const linkType = line.getAttribute('data-link-type');
+        if (linkType === 'tag') {
+          line.setAttribute('stroke', colors.tagLinkStroke);
+        } else {
+          line.setAttribute('stroke', colors.linkStroke);
+        }
+      });
+    }
+    
+    render() {
+      // COMPLETELY SKIP RENDERING during manual interactions
+      if (this.isPanning || this.isDragging) {
+        return;
+      }
+      
+      const colors = getThemeColors();
+      
+      // Render links
+      this.links.forEach((link: any) => {
+        if (!link.element) {
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          // Use actual theme colors
+          if (link.type === 'tag') {
+            line.setAttribute('stroke', colors.tagLinkStroke);
+            // Hide tag links immediately
+            line.style.opacity = '0';
+          } else {
+            line.setAttribute('stroke', colors.linkStroke);
+          }
+          line.setAttribute('stroke-width', '1.5');
+          line.setAttribute('opacity', '0.6');
+          line.setAttribute('data-link-type', link.type);
+          this.linksGroup.appendChild(line);
+          link.element = line;
+        }
+        
+        link.element.setAttribute('x1', link.source.x);
+        link.element.setAttribute('y1', link.source.y);
+        link.element.setAttribute('x2', link.target.x);
+        link.element.setAttribute('y2', link.target.y);
+      });
+      
+      // Render nodes
+      this.nodes.forEach((node: any) => {
+        if (!node.element) {
+          const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          const radius = Math.max(6, Math.min(16, (node.connections || 0) + 6));
+          circle.setAttribute('r', radius.toString());
+          
+          // Use actual theme colors
+          if (node.type === 'tag') {
+            circle.setAttribute('fill', colors.tagFill);
+            circle.setAttribute('stroke', colors.tagStroke);
+            // Hide tag nodes immediately
+            circle.style.opacity = '0';
+          } else {
+            circle.setAttribute('fill', colors.postFill);
+            circle.setAttribute('stroke', colors.postStroke);
+          }
+          
+          circle.setAttribute('stroke-width', '1.5');
+          circle.setAttribute('cursor', 'pointer');
+          circle.setAttribute('data-node-id', node.id);
+          circle.setAttribute('data-node-type', node.type);
+          // circle.style.transition = 'all 0.2s ease'; // DISABLED - causes lag during drag
+          
+          this.nodesGroup.appendChild(circle);
+          node.element = circle;
+          
+          // Add labels with better text handling
+          const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          text.setAttribute('text-anchor', 'middle');
+          text.setAttribute('font-size', '9');
+          text.setAttribute('font-weight', '500');
+          text.setAttribute('data-node-type', node.type);
+          text.setAttribute('font-family', 'system-ui, sans-serif');
+          text.setAttribute('pointer-events', 'none');
+          
+          // Better text content - show full titles with smart truncation
+          let textContent = '';
+          if (node.type === 'tag') {
+            textContent = '#' + node.name;
+          } else {
+            textContent = node.title || node.id;
+            // Smart truncation - try to break at word boundaries
+            if (textContent.length > 25) {
+              const words = textContent.split(' ');
+              let truncated = '';
+              for (const word of words) {
+                if ((truncated + word).length > 25) break;
+                truncated += (truncated ? ' ' : '') + word;
+              }
+              textContent = truncated + (truncated.length < textContent.length ? '...' : '');
+            }
+          }
+          text.textContent = textContent;
+          
+          this.nodesGroup.appendChild(text);
+          node.textElement = text;
+        }
+        
+        // Update positions
+        const radius = Math.max(6, Math.min(16, (node.connections || 0) + 6));
+        node.element.setAttribute('cx', node.x);
+        node.element.setAttribute('cy', node.y);
+        node.element.setAttribute('r', radius.toString());
+        
+        const textOffset = radius + 12;
+        node.textElement.setAttribute('x', node.x);
+        node.textElement.setAttribute('y', node.y + textOffset);
+        
+        // Update text colors using actual theme colors
+        if (node.type === 'tag') {
+          node.textElement.setAttribute('fill', colors.tagText);
+          // Hide tag text immediately
+          node.textElement.style.opacity = '0';
+        } else {
+          node.textElement.setAttribute('fill', colors.postText);
+        }
+      });
+    }
+    
+    startSimulation() {
+      // COMPLETELY DISABLED - NO PHYSICS SIMULATION
+      return;
+    }
+    
+    updatePositions() {
+      // COMPLETELY DISABLED - NO PHYSICS SIMULATION
+      return;
+    }
+  }
+
+  // Global initialization lock
+  let graphInitializing = false;
+  let graphInitialized = false;
+  let graphTimeout: NodeJS.Timeout | null = null;
+  let fullscreenModalOpen = false;
+
+  // Initialize graph with proper singleton pattern and debouncing
+  function initializeGraph() {
+    const container = document.getElementById('graph-content');
+    if (!container) return;
+
+    // Prevent multiple initializations with global lock
+    if (graphInitializing || graphInitialized) {
+      return;
+    }
+
+    // Clear any existing timeout
+    if (graphTimeout) {
+      clearTimeout(graphTimeout);
+    }
+
+    graphInitializing = true;
+
+    // Show loading state immediately to prevent layout shift
+    container.innerHTML = `
+      <div class="flex items-center justify-center h-full text-primary-500 dark:text-primary-400">
+        <div class="text-center">
+          <div class="animate-spin w-6 h-6 mx-auto mb-2 opacity-50">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12a9 9 0 11-6.219-8.56"/>
+            </svg>
+          </div>
+          <p class="text-xs">Loading graph...</p>
+        </div>
+      </div>
+    `;
+
+    // Get current post slug from URL - better parsing
+    const currentPath = window.location.pathname;
+    let currentSlug = '';
+    
+    // Extract slug from /posts/slug format
+    const postMatch = currentPath.match(/\/posts\/([^\/]+)/);
+    if (postMatch) {
+      currentSlug = postMatch[1];
+    }
+    
+    // Debounce the graph loading to prevent rapid state changes
+    graphTimeout = setTimeout(() => {
+      // Load graph data
+      fetch('/graph/graph-data.json')
+        .then(response => response.json())
+        .then((data) => {
+          // Filter data to show only connections to current post
+          const filteredData = filterLocalGraphData(data, currentSlug);
+          
+          // Store the data globally for fullscreen reuse
+          (window as any).localGraphData = data;
+          (window as any).localGraphFilteredData = filteredData;
+          
+          // Only render the final state - no intermediate states
+          if (filteredData.nodes.length <= 1) {
+            // Show message if no connections
+            container.innerHTML = `
+              <div class="flex items-center justify-center h-full text-primary-500 dark:text-primary-400">
+                <div class="text-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 mx-auto mb-2 opacity-50">
+                    <path d="M15 3h4a2 2 0 0 1 2 2v4"/>
+                    <path d="M10 21H6a2 2 0 0 1-2-2v-4"/>
+                    <path d="M21 15v4a2 2 0 0 1-2 2h-4"/>
+                    <path d="M3 9V5a2 2 0 0 1 2-2h4"/>
+                    <path d="M9 9h6v6H9z"/>
+                  </svg>
+                  <p class="text-xs">No connections found</p>
+                  <p class="text-xs mt-1 opacity-75">Slug: ${currentSlug}</p>
+                </div>
+              </div>
+            `;
+            graphInitialized = true;
+            graphInitializing = false;
+            return;
+          }
+          
+          // Clear container and initialize graph - single render
+          container.innerHTML = '';
+          const graph = new GraphVisualization(container, filteredData);
+          
+          // Mark as initialized
+          graphInitialized = true;
+          graphInitializing = false;
+          
+          // Listen for theme changes and update colors
+          const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+              if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                // Theme changed, update colors
+                if (graph && typeof graph.updateColors === 'function') {
+                  graph.updateColors();
+                }
+              }
+            });
+          });
+          
+          observer.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['class']
+          });
+        })
+        .catch(error => {
+          console.warn('Could not load graph data:', error);
+          container.innerHTML = `
+            <div class="flex items-center justify-center h-full text-primary-500 dark:text-primary-400">
+              <div class="text-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 mx-auto mb-2 opacity-50">
+                  <path d="M15 3h4a2 2 0 0 1 2 2v4"/>
+                  <path d="M10 21H6a2 2 0 0 1-2-2v-4"/>
+                  <path d="M21 15v4a2 2 0 0 1 2h-4"/>
+                  <path d="M3 9V5a2 2 0 0 1 2-2h4"/>
+                  <path d="M9 9h6v6H9z"/>
+                </svg>
+                <p class="text-xs">Graph data not available</p>
+              </div>
+            </div>
+          `;
+          graphInitialized = true;
+          graphInitializing = false;
+        });
+    }, 100); // Small debounce to prevent rapid state changes
+  }
+
+  // Filter graph data to show only local connections
+  function filterLocalGraphData(data: any, currentSlug: string) {
+    if (!currentSlug) return data;
+    
+    // Find current post node
+    const currentNode = data.nodes.find((node: any) => node.id === currentSlug);
+    if (!currentNode) return { nodes: [], connections: [] };
+    
+    // Find all nodes connected to current post
+    const connectedNodeIds = new Set([currentSlug]);
+    const relevantConnections = data.connections.filter((conn: any) => {
+      if (conn.source === currentSlug || conn.target === currentSlug) {
+        connectedNodeIds.add(conn.source);
+        connectedNodeIds.add(conn.target);
+        return true;
+      }
+      return false;
+    });
+    
+    // Filter nodes to only include connected ones
+    const relevantNodes = data.nodes.filter((node: any) => connectedNodeIds.has(node.id));
+    
+    return {
+      nodes: relevantNodes,
+      connections: relevantConnections,
+      metadata: {
+        ...data.metadata,
+        totalNodes: relevantNodes.length,
+        totalConnections: relevantConnections.length
+      }
+    };
+  }
+
+  // Theme change listener
+  function updateTextColors() {
+    const colors = getThemeColors();
+    const textElements = document.querySelectorAll('#graph-container text');
+    textElements.forEach((text) => {
+      const nodeType = text.getAttribute('data-node-type');
+      if (nodeType === 'tag') {
+        text.setAttribute('fill', colors.tagText);
+      } else {
+        text.setAttribute('fill', colors.postText);
+      }
+    });
+  }
+
+  // Setup button functionality
+  function setupGraphButtons() {
+    // Global graph modal button
+    const modalBtn = document.getElementById('local-graph-modal-btn');
+    if (modalBtn) {
+      modalBtn.addEventListener('click', () => {
+        if ((window as any).openGraphModal) {
+          (window as any).openGraphModal();
+        }
+      });
+    }
+
+    // Fullscreen button
+    const fullscreenBtn = document.getElementById('local-graph-fullscreen-btn');
+    if (fullscreenBtn) {
+      fullscreenBtn.addEventListener('click', () => {
+        // Open the local graph in a fullscreen modal
+        openLocalGraphFullscreen();
+      });
+    }
+
+    // Tags toggle button
+    const tagsToggle = document.getElementById('local-graph-tags-toggle');
+    let localTagsVisible = false; // Start with tags hidden
+    
+    if (tagsToggle) {
+      // Set initial state - tags hidden
+      tagsToggle.classList.add('opacity-50');
+      
+      tagsToggle.addEventListener('click', () => {
+        localTagsVisible = !localTagsVisible;
+        
+        // Update button appearance
+        if (localTagsVisible) {
+          tagsToggle.classList.remove('opacity-50');
+          tagsToggle.classList.add('opacity-100');
+        } else {
+          tagsToggle.classList.remove('opacity-100');
+          tagsToggle.classList.add('opacity-50');
+        }
+        
+        // Toggle tag visibility with smooth transition
+        const container = document.getElementById('graph-content');
+        if (container) {
+          const tagNodes = container.querySelectorAll('circle[data-node-type="tag"], text[data-node-type="tag"]');
+          const tagLinks = container.querySelectorAll('line[data-link-type="tag"]');
+          
+        tagNodes.forEach((node) => {
+          const element = node as HTMLElement;
+          if (localTagsVisible) {
+            element.style.opacity = '1';
+            element.style.transition = 'opacity 0.3s ease';
+          } else {
+            element.style.opacity = '0';
+            element.style.transition = 'opacity 0.3s ease';
+          }
+        });
+        
+        tagLinks.forEach((link) => {
+          const element = link as HTMLElement;
+          if (localTagsVisible) {
+            element.style.opacity = '0.6';
+            element.style.transition = 'opacity 0.3s ease';
+          } else {
+            element.style.opacity = '0';
+            element.style.transition = 'opacity 0.3s ease';
+          }
+        });
+        }
+      });
+      
+      // Initially hide tags
+      const container = document.getElementById('graph-content');
+      if (container) {
+        const tagNodes = container.querySelectorAll('circle[data-node-type="tag"], text[data-node-type="tag"]');
+        const tagLinks = container.querySelectorAll('line[data-link-type="tag"]');
+        
+        tagNodes.forEach((node) => {
+          const element = node as HTMLElement;
+          element.style.opacity = '0';
+          element.style.transition = 'opacity 0.3s ease';
+        });
+        
+        tagLinks.forEach((link) => {
+          const element = link as HTMLElement;
+          element.style.opacity = '0';
+          element.style.transition = 'opacity 0.3s ease';
+        });
+      }
+    }
+
+  }
+
+  // Open local graph in fullscreen
+  function openLocalGraphFullscreen() {
+    // Prevent multiple fullscreen modals
+    if (fullscreenModalOpen) {
+      console.log('Fullscreen modal already open, ignoring request');
+      return;
+    }
+    
+    // Check if a fullscreen modal is already open
+    const existingModal = document.querySelector('.fixed.inset-0.z-50:not(#command-palette-overlay)');
+    if (existingModal) {
+      console.log('Fullscreen modal already open, closing existing one');
+      existingModal.remove();
+      document.body.style.overflow = '';
+    }
+    
+    fullscreenModalOpen = true;
+    
+    // Create fullscreen modal
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 z-50 bg-black/50 backdrop-blur-sm animate-fade-in';
+    modal.innerHTML = `
+      <div class="flex min-h-full items-center justify-center p-4">
+        <div class="relative w-full max-w-6xl h-[80vh] bg-primary-50 dark:bg-primary-800 rounded-xl shadow-2xl border border-primary-200 dark:border-primary-700 animate-scale-in">
+          <!-- Tags Toggle Button -->
+          <button 
+            id="local-graph-fullscreen-tags-toggle"
+            class="absolute top-4 left-4 z-10 px-3 py-1.5 text-sm text-primary-600 dark:text-primary-300 hover:text-primary-800 dark:hover:text-primary-100 transition-colors rounded-lg bg-primary-100 dark:bg-primary-800 hover:bg-primary-200 dark:hover:bg-primary-700 border border-primary-200 dark:border-primary-600"
+            aria-label="Toggle tag visibility"
+          >
+            <span class="flex items-center gap-1.5">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+                <line x1="7" y1="7" x2="7.01" y2="7"/>
+              </svg>
+              Tags
+            </span>
+          </button>
+
+          <!-- Close Button (top right, no header) -->
+          <button 
+            id="local-graph-fullscreen-close"
+            class="absolute top-4 right-4 z-10 p-2 text-primary-500 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-200 transition-colors rounded-lg hover:bg-primary-100 dark:hover:bg-primary-700"
+            aria-label="Close"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 6L6 18"/>
+              <path d="M6 6l12 12"/>
+            </svg>
+          </button>
+
+          <!-- Graph Container (no header, just the graph) -->
+          <div id="local-graph-fullscreen-container" class="w-full h-full bg-primary-50 dark:bg-primary-800 rounded-xl overflow-hidden">
+            <!-- Graph will be rendered here -->
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden';
+
+    // Close modal functionality
+    const closeBtn = modal.querySelector('#local-graph-fullscreen-close');
+    const closeModal = () => {
+      modal.remove();
+      document.body.style.overflow = '';
+      fullscreenModalOpen = false;
+    };
+
+    closeBtn?.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+
+    // Get the container first
+    const container = modal.querySelector('#local-graph-fullscreen-container');
+
+    // Tags toggle functionality for fullscreen modal
+    const fullscreenTagsToggle = modal.querySelector('#local-graph-fullscreen-tags-toggle');
+    let fullscreenTagsVisible = false; // Start with tags hidden
+    
+    if (fullscreenTagsToggle) {
+      // Set initial state - tags hidden
+      fullscreenTagsToggle.classList.add('opacity-50');
+      
+      fullscreenTagsToggle.addEventListener('click', () => {
+        fullscreenTagsVisible = !fullscreenTagsVisible;
+        
+        // Update button appearance
+        if (fullscreenTagsVisible) {
+          fullscreenTagsToggle.classList.remove('opacity-50');
+          fullscreenTagsToggle.classList.add('opacity-100');
+        } else {
+          fullscreenTagsToggle.classList.remove('opacity-100');
+          fullscreenTagsToggle.classList.add('opacity-50');
+        }
+        
+        // Toggle tag visibility with smooth transition
+        if (container) {
+          const tagNodes = container.querySelectorAll('circle[data-node-type="tag"], text[data-node-type="tag"]');
+          const tagLinks = container.querySelectorAll('line[data-link-type="tag"]');
+        
+        tagNodes.forEach((node) => {
+          const element = node as HTMLElement;
+          if (fullscreenTagsVisible) {
+            element.style.opacity = '1';
+            element.style.transition = 'opacity 0.3s ease';
+          } else {
+            element.style.opacity = '0';
+            element.style.transition = 'opacity 0.3s ease';
+          }
+        });
+        
+        tagLinks.forEach((link) => {
+          const element = link as HTMLElement;
+          if (fullscreenTagsVisible) {
+            element.style.opacity = '0.6';
+            element.style.transition = 'opacity 0.3s ease';
+          } else {
+            element.style.opacity = '0';
+            element.style.transition = 'opacity 0.3s ease';
+          }
+        });
+        }
+      });
+    }
+
+    // Use cached graph data for fullscreen (instant loading!)
+    if (container) {
+      const currentPath = window.location.pathname;
+      const currentSlug = currentPath.replace('/posts/', '').replace('/', '');
+      
+      // Check if we have cached data
+      const cachedData = (window as any).localGraphData;
+      const cachedFilteredData = (window as any).localGraphFilteredData;
+      
+      console.log('Fullscreen modal debug:', {
+        cachedData: !!cachedData,
+        cachedFilteredData: !!cachedFilteredData,
+        currentSlug,
+        container: !!container
+      });
+      
+      if (cachedData && cachedFilteredData) {
+        // Use cached data - instant loading!
+        console.log('Using cached data, nodes:', cachedFilteredData.nodes.length);
+        if (cachedFilteredData.nodes.length <= 1) {
+          container.innerHTML = `
+            <div class="flex items-center justify-center h-full text-primary-500 dark:text-primary-400">
+              <div class="text-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-4 opacity-50">
+                  <path d="M15 3h4a2 2 0 0 1 2 2v4"/>
+                  <path d="M10 21H6a2 2 0 0 1-2-2v-4"/>
+                  <path d="M21 15v4a2 2 0 0 1-2 2h-4"/>
+                  <path d="M3 9V5a2 2 0 0 1 2-2h4"/>
+                  <path d="M9 9h6v6H9z"/>
+                </svg>
+                <p class="text-lg font-medium">No connections found</p>
+                <p class="text-sm mt-2">This post doesn't have any connections to other posts</p>
+              </div>
+            </div>
+          `;
+          return;
+        }
+        try {
+          new GraphVisualization(container as HTMLElement, cachedFilteredData);
+          console.log('GraphVisualization created successfully');
+        } catch (error) {
+          console.error('Error creating GraphVisualization:', error);
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          container.innerHTML = `
+            <div class="flex items-center justify-center h-full text-primary-500 dark:text-primary-400">
+              <div class="text-center">
+                <p class="text-lg font-medium">Error loading graph</p>
+                <p class="text-sm mt-2">${errorMessage}</p>
+              </div>
+            </div>
+          `;
+        }
+      } else {
+        // Fallback to fetching if no cached data
+        console.log('No cached data, fetching from server...');
+        container.innerHTML = `
+          <div class="flex items-center justify-center h-full text-primary-500 dark:text-primary-400">
+            <div class="text-center">
+              <div class="animate-spin w-8 h-8 mx-auto mb-4 opacity-50">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 12a9 9 0 11-6.219-8.56"/>
+                </svg>
+              </div>
+              <p class="text-sm">Loading graph...</p>
+            </div>
+          </div>
+        `;
+        
+        fetch('/graph/graph-data.json')
+          .then(response => response.json())
+          .then((data) => {
+            console.log('Fetched data, nodes:', data.nodes.length);
+            const filteredData = filterLocalGraphData(data, currentSlug);
+            console.log('Filtered data, nodes:', filteredData.nodes.length);
+            
+            if (filteredData.nodes.length <= 1) {
+              container.innerHTML = `
+                <div class="flex items-center justify-center h-full text-primary-500 dark:text-primary-400">
+                  <div class="text-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-4 opacity-50">
+                      <path d="M15 3h4a2 2 0 0 1 2 2v4"/>
+                      <path d="M10 21H6a2 2 0 0 1-2-2v-4"/>
+                      <path d="M21 15v4a2 2 0 0 1-2 2h-4"/>
+                      <path d="M3 9V5a2 2 0 0 1 2-2h4"/>
+                      <path d="M9 9h6v6H9z"/>
+                    </svg>
+                    <p class="text-lg font-medium">No connections found</p>
+                    <p class="text-sm mt-2">This post doesn't have any connections to other posts</p>
+                  </div>
+                </div>
+              `;
+              return;
+            }
+            try {
+              new GraphVisualization(container as HTMLElement, filteredData);
+              console.log('GraphVisualization created successfully (fallback)');
+        } catch (error) {
+          console.error('Error creating GraphVisualization (fallback):', error);
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          container.innerHTML = `
+            <div class="flex items-center justify-center h-full text-primary-500 dark:text-primary-400">
+              <div class="text-center">
+                <p class="text-lg font-medium">Error loading graph</p>
+                <p class="text-sm mt-2">${errorMessage}</p>
+              </div>
+            </div>
+          `;
+        }
+          })
+        .catch(error => {
+          console.warn('Could not load graph data:', error);
+          container.innerHTML = `
+            <div class="flex items-center justify-center h-full text-primary-500 dark:text-primary-400">
+              <div class="text-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-4 opacity-50">
+                  <path d="M15 3h4a2 2 0 0 1 2 2v4"/>
+                  <path d="M10 21H6a2 2 0 0 1-2-2v-4"/>
+                  <path d="M21 15v4a2 2 0 0 1-2 2h-4"/>
+                  <path d="M3 9V5a2 2 0 0 1 2-2h4"/>
+                  <path d="M9 9h6v6H9z"/>
+                </svg>
+                <p class="text-lg font-medium">Graph data not available</p>
+                <p class="text-sm mt-2">Make sure to run the build process to generate graph data</p>
+              </div>
+            </div>
+          `;
+        });
+      }
+    }
+
+    // Escape key to close
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        closeModal();
+        document.removeEventListener('keydown', handleEscape);
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+  }
+
+  // Listen for theme changes
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+        updateTextColors();
+      }
+    });
+  });
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
+  // Listen for page navigation to close all modals
+  if ((window as any).swup) {
+    (window as any).swup.hooks.on('visit:start', () => {
+      closeAllModals();
+    });
+  }
+
+  // Initialize on DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      initializeGraph();
+      setupGraphButtons();
+    });
+  } else {
+    initializeGraph();
+    setupGraphButtons();
+  }
+
+  // Swup integration is now handled in BaseLayout.astro
+
+  // Reset graph for new page
+  function resetGraph() {
+    const container = document.getElementById('graph-content');
+    if (container) {
+      container.innerHTML = '';
+    }
+    // Clear any pending timeout
+    if (graphTimeout) {
+      clearTimeout(graphTimeout);
+      graphTimeout = null;
+    }
+    // Reset global state
+    graphInitializing = false;
+    graphInitialized = false;
+  }
+
+  // Make functions globally accessible for Swup hooks
+  (window as any).initializeGraph = initializeGraph;
+  (window as any).setupGraphButtons = setupGraphButtons;
+  (window as any).resetGraph = resetGraph;
+  (window as any).openLocalGraphFullscreen = openLocalGraphFullscreen;
+  (window as any).closeAllModals = closeAllModals;
+  
+  // Make siteConfig globally accessible
+  // (window as any).siteConfig = siteConfig;
+</script>
+
+<style>
+  /* Enhanced graph styling */
+  .graph-links line {
+    transition: opacity 0.2s ease;
+  }
+  
+  .graph-nodes circle {
+    transition: all 0.2s ease;
+  }
+  
+  .graph-nodes circle:hover {
+    stroke-width: 3;
+    filter: brightness(1.1);
+  }
+  
+  .graph-nodes text {
+    pointer-events: none;
+    user-select: none;
+  }
+  
+  /* Responsive graph with consistent sizing */
+  #graph-container {
+    min-height: 280px; /* Square-ish shape */
+    height: 280px; /* Fixed height to prevent layout shifts */
+    width: 280px; /* Fixed width to prevent layout shifts */
+    position: relative;
+    overflow: hidden;
+  }
+  
+  #graph-content {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: opacity 0.2s ease;
+    contain: layout style paint;
+  }
+  
+  /* Loading animation */
+  .animate-spin {
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  
+  @media (max-width: 768px) {
+    #graph-container {
+      min-height: 240px; /* Reduced for mobile */
+      height: 240px;
+      width: 240px;
+    }
+  }
+
+  /* Modal animations */
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes scale-in {
+    from { 
+      opacity: 0; 
+      transform: scale(0.95) translateY(-10px); 
+    }
+    to { 
+      opacity: 1; 
+      transform: scale(1) translateY(0); 
+    }
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.2s ease-out;
+  }
+
+  .animate-scale-in {
+    animation: scale-in 0.3s ease-out;
+  }
+
+  /* Local graph chevron */
+  .local-graph-chevron {
+    transition: transform 0.2s ease;
+  }
+</style>

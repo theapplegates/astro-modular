@@ -81,6 +81,16 @@ import Icon from './Icon.astro';
                 <Icon name="palette" class="w-4 h-4 text-primary-500 dark:text-primary-400 group-hover:text-highlight-500" />
                 <span class="text-primary-900 dark:text-primary-50">Toggle Theme</span>
               </button>
+              
+              {siteConfig.postOptions.graphView.enabled && siteConfig.postOptions.graphView.showInCommandPalette && (
+                <button 
+                  data-action="open-graph"
+                  class="w-full flex items-center space-x-3 px-3 py-2 text-left hover:bg-primary-50 dark:hover:bg-primary-800 rounded-lg transition-colors group"
+                >
+                  <Icon name="git-fork" class="w-4 h-4 text-primary-500 dark:text-primary-400 group-hover:text-highlight-500" />
+                  <span class="text-primary-900 dark:text-primary-50">Graph View</span>
+                </button>
+              )}
             </div>
           )}
 
@@ -150,7 +160,7 @@ import Icon from './Icon.astro';
     title: string;
     description?: string; // Optional description for posts
     url: string;
-    type: 'post' | 'page' | 'project' | 'documentation' | 'action';
+    type: 'post' | 'page' | 'project' | 'documentation' | 'docs' | 'action';
     score?: number; // Score for search relevance
     tags?: string[]; // Tags for posts
   }
@@ -777,6 +787,7 @@ import Icon from './Icon.astro';
           iconSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>';
           break;
         case 'docs':
+        case 'documentation':
           iconSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>';
           break;
         case 'page':
@@ -940,6 +951,13 @@ import Icon from './Icon.astro';
           // Use global theme toggle function instead of clicking button
           if ((window as any).toggleTheme) {
             (window as any).toggleTheme();
+          }
+          this.close(); // Close palette after action
+          break;
+        case 'open-graph':
+          // Open graph modal
+          if ((window as any).openGraphModal) {
+            (window as any).openGraphModal();
           }
           this.close(); // Close palette after action
           break;

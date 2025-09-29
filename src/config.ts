@@ -114,6 +114,16 @@ export interface SiteConfig {
       enabled: boolean;
       linkedMentionsCompact: boolean;
     };
+    graphView: {
+      enabled: boolean;
+      showInSidebar: boolean;
+      showInCommandPalette: boolean;
+      includeTagConnections: boolean;
+      maxNodes: number;
+      layout: "force-directed" | "hierarchical";
+      nodeSize: "dynamic" | "fixed";
+      showOrphanedPosts: boolean;
+    };
     postNavigation: boolean;
     showPostCardCoverImages: "all" | "latest" | "home" | "posts" | "latest-and-posts" | "none";
     postCardAspectRatio: AspectRatio;
@@ -271,6 +281,16 @@ export const siteConfig: SiteConfig = {
       enabled: true,
       linkedMentionsCompact: false,
     },
+    graphView: {
+      enabled: false,
+      showInSidebar: true,
+      showInCommandPalette: true,
+      includeTagConnections: true,
+      maxNodes: 100,
+      layout: "force-directed",
+      nodeSize: "dynamic",
+      showOrphanedPosts: true,
+    },
     postNavigation: true,
     showPostCardCoverImages: "latest-and-posts", // "all" | "latest" | "home" | "posts" | "latest-and-posts" | "none"
     postCardAspectRatio: "og", // "16:9" | "4:3" | "3:2" | "og" | "square" | "golden" | "custom"
@@ -295,7 +315,7 @@ export const siteConfig: SiteConfig = {
 };
 
 // Utility functions
-export function getFeature(feature: keyof Omit<SiteConfig["postOptions"], "postsPerPage" | "showPostCardCoverImages" | "postCardAspectRatio" | "customPostCardAspectRatio" | "linkedMentions" | "comments">): boolean {
+export function getFeature(feature: keyof Omit<SiteConfig["postOptions"], "postsPerPage" | "showPostCardCoverImages" | "postCardAspectRatio" | "customPostCardAspectRatio" | "linkedMentions" | "graphView" | "comments">): boolean {
   return siteConfig.postOptions[feature];
 }
 

@@ -15,12 +15,19 @@ const filteredHeadings = headings.filter(h => h.depth >= 2 && h.depth <= 4);
 {filteredHeadings.length > 0 && (
   <nav class="toc-nav toc-container p-4 bg-white dark:bg-primary-900 rounded-xl border border-primary-200 dark:border-primary-700 shadow-lg backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95">
     <div class="toc-content pr-2">
-    <h3 class="font-semibold text-primary-900 dark:text-primary-50 mb-3 flex items-center text-sm">
-      <Icon name="list" class="w-4 h-4 mr-2" />
-      Contents
-    </h3>
-    
-      <ul class="space-y-2">
+      <button 
+        class="toc-toggle w-full font-semibold text-primary-900 dark:text-primary-50 mb-3 flex items-center justify-between text-sm hover:text-highlight-600 dark:hover:text-highlight-400 transition-colors"
+        aria-expanded="true"
+        aria-controls="toc-list"
+      >
+        <div class="flex items-center">
+          <Icon name="list" class="w-4 h-4 mr-2" />
+          Contents
+        </div>
+        <Icon name="chevron-down" class="w-4 h-4 toc-chevron transition-transform duration-200" />
+      </button>
+      
+      <ul class="space-y-2 toc-list" id="toc-list">
         {filteredHeadings.map(heading => (
           <li class={`toc-item toc-level-${heading.depth}`}>
             <a 
@@ -41,8 +48,30 @@ const filteredHeadings = headings.filter(h => h.depth >= 2 && h.depth <= 4);
   document.addEventListener('DOMContentLoaded', () => {
     const tocLinks = document.querySelectorAll('.toc-link');
     const headings = document.querySelectorAll('h2, h3, h4, h5, h6');
+    const tocToggle = document.querySelector('.toc-toggle') as HTMLButtonElement;
+    const tocList = document.querySelector('.toc-list') as HTMLElement;
+    const tocChevron = document.querySelector('.toc-chevron') as HTMLElement;
     
     if (!tocLinks.length || !headings.length) return;
+    
+    // TOC Toggle functionality
+    if (tocToggle && tocList && tocChevron) {
+      tocToggle.addEventListener('click', () => {
+        const isExpanded = tocToggle.getAttribute('aria-expanded') === 'true';
+        
+        if (isExpanded) {
+          // Collapse
+          tocList.style.display = 'none';
+          tocToggle.setAttribute('aria-expanded', 'false');
+          tocChevron.style.transform = 'rotate(-90deg)';
+        } else {
+          // Expand
+          tocList.style.display = 'block';
+          tocToggle.setAttribute('aria-expanded', 'true');
+          tocChevron.style.transform = 'rotate(0deg)';
+        }
+      });
+    }
     
     // Highlight active section in TOC
     function highlightTOC() {
@@ -143,4 +172,8 @@ const filteredHeadings = headings.filter(h => h.depth >= 2 && h.depth <= 4);
   }
   
   /* No scrollbar needed - content flows naturally */
+  
+  .toc-chevron {
+    @apply transition-transform duration-200;
+  }
 </style>

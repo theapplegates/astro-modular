@@ -9,6 +9,7 @@ import { shouldShowPost, processPost, calculateReadingTime, generateTOC, getAdja
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import TableOfContents from '@/components/TableOfContents.astro';
 import LinkedMentions from '@/components/LinkedMentions.astro';
+import LocalGraph from '@/components/LocalGraph.astro';
 import GiscusComments from '@/components/GiscusComments.astro';
 import Lightbox from '@/components/Lightbox.astro';
 import Icon from '@/components/Icon.astro';
@@ -281,14 +282,22 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
         </div>
       </article>
 
-      <!-- Desktop TOC - floats to the right of the content container -->
-      {shouldShowTOC && (
-        <div class="hidden xl:block absolute top-0 left-full ml-1 w-64">
-          <div class="top-24" id="toc">
-            <TableOfContents headings={toc} />
-          </div>
+      <!-- Desktop Sidebar - floats to the right of the content container -->
+      <div class="hidden xl:block absolute top-0 left-full ml-1 w-64">
+        <div class="top-24 space-y-4" id="sidebar">
+          {siteConfig.postOptions.graphView.enabled && siteConfig.postOptions.graphView.showInSidebar && (
+            <div id="local-graph-sidebar">
+              <LocalGraph currentSlug={post.slug} />
+            </div>
+          )}
+          
+          {shouldShowTOC && (
+            <div id="toc">
+              <TableOfContents headings={toc} />
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   </div>
 
