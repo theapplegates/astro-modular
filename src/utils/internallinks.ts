@@ -734,14 +734,20 @@ export function findLinkedMentions(posts: Post[], targetSlug: string, allPosts: 
   const mentions = posts
     .filter(post => post.slug !== targetSlug)
     .map(post => {
+      // Check both wikilinks and standard markdown links
       const wikilinks = extractWikilinks(post.body);
-      const matchingLinks = wikilinks.filter(link => link.slug === targetSlug);
+      const standardLinks = extractStandardLinks(post.body);
+      const allLinks = [...wikilinks, ...standardLinks];
+      
+      const matchingLinks = allLinks.filter(link => link.slug === targetSlug);
 
       if (matchingLinks.length > 0) {
+        // Use the original link text from the content for excerpt creation
+        const originalLinkText = matchingLinks[0].link;
         return {
           title: post.data.title,
           slug: post.slug,
-          excerpt: createExcerptAroundWikilink(post.body, matchingLinks[0].link, allPosts, allPages)
+          excerpt: createExcerptAroundWikilink(post.body, originalLinkText, allPosts, allPages)
         };
       }
       return null;

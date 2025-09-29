@@ -181,9 +181,8 @@ function processExcerptLinks(text: string, targetSlug: string): string {
               {mention.excerpt && (
                 <p 
                   class="text-sm text-primary-600 dark:text-primary-300 leading-relaxed"
-                >
-                  ...{processExcerptLinks(mention.excerpt, currentSlug)}...
-                </p>
+                  set:html={`...${processExcerptLinks(mention.excerpt, currentSlug)}...`}
+                />
               )}
               
               <div class="mt-3 flex items-center text-xs text-primary-500 dark:text-primary-400">
