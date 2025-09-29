@@ -39,13 +39,13 @@
   filter: brightness(0) invert(1);
 }
 
-/* Hide HTML and show only MathML output to prevent duplication */
+/* Hide MathML and show only HTML output for better browser support */
 .katex-mathml {
-  display: inline-block !important;
+  display: none !important;
 }
 
 .katex-html {
-  display: none !important;
+  display: inline-block !important;
 }
 
 
