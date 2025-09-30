@@ -227,8 +227,8 @@ export function shouldShowPost(post: Post, isDev: boolean = false): boolean {
 }
 
 // Generic function to check if any content item should be shown
-export function shouldShowContent(item: { data: { title: string; date?: Date; draft?: boolean } }, isDev: boolean = false): boolean {
-  const { draft, title, date } = item.data;
+export function shouldShowContent(item: { data: { title: string; draft?: boolean } }, isDev: boolean = false): boolean {
+  const { draft, title } = item.data;
 
   // Always require title
   if (!title) {

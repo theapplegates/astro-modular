@@ -12,22 +12,6 @@ import Icon from './Icon.astro';
 >
   <div class="flex min-h-full items-center justify-center p-4">
     <div class="relative w-full max-w-6xl h-[80vh] bg-white dark:bg-primary-900 rounded-xl shadow-2xl border border-primary-200 dark:border-primary-700 animate-scale-in">
-      <!-- Tags Toggle Button -->
-      {siteConfig.postOptions.graphView.includeTagConnections && (
-        <button 
-          id="graph-modal-tags-toggle"
-          class="absolute top-4 left-4 z-10 px-3 py-1.5 text-sm text-primary-600 dark:text-primary-300 hover:text-primary-800 dark:hover:text-primary-100 transition-colors rounded-lg bg-primary-100 dark:bg-primary-800 hover:bg-primary-200 dark:hover:bg-primary-700 border border-primary-200 dark:border-primary-600"
-          aria-label="Toggle tag visibility"
-        >
-          <span class="flex items-center gap-1.5">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
-              <line x1="7" y1="7" x2="7.01" y2="7"/>
-            </svg>
-            Tags
-          </span>
-        </button>
-      )}
 
       <!-- Close Button -->
       <button 
@@ -48,22 +32,54 @@ import Icon from './Icon.astro';
 
 <script>
   // Graph Modal Functionality
+  let graphModalInitialized = false;
+  
   function initializeGraphModal() {
+    // Prevent multiple initializations
+    if (graphModalInitialized) {
+      return;
+    }
+    
     const overlay = document.getElementById('graph-modal-overlay') as HTMLElement;
     const closeButton = document.getElementById('graph-modal-close') as HTMLButtonElement;
     const container = document.getElementById('graph-modal-container') as HTMLElement;
     
-    if (!overlay || !closeButton || !container) return;
+    if (!overlay || !closeButton || !container) {
+      return;
+    }
+    
+    graphModalInitialized = true;
 
     // Close modal function
     function closeModal() {
       overlay.classList.add('hidden');
+      // Reset all inline styles
+      overlay.style.display = '';
+      overlay.style.visibility = '';
+      overlay.style.opacity = '';
+      overlay.style.zIndex = '';
+      overlay.style.position = '';
+      overlay.style.top = '';
+      overlay.style.left = '';
+      overlay.style.width = '';
+      overlay.style.height = '';
+      overlay.style.backgroundColor = '';
       document.body.style.overflow = '';
     }
 
     // Open modal function
     function openModal() {
       overlay.classList.remove('hidden');
+      overlay.style.display = 'block';
+      overlay.style.visibility = 'visible';
+      overlay.style.opacity = '1';
+      overlay.style.zIndex = '9999';
+      overlay.style.position = 'fixed';
+      overlay.style.top = '0';
+      overlay.style.left = '0';
+      overlay.style.width = '100vw';
+      overlay.style.height = '100vh';
+      overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
       document.body.style.overflow = 'hidden';
       loadGraphData();
     }
@@ -271,7 +287,6 @@ import Icon from './Icon.astro';
               nodeDragStart.y = e.clientY;
               nodeDragOffset.x = node.x - e.clientX;
               nodeDragOffset.y = node.y - e.clientY;
-              e.stopPropagation();
             }
           }
         });
@@ -331,13 +346,7 @@ import Icon from './Icon.astro';
         line.setAttribute('y2', link.target.y);
         
         // Use actual theme colors
-        if (link.type === 'tag') {
-          line.setAttribute('stroke', colors.tagLinkStroke);
-          // Hide tag links immediately
-          line.style.opacity = '0';
-        } else {
-          line.setAttribute('stroke', colors.linkStroke);
-        }
+        line.setAttribute('stroke', colors.linkStroke);
         line.setAttribute('stroke-width', '2');
         line.setAttribute('opacity', '0.6');
         line.setAttribute('data-link-type', link.type);
@@ -354,13 +363,8 @@ import Icon from './Icon.astro';
         circle.setAttribute('r', radius.toString());
         
         // Use actual theme colors
-        if (node.type === 'tag') {
-          circle.setAttribute('fill', colors.tagFill);
-          circle.setAttribute('stroke', colors.tagStroke);
-        } else {
-          circle.setAttribute('fill', colors.postFill);
-          circle.setAttribute('stroke', colors.postStroke);
-        }
+        circle.setAttribute('fill', colors.postFill);
+        circle.setAttribute('stroke', colors.postStroke);
         
         circle.setAttribute('stroke-width', '1.5');
         circle.setAttribute('cursor', 'pointer');
@@ -394,16 +398,6 @@ import Icon from './Icon.astro';
               (window as any).swup.navigate(`/posts/${node.slug}`);
             } else {
               window.location.href = `/posts/${node.slug}`;
-            }
-          } else if (node.type === 'tag') {
-            // Close modal first
-            closeModal();
-            // Navigate to tag page
-            const tagName = node.name || node.id || node.slug;
-            if ((window as any).swup) {
-              (window as any).swup.navigate(`/posts/tag/${tagName}`);
-            } else {
-              window.location.href = `/posts/tag/${tagName}`;
             }
           }
         });
@@ -443,14 +437,7 @@ import Icon from './Icon.astro';
         text.textContent = textContent;
         
         // Set initial colors using actual theme colors
-        if (node.type === 'tag') {
-          text.setAttribute('fill', colors.tagText);
-          // Hide tag nodes immediately
-          circle.style.opacity = '0';
-          text.style.opacity = '0';
-        } else {
-          text.setAttribute('fill', colors.postText);
-        }
+        text.setAttribute('fill', colors.postText);
         
         nodesGroup.appendChild(text);
         node.textElement = text;
@@ -465,7 +452,7 @@ import Icon from './Icon.astro';
         
         // Create simulation object for external control
         const simulation = {
-          alpha: (newAlpha) => {
+          alpha: (newAlpha?: number) => {
             if (newAlpha !== undefined) {
               currentAlpha = newAlpha;
             }
@@ -533,7 +520,7 @@ import Icon from './Icon.astro';
       }
         
         // Make simulation globally accessible
-        window.graphSimulation = simulation;
+        (window as any).graphSimulation = simulation;
         
         // Run initial simulation
         runSimulation();
@@ -582,59 +569,14 @@ import Icon from './Icon.astro';
     // Event listeners
     closeButton.addEventListener('click', closeModal);
     overlay.addEventListener('click', (e) => {
-      if (e.target === overlay) {
+      // Close if clicking on the overlay or the padding area around the modal
+      const modalContent = overlay.querySelector('.relative');
+      if (e.target === overlay || !modalContent.contains(e.target as Node)) {
         closeModal();
       }
     });
 
-    // Tags toggle functionality
-    const tagsToggle = document.getElementById('graph-modal-tags-toggle');
-    let tagsVisible = false; // Start with tags hidden
-    
-    if (tagsToggle) {
-      // Set initial state - tags hidden
-      tagsToggle.classList.add('opacity-50');
-      
-      tagsToggle.addEventListener('click', () => {
-        tagsVisible = !tagsVisible;
-        
-        // Update button appearance
-        if (tagsVisible) {
-          tagsToggle.classList.remove('opacity-50');
-          tagsToggle.classList.add('opacity-100');
-        } else {
-          tagsToggle.classList.remove('opacity-100');
-          tagsToggle.classList.add('opacity-50');
-        }
-        
-        // Toggle tag visibility with smooth transition
-        const tagNodes = container.querySelectorAll('circle[data-node-type="tag"], text[data-node-type="tag"]');
-        const tagLinks = container.querySelectorAll('line[data-link-type="tag"]');
-        
-        tagNodes.forEach((node) => {
-          if (tagsVisible) {
-            node.style.opacity = '1';
-            node.style.transition = 'opacity 0.3s ease';
-          } else {
-            node.style.opacity = '0';
-            node.style.transition = 'opacity 0.3s ease';
-          }
-        });
-        
-        tagLinks.forEach((link) => {
-          if (tagsVisible) {
-            link.style.opacity = '0.6';
-            link.style.transition = 'opacity 0.3s ease';
-          } else {
-            link.style.opacity = '0';
-            link.style.transition = 'opacity 0.3s ease';
-          }
-        });
-        
-        // Don't restart simulation - just toggle visibility
-        // This prevents layout shifts when toggling tags
-      });
-    }
+    // Tags toggle functionality with persistent state
 
     // Escape key to close
     document.addEventListener('keydown', (e) => {
@@ -693,8 +635,9 @@ import Icon from './Icon.astro';
     });
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
 
-    // Make openModal globally accessible
+    // Make functions globally accessible
     (window as any).openGraphModal = openModal;
+    (window as any).initializeGraphModal = initializeGraphModal;
   }
 
   // Initialize on DOM ready
@@ -702,6 +645,19 @@ import Icon from './Icon.astro';
     document.addEventListener('DOMContentLoaded', initializeGraphModal);
   } else {
     initializeGraphModal();
+  }
+
+  // Swup integration - reinitialize after page transitions
+  if ((window as any).swup) {
+    (window as any).swup.hooks.on('page:view', () => {
+      // Reinitialize the graph modal after page transitions
+      initializeGraphModal();
+    });
+    
+    (window as any).swup.hooks.on('visit:end', () => {
+      // Ensure the global function is available after page transitions
+      // The openModal function will be set by initializeGraphModal
+    });
   }
 </script>
 

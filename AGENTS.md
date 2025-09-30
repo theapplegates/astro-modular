@@ -15,6 +15,17 @@ This document contains essential information for AI agents working with this Ast
 
 **When in doubt, check the blog posts first.**
 
+## 🚨 CRITICAL: Most Common AI Agent Mistakes
+
+**⚠️ READ THESE FIRST - These are the #1 issues that keep coming up:**
+
+1. **🚨 SWUP BREAKS JAVASCRIPT** - Interactive elements stop working after page transitions. [See detailed solution](#-critical-javascript-re-initialization-after-page-transitions)
+2. **🚨 MATH RENDERING DUPLICATION** - Math appears twice due to wrong CSS. [See solution](#1--math-rendering-duplication-most-critical)
+3. **🚨 PRODUCTION LOGGING** - Never use raw `console.log()` in production code
+4. **🚨 IMAGE SYSTEM CONFUSION** - Post cards vs post content images are separate systems
+
+**These issues are documented in detail in the [Common AI Agent Mistakes](#common-ai-agent-mistakes) section.**
+
 ## Table of Contents
 
 1. [Project Vision & Philosophy](#project-vision--philosophy)
@@ -863,8 +874,93 @@ swup({
 })
 ```
 
+#### **🚨 CRITICAL: JavaScript Re-initialization After Page Transitions**
+
+**⚠️ AI AGENTS MUST READ THIS SECTION CAREFULLY ⚠️**
+
+**The #1 most common issue with Swup is that JavaScript stops working after page transitions.** This is because Swup replaces DOM content without triggering `DOMContentLoaded`, so event listeners and component initialization are lost.
+
+#### **The Problem: "It works on first load but not after navigation"**
+
+When users navigate between pages, they experience:
+- Interactive elements stop responding to clicks
+- Event listeners are lost after page transitions
+- Components appear but don't function
+- "It works on first load but not after navigation"
+
+#### **Root Cause: DOM Content Replacement**
+
+Swup replaces the content inside `#swup-container` without triggering `DOMContentLoaded`, so:
+1. **Event listeners are lost** - They're attached to DOM elements that no longer exist
+2. **Component initialization is skipped** - `DOMContentLoaded` doesn't fire again
+3. **JavaScript state is lost** - Any component state is reset
+
+#### **The Solution: Re-initialize After Every Page Transition**
+
+**✅ CORRECT - Component Pattern:**
+```javascript
+// In component files (e.g., TableOfContents.astro, CommandPalette.astro)
+function initializeMyComponent() {
+  // Remove existing event listeners to prevent duplicates
+  const existingElement = document.querySelector('.my-component');
+  if (existingElement) {
+    const newElement = existingElement.cloneNode(true);
+    existingElement.parentNode?.replaceChild(newElement, existingElement);
+  }
+  
+  // Get fresh references after cloning
+  const element = document.querySelector('.my-component');
+  if (element) {
+    element.addEventListener('click', handleClick);
+    // ... other initialization
+  }
+}
+
+// Make function globally available
+window.initializeMyComponent = initializeMyComponent;
+
+// Initialize on DOMContentLoaded
+document.addEventListener('DOMContentLoaded', initializeMyComponent);
+```
+
+**✅ CORRECT - BaseLayout.astro Integration:**
+```javascript
+// In BaseLayout.astro - add to BOTH hooks
+window.swup.hooks.on('page:view', () => {
+  // ... other code ...
+  if (window.initializeMyComponent) {
+    window.initializeMyComponent();
+  }
+});
+
+window.swup.hooks.on('visit:end', () => {
+  // ... other code ...
+  if (window.initializeMyComponent) {
+    window.initializeMyComponent();
+  }
+});
+```
+
+#### **Why This Works**
+
+1. **Global functions** - Available to Swup hooks from any component
+2. **Event listener cleanup** - Prevents duplicate listeners by cloning elements
+3. **Fresh DOM references** - Gets new elements after content replacement
+4. **Both hooks** - Ensures initialization happens regardless of transition timing
+
+#### **Common Components That Need This Pattern**
+
+- **Table of Contents** - Collapse/expand functionality
+- **Command Palette** - Search and navigation
+- **Theme Toggle** - Dark/light mode switching
+- **Mobile Menu** - Navigation menu interactions
+- **Image Galleries** - Lightbox and gallery controls
+- **Mermaid Diagrams** - Diagram rendering and interactions
+- **Linked Mentions** - Post connection highlighting
+
 #### **Important Notes for AI Agents**
 - **NEVER call `handleInitialHashScroll()` in Swup hooks** - It breaks back/forward navigation
+- **ALWAYS re-initialize JavaScript after page transitions** - Use the pattern above
 - **Let browser handle scroll restoration** - Don't interfere with natural behavior
 - **Accessibility Warnings**: Swup can add `tabindex` attributes to body elements, causing accessibility warnings. This is why `accessibility: false` is set in the config.
 - **Container Structure**: All page content must be wrapped in `#swup-container` for transitions to work
@@ -2883,7 +2979,42 @@ The comments are styled to match your theme automatically. If you see styling is
   ```
 - **This mistake causes "E=mc2E=mc2" duplication where math appears twice**
 
-#### 2. **🚨 PRODUCTION LOGGING (CRITICAL)**
+#### 2. **🚨 SWUP PAGE TRANSITIONS BREAK JAVASCRIPT (CRITICAL)**
+- **NEVER assume JavaScript works after page transitions** - Swup replaces DOM content without triggering `DOMContentLoaded`
+- **ALWAYS re-initialize JavaScript after Swup transitions** - Use Swup hooks in `BaseLayout.astro`
+- **The correct approach:**
+  ```javascript
+  // In component files (e.g., TableOfContents.astro)
+  function initializeMyComponent() {
+    // Your initialization code here
+  }
+  window.initializeMyComponent = initializeMyComponent;
+  document.addEventListener('DOMContentLoaded', initializeMyComponent);
+  ```
+  ```javascript
+  // In BaseLayout.astro - add to BOTH hooks
+  window.swup.hooks.on('page:view', () => {
+    // ... other code ...
+    if (window.initializeMyComponent) {
+      window.initializeMyComponent();
+    }
+  });
+  
+  window.swup.hooks.on('visit:end', () => {
+    // ... other code ...
+    if (window.initializeMyComponent) {
+      window.initializeMyComponent();
+    }
+  });
+  ```
+- **Common symptoms of this mistake:**
+  - Interactive elements stop working after navigation
+  - Event listeners are lost after page transitions
+  - Components appear but don't respond to clicks
+  - "It works on first load but not after navigation"
+- **This is the #1 most common issue** - affects ToC collapse, command palette, theme toggles, etc.
+
+#### 3. **🚨 PRODUCTION LOGGING (CRITICAL)**
 - **NEVER use raw `console.log()`** in production code
 - **Use the project's logger utility** (`src/utils/logger.ts`) for any logging needs
 - **Keep console output clean** for professional deployments

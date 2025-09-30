@@ -33,6 +33,29 @@ const projectRoot = join(__dirname, '..');
 const OUTPUT_DIR = join(projectRoot, 'public', 'graph');
 const OUTPUT_FILE = join(OUTPUT_DIR, 'graph-data.json');
 
+/**
+ * Read maxNodes from config file
+ */
+function getMaxNodesFromConfig() {
+  try {
+    const configPath = join(projectRoot, 'src', 'config.ts');
+    const configContent = readFileSync(configPath, 'utf-8');
+    
+    // Extract maxNodes value from config
+    const maxNodesMatch = configContent.match(/maxNodes:\s*(\d+)/);
+    if (maxNodesMatch) {
+      return parseInt(maxNodesMatch[1], 10);
+    }
+    
+    // Default fallback
+    return 100;
+  } catch (error) {
+    log.warn('Could not read config file, using default maxNodes: 100');
+    return 100;
+  }
+}
+
+
 // Simple logging utility
 const isDev = process.env.NODE_ENV !== 'production';
 const log = {
@@ -325,9 +348,12 @@ function parseMarkdownFile(content, slug) {
  * Generate graph data from posts
  */
 async function generateGraphData() {
-  log.info('🔍 Analyzing post connections and tags...');
+  log.info('🔍 Analyzing post connections...');
 
   try {
+    // Get configuration values
+    const maxNodes = getMaxNodesFromConfig();
+    
     // Read all posts from the content directory
     const postsDir = join(projectRoot, 'src', 'content', 'posts');
     log.info('📁 Reading posts from:', postsDir);
@@ -344,7 +370,6 @@ async function generateGraphData() {
     // Generate nodes and connections
     const nodes = [];
     const connections = [];
-    const tags = new Map();
 
     // Process each post
     for (const post of visiblePosts) {
@@ -355,34 +380,9 @@ async function generateGraphData() {
         title: post.data.title,
         slug: post.slug,
         date: post.data.date ? post.data.date.toISOString() : new Date().toISOString(),
-        tags: post.data.tags || [],
         connections: 0
       };
       nodes.push(postNode);
-
-      // Process tags - create tag nodes and connections
-      if (post.data.tags && Array.isArray(post.data.tags)) {
-        for (const tag of post.data.tags) {
-          // Create tag node if it doesn't exist
-          if (!tags.has(tag)) {
-            tags.set(tag, {
-              id: `tag-${tag}`,
-              type: 'tag',
-              name: tag,
-              connections: 0
-            });
-          }
-          
-          // Add post-tag connection
-          connections.push({
-            source: post.slug,
-            target: `tag-${tag}`,
-            type: 'tag'
-          });
-          
-          tags.get(tag).connections++;
-        }
-      }
 
       // Extract links from post content
       const wikilinks = extractWikilinks(post.body);
@@ -410,20 +410,39 @@ async function generateGraphData() {
       }
     }
 
-    // Add tag nodes to the nodes array
-    for (const tagNode of tags.values()) {
-      nodes.push(tagNode);
+
+    // Apply maxNodes filtering if configured
+    let filteredNodes = nodes;
+    let filteredConnections = connections;
+
+    if (maxNodes && nodes.length > maxNodes) {
+      // Sort posts by connection count (descending), then by date (descending)
+      const sortedPosts = nodes.sort((a, b) => {
+        if (b.connections !== a.connections) {
+          return b.connections - a.connections;
+        }
+        return new Date(b.date) - new Date(a.date);
+      });
+      
+      filteredNodes = sortedPosts.slice(0, maxNodes);
+      
+      // Filter connections to only include those between selected nodes
+      const selectedNodeIds = new Set(filteredNodes.map(n => n.id));
+      filteredConnections = connections.filter(conn => 
+        selectedNodeIds.has(conn.source) && selectedNodeIds.has(conn.target)
+      );
     }
 
     // Generate graph data
     const graphData = {
-      nodes: nodes,
-      connections: connections,
+      nodes: filteredNodes,
+      connections: filteredConnections,
       metadata: {
         generated: new Date().toISOString(),
-        totalPosts: nodes.filter(n => n.type === 'post').length,
-        totalTags: nodes.filter(n => n.type === 'tag').length,
-        totalConnections: connections.length
+        totalPosts: filteredNodes.length,
+        totalConnections: filteredConnections.length,
+        maxNodesApplied: maxNodes && nodes.length > maxNodes,
+        originalNodeCount: nodes.length
       }
     };
 
@@ -431,7 +450,11 @@ async function generateGraphData() {
     writeFileSync(OUTPUT_FILE, JSON.stringify(graphData, null, 2));
     
     log.info('✅ Graph data generated successfully!');
-    log.info(`📊 Stats: ${graphData.metadata.totalPosts} posts, ${graphData.metadata.totalTags} tags, ${graphData.metadata.totalConnections} connections`);
+    if (graphData.metadata.maxNodesApplied) {
+      log.info(`📊 Stats: ${graphData.metadata.totalPosts} posts, ${graphData.metadata.totalConnections} connections (filtered from ${graphData.metadata.originalNodeCount} total nodes)`);
+    } else {
+      log.info(`📊 Stats: ${graphData.metadata.totalPosts} posts, ${graphData.metadata.totalConnections} connections`);
+    }
     log.info(`💾 Saved to: ${OUTPUT_FILE}`);
 
   } catch (error) {

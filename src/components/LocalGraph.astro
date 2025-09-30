@@ -26,22 +26,6 @@ const shouldShowGraph = hasConnections || hasTags;
 
 {shouldShowGraph && (
   <div id="graph-container" class="relative w-full bg-primary-50 dark:bg-primary-800 rounded-xl border border-primary-200 dark:border-primary-700 shadow-lg backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95 overflow-hidden" style="width: 280px; max-width: 280px; height: 280px;">
-    <!-- Tags toggle in top left corner -->
-    <div class="absolute top-3 left-3 z-20">
-      <button 
-        id="local-graph-tags-toggle"
-        class="px-2 py-1 text-xs text-primary-600 dark:text-primary-300 hover:text-primary-800 dark:hover:text-primary-100 transition-colors rounded border border-primary-200 dark:border-primary-600 bg-primary-100 dark:bg-primary-800 hover:bg-primary-200 dark:hover:bg-primary-700 pointer-events-auto"
-        title="Toggle tag visibility"
-      >
-        <span class="flex items-center gap-1">
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
-            <line x1="7" y1="7" x2="7.01" y2="7"/>
-          </svg>
-          Tags
-        </span>
-      </button>
-    </div>
 
     <!-- Icons in top right corner -->
     <div class="absolute top-3 right-3 z-20 flex items-center gap-2">
@@ -59,10 +43,7 @@ const shouldShowGraph = hasConnections || hasTags;
         class="p-1 text-primary-500 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-200 transition-colors pointer-events-auto"
         title="Open in fullscreen"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-right">
-          <path d="M7 7h10v10"/>
-          <path d="M7 17 17 7"/>
-        </svg>
+        <Icon name="arrow-up-right" class="w-4 h-4" />
       </button>
     </div>
     
@@ -94,19 +75,14 @@ const shouldShowGraph = hasConnections || hasTags;
     const isDarkMode = document.documentElement.classList.contains('dark');
     
     return {
-      // Tag colors (use theme highlight colors for nodes, but same text as posts)
-      tagFill: highlight400 || (isDarkMode ? '#38bdf8' : '#0284c7'),
-      tagStroke: highlight600 || (isDarkMode ? '#0284c7' : '#0369a1'),
-      tagText: primary800 || (isDarkMode ? '#f1f5f9' : '#1e293b'), // Same as post text
       
       // Post colors (light in dark mode, dark in light mode)
       postFill: isDarkMode ? '#e2e8f0' : '#64748b',
       postStroke: isDarkMode ? '#cbd5e1' : '#475569',
       postText: isDarkMode ? '#f1f5f9' : '#1e293b',
       
-      // Link colors (light in dark mode, dark in light mode)
-      linkStroke: isDarkMode ? '#94a3b8' : '#64748b',
-      tagLinkStroke: isDarkMode ? '#94a3b8' : '#64748b' // Same as regular links
+  // Link colors (light in dark mode, dark in light mode)
+  linkStroke: isDarkMode ? '#94a3b8' : '#64748b'
     };
   }
 
@@ -115,7 +91,7 @@ const shouldShowGraph = hasConnections || hasTags;
     // Close global graph modal
     const globalModal = document.getElementById('graph-modal-overlay');
     if (globalModal) {
-      globalModal.remove();
+      globalModal.classList.add('hidden');
       document.body.style.overflow = '';
     }
     
@@ -338,7 +314,6 @@ const shouldShowGraph = hasConnections || hasTags;
             this.simulation.isRunning = false;
             // Completely disable all physics updates
             // Physics disabled
-            e.stopPropagation();
           }
         }
       });
@@ -422,34 +397,30 @@ const shouldShowGraph = hasConnections || hasTags;
     }
     
     setupClick() {
-      this.nodesGroup.addEventListener('click', (e: MouseEvent) => {
-        const circle = (e.target as Element)?.closest('circle');
-        if (circle) {
-          const nodeId = circle.getAttribute('data-node-id');
-          const node = this.nodes.find((n: any) => n.id === nodeId);
-          
-          if (node && node.type === 'post') {
-            // Close any open modals first
-            closeAllModals();
-            // Use Swup for navigation if available
-            if ((window as any).swup) {
-              (window as any).swup.navigate(`/posts/${node.slug}`);
-            } else {
-              window.location.href = `/posts/${node.slug}`;
-            }
-          } else if (node && node.type === 'tag') {
-            // Close any open modals first
-            closeAllModals();
-            // Navigate to tag page
-            const tagName = node.name || node.id || node.slug;
-            if ((window as any).swup) {
-              (window as any).swup.navigate(`/posts/tag/${tagName}`);
-            } else {
-              window.location.href = `/posts/tag/${tagName}`;
+        this.nodesGroup.addEventListener('click', (e: MouseEvent) => {
+          const circle = (e.target as Element)?.closest('circle');
+          if (circle) {
+            const nodeId = circle.getAttribute('data-node-id');
+            const node = this.nodes.find((n: any) => n.id === nodeId);
+            
+            
+            if (node && node.type === 'post') {
+              // Close current fullscreen modal only
+              const currentModal = document.querySelector('.fixed.inset-0.z-50:not(#command-palette-overlay)');
+              if (currentModal) {
+                currentModal.remove();
+                document.body.style.overflow = '';
+                fullscreenModalOpen = false;
+              }
+              // Use Swup for navigation if available
+              if ((window as any).swup) {
+                (window as any).swup.navigate(`/posts/${node.slug}`);
+              } else {
+                window.location.href = `/posts/${node.slug}`;
+              }
             }
           }
-        }
-      });
+        });
     }
     
     setupHover() {
@@ -515,36 +486,20 @@ const shouldShowGraph = hasConnections || hasTags;
       // Update text colors
       const textElements = this.container.querySelectorAll('text');
       textElements.forEach((text: any) => {
-        const nodeType = text.getAttribute('data-node-type');
-        if (nodeType === 'tag') {
-          text.setAttribute('fill', colors.tagText);
-        } else {
-          text.setAttribute('fill', colors.postText);
-        }
+        text.setAttribute('fill', colors.postText);
       });
       
       // Update circle colors
       const circleElements = this.container.querySelectorAll('circle');
       circleElements.forEach((circle: any) => {
-        const nodeType = circle.getAttribute('data-node-type');
-        if (nodeType === 'tag') {
-          circle.setAttribute('fill', colors.tagFill);
-          circle.setAttribute('stroke', colors.tagStroke);
-        } else {
-          circle.setAttribute('fill', colors.postFill);
-          circle.setAttribute('stroke', colors.postStroke);
-        }
+        circle.setAttribute('fill', colors.postFill);
+        circle.setAttribute('stroke', colors.postStroke);
       });
       
       // Update link colors
       const lineElements = this.container.querySelectorAll('line');
       lineElements.forEach((line: any) => {
-        const linkType = line.getAttribute('data-link-type');
-        if (linkType === 'tag') {
-          line.setAttribute('stroke', colors.tagLinkStroke);
-        } else {
-          line.setAttribute('stroke', colors.linkStroke);
-        }
+        line.setAttribute('stroke', colors.linkStroke);
       });
     }
     
@@ -561,13 +516,7 @@ const shouldShowGraph = hasConnections || hasTags;
         if (!link.element) {
           const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
           // Use actual theme colors
-          if (link.type === 'tag') {
-            line.setAttribute('stroke', colors.tagLinkStroke);
-            // Hide tag links immediately
-            line.style.opacity = '0';
-          } else {
-            line.setAttribute('stroke', colors.linkStroke);
-          }
+          line.setAttribute('stroke', colors.linkStroke);
           line.setAttribute('stroke-width', '1.5');
           line.setAttribute('opacity', '0.6');
           line.setAttribute('data-link-type', link.type);
@@ -581,23 +530,16 @@ const shouldShowGraph = hasConnections || hasTags;
         link.element.setAttribute('y2', link.target.y);
       });
       
-      // Render nodes
-      this.nodes.forEach((node: any) => {
-        if (!node.element) {
-          const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-          const radius = Math.max(6, Math.min(16, (node.connections || 0) + 6));
-          circle.setAttribute('r', radius.toString());
-          
-          // Use actual theme colors
-          if (node.type === 'tag') {
-            circle.setAttribute('fill', colors.tagFill);
-            circle.setAttribute('stroke', colors.tagStroke);
-            // Hide tag nodes immediately
-            circle.style.opacity = '0';
-          } else {
+        // Render nodes
+        this.nodes.forEach((node: any) => {
+          if (!node.element) {
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            const radius = Math.max(6, Math.min(16, (node.connections || 0) + 6));
+            circle.setAttribute('r', radius.toString());
+            
+            // Use actual theme colors
             circle.setAttribute('fill', colors.postFill);
             circle.setAttribute('stroke', colors.postStroke);
-          }
           
           circle.setAttribute('stroke-width', '1.5');
           circle.setAttribute('cursor', 'pointer');
@@ -618,21 +560,16 @@ const shouldShowGraph = hasConnections || hasTags;
           text.setAttribute('pointer-events', 'none');
           
           // Better text content - show full titles with smart truncation
-          let textContent = '';
-          if (node.type === 'tag') {
-            textContent = '#' + node.name;
-          } else {
-            textContent = node.title || node.id;
-            // Smart truncation - try to break at word boundaries
-            if (textContent.length > 25) {
-              const words = textContent.split(' ');
-              let truncated = '';
-              for (const word of words) {
-                if ((truncated + word).length > 25) break;
-                truncated += (truncated ? ' ' : '') + word;
-              }
-              textContent = truncated + (truncated.length < textContent.length ? '...' : '');
+          let textContent = node.title || node.id;
+          // Smart truncation - try to break at word boundaries
+          if (textContent.length > 25) {
+            const words = textContent.split(' ');
+            let truncated = '';
+            for (const word of words) {
+              if ((truncated + word).length > 25) break;
+              truncated += (truncated ? ' ' : '') + word;
             }
+            textContent = truncated + (truncated.length < textContent.length ? '...' : '');
           }
           text.textContent = textContent;
           
@@ -651,13 +588,7 @@ const shouldShowGraph = hasConnections || hasTags;
         node.textElement.setAttribute('y', node.y + textOffset);
         
         // Update text colors using actual theme colors
-        if (node.type === 'tag') {
-          node.textElement.setAttribute('fill', colors.tagText);
-          // Hide tag text immediately
-          node.textElement.style.opacity = '0';
-        } else {
-          node.textElement.setAttribute('fill', colors.postText);
-        }
+        node.textElement.setAttribute('fill', colors.postText);
       });
     }
     
@@ -732,28 +663,20 @@ const shouldShowGraph = hasConnections || hasTags;
           (window as any).localGraphData = data;
           (window as any).localGraphFilteredData = filteredData;
           
-          // Only render the final state - no intermediate states
-          if (filteredData.nodes.length <= 1) {
-            // Show message if no connections
-            container.innerHTML = `
-              <div class="flex items-center justify-center h-full text-primary-500 dark:text-primary-400">
-                <div class="text-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 mx-auto mb-2 opacity-50">
-                    <path d="M15 3h4a2 2 0 0 1 2 2v4"/>
-                    <path d="M10 21H6a2 2 0 0 1-2-2v-4"/>
-                    <path d="M21 15v4a2 2 0 0 1-2 2h-4"/>
-                    <path d="M3 9V5a2 2 0 0 1 2-2h4"/>
-                    <path d="M9 9h6v6H9z"/>
-                  </svg>
-                  <p class="text-xs">No connections found</p>
-                  <p class="text-xs mt-1 opacity-75">Slug: ${currentSlug}</p>
+            // Only render the final state - no intermediate states
+            if (filteredData.nodes.length <= 1) {
+              // Show message if no connections
+              container.innerHTML = `
+                <div class="flex items-center justify-center h-full text-primary-500 dark:text-primary-400">
+                  <div class="text-center">
+                    <p class="text-xs">No connections found</p>
+                  </div>
                 </div>
-              </div>
-            `;
-            graphInitialized = true;
-            graphInitializing = false;
-            return;
-          }
+              `;
+              graphInitialized = true;
+              graphInitializing = false;
+              return;
+            }
           
           // Clear container and initialize graph - single render
           container.innerHTML = '';
@@ -781,7 +704,6 @@ const shouldShowGraph = hasConnections || hasTags;
           });
         })
         .catch(error => {
-          console.warn('Could not load graph data:', error);
           container.innerHTML = `
             <div class="flex items-center justify-center h-full text-primary-500 dark:text-primary-400">
               <div class="text-center">
@@ -810,27 +732,35 @@ const shouldShowGraph = hasConnections || hasTags;
     const currentNode = data.nodes.find((node: any) => node.id === currentSlug);
     if (!currentNode) return { nodes: [], connections: [] };
     
-    // Find all nodes connected to current post
-    const connectedNodeIds = new Set([currentSlug]);
-    const relevantConnections = data.connections.filter((conn: any) => {
+    // Find all nodes connected to current post (direct connections only)
+    const directlyConnectedNodeIds = new Set([currentSlug]);
+    const directConnections = data.connections.filter((conn: any) => {
       if (conn.source === currentSlug || conn.target === currentSlug) {
-        connectedNodeIds.add(conn.source);
-        connectedNodeIds.add(conn.target);
+        directlyConnectedNodeIds.add(conn.source);
+        directlyConnectedNodeIds.add(conn.target);
         return true;
       }
       return false;
     });
     
+    // Only include directly connected nodes (no tag-mediated connections)
+    const allRelevantNodeIds = new Set(directlyConnectedNodeIds);
+    
+    // Include all connections that involve any of our connected nodes
+    const allRelevantConnections = data.connections.filter((conn: any) => {
+      return allRelevantNodeIds.has(conn.source) && allRelevantNodeIds.has(conn.target);
+    });
+    
     // Filter nodes to only include connected ones
-    const relevantNodes = data.nodes.filter((node: any) => connectedNodeIds.has(node.id));
+    const relevantNodes = data.nodes.filter((node: any) => allRelevantNodeIds.has(node.id));
     
     return {
       nodes: relevantNodes,
-      connections: relevantConnections,
+      connections: allRelevantConnections,
       metadata: {
         ...data.metadata,
         totalNodes: relevantNodes.length,
-        totalConnections: relevantConnections.length
+        totalConnections: allRelevantConnections.length
       }
     };
   }
@@ -840,12 +770,7 @@ const shouldShowGraph = hasConnections || hasTags;
     const colors = getThemeColors();
     const textElements = document.querySelectorAll('#graph-container text');
     textElements.forEach((text) => {
-      const nodeType = text.getAttribute('data-node-type');
-      if (nodeType === 'tag') {
-        text.setAttribute('fill', colors.tagText);
-      } else {
-        text.setAttribute('fill', colors.postText);
-      }
+      text.setAttribute('fill', colors.postText);
     });
   }
 
@@ -857,6 +782,19 @@ const shouldShowGraph = hasConnections || hasTags;
       modalBtn.addEventListener('click', () => {
         if ((window as any).openGraphModal) {
           (window as any).openGraphModal();
+        } else {
+          // Try to initialize GraphModal if it's not available
+          if ((window as any).initializeGraphModal) {
+            (window as any).initializeGraphModal();
+            // Try again after initialization
+            setTimeout(() => {
+              if ((window as any).openGraphModal) {
+                (window as any).openGraphModal();
+              } else {
+              }
+            }, 100);
+          } else {
+          }
         }
       });
     }
@@ -870,75 +808,6 @@ const shouldShowGraph = hasConnections || hasTags;
       });
     }
 
-    // Tags toggle button
-    const tagsToggle = document.getElementById('local-graph-tags-toggle');
-    let localTagsVisible = false; // Start with tags hidden
-    
-    if (tagsToggle) {
-      // Set initial state - tags hidden
-      tagsToggle.classList.add('opacity-50');
-      
-      tagsToggle.addEventListener('click', () => {
-        localTagsVisible = !localTagsVisible;
-        
-        // Update button appearance
-        if (localTagsVisible) {
-          tagsToggle.classList.remove('opacity-50');
-          tagsToggle.classList.add('opacity-100');
-        } else {
-          tagsToggle.classList.remove('opacity-100');
-          tagsToggle.classList.add('opacity-50');
-        }
-        
-        // Toggle tag visibility with smooth transition
-        const container = document.getElementById('graph-content');
-        if (container) {
-          const tagNodes = container.querySelectorAll('circle[data-node-type="tag"], text[data-node-type="tag"]');
-          const tagLinks = container.querySelectorAll('line[data-link-type="tag"]');
-          
-        tagNodes.forEach((node) => {
-          const element = node as HTMLElement;
-          if (localTagsVisible) {
-            element.style.opacity = '1';
-            element.style.transition = 'opacity 0.3s ease';
-          } else {
-            element.style.opacity = '0';
-            element.style.transition = 'opacity 0.3s ease';
-          }
-        });
-        
-        tagLinks.forEach((link) => {
-          const element = link as HTMLElement;
-          if (localTagsVisible) {
-            element.style.opacity = '0.6';
-            element.style.transition = 'opacity 0.3s ease';
-          } else {
-            element.style.opacity = '0';
-            element.style.transition = 'opacity 0.3s ease';
-          }
-        });
-        }
-      });
-      
-      // Initially hide tags
-      const container = document.getElementById('graph-content');
-      if (container) {
-        const tagNodes = container.querySelectorAll('circle[data-node-type="tag"], text[data-node-type="tag"]');
-        const tagLinks = container.querySelectorAll('line[data-link-type="tag"]');
-        
-        tagNodes.forEach((node) => {
-          const element = node as HTMLElement;
-          element.style.opacity = '0';
-          element.style.transition = 'opacity 0.3s ease';
-        });
-        
-        tagLinks.forEach((link) => {
-          const element = link as HTMLElement;
-          element.style.opacity = '0';
-          element.style.transition = 'opacity 0.3s ease';
-        });
-      }
-    }
 
   }
 
@@ -946,14 +815,12 @@ const shouldShowGraph = hasConnections || hasTags;
   function openLocalGraphFullscreen() {
     // Prevent multiple fullscreen modals
     if (fullscreenModalOpen) {
-      console.log('Fullscreen modal already open, ignoring request');
       return;
     }
     
-    // Check if a fullscreen modal is already open
-    const existingModal = document.querySelector('.fixed.inset-0.z-50:not(#command-palette-overlay)');
+    // Check if a fullscreen modal is already open (but not the GraphModal)
+    const existingModal = document.querySelector('.fixed.inset-0.z-50:not(#command-palette-overlay):not(#graph-modal-overlay)');
     if (existingModal) {
-      console.log('Fullscreen modal already open, closing existing one');
       existingModal.remove();
       document.body.style.overflow = '';
     }
@@ -963,23 +830,10 @@ const shouldShowGraph = hasConnections || hasTags;
     // Create fullscreen modal
     const modal = document.createElement('div');
     modal.className = 'fixed inset-0 z-50 bg-black/50 backdrop-blur-sm animate-fade-in';
+    
     modal.innerHTML = `
       <div class="flex min-h-full items-center justify-center p-4">
         <div class="relative w-full max-w-6xl h-[80vh] bg-primary-50 dark:bg-primary-800 rounded-xl shadow-2xl border border-primary-200 dark:border-primary-700 animate-scale-in">
-          <!-- Tags Toggle Button -->
-          <button 
-            id="local-graph-fullscreen-tags-toggle"
-            class="absolute top-4 left-4 z-10 px-3 py-1.5 text-sm text-primary-600 dark:text-primary-300 hover:text-primary-800 dark:hover:text-primary-100 transition-colors rounded-lg bg-primary-100 dark:bg-primary-800 hover:bg-primary-200 dark:hover:bg-primary-700 border border-primary-200 dark:border-primary-600"
-            aria-label="Toggle tag visibility"
-          >
-            <span class="flex items-center gap-1.5">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
-                <line x1="7" y1="7" x2="7.01" y2="7"/>
-              </svg>
-              Tags
-            </span>
-          </button>
 
           <!-- Close Button (top right, no header) -->
           <button 
@@ -1014,61 +868,17 @@ const shouldShowGraph = hasConnections || hasTags;
 
     closeBtn?.addEventListener('click', closeModal);
     modal.addEventListener('click', (e) => {
-      if (e.target === modal) closeModal();
+      // Close if clicking on the modal overlay or outside the modal content
+      const modalContent = modal.querySelector('.relative');
+      if (e.target === modal || !modalContent?.contains(e.target as Node)) {
+        closeModal();
+      }
     });
 
     // Get the container first
     const container = modal.querySelector('#local-graph-fullscreen-container');
 
-    // Tags toggle functionality for fullscreen modal
-    const fullscreenTagsToggle = modal.querySelector('#local-graph-fullscreen-tags-toggle');
-    let fullscreenTagsVisible = false; // Start with tags hidden
-    
-    if (fullscreenTagsToggle) {
-      // Set initial state - tags hidden
-      fullscreenTagsToggle.classList.add('opacity-50');
-      
-      fullscreenTagsToggle.addEventListener('click', () => {
-        fullscreenTagsVisible = !fullscreenTagsVisible;
-        
-        // Update button appearance
-        if (fullscreenTagsVisible) {
-          fullscreenTagsToggle.classList.remove('opacity-50');
-          fullscreenTagsToggle.classList.add('opacity-100');
-        } else {
-          fullscreenTagsToggle.classList.remove('opacity-100');
-          fullscreenTagsToggle.classList.add('opacity-50');
-        }
-        
-        // Toggle tag visibility with smooth transition
-        if (container) {
-          const tagNodes = container.querySelectorAll('circle[data-node-type="tag"], text[data-node-type="tag"]');
-          const tagLinks = container.querySelectorAll('line[data-link-type="tag"]');
-        
-        tagNodes.forEach((node) => {
-          const element = node as HTMLElement;
-          if (fullscreenTagsVisible) {
-            element.style.opacity = '1';
-            element.style.transition = 'opacity 0.3s ease';
-          } else {
-            element.style.opacity = '0';
-            element.style.transition = 'opacity 0.3s ease';
-          }
-        });
-        
-        tagLinks.forEach((link) => {
-          const element = link as HTMLElement;
-          if (fullscreenTagsVisible) {
-            element.style.opacity = '0.6';
-            element.style.transition = 'opacity 0.3s ease';
-          } else {
-            element.style.opacity = '0';
-            element.style.transition = 'opacity 0.3s ease';
-          }
-        });
-        }
-      });
-    }
+    // Tags toggle functionality for fullscreen modal with persistent state
 
     // Use cached graph data for fullscreen (instant loading!)
     if (container) {
@@ -1079,16 +889,9 @@ const shouldShowGraph = hasConnections || hasTags;
       const cachedData = (window as any).localGraphData;
       const cachedFilteredData = (window as any).localGraphFilteredData;
       
-      console.log('Fullscreen modal debug:', {
-        cachedData: !!cachedData,
-        cachedFilteredData: !!cachedFilteredData,
-        currentSlug,
-        container: !!container
-      });
       
       if (cachedData && cachedFilteredData) {
         // Use cached data - instant loading!
-        console.log('Using cached data, nodes:', cachedFilteredData.nodes.length);
         if (cachedFilteredData.nodes.length <= 1) {
           container.innerHTML = `
             <div class="flex items-center justify-center h-full text-primary-500 dark:text-primary-400">
@@ -1109,9 +912,7 @@ const shouldShowGraph = hasConnections || hasTags;
         }
         try {
           new GraphVisualization(container as HTMLElement, cachedFilteredData);
-          console.log('GraphVisualization created successfully');
         } catch (error) {
-          console.error('Error creating GraphVisualization:', error);
           const errorMessage = error instanceof Error ? error.message : 'Unknown error';
           container.innerHTML = `
             <div class="flex items-center justify-center h-full text-primary-500 dark:text-primary-400">
@@ -1124,7 +925,6 @@ const shouldShowGraph = hasConnections || hasTags;
         }
       } else {
         // Fallback to fetching if no cached data
-        console.log('No cached data, fetching from server...');
         container.innerHTML = `
           <div class="flex items-center justify-center h-full text-primary-500 dark:text-primary-400">
             <div class="text-center">
@@ -1141,9 +941,7 @@ const shouldShowGraph = hasConnections || hasTags;
         fetch('/graph/graph-data.json')
           .then(response => response.json())
           .then((data) => {
-            console.log('Fetched data, nodes:', data.nodes.length);
             const filteredData = filterLocalGraphData(data, currentSlug);
-            console.log('Filtered data, nodes:', filteredData.nodes.length);
             
             if (filteredData.nodes.length <= 1) {
               container.innerHTML = `
@@ -1165,9 +963,7 @@ const shouldShowGraph = hasConnections || hasTags;
             }
             try {
               new GraphVisualization(container as HTMLElement, filteredData);
-              console.log('GraphVisualization created successfully (fallback)');
         } catch (error) {
-          console.error('Error creating GraphVisualization (fallback):', error);
           const errorMessage = error instanceof Error ? error.message : 'Unknown error';
           container.innerHTML = `
             <div class="flex items-center justify-center h-full text-primary-500 dark:text-primary-400">
@@ -1180,7 +976,6 @@ const shouldShowGraph = hasConnections || hasTags;
         }
           })
         .catch(error => {
-          console.warn('Could not load graph data:', error);
           container.innerHTML = `
             <div class="flex items-center justify-center h-full text-primary-500 dark:text-primary-400">
               <div class="text-center">
@@ -1223,7 +1018,16 @@ const shouldShowGraph = hasConnections || hasTags;
   // Listen for page navigation to close all modals
   if ((window as any).swup) {
     (window as any).swup.hooks.on('visit:start', () => {
-      closeAllModals();
+      // Close fullscreen modals but don't remove GraphModal
+      const fullscreenModals = document.querySelectorAll('.fixed.inset-0.z-50:not(#command-palette-overlay):not(#graph-modal-overlay)');
+      fullscreenModals.forEach(modal => {
+        // Only remove if it's not the GraphModal and not the command palette
+        if (modal.id !== 'graph-modal-overlay' && modal.id !== 'command-palette-overlay') {
+          modal.remove();
+        }
+      });
+      document.body.style.overflow = '';
+      fullscreenModalOpen = false;
     });
   }
 

@@ -39,7 +39,7 @@ export interface SiteConfig {
     showSocialIconsInFooter: boolean;
   };
   scrollToTop: boolean;
-  darkModeToggleButton: boolean;
+    darkModeToggleButton: "navigation" | "commandPalette" | "both";
   seo: {
     defaultOgImageAlt: string;
   };
@@ -52,6 +52,12 @@ export interface SiteConfig {
     enabled: boolean;
     shortcut: string;
     placeholder: string;
+    search: {
+      posts: boolean;
+      pages: boolean;
+      projects: boolean;
+      docs: boolean;
+    };
     sections: {
       quickActions: boolean;
       pages: boolean;
@@ -118,10 +124,7 @@ export interface SiteConfig {
       enabled: boolean;
       showInSidebar: boolean;
       showInCommandPalette: boolean;
-      includeTagConnections: boolean;
       maxNodes: number;
-      layout: "force-directed" | "hierarchical";
-      nodeSize: "dynamic" | "fixed";
       showOrphanedPosts: boolean;
     };
     postNavigation: boolean;
@@ -153,7 +156,13 @@ export interface SiteConfig {
   };
 }
 
-// Set your values HERE
+// ═══════════════════════════════════════════════════════════════════════════════
+// ASTRO MODULAR CONFIGURATION
+// ═══════════════════════════════════════════════════════════════════════════════
+// 
+// Most settings have helpful comments explaining what they do.
+// 
+// ═══════════════════════════════════════════════════════════════════════════════
 export const siteConfig: SiteConfig = {
   // Site Information
   site: "https://astro-modular.netlify.app",
@@ -163,7 +172,7 @@ export const siteConfig: SiteConfig = {
   language: "en",
 
   // Global Settings
-  theme: "oxygen", // Available themes: "minimal" | "oxygen" | "atom" | "ayu" | "catppuccin" | "charcoal" | "dracula" | "everforest" | "flexoki" | "gruvbox" | "macos" | "nord" | "obsidian" | "rose-pine" | "sky" | "solarized" | "things" | "custom"
+  theme: "atom", // Available themes: "minimal" | "oxygen" | "atom" | "ayu" | "catppuccin" | "charcoal" | "dracula" | "everforest" | "flexoki" | "gruvbox" | "macos" | "nord" | "obsidian" | "rose-pine" | "sky" | "solarized" | "things" | "custom"
   customThemeFile: "custom", // Only used if theme is set to "custom" above. Filename in src/themes/custom/ (without .ts extension)
   fonts: {
     source: "local", // "local" for self-hosted @fontsource fonts, "cdn" for Google Fonts CDN
@@ -183,7 +192,7 @@ export const siteConfig: SiteConfig = {
     showSocialIconsInFooter: true,
   },
   scrollToTop: true,
-  darkModeToggleButton: true,
+  darkModeToggleButton: "both", // "navigation" | "commandPalette" | "both"
   seo: {
     defaultOgImageAlt: "Astro Modular logo.", // Alt text for the default Open Graph image, public/open-graph.png
   },
@@ -196,6 +205,12 @@ export const siteConfig: SiteConfig = {
     enabled: true,
     shortcut: "ctrl+K",
     placeholder: "Search posts",
+    search: {
+      posts: true,
+      pages: false,
+      projects: false,
+      docs: false,
+    },
     sections: {
       quickActions: true,
       pages: true,
@@ -282,13 +297,10 @@ export const siteConfig: SiteConfig = {
       linkedMentionsCompact: false,
     },
     graphView: {
-      enabled: false,
+      enabled: true,
       showInSidebar: true,
       showInCommandPalette: true,
-      includeTagConnections: true,
       maxNodes: 100,
-      layout: "force-directed",
-      nodeSize: "dynamic",
       showOrphanedPosts: true,
     },
     postNavigation: true,

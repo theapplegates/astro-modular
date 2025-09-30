@@ -446,8 +446,6 @@ const { seoData, bodyClass = '' } = Astro.props;
   <!-- Command Palette -->
   {siteConfig.commandPalette.enabled && <CommandPalette />}
   
-  <!-- Graph Modal -->
-  <GraphModal />
 
   <!-- Scroll to Top -->
   {siteConfig.scrollToTop && <ScrollToTop />}
@@ -459,155 +457,9 @@ const { seoData, bodyClass = '' } = Astro.props;
   <CategoryFilter />
 
 
-    <!-- Mermaid library (bundled) -->
+    <!-- Mermaid diagrams handled by client script -->
     <script>
-      // Load Mermaid library dynamically to avoid module loading issues
-      import('mermaid').then((mermaidModule) => {
-        window.mermaid = mermaidModule.default;
-        
-        // Initialize Mermaid with current theme
-        function initializeMermaid() {
-          const isDark = document.documentElement.classList.contains('dark');
-          const theme = isDark ? 'dark' : 'default';
-          
-          window.mermaid.initialize({
-            startOnLoad: false,
-            securityLevel: 'loose',
-            theme: theme,
-            flowchart: {
-              useMaxWidth: true,
-              htmlLabels: true
-            }
-          });
-        }
-        
-        // Cache for rendered diagrams
-        const diagramCache = new Map();
-        let intersectionObserver = null;
-        
-        // Create intersection observer for lazy loading
-        function createIntersectionObserver() {
-          if (intersectionObserver) return intersectionObserver;
-          
-          intersectionObserver = new IntersectionObserver(
-            (entries) => {
-              entries.forEach((entry) => {
-                if (entry.isIntersecting) {
-                  const diagram = entry.target;
-                  renderDiagram(diagram);
-                  intersectionObserver.unobserve(diagram);
-                }
-              });
-            },
-            { rootMargin: '50px', threshold: 0.1 }
-          );
-          return intersectionObserver;
-        }
-        
-        // Render a single diagram with caching
-        async function renderDiagram(diagram) {
-          const source = diagram.getAttribute('data-mermaid-source');
-          if (!source) return;
-
-          const decodedSource = decodeURIComponent(source);
-          const currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'default';
-          const cacheKey = `${decodedSource}-${currentTheme}`;
-
-          // Check cache first
-          if (diagramCache.has(cacheKey)) {
-            const cached = diagramCache.get(cacheKey);
-            const contentDiv = diagram.querySelector('.mermaid-diagram-content');
-            if (contentDiv) {
-              contentDiv.innerHTML = cached.svg;
-            }
-            return;
-          }
-
-          // Show loading state
-          const contentDiv = diagram.querySelector('.mermaid-diagram-content');
-          if (contentDiv) {
-            contentDiv.innerHTML = `
-              <div class="mermaid-loading-skeleton">
-                <div class="animate-pulse bg-primary-100 dark:bg-primary-800 rounded h-32 flex items-center justify-center">
-                  <div class="text-primary-500 dark:text-primary-400 text-sm">Loading diagram...</div>
-                </div>
-              </div>
-            `;
-          }
-
-          try {
-            initializeMermaid();
-            const diagramId = `mermaid-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-            const { svg } = await window.mermaid.render(diagramId, decodedSource);
-            
-            diagramCache.set(cacheKey, { svg, theme: currentTheme });
-            
-            if (contentDiv) {
-              contentDiv.innerHTML = svg;
-            }
-          } catch (error) {
-            if (contentDiv) {
-              contentDiv.innerHTML = `
-                <div class="p-4 border border-red-200 dark:border-red-800 rounded bg-red-50 dark:bg-red-900/20">
-                  <p class="text-red-600 dark:text-red-400 text-sm">Diagram rendering failed</p>
-                  <details class="mt-2">
-                    <summary class="text-red-500 dark:text-red-400 text-xs cursor-pointer">Show source</summary>
-                    <pre class="mt-2 text-xs text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 p-2 rounded overflow-auto">${decodedSource}</pre>
-                  </details>
-                </div>
-              `;
-            }
-          }
-        }
-        
-        // Render all diagrams with lazy loading
-        async function renderAllDiagrams() {
-          const diagrams = document.querySelectorAll('.mermaid-diagram[data-mermaid-source]');
-          if (diagrams.length === 0) return;
-
-          initializeMermaid();
-          const observer = createIntersectionObserver();
-          diagrams.forEach((diagram) => observer.observe(diagram));
-        }
-        
-        // Handle theme changes with caching
-        function handleThemeChange() {
-          const diagrams = document.querySelectorAll('.mermaid-diagram[data-mermaid-source]');
-          const currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'default';
-          
-          diagrams.forEach((diagram) => {
-            const source = diagram.getAttribute('data-mermaid-source');
-            if (!source) return;
-            
-            const decodedSource = decodeURIComponent(source);
-            const cacheKey = `${decodedSource}-${currentTheme}`;
-            
-            if (diagramCache.has(cacheKey)) {
-              const cached = diagramCache.get(cacheKey);
-              const contentDiv = diagram.querySelector('.mermaid-diagram-content');
-              if (contentDiv) {
-                contentDiv.innerHTML = cached.svg;
-              }
-            } else {
-              renderDiagram(diagram);
-            }
-          });
-        }
-        
-        // Make functions globally available
-        window.initializeMermaid = renderAllDiagrams;
-        window.handleMermaidThemeChange = handleThemeChange;
-        window.clearMermaidCache = () => diagramCache.clear();
-        
-        // Initialize when DOM is ready
-        if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', renderAllDiagrams);
-        } else {
-          renderAllDiagrams();
-        }
-      }).catch((error) => {
-        console.error('Failed to load Mermaid:', error);
-      });
+      import('../scripts/mermaid-client.ts');
     </script>
 
   <!-- Global scripts - Defer non-critical JavaScript -->
@@ -704,6 +556,11 @@ const { seoData, bodyClass = '' } = Astro.props;
       }
       // Initialize table wrappers on initial page load
       window.initializeTableWrappers();
+      
+      // Initialize GraphModal on initial page load
+      if (window.initializeGraphModal) {
+        window.initializeGraphModal();
+      }
       
       // Initialize linked mentions on initial page load
       if (window.initializeLinkedMentions) {
@@ -829,6 +686,10 @@ const { seoData, bodyClass = '' } = Astro.props;
             setTimeout(() => {
               window.initializeTableWrappers();
             }, 50);
+            // Re-initialize GraphModal after page transition
+            if (window.initializeGraphModal) {
+              window.initializeGraphModal();
+            }
             // Initialize linked mentions
             if (window.initializeLinkedMentions) {
               window.initializeLinkedMentions();
@@ -836,6 +697,10 @@ const { seoData, bodyClass = '' } = Astro.props;
             // Initialize category filtering
             if (typeof window['initializeCategoryFiltering'] === 'function') {
               window['initializeCategoryFiltering']();
+            }
+            // Initialize table of contents
+            if (window.initializeTableOfContents) {
+              window.initializeTableOfContents();
             }
             // Reset and initialize local graph
             if (window.resetGraph) {
@@ -1129,54 +994,9 @@ const { seoData, bodyClass = '' } = Astro.props;
     // Listen for browser back/forward button
     window.addEventListener('popstate', handlePopState);
 
-    // Initialize Mermaid diagrams (bundled version)
-    function initializeMermaid() {
-      // Find all mermaid diagrams
-      const mermaidDiagrams = document.querySelectorAll('.mermaid-diagram[data-mermaid-source]');
-      
-      if (mermaidDiagrams.length === 0) {
-        return; // No diagrams found, exit early
-      }
-      
-      // Check if any diagrams are already rendered
-      const alreadyRendered = Array.from(mermaidDiagrams).filter(diagram => diagram.querySelector('svg'));
-      
-      if (alreadyRendered.length === mermaidDiagrams.length) {
-        return;
-      }
-
-      // Use bundled Mermaid (imported via module)
-      if (typeof window.initializeMermaid === 'function') {
-        window.initializeMermaid();
-      } else {
-        // Show error message in diagrams
-        mermaidDiagrams.forEach(diagram => {
-          diagram.classList.add('error');
-          const contentDiv = diagram.querySelector('.mermaid-diagram-content');
-          if (contentDiv) {
-            contentDiv.innerHTML = '<div class="p-4 text-center"><p class="text-red-600 dark:text-red-400 text-sm">Diagram unavailable</p></div>';
-          }
-        });
-      }
-    }
-
-    // This function is now handled by the bundled Mermaid utility
-
-    // Debounce Mermaid initialization to prevent excessive calls
-    let mermaidInitializationTimeout;
-    function debouncedInitializeMermaid() {
-      clearTimeout(mermaidInitializationTimeout);
-      mermaidInitializationTimeout = setTimeout(() => {
-        initializeMermaid();
-      }, 100);
-    }
-
-    // Make Mermaid functions globally available
-    window.initializeMermaid = debouncedInitializeMermaid;
-
-    // Handle theme changes for Mermaid diagrams
-    function handleThemeChange() {
-      // Use bundled Mermaid theme change handler
+    // Mermaid theme change handling
+    function handleMermaidThemeChange() {
+      // Use the utility's theme change handler
       if (typeof window.handleMermaidThemeChange === 'function') {
         window.handleMermaidThemeChange();
       }
@@ -1193,7 +1013,7 @@ const { seoData, bodyClass = '' } = Astro.props;
             
             // Only re-render if theme actually changed
             if (isDark !== wasDark) {
-              handleThemeChange();
+              handleMermaidThemeChange();
             }
           }
         });
@@ -1229,8 +1049,16 @@ const { seoData, bodyClass = '' } = Astro.props;
             window.initializeLinkedMentions();
           }
           // Initialize Mermaid diagrams after page transition is complete
-          if (window.initializeMermaid) {
+          if (typeof window.initializeMermaid === 'function') {
             window.initializeMermaid();
+          }
+          // Re-initialize GraphModal after page transition is complete
+          if (window.initializeGraphModal) {
+            window.initializeGraphModal();
+          }
+          // Initialize table of contents after page transition is complete
+          if (window.initializeTableOfContents) {
+            window.initializeTableOfContents();
           }
           // Graph initialization is handled in page:view hook to prevent duplicates
           // Don't call handleInitialHashScroll() here - it interferes with back/forward navigation
@@ -1249,16 +1077,7 @@ const { seoData, bodyClass = '' } = Astro.props;
       }
     }
 
-    // Initialize Mermaid diagrams on page load
-    if (typeof window !== 'undefined') {
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => {
-          debouncedInitializeMermaid();
-        });
-      } else {
-        debouncedInitializeMermaid();
-      }
-    }
+    // Mermaid diagrams are initialized by the utility automatically
 
     // Setup Swup behavior when available
     if (typeof window !== 'undefined') {
@@ -1275,6 +1094,9 @@ const { seoData, bodyClass = '' } = Astro.props;
 
   <!-- Lightbox for images (global) -->
   <Lightbox />
+  
+  <!-- Graph Modal (global) -->
+  <GraphModal />
 
   <!-- Additional body scripts -->
   <slot name="scripts" />

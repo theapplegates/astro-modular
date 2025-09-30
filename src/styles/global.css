@@ -334,7 +334,12 @@ kbd {
 }
 
 .btn-primary {
-  @apply bg-highlight-600 dark:bg-highlight-400 text-white dark:text-white hover:bg-highlight-700 dark:hover:bg-highlight-300 border-highlight-600 dark:border-highlight-400;
+  @apply bg-highlight-600 dark:bg-highlight-400 text-white dark:text-white border-highlight-600 dark:border-highlight-400;
+  transition: all 0.15s ease-out;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
 }
 
 .btn-secondary {
@@ -1108,15 +1113,15 @@ img + p em {
   fill: #f9fafb !important;
 }
 
-/* Explicitly preserve labelText and loopText colors */
+/* Fix labelText and loopText colors for dark mode */
 .dark .mermaid-diagram svg .labelText,
 .dark .mermaid-diagram svg .loopText,
 .dark .mermaid-diagram svg text.labelText,
 .dark .mermaid-diagram svg text.loopText,
 .dark .mermaid-diagram svg .loopText text,
 .dark .mermaid-diagram svg .labelText text {
-  fill: #333333 !important;
-  color: #333333 !important;
+  fill: #f9fafb !important;
+  color: #f9fafb !important;
 }
 
 /* Loop text that needs lighter color in dark mode (no background) */

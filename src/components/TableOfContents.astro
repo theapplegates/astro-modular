@@ -45,7 +45,8 @@ const filteredHeadings = headings.filter(h => h.depth >= 2 && h.depth <= 4);
 )}
 
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
+  // Global function to initialize table of contents
+  function initializeTableOfContents() {
     const tocLinks = document.querySelectorAll('.toc-link');
     const headings = document.querySelectorAll('h2, h3, h4, h5, h6');
     const tocToggle = document.querySelector('.toc-toggle') as HTMLButtonElement;
@@ -54,21 +55,32 @@ const filteredHeadings = headings.filter(h => h.depth >= 2 && h.depth <= 4);
     
     if (!tocLinks.length || !headings.length) return;
     
+    // Remove existing event listeners to prevent duplicates
+    if (tocToggle) {
+      const newToggle = tocToggle.cloneNode(true) as HTMLButtonElement;
+      tocToggle.parentNode?.replaceChild(newToggle, tocToggle);
+    }
+    
+    // Get fresh references after cloning
+    const freshTocToggle = document.querySelector('.toc-toggle') as HTMLButtonElement;
+    const freshTocList = document.querySelector('.toc-list') as HTMLElement;
+    const freshTocChevron = document.querySelector('.toc-chevron') as HTMLElement;
+    
     // TOC Toggle functionality
-    if (tocToggle && tocList && tocChevron) {
-      tocToggle.addEventListener('click', () => {
-        const isExpanded = tocToggle.getAttribute('aria-expanded') === 'true';
+    if (freshTocToggle && freshTocList && freshTocChevron) {
+      freshTocToggle.addEventListener('click', () => {
+        const isExpanded = freshTocToggle.getAttribute('aria-expanded') === 'true';
         
         if (isExpanded) {
           // Collapse
-          tocList.style.display = 'none';
-          tocToggle.setAttribute('aria-expanded', 'false');
-          tocChevron.style.transform = 'rotate(-90deg)';
+          freshTocList.style.display = 'none';
+          freshTocToggle.setAttribute('aria-expanded', 'false');
+          freshTocChevron.style.transform = 'rotate(-90deg)';
         } else {
           // Expand
-          tocList.style.display = 'block';
-          tocToggle.setAttribute('aria-expanded', 'true');
-          tocChevron.style.transform = 'rotate(0deg)';
+          freshTocList.style.display = 'block';
+          freshTocToggle.setAttribute('aria-expanded', 'true');
+          freshTocChevron.style.transform = 'rotate(0deg)';
         }
       });
     }
@@ -94,7 +106,6 @@ const filteredHeadings = headings.filter(h => h.depth >= 2 && h.depth <= 4);
       });
     }
     
-    
     // Update active link on scroll
     let ticking = false;
     window.addEventListener('scroll', () => {
@@ -118,7 +129,13 @@ const filteredHeadings = headings.filter(h => h.depth >= 2 && h.depth <= 4);
       tocNav.offsetHeight; // Trigger reflow
       tocNav.style.display = '';
     }
-  });
+  }
+
+  // Make function globally available
+  window.initializeTableOfContents = initializeTableOfContents;
+
+  // Initialize on DOMContentLoaded
+  document.addEventListener('DOMContentLoaded', initializeTableOfContents);
 </script>
 
 <style>

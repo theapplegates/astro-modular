@@ -79,7 +79,7 @@ footer: {
   showSocialIconsInFooter: true,
 },
 scrollToTop: true,
-darkModeToggleButton: true,
+darkModeToggleButton: "both",
 seo: {
   defaultOgImageAlt: "Astro Modular logo.",
 },
@@ -155,19 +155,25 @@ The command palette provides instant navigation and search functionality:
 
 ```typescript
 commandPalette: {
-  enabled: true,
-  shortcut: "ctrl+K",
-  placeholder: "Search posts",
-  sections: {
-    quickActions: true,
-    pages: true,
-    social: true,
-  },
+    enabled: true,
+    shortcut: "ctrl+K",
+    placeholder: "Search posts",
+    search: {
+      posts: true,
+      pages: false,
+      projects: false,
+      docs: false,
+    },
+    sections: {
+      quickActions: true,
+      pages: true,
+      social: true,
+    },
 }
 ```
 
 **Features:**
-- **Instant Search**: Press `Ctrl+K` to search posts, pages, and projects
+- **Instant Search**: Press `Ctrl+K` (or a different shortcut you define) to search posts, pages, and projects
 - **Quick Actions**: Theme switching, navigation shortcuts
 - **Customizable**: Change shortcut, placeholder text, and enabled sections
 
@@ -219,6 +225,13 @@ postOptions: {
     enabled: true,
     linkedMentionsCompact: false,
   },
+  graphView: {
+    enabled: true,
+    showInSidebar: true,
+    showInCommandPalette: true,
+    maxNodes: 100,
+    showOrphanedPosts: true,
+  },
   postNavigation: true,
   showPostCardCoverImages: "latest-and-posts",
   postCardAspectRatio: "og",

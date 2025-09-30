@@ -3,6 +3,12 @@ import { siteConfig } from '../config';
 import Icon from './Icon.astro';
 ---
 
+<!-- Make site configuration available to client-side JavaScript -->
+<script define:vars={{ siteConfig }}>
+  // Make siteConfig available globally for the command palette
+  window.siteConfig = siteConfig;
+</script>
+
 <!-- Command Palette Overlay -->
 <div 
   id="command-palette-overlay" 
@@ -70,17 +76,21 @@ import Icon from './Icon.astro';
         <div id="command-palette-default" class="divide-y divide-primary-200 dark:divide-primary-700">
           <!-- Quick Actions -->
           {siteConfig.commandPalette.sections.quickActions && (
+            (siteConfig.darkModeToggleButton === "commandPalette" || siteConfig.darkModeToggleButton === "both" || 
+             (siteConfig.postOptions.graphView.enabled && siteConfig.postOptions.graphView.showInCommandPalette)) && (
             <div class="p-2">
               <div class="px-3 py-2 text-xs font-medium text-primary-500 dark:text-primary-400 uppercase tracking-wide">
                 Quick Actions
               </div>
-              <button 
-                data-action="toggle-theme"
-                class="w-full flex items-center space-x-3 px-3 py-2 text-left hover:bg-primary-50 dark:hover:bg-primary-800 rounded-lg transition-colors group"
-              >
-                <Icon name="palette" class="w-4 h-4 text-primary-500 dark:text-primary-400 group-hover:text-highlight-500" />
-                <span class="text-primary-900 dark:text-primary-50">Toggle Theme</span>
-              </button>
+              {(siteConfig.darkModeToggleButton === "commandPalette" || siteConfig.darkModeToggleButton === "both") && (
+                <button 
+                  data-action="toggle-theme"
+                  class="w-full flex items-center space-x-3 px-3 py-2 text-left hover:bg-primary-50 dark:hover:bg-primary-800 rounded-lg transition-colors group"
+                >
+                  <Icon name="palette" class="w-4 h-4 text-primary-500 dark:text-primary-400 group-hover:text-highlight-500" />
+                  <span class="text-primary-900 dark:text-primary-50">Toggle Theme</span>
+                </button>
+              )}
               
               {siteConfig.postOptions.graphView.enabled && siteConfig.postOptions.graphView.showInCommandPalette && (
                 <button 
@@ -92,7 +102,7 @@ import Icon from './Icon.astro';
                 </button>
               )}
             </div>
-          )}
+          ))}
 
           <!-- Pages -->
           {siteConfig.commandPalette.sections.pages && siteConfig.navigation.pages.length > 0 && (
@@ -294,32 +304,76 @@ import Icon from './Icon.astro';
       }
 
       try {
-        // Load all content types in parallel
-        const [postsResponse, projectsResponse, docsResponse] = await Promise.all([
-          fetch('/api/posts.json'),
-          fetch('/api/projects.json'),
-          fetch('/api/docs.json')
-        ]);
+        // Get search configuration from the global config
+        const searchConfig = (window as any).siteConfig?.commandPalette?.search || {
+          posts: true,
+          pages: false,
+          projects: false,
+          docs: false
+        };
+
+        // Get optional content types configuration
+        const optionalContentTypes = (window as any).siteConfig?.optionalContentTypes || {
+          projects: true,
+          docs: true
+        };
 
         const allItems = [];
+        const promises = [];
 
-        // Load posts
-        if (postsResponse.ok) {
-          const posts = await postsResponse.json();
-          allItems.push(...posts);
+        // Load posts if enabled in search config
+        if (searchConfig.posts) {
+          promises.push(
+            fetch('/api/posts.json').then(response => 
+              response.ok ? response.json() : []
+            )
+          );
+        } else {
+          promises.push(Promise.resolve([]));
         }
 
-        // Load projects
-        if (projectsResponse.ok) {
-          const projects = await projectsResponse.json();
-          allItems.push(...projects);
+        // Load pages if enabled in search config
+        if (searchConfig.pages) {
+          promises.push(
+            fetch('/api/pages.json').then(response => {
+              return response.ok ? response.json() : [];
+            }).catch(error => {
+              return [];
+            })
+          );
+        } else {
+          promises.push(Promise.resolve([]));
         }
 
-        // Load documentation
-        if (docsResponse.ok) {
-          const docs = await docsResponse.json();
-          allItems.push(...docs);
+        // Load projects if enabled in search config AND projects content type is enabled
+        if (searchConfig.projects && optionalContentTypes.projects) {
+          promises.push(
+            fetch('/api/projects.json').then(response => 
+              response.ok ? response.json() : []
+            )
+          );
+        } else {
+          promises.push(Promise.resolve([]));
         }
+
+        // Load documentation if enabled in search config AND docs content type is enabled
+        if (searchConfig.docs && optionalContentTypes.docs) {
+          promises.push(
+            fetch('/api/docs.json').then(response => {
+              return response.ok ? response.json() : [];
+            }).catch(error => {
+              return [];
+            })
+          );
+        } else {
+          promises.push(Promise.resolve([]));
+        }
+
+        // Wait for all API calls to complete
+        const [posts, pages, projects, docs] = await Promise.all(promises);
+
+        // Add items to the array
+        allItems.push(...posts, ...pages, ...projects, ...docs);
 
         this.items = allItems;
         // Don't initialize Fuse.js immediately - wait until first search
@@ -650,28 +704,71 @@ import Icon from './Icon.astro';
       // Clear previous search results
       this.searchResults.innerHTML = '';
 
-      // Create a container for posts results
-      const postsContainer = document.createElement('div');
-      postsContainer.className = 'p-2';
+      // Get search configuration
+      const searchConfig = (window as any).siteConfig?.commandPalette?.search || {
+        posts: true,
+        pages: false,
+        projects: false,
+        docs: false
+      };
 
-      // Filter for post type items
-      const postItems = this.filteredItems.filter(item => item.type === 'post');
+      // Get optional content types configuration
+      const optionalContentTypes = (window as any).siteConfig?.optionalContentTypes || {
+        projects: true,
+        docs: true
+      };
 
-      if (postItems.length > 0) {
-        const header = document.createElement('div');
-        header.className = 'px-3 py-2 text-xs font-medium text-primary-500 dark:text-primary-400 uppercase tracking-wide';
-        header.textContent = `Posts (${postItems.length})`;
-        postsContainer.appendChild(header);
+      // Filter items by enabled content types
+      const enabledTypes: string[] = [];
+      if (searchConfig.posts) enabledTypes.push('post');
+      if (searchConfig.pages) enabledTypes.push('page');
+      if (searchConfig.projects && optionalContentTypes.projects) enabledTypes.push('project');
+      if (searchConfig.docs && optionalContentTypes.docs) enabledTypes.push('docs', 'documentation');
 
-        // Use virtual scrolling for large lists
-        if (postItems.length > this.VIRTUAL_SCROLL_THRESHOLD) {
-          this.renderVirtualizedResults(postsContainer, postItems);
-        } else {
-          this.renderStandardResults(postsContainer, postItems);
-        }
+      const filteredByType = this.filteredItems.filter((item: CommandPaletteItem) => enabledTypes.includes(item.type));
+
+      if (filteredByType.length === 0) {
+        return;
       }
-      
-      this.searchResults.appendChild(postsContainer);
+
+      // Group items by type
+      const groupedItems = {
+        posts: filteredByType.filter(item => item.type === 'post'),
+        pages: filteredByType.filter(item => item.type === 'page'),
+        projects: filteredByType.filter(item => item.type === 'project'),
+        docs: filteredByType.filter(item => item.type === 'docs' || item.type === 'documentation')
+      };
+
+      // Render each content type section
+      Object.entries(groupedItems).forEach(([type, items]) => {
+        if (items.length > 0) {
+          const container = document.createElement('div');
+          container.className = 'p-2';
+
+          const header = document.createElement('div');
+          header.className = 'px-3 py-2 text-xs font-medium text-primary-500 dark:text-primary-400 uppercase tracking-wide';
+          
+          // Format section titles
+          const sectionTitles = {
+            posts: 'Posts',
+            pages: 'Pages', 
+            projects: 'Projects',
+            docs: 'Documentation'
+          };
+          
+          header.textContent = `${sectionTitles[type as keyof typeof sectionTitles]} (${items.length})`;
+          container.appendChild(header);
+
+          // Use virtual scrolling for large lists
+          if (items.length > this.VIRTUAL_SCROLL_THRESHOLD) {
+            this.renderVirtualizedResults(container, items);
+          } else {
+            this.renderStandardResults(container, items);
+          }
+
+          this.searchResults.appendChild(container);
+        }
+      });
     }
 
     private renderStandardResults(container: HTMLElement, items: CommandPaletteItem[]) {
@@ -778,26 +875,26 @@ import Icon from './Icon.astro';
       const iconDiv = document.createElement('div');
       iconDiv.className = 'w-4 h-4 text-primary-500 dark:text-primary-400 group-hover:text-highlight-500 mt-0.5';
       
-      let iconSvg = '';
+      let iconPath = '';
       switch (item.type) {
         case 'post':
-          iconSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>';
+          iconPath = '<path d="M16 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8Z"/><path d="M15 3v4a2 2 0 0 0 2 2h4"/>';
           break;
         case 'project':
-          iconSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>';
+          iconPath = '<path d="m6 14 1.45-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.55 6a2 2 0 0 1-1.94 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"/>';
           break;
         case 'docs':
         case 'documentation':
-          iconSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>';
+          iconPath = '<path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"/><path d="M8 11h8"/><path d="M8 7h6"/>';
           break;
         case 'page':
-          iconSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>';
+          iconPath = '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>';
           break;
         default:
-          iconSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>';
+          iconPath = '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>';
       }
       
-      iconDiv.innerHTML = iconSvg;
+      iconDiv.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${iconPath}</svg>`;
       anchor.appendChild(iconDiv);
 
       // Add container for title and description
@@ -958,8 +1055,21 @@ import Icon from './Icon.astro';
           // Open graph modal
           if ((window as any).openGraphModal) {
             (window as any).openGraphModal();
+          } else {
+            // Try to initialize GraphModal if it's not available
+            if ((window as any).initializeGraphModal) {
+              (window as any).initializeGraphModal();
+              // Try again after initialization
+              setTimeout(() => {
+                if ((window as any).openGraphModal) {
+                  (window as any).openGraphModal();
+                }
+              }, 100);
+            } else {
+            }
           }
-          this.close(); // Close palette after action
+          // Close palette after action
+          this.close();
           break;
         // Add more actions here as needed
       }
