@@ -6,8 +6,8 @@ categories:
   - Obsidian
   - Astro
   - Plugin
-repositoryUrl: https://github.com/davidvkimball/obsidian-astro-composer
-demoUrl:
+repositoryUrl:
+projectUrl: https://github.com/davidvkimball/obsidian-astro-composer
 status: in-progress
 image: "[[images/rock.png]]"
 imageAlt: Gray, rocky wall
@@ -49,3 +49,7 @@ The plugin can be installed directly into Obsidian's `.obsidian/plugins/` direct
 ## Project Status
 
 This project is in-progress and actively maintained. The latest version includes robust automation features and comprehensive configuration options for various Astro workflows.
+
+<a href="https://github.com/davidvkimball/obsidian-astro-composer" class="no-styling no-underline" target="_blank"><button class="btn btn-primary w-full">  
+    View Project  
+  </button></a>

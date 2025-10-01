@@ -9,7 +9,7 @@ export const devConfig = {
     // Show placeholder images for missing assets in development
     showPlaceholders: true,
     // Log missing images to console in development
-    logMissingImages: false,
+    logMissingImages: true,
     // Fallback image paths
     fallbacks: {
       posts: '/posts/images/placeholder.jpg',

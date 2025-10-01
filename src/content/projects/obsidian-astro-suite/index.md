@@ -7,10 +7,10 @@ categories:
   - Astro
   - Vault
   - Template
-repositoryUrl: https://github.com/davidvkimball/obsidian-astro-suite
-demoUrl:
+repositoryUrl:
+projectUrl: https://github.com/davidvkimball/obsidian-astro-suite
 status: in-progress
-image: "[[images/glacier.png]]"
+image: "[[glacier.png]]"
 imageAlt:
 hideCoverImage: false
 hideTOC: false
@@ -72,3 +72,7 @@ The suite can be easily integrated into existing Astro projects by copying the v
 ## Project Status
 
 This project is in-progress and actively maintained. The suite provides a complete solution for Obsidian-based content management with Astro publishing workflows.
+
+<a href="https://github.com/davidvkimball/obsidian-astro-suite" class="no-styling no-underline" target="_blank"><button class="btn btn-primary w-full">  
+    View Project  
+  </button></a>

@@ -71,7 +71,7 @@ export function groupDocsByCategory(docs: CollectionEntry<'docs'>[]): Record<str
   docs.forEach(doc => {
     let category = doc.data.category;
     
-    // If no category or "General", put in "Unsorted"
+    // If no category, empty string, null, undefined, or "General", put in "Unsorted"
     if (!category || category.trim() === '' || category === 'General') {
       category = 'Unsorted';
     }

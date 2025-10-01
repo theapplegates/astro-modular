@@ -44,7 +44,7 @@ const projectsCollection = defineCollection({
     date: z.coerce.date().default(() => new Date()),
     categories: z.array(z.string()).nullable().optional().default([]),
     repositoryUrl: z.string().url().nullable().optional(),
-    demoUrl: z.string().url().nullable().optional(),
+    projectUrl: z.string().url().nullable().optional(),
     status: z.string().nullable().optional(),
     image: z.string().nullable().optional(),
     imageAlt: z.string().nullable().optional(),

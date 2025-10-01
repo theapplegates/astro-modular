@@ -4,6 +4,8 @@ import { siteConfig } from '@/config';
 import { generateDocumentationSEO } from '@/utils/seo';
 import { isValidDate } from '@/utils/markdown';
 import { optimizeContentImagePath } from '@/utils/images';
+import { hasDocCategories } from '@/utils/categories';
+import { getCollection } from 'astro:content';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import TableOfContents from '@/components/TableOfContents.astro';
 import Lightbox from '@/components/Lightbox.astro';
@@ -14,6 +16,10 @@ export interface Props {
 }
 
 const { documentation } = Astro.props;
+
+// Check if there are any real categories in the system
+const allDocs = await getCollection('docs');
+const docsHaveCategories = hasDocCategories(allDocs);
 
 // Render the documentation content
 const { Content, headings } = await documentation.render();
@@ -48,7 +54,11 @@ const structuredData = {
   dateCreated: documentation.data.lastModified?.toISOString() || new Date().toISOString(),
   dateModified: documentation.data.lastModified?.toISOString() || new Date().toISOString(),
   version: documentation.data.version || '1.0',
-  articleSection: documentation.data.category
+  articleSection: docsHaveCategories 
+    ? (documentation.data.category && documentation.data.category.trim() !== '' && documentation.data.category !== 'General' 
+        ? documentation.data.category 
+        : 'Unsorted')
+    : undefined
 };
 ---
 
@@ -96,14 +106,22 @@ const structuredData = {
             </h1>
 
             <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-primary-600 dark:text-primary-300 mb-6">
-              <span class="px-2 py-1 bg-primary-100 dark:bg-primary-800 text-primary-700 dark:text-primary-300 rounded-full text-xs font-medium">
-                {documentation.data.category}
-              </span>
+              {docsHaveCategories && (
+                <span class="px-2 py-1 bg-primary-100 dark:bg-primary-800 text-primary-700 dark:text-primary-300 rounded-full text-xs font-medium">
+                  {documentation.data.category && documentation.data.category.trim() !== '' && documentation.data.category !== 'General' 
+                    ? documentation.data.category 
+                    : 'Unsorted'}
+                </span>
+              )}
 
               {documentation.data.version && (
                 <>
-                  <span class="text-primary-300 dark:text-primary-600 hidden sm:inline">•</span>
-                  <span class="text-primary-300 dark:text-primary-600 sm:hidden">•</span>
+                  {docsHaveCategories && (
+                    <>
+                      <span class="text-primary-300 dark:text-primary-600 hidden sm:inline">•</span>
+                      <span class="text-primary-300 dark:text-primary-600 sm:hidden">•</span>
+                    </>
+                  )}
                   <span class="text-xs">
                     Version {documentation.data.version}
                   </span>
@@ -112,8 +130,12 @@ const structuredData = {
 
               {documentation.data.lastModified && isValidDate(documentation.data.lastModified) && (
                 <>
-                  <span class="text-primary-300 dark:text-primary-600 hidden sm:inline">•</span>
-                  <span class="text-primary-300 dark:text-primary-600 sm:hidden">•</span>
+                  {(docsHaveCategories || documentation.data.version) && (
+                    <>
+                      <span class="text-primary-300 dark:text-primary-600 hidden sm:inline">•</span>
+                      <span class="text-primary-300 dark:text-primary-600 sm:hidden">•</span>
+                    </>
+                  )}
                   <time datetime={documentation.data.lastModified.toISOString()} class="text-xs">
                     <span class="hidden sm:inline">
                       Updated {documentation.data.lastModified.toLocaleDateString('en-US', {

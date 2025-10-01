@@ -27,6 +27,21 @@ const { project } = Astro.props;
 // Normalize status for consistent handling
 const status = normalizeStatus(project.data.status);
 
+// Smart repository icon detection
+const getRepositoryIcon = (repositoryUrl: string) => {
+  if (!repositoryUrl) return 'folder-git-2';
+  
+  const url = repositoryUrl.toLowerCase();
+  
+  if (url.includes('github.com') || url.includes('github.io')) {
+    return 'github';
+  } else if (url.includes('gitlab.com')) {
+    return 'gitlab';
+  } else {
+    return 'folder-git-2';
+  }
+};
+
 // Check if we're in development mode
 const isDev = import.meta.env.DEV;
 
@@ -59,7 +74,7 @@ const structuredData = {
     "@type": "WebPage",
     "@id": Astro.url.href
   },
-  "url": project.data.demoUrl || Astro.url.href,
+  "url": project.data.projectUrl || Astro.url.href,
   "codeRepository": project.data.repositoryUrl
 };
 
@@ -133,13 +148,13 @@ const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProject
                 const isFolderBasedProject = project.id.includes('/') && project.id.endsWith('/index.md');
                 
                 if (isFolderBasedProject) {
-                  // Remove Obsidian brackets to get the actual image path
+                  // For folder-based projects, check if image is in images/ subfolder
+                  // We need to check the cleaned path to determine the basePath
                   let cleanImagePath = project.data.image;
                   if (cleanImagePath.startsWith('[[') && cleanImagePath.endsWith(']]')) {
                     cleanImagePath = cleanImagePath.slice(2, -2);
                   }
                   
-                  // For folder-based projects, check if image is in images/ subfolder
                   if (cleanImagePath.startsWith('images/')) {
                     return `/projects/${project.slug}/images/`;
                   }
@@ -165,10 +180,39 @@ const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProject
         <!-- Project content wrapper -->
         <div class={`p-6 ${siteConfig.postOptions.showPostCardCoverImages !== 'none' && project.data.image && project.data.hideCoverImage !== true ? 'rounded-b-lg' : 'rounded-lg'}`}>
           <!-- Project header -->
-          <header class="mb-4">
-            <h1 class="text-xl font-bold text-primary-900 dark:text-primary-50 mb-6 leading-tight">
+          <header class="mb-4 relative">
+            <h1 class="text-xl font-bold text-primary-900 dark:text-primary-50 mb-6 leading-tight pr-20">
               {project.data.title}
             </h1>
+            
+            <!-- Floating Action Buttons -->
+            <div class="absolute top-0 right-0 flex gap-2">
+              {project.data.repositoryUrl && (
+                <a
+                  href={project.data.repositoryUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center justify-center px-2 py-2 text-sm text-primary-600 dark:text-primary-300 bg-primary-50 dark:bg-primary-800 rounded-lg border border-primary-200 dark:border-primary-700 hover:bg-highlight-100 dark:hover:bg-highlight-800 hover:text-highlight-700 dark:hover:text-highlight-300 transition-all duration-200 hover:shadow-md"
+                  title="View Repository"
+                >
+                  <Icon name={getRepositoryIcon(project.data.repositoryUrl)} class="w-4 h-4" />
+                </a>
+              )}
+              {project.data.projectUrl && (
+                <a
+                  href={project.data.projectUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center gap-1.5 px-3 py-2 text-sm bg-highlight-600 dark:bg-highlight-400 text-white border-highlight-600 dark:border-highlight-400 rounded-lg hover:opacity-90 transition-all duration-200"
+                  style="color: white !important;"
+                  title="View Project"
+                >
+                  <span class="hidden sm:inline">View</span>
+                  <span class="sm:hidden">View</span>
+                  <Icon name="external-link" class="w-4 h-4" />
+                </a>
+              )}
+            </div>
 
             <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-primary-600 dark:text-primary-300 mb-6">
               {isValidDate(project.data.date) && (
@@ -210,31 +254,6 @@ const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProject
               </div>
             )}
 
-            <!-- Project links -->
-            <div class="flex flex-wrap gap-4 mb-8">
-              {project.data.repositoryUrl && (
-                <a
-                  href={project.data.repositoryUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="inline-flex items-center gap-2 px-4 py-2 bg-primary-100 dark:bg-primary-800 text-primary-700 dark:text-primary-300 rounded-lg border border-primary-200 dark:border-primary-700 hover:bg-highlight-100 dark:hover:bg-highlight-800 hover:text-highlight-700 dark:hover:text-highlight-300 transition-colors"
-                >
-                  <Icon name="github" class="w-4 h-4" />
-                  <span>Repository</span>
-                </a>
-              )}
-              {project.data.demoUrl && (
-                <a
-                  href={project.data.demoUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="inline-flex items-center gap-2 px-4 py-2 bg-highlight-100 dark:bg-highlight-800 text-highlight-700 dark:text-highlight-300 rounded-lg border border-highlight-200 dark:border-highlight-700 hover:bg-highlight-200 dark:hover:bg-highlight-700 transition-colors"
-                >
-                  <Icon name="external-link" class="w-4 h-4" />
-                  <span>Live Demo</span>
-                </a>
-              )}
-            </div>
           </header>
 
           <!-- Article content -->

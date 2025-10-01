@@ -62,7 +62,7 @@ export interface ProjectData {
   date: Date;
   categories?: string[];
   repositoryUrl?: string;
-  demoUrl?: string;
+  projectUrl?: string;
   status?: string | null;
   image?: string;
   imageAlt?: string;

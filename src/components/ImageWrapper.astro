@@ -47,13 +47,16 @@ if (cleanSrc.startsWith('[[') && cleanSrc.endsWith(']]')) {
 }
 
 // Determine image type using cleaned src
+// For folder-based content, if basePath indicates a synced folder, treat as public
+const isSyncedFolder = basePath && basePath.includes('/') && !basePath.endsWith('/images/');
 const isLocal = !(
   cleanSrc.startsWith("/") ||
   cleanSrc.startsWith("http") ||
   cleanSrc.startsWith("https") ||
-  cleanSrc.startsWith("data:")
+  cleanSrc.startsWith("data:") ||
+  isSyncedFolder
 );
-const isPublic = cleanSrc.startsWith("/");
+const isPublic = cleanSrc.startsWith("/") || isSyncedFolder;
 
 // Dynamic import for local images
 let img: any = null;
@@ -138,7 +141,7 @@ const imageStyle = `object-position: ${position}`;
     />
   ) : isPublic ? (
     <img 
-      src={cleanSrc} 
+      src={isSyncedFolder ? `${basePath}${cleanSrc}` : cleanSrc} 
       alt={alt} 
       class={imageClass} 
       style={imageStyle}

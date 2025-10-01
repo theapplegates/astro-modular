@@ -3,6 +3,7 @@ import type { CollectionEntry } from 'astro:content';
 import { formatDate, processMarkdown, isValidDate } from '../utils/markdown';
 import { siteConfig, getPostCardAspectRatio } from '../config';
 import { normalizeStatus, getStatusDisplayText, hasStatusStyling, getStatusClasses } from '../utils/status';
+import { optimizeContentImagePath } from '../utils/images';
 import ImageWrapper from './ImageWrapper.astro';
 import Icon from './Icon.astro';
 
@@ -27,7 +28,7 @@ const imageAlt = project.data.imageAlt || `Cover image for ${title}`;
 const categories = project.data.categories || [];
 const status = normalizeStatus(project.data.status);
 const repositoryUrl = project.data.repositoryUrl;
-const demoUrl = project.data.demoUrl;
+const projectUrl = project.data.projectUrl;
 
 // Get aspect ratio for cover image
 const aspectRatio = getPostCardAspectRatio();

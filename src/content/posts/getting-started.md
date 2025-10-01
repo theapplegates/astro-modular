@@ -471,7 +471,7 @@ description: "Project description"
 date: {{date}}
 categories: ["Web Development", "Open Source"]
 repositoryUrl: "https://github.com/username/repo"
-demoUrl: "https://your-demo.com"
+projectUrl: "https://your-project.com"
 status: "completed"  # "in-progress" or "completed"
 image: "cover.jpg"
 imageAlt: "Project screenshot"

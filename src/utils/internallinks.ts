@@ -856,19 +856,20 @@ export function processContentAwareWikilinks(content: string, allPosts: any[], a
 // IMAGE PROCESSING
 // ============================================================================
 
-// Custom remark plugin to handle folder-based post images
+// Custom remark plugin to handle folder-based post and project images
 export function remarkFolderImages() {
   return function transformer(tree: any, file: any) {
     visit(tree, 'image', (node: any) => {
-      // Check if this is a folder-based post by looking at the file path
+      // Check if this is a folder-based post or project by looking at the file path
       const isFolderPost = file.path && file.path.includes('/posts/') && file.path.endsWith('/index.md');
+      const isFolderProject = file.path && file.path.includes('/projects/') && file.path.endsWith('/index.md');
       
-      
-      if (isFolderPost && node.url && !node.url.startsWith('/') && !node.url.startsWith('http')) {
-        // Extract the post slug from the file path
+      if ((isFolderPost || isFolderProject) && node.url && !node.url.startsWith('/') && !node.url.startsWith('http')) {
+        // Extract the content slug from the file path
         const pathParts = file.path.split('/');
-        const postsIndex = pathParts.indexOf('posts');
-        const postSlug = pathParts[postsIndex + 1];
+        const contentIndex = isFolderPost ? pathParts.indexOf('posts') : pathParts.indexOf('projects');
+        const contentSlug = pathParts[contentIndex + 1];
+        const collection = isFolderPost ? 'posts' : 'projects';
         
         // Handle both relative paths and subdirectory paths
         let imagePath = node.url;
@@ -879,8 +880,7 @@ export function remarkFolderImages() {
         }
         
         // Update the image URL to point to the correct folder (preserving subdirectory structure)
-        node.url = `/posts/${postSlug}/${imagePath}`;
-        
+        node.url = `/${collection}/${contentSlug}/${imagePath}`;
         
         // Also update the hProperties if they exist (for wikilink images)
         if (node.data && node.data.hProperties) {

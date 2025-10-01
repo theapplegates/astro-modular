@@ -38,9 +38,6 @@
     "customSlug": {
       "icon": "lucide-text-cursor-input"
     },
-    "demoUrl": {
-      "icon": "lucide-square-dashed-mouse-pointer"
-    },
     "description": {
       "icon": "lucide-letter-text"
     },
@@ -68,6 +65,9 @@
     "noIndex": {
       "icon": "lucide-list-x"
     },
+    "projectUrl": {
+      "icon": "lucide-square-dashed-mouse-pointer"
+    },
     "repositoryUrl": {
       "icon": "lucide-github"
     },
@@ -79,6 +79,9 @@
     },
     "title": {
       "icon": "lucide-type"
+    },
+    "undefined": {
+      "icon": "lucide-square-dashed-mouse-pointer"
     },
     "version": {
       "icon": "lucide-tag"
