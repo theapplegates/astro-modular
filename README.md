@@ -51,9 +51,13 @@ A flexible blog theme designed for Obsidian users.
 - [x] **Smooth Scroll & Page Transitions** 
 - [x] **Image Gallery & Lightbox** 
 - [x] **Reading Time & Word Count** 
-- [x] **Tagging** 
+- [x] **Tagging**
+- [x] **Graph View**
+- [x] **Mermaid Diagrams**
+- [x] **LaTeX & Math Rendering** 
 - [x] **Profile Picture** 
-- [x] **Comments** 
+- [x] **Comments**
+- [x] **Pull Latest Updates**
 
 ## Quick Start
 
