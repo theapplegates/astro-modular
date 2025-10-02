@@ -96,14 +96,10 @@ A flexible blog theme designed for Obsidian users.
 
 5. **Update theme (optional):**
    ```bash
-   # Safe update (recommended) - preserves your content
    pnpm run update-theme
-   
-   # Content update (use with caution) - may overwrite your content
-   pnpm run update-theme:content
    ```
    
-   The update command helps you keep your theme up to date with the latest features and fixes while protecting your content by default.
+   The update command helps you keep your theme up to date with the latest features and fixes while protecting your content.
 
 ### Configuration
 
