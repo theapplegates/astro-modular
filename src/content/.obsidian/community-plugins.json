@@ -12,10 +12,10 @@
   "title-only-tab",
   "paste-image-into-property",
   "simple-banner",
-  "iconic",
   "cmdr",
   "obsidian-shellcommands",
   "obsidian-git",
   "alias-filename-history",
-  "property-over-filename"
+  "property-over-filename",
+  "iconic"
 ]

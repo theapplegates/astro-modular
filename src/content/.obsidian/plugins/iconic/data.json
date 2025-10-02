@@ -81,7 +81,7 @@
       "icon": "lucide-type"
     },
     "undefined": {
-      "icon": "lucide-square-dashed-mouse-pointer"
+      "icon": "lucide-search-check"
     },
     "version": {
       "icon": "lucide-tag"
