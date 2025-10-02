@@ -99,6 +99,9 @@ views:
     imageAspectRatio: 0.8
   - type: cards
     name: All Content
+    groupBy:
+      property: formula.Content Folder
+      direction: ASC
     order:
       - title
       - formula.Slug
