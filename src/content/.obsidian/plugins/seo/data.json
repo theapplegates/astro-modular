@@ -1,0 +1,651 @@
+{
+  "scanDirectories": "posts",
+  "keywordProperty": "targetKeyword",
+  "descriptionProperty": "description",
+  "titleProperty": "title",
+  "useFilenameAsTitle": false,
+  "checkContentLength": true,
+  "checkImageNaming": true,
+  "checkDuplicateContent": true,
+  "checkReadingLevel": true,
+  "showNotices": true,
+  "defaultSort": "warnings-desc",
+  "minContentLength": 300,
+  "keywordDensityMin": 1,
+  "keywordDensityMax": 2,
+  "duplicateThreshold": 80,
+  "cachedGlobalResults": [
+    {
+      "file": "posts/sample-folder-post/index.md",
+      "checks": {
+        "titleLength": [
+          {
+            "passed": false,
+            "message": "Title too short: 24 characters",
+            "suggestion": "Aim for 30-60 characters.",
+            "severity": "warning"
+          }
+        ],
+        "metaDescription": [
+          {
+            "passed": false,
+            "message": "Description too short: 60 characters",
+            "suggestion": "Aim for 120-160 characters",
+            "severity": "warning"
+          }
+        ],
+        "keywordInTitle": [
+          {
+            "passed": false,
+            "message": "Target keyword \"\"\"\" not found in title",
+            "suggestion": "Include your target keyword in the title for better SEO",
+            "severity": "warning"
+          }
+        ],
+        "keywordDensity": [
+          {
+            "passed": false,
+            "message": "Target keyword \"\"\"\" not found in content",
+            "suggestion": "Include your target keyword naturally in the content",
+            "severity": "warning"
+          }
+        ],
+        "headingOrder": [
+          {
+            "passed": true,
+            "message": "Heading structure is correct",
+            "severity": "info"
+          }
+        ],
+        "contentLength": [
+          {
+            "passed": false,
+            "message": "Content too short: 82 words",
+            "suggestion": "Aim for at least 300 words for better SEO",
+            "severity": "warning"
+          }
+        ],
+        "duplicateContent": [
+          {
+            "passed": true,
+            "message": "No duplicate content found across vault",
+            "severity": "info"
+          }
+        ],
+        "altText": [
+          {
+            "passed": true,
+            "message": "All images have alt text",
+            "severity": "info"
+          }
+        ],
+        "imageNaming": [
+          {
+            "passed": true,
+            "message": "All images have good filenames",
+            "severity": "info"
+          }
+        ],
+        "brokenLinks": [
+          {
+            "passed": true,
+            "message": "No broken links found",
+            "severity": "info"
+          }
+        ],
+        "potentiallyBrokenLinks": [
+          {
+            "passed": true,
+            "message": "No potentially broken links found",
+            "severity": "info"
+          }
+        ],
+        "nakedLinks": [
+          {
+            "passed": true,
+            "message": "No naked links found",
+            "severity": "info"
+          }
+        ],
+        "readingLevel": [
+          {
+            "passed": true,
+            "message": "Good reading level: 10.0 (College Prep)",
+            "severity": "info"
+          }
+        ],
+        "notices": [
+          {
+            "passed": false,
+            "message": "Found 2 wikilink(s) that may not render on web",
+            "suggestion": "Consider converting to markdown links for web publishing:<br><br>• cover.png<br>• forest.png",
+            "severity": "warning"
+          },
+          {
+            "passed": false,
+            "message": "Found 2 embedded image(s) that may not work on web",
+            "suggestion": "Ensure images are properly linked and accessible:<br><br>• forest.png<br>• forest.png",
+            "severity": "warning"
+          }
+        ]
+      },
+      "overallScore": 40,
+      "issuesCount": 0,
+      "warningsCount": 7
+    },
+    {
+      "file": "posts/mermaid-diagram-test.md",
+      "checks": {
+        "titleLength": [
+          {
+            "passed": false,
+            "message": "Title too short: 20 characters",
+            "suggestion": "Aim for 30-60 characters.",
+            "severity": "warning"
+          }
+        ],
+        "metaDescription": [
+          {
+            "passed": false,
+            "message": "Description too short: 87 characters",
+            "suggestion": "Aim for 120-160 characters",
+            "severity": "warning"
+          }
+        ],
+        "keywordInTitle": [
+          {
+            "passed": false,
+            "message": "Target keyword \"aliases:\" not found in title",
+            "suggestion": "Include your target keyword in the title for better SEO",
+            "severity": "warning"
+          }
+        ],
+        "keywordDensity": [
+          {
+            "passed": false,
+            "message": "Target keyword \"aliases:\" not found in content",
+            "suggestion": "Include your target keyword naturally in the content",
+            "severity": "warning"
+          }
+        ],
+        "headingOrder": [
+          {
+            "passed": true,
+            "message": "Heading structure is correct",
+            "severity": "info"
+          }
+        ],
+        "contentLength": [
+          {
+            "passed": false,
+            "message": "Content too short: 105 words",
+            "suggestion": "Aim for at least 300 words for better SEO",
+            "severity": "warning"
+          }
+        ],
+        "duplicateContent": [
+          {
+            "passed": true,
+            "message": "No duplicate content found across vault",
+            "severity": "info"
+          }
+        ],
+        "altText": [
+          {
+            "passed": true,
+            "message": "No images in this post",
+            "severity": "info"
+          }
+        ],
+        "imageNaming": [
+          {
+            "passed": true,
+            "message": "All images have good filenames",
+            "severity": "info"
+          }
+        ],
+        "brokenLinks": [
+          {
+            "passed": true,
+            "message": "No broken links found",
+            "severity": "info"
+          }
+        ],
+        "potentiallyBrokenLinks": [
+          {
+            "passed": true,
+            "message": "No potentially broken links found",
+            "severity": "info"
+          }
+        ],
+        "nakedLinks": [
+          {
+            "passed": true,
+            "message": "No naked links found",
+            "severity": "info"
+          }
+        ],
+        "readingLevel": [
+          {
+            "passed": true,
+            "message": "Good reading level: 12.0 (College)",
+            "severity": "info"
+          }
+        ],
+        "notices": [
+          {
+            "passed": true,
+            "message": "No web compatibility issues found",
+            "severity": "info"
+          }
+        ]
+      },
+      "overallScore": 40,
+      "issuesCount": 0,
+      "warningsCount": 5
+    },
+    {
+      "file": "posts/getting-started.md",
+      "checks": {
+        "titleLength": [
+          {
+            "passed": false,
+            "message": "Title too short: 15 characters",
+            "suggestion": "Aim for 30-60 characters.",
+            "severity": "warning"
+          }
+        ],
+        "metaDescription": [
+          {
+            "passed": false,
+            "message": "Description too short: 78 characters",
+            "suggestion": "Aim for 120-160 characters",
+            "severity": "warning"
+          }
+        ],
+        "keywordInTitle": [
+          {
+            "passed": false,
+            "message": "Target keyword \"astro blog setup\" not found in title",
+            "suggestion": "Include your target keyword in the title for better SEO",
+            "severity": "warning"
+          }
+        ],
+        "keywordDensity": [
+          {
+            "passed": false,
+            "message": "Target keyword \"astro blog setup\" not found in content",
+            "suggestion": "Include your target keyword naturally in the content",
+            "severity": "warning"
+          }
+        ],
+        "headingOrder": [
+          {
+            "passed": true,
+            "message": "Heading structure is correct",
+            "severity": "info"
+          }
+        ],
+        "contentLength": [
+          {
+            "passed": true,
+            "message": "Good content length: 1841 words",
+            "severity": "info"
+          }
+        ],
+        "duplicateContent": [
+          {
+            "passed": true,
+            "message": "No duplicate content found across vault",
+            "severity": "info"
+          }
+        ],
+        "altText": [
+          {
+            "passed": true,
+            "message": "No images in this post",
+            "severity": "info"
+          }
+        ],
+        "imageNaming": [
+          {
+            "passed": true,
+            "message": "All images have good filenames",
+            "severity": "info"
+          }
+        ],
+        "brokenLinks": [
+          {
+            "passed": false,
+            "message": "Broken internal link: formatting-reference.md",
+            "suggestion": "Check the link path or create the target file",
+            "severity": "error"
+          }
+        ],
+        "potentiallyBrokenLinks": [
+          {
+            "passed": true,
+            "message": "No potentially broken links found",
+            "severity": "info"
+          }
+        ],
+        "nakedLinks": [
+          {
+            "passed": true,
+            "message": "No naked links found",
+            "severity": "info"
+          }
+        ],
+        "readingLevel": [
+          {
+            "passed": true,
+            "message": "Good reading level: 10.0 (College Prep)",
+            "severity": "info"
+          }
+        ],
+        "notices": [
+          {
+            "passed": false,
+            "message": "Found 4 wikilink(s) that may not render on web",
+            "suggestion": "Consider converting to markdown links for web publishing:<br><br>• images/sunset.jpg<br>• wikilinks<br>• Post Title|Custom Text<br>• Post Title",
+            "severity": "warning"
+          }
+        ]
+      },
+      "overallScore": 40,
+      "issuesCount": 1,
+      "warningsCount": 5
+    },
+    {
+      "file": "posts/formatting-reference.md",
+      "checks": {
+        "titleLength": [
+          {
+            "passed": false,
+            "message": "Title too short: 20 characters",
+            "suggestion": "Aim for 30-60 characters.",
+            "severity": "warning"
+          }
+        ],
+        "metaDescription": [
+          {
+            "passed": false,
+            "message": "Description too short: 99 characters",
+            "suggestion": "Aim for 120-160 characters",
+            "severity": "warning"
+          }
+        ],
+        "keywordInTitle": [
+          {
+            "passed": false,
+            "message": "Target keyword \"obsidian formatting\" not found in title",
+            "suggestion": "Include your target keyword in the title for better SEO",
+            "severity": "warning"
+          }
+        ],
+        "keywordDensity": [
+          {
+            "passed": false,
+            "message": "Target keyword \"obsidian formatting\" not found in content",
+            "suggestion": "Include your target keyword naturally in the content",
+            "severity": "warning"
+          }
+        ],
+        "headingOrder": [
+          {
+            "passed": true,
+            "message": "Heading structure is correct",
+            "severity": "info"
+          }
+        ],
+        "contentLength": [
+          {
+            "passed": true,
+            "message": "Good content length: 1620 words",
+            "severity": "info"
+          }
+        ],
+        "duplicateContent": [
+          {
+            "passed": true,
+            "message": "No duplicate content found across vault",
+            "severity": "info"
+          }
+        ],
+        "altText": [
+          {
+            "passed": true,
+            "message": "All images have alt text",
+            "severity": "info"
+          }
+        ],
+        "imageNaming": [
+          {
+            "passed": false,
+            "message": "Image 2 has generic filename: photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+            "suggestion": "Use descriptive filenames for better SEO",
+            "severity": "warning"
+          },
+          {
+            "passed": false,
+            "message": "Image 3 has generic filename: photo-1439066615861-d1af74d74000?w=800&h=600&fit=crop",
+            "suggestion": "Use descriptive filenames for better SEO",
+            "severity": "warning"
+          },
+          {
+            "passed": false,
+            "message": "Image 4 has generic filename: photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop",
+            "suggestion": "Use descriptive filenames for better SEO",
+            "severity": "warning"
+          },
+          {
+            "passed": false,
+            "message": "Image 5 has generic filename: photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+            "suggestion": "Use descriptive filenames for better SEO",
+            "severity": "warning"
+          },
+          {
+            "passed": false,
+            "message": "Image 6 has generic filename: photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop",
+            "suggestion": "Use descriptive filenames for better SEO",
+            "severity": "warning"
+          },
+          {
+            "passed": false,
+            "message": "Image 7 has generic filename: photo-1547036967-23d11aacaee0?w=800&h=600&fit=crop",
+            "suggestion": "Use descriptive filenames for better SEO",
+            "severity": "warning"
+          },
+          {
+            "passed": false,
+            "message": "Image 8 has generic filename: photo-1490750967868-88aa4486c946?w=800&h=600&fit=crop",
+            "suggestion": "Use descriptive filenames for better SEO",
+            "severity": "warning"
+          },
+          {
+            "passed": false,
+            "message": "Image 9 has generic filename: photo-1507525428034-b723cf961d3e?w=800&h=600&fit=crop",
+            "suggestion": "Use descriptive filenames for better SEO",
+            "severity": "warning"
+          },
+          {
+            "passed": false,
+            "message": "Image 10 has generic filename: photo-1441260038675-7329ab4cc264?w=800&h=600&fit=crop",
+            "suggestion": "Use descriptive filenames for better SEO",
+            "severity": "warning"
+          }
+        ],
+        "brokenLinks": [
+          {
+            "passed": false,
+            "message": "Broken link: posts/sample-folder-post/index#Benefits of Folder-Based Approach",
+            "suggestion": "Check if the wikilink target exists or create the target note",
+            "severity": "error"
+          }
+        ],
+        "potentiallyBrokenLinks": [
+          {
+            "passed": false,
+            "message": "Potentially broken link: getting-started",
+            "suggestion": "Wikilinks may not work on the web - consider converting to standard markdown links",
+            "severity": "warning"
+          }
+        ],
+        "nakedLinks": [
+          {
+            "passed": false,
+            "message": "Naked link found: https://example.com",
+            "suggestion": "Convert to markdown link format: [link text](url)",
+            "severity": "warning"
+          },
+          {
+            "passed": false,
+            "message": "Naked link found: https://daringfireball.net/projects/markdown/",
+            "suggestion": "Convert to markdown link format: [link text](url)",
+            "severity": "warning"
+          }
+        ],
+        "readingLevel": [
+          {
+            "passed": true,
+            "message": "Good reading level: 10.0 (College Prep)",
+            "severity": "info"
+          }
+        ],
+        "notices": [
+          {
+            "passed": false,
+            "message": "Found 5 wikilink(s) that may not render on web",
+            "suggestion": "Consider converting to markdown links for web publishing:<br><br>• images/mountains.png<br>• getting-started|Getting Started<br>• getting-started|Getting Started<br>• posts/sample-folder-post/index#Benefits of Folder-Based Approach|Benefits of Folder-Based Approach<br>• wikilink",
+            "severity": "warning"
+          },
+          {
+            "passed": false,
+            "message": "Found 14 embedded image(s) that may not work on web",
+            "suggestion": "Ensure images are properly linked and accessible:<br><br>• /posts/images/mountains.png<br>• https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop<br>• https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=800&h=600&fit=crop<br>• https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop<br>• https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop<br>• https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop<br>• https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&h=600&fit=crop<br>• https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800&h=600&fit=crop<br>• https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=600&fit=crop<br>• https://images.unsplash.com/photo-1441260038675-7329ab4cc264?w=800&h=600&fit=crop<br>• image1.jpg<br>• image2.jpg<br>• image3.jpg<br>• url",
+            "severity": "warning"
+          }
+        ]
+      },
+      "overallScore": 40,
+      "issuesCount": 1,
+      "warningsCount": 18
+    },
+    {
+      "file": "posts/astro-suite-vault-modular-guide.md",
+      "checks": {
+        "titleLength": [
+          {
+            "passed": true,
+            "message": "Good title length: 33 characters",
+            "severity": "info"
+          }
+        ],
+        "metaDescription": [
+          {
+            "passed": false,
+            "message": "Description too short: 51 characters",
+            "suggestion": "Aim for 120-160 characters",
+            "severity": "warning"
+          }
+        ],
+        "keywordInTitle": [
+          {
+            "passed": true,
+            "message": "Target keyword \"astro suite modular\" found in title",
+            "severity": "info"
+          }
+        ],
+        "keywordDensity": [
+          {
+            "passed": false,
+            "message": "Target keyword \"astro suite modular\" not found in content",
+            "suggestion": "Include your target keyword naturally in the content",
+            "severity": "warning"
+          }
+        ],
+        "headingOrder": [
+          {
+            "passed": true,
+            "message": "Heading structure is correct",
+            "severity": "info"
+          }
+        ],
+        "contentLength": [
+          {
+            "passed": true,
+            "message": "Good content length: 1571 words",
+            "severity": "info"
+          }
+        ],
+        "duplicateContent": [
+          {
+            "passed": true,
+            "message": "No duplicate content found across vault",
+            "severity": "info"
+          }
+        ],
+        "altText": [
+          {
+            "passed": true,
+            "message": "All images have alt text",
+            "severity": "info"
+          }
+        ],
+        "imageNaming": [
+          {
+            "passed": true,
+            "message": "All images have good filenames",
+            "severity": "info"
+          }
+        ],
+        "brokenLinks": [
+          {
+            "passed": true,
+            "message": "No broken links found",
+            "severity": "info"
+          }
+        ],
+        "potentiallyBrokenLinks": [
+          {
+            "passed": true,
+            "message": "No potentially broken links found",
+            "severity": "info"
+          }
+        ],
+        "nakedLinks": [
+          {
+            "passed": true,
+            "message": "No naked links found",
+            "severity": "info"
+          }
+        ],
+        "readingLevel": [
+          {
+            "passed": true,
+            "message": "Good reading level: 10.0 (College Prep)",
+            "severity": "info"
+          }
+        ],
+        "notices": [
+          {
+            "passed": false,
+            "message": "Found 1 wikilink(s) that may not render on web",
+            "suggestion": "Consider converting to markdown links for web publishing:<br><br>• images/astro-composer-suite-for-obsidian.png",
+            "severity": "warning"
+          },
+          {
+            "passed": false,
+            "message": "Found 1 embedded image(s) that may not work on web",
+            "suggestion": "Ensure images are properly linked and accessible:<br><br>• /posts/images/astro-composer-suite-for-obsidian.png",
+            "severity": "warning"
+          }
+        ]
+      },
+      "overallScore": 71.33333333333333,
+      "issuesCount": 0,
+      "warningsCount": 4
+    }
+  ],
+  "lastScanTimestamp": 1759470777279
+}

@@ -13,7 +13,7 @@ image: "[[images/mountains.png]]"
 imageAlt: Mountains and water.
 imageOG: false
 hideCoverImage: false
-targetKeyword: markdown features
+targetKeyword: obsidian formatting
 draft: false
 ---
 This post demonstrates all the markdown, extended markdown, and other embed features available in Astro Modular. Use this as both a reference guide and a showcase of what's possible.

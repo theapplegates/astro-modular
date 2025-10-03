@@ -301,7 +301,7 @@ export function remarkWikilinks() {
           // Process image wikilink - convert to markdown image syntax
           // Use the image path as-is (Obsidian doesn't use ./ by default)
           const imagePath = linkText;
-          const altText = displayText || linkText;
+          const altText = displayText || '';
           
           // Create a proper image node that Astro can process
           newChildren.push({

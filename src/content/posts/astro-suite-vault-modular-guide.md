@@ -12,7 +12,7 @@ image: "[[images/astro-composer-suite-for-obsidian.png]]"
 imageAlt: Astro and Obsidian logos stacked vertically with a "+" (plus) sign between them.
 imageOG: true
 hideCoverImage: true
-targetKeyword: astro suite modular vault
+targetKeyword: astro suite modular
 draft: false
 ---
 ![Astro and Obsidian logos stacked vertically with a "+" (plus) sign between them.](/posts/images/astro-composer-suite-for-obsidian.png)
@@ -62,6 +62,7 @@ Here's a guide for some important hotkeys set especially for this theme:
 - Insert image: `CTRL + '`
 - Insert callout: `CTRL + SHIFT + C`
 - Rename current note: `CTRL + R` 
+- Open SEO audit: `CTRL + SHIFT + A`
 - Start Terminal: `CTRL + SHIFT + D`
 - Open config file: `CTRL + SHIFT + ,`
 - Git: Commit and Sync `CTRL + SHIFT + S`
@@ -90,6 +91,7 @@ Community plugins enabled:
 - Paste image rename
 - Property Over Filename
 - ProZen
+- SEO
 - Shell commands
 - Style Settings
 - Title-Only Tab
@@ -147,6 +149,10 @@ When you link to another note, its `title` is automatically set as the hyperlink
 Zen mode offers another quick option to focus on your writing. Pressing `CTRL + SHIFT + Z` will enter Zen mode: automatic full-screen, all elements removed except for your content. Then use `ESC` to exit. 
 
 This plugin is a great alternative if you don't prefer to use Hider to remove the UI, and prefer to toggle it all on or off at once as needed. Alternatively, you can use the Focus Mode included in the Minimal theme.
+
+### SEO
+
+Get a snappy audit of your content for search engine rankings and AI parsing. You can get a quick snapshot of your whole vault or drill down into specific posts.  
 
 ### Shell commands and Commander
 
