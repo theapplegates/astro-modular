@@ -6,7 +6,6 @@
   "obsidian-paste-image-rename",
   "obsidian-hider",
   "obsidian42-brat",
-  "astro-composer",
   "obsidian-prozen",
   "obsidian-style-settings",
   "title-only-tab",
@@ -15,8 +14,9 @@
   "cmdr",
   "obsidian-shellcommands",
   "obsidian-git",
-  "alias-filename-history",
-  "property-over-filename",
   "iconic",
-  "seo"
+  "seo",
+  "astro-composer",
+  "alias-file-name-history",
+  "property-over-file-name"
 ]

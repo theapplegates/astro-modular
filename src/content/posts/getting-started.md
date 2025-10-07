@@ -432,7 +432,7 @@ Use [[wikilinks]] or [markdown links](/posts/post.md) to connect posts.
 
 Since the post title is hardcoded as H1, your content should start with H2 headings.
 
-You can also create folder-based posts, as you can see here: [Sample Folder-Based Post](posts/sample-folder-post/index.md). The base filename is `index.md` and the parent folder filename serves as the slug of the post.
+You can also create folder-based posts, as you can see here: [Sample Folder-Based Post](sample-folder-based-post/index.md). The base filename is `index.md` and the parent folder filename serves as the slug of the post.
 ## Creating Pages 
 
 The About page represents a standard page you can duplicate easily. Its frontmatter looks like this: 
@@ -525,7 +525,7 @@ The vault provides:
 - **Optional CSS snippets** to customize your experience
 - **Custom hotkeys** for accelerating post creation and publishing
 
-Read [the guide](posts/astro-suite-vault-modular-guide.md) for more detailed information.
+Read [the guide](posts/astro-suite-obsidian-vault-guide-astro-modular.md) for more detailed information.
 
 To remove Obsidian, simply delete the `.obsidian` folder.
 

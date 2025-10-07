@@ -13,7 +13,7 @@ image: "[[images/mountains.png]]"
 imageAlt: Mountains and water.
 imageOG: false
 hideCoverImage: false
-targetKeyword: obsidian formatting
+targetKeyword:
 draft: false
 ---
 This post demonstrates all the markdown, extended markdown, and other embed features available in Astro Modular. Use this as both a reference guide and a showcase of what's possible.
@@ -231,13 +231,13 @@ Here's an [external link](https://obsidian.md).
 
 You can create internal links using double brackets (wikilinks) or with standard markdown. 
 
-For example: [[getting-started|Getting Started]] or [Astro Suite Vault (Modular) Guide](posts/astro-suite-vault-modular-guide.md).
+For example: [[getting-started|Getting Started]] or [Astro Suite Obsidian Vault Guide (Astro Modular)](posts/astro-suite-obsidian-vault-guide-astro-modular.md).
 
 ```markdown
 For example: [[getting-started|Getting Started]] or [Astro Suite Vault (Modular) Guide](astro-suite-vault-modular-guide).
 ```
 
-Here's an internal link with an anchor: [[posts/sample-folder-post/index#Benefits of Folder-Based Approach|Benefits of Folder-Based Approach]]
+Here's an internal link with an anchor: [[sample-folder-based-post/index#Benefits of Folder-Based Approach|Benefits of Folder-Based Approach]]
 ### Reference Links
 
 This is a [reference link][1] and this is another [reference link][markdown].

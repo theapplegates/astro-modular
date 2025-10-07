@@ -1,5 +1,5 @@
 ---
-title: Astro Suite Vault (Modular) Guide
+title: Astro Suite Obsidian Vault Guide (Astro Modular)
 date: 2025-09-10
 description: How to use the included Astro Suite Obsidian vault.
 tags:
@@ -12,14 +12,16 @@ image: "[[images/astro-composer-suite-for-obsidian.png]]"
 imageAlt: Astro and Obsidian logos stacked vertically with a "+" (plus) sign between them.
 imageOG: true
 hideCoverImage: true
-targetKeyword: astro suite modular
+targetKeyword: astro suite obsidian vault
 draft: false
+aliases:
+  - astro-suite-vault-modular-guide
 ---
 ![Astro and Obsidian logos stacked vertically with a "+" (plus) sign between them.](/posts/images/astro-composer-suite-for-obsidian.png)
 
 ## Overview
 
-All plugins, key bindings, and the theme can be customized to your liking, but this is what's on by default. Optimized for use with the [Modular Astro theme](https://github.com/davidvkimball/astro-modular).
+All plugins, key bindings, and the theme can be customized to your liking, but this is what's on by default. Optimized for use with the [Modular Astro theme](https://github.com/davidvkimball/astro-modular). 
 
 ## Philosophy 
 

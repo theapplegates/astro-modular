@@ -1,543 +1,44 @@
 {
   "scanDirectories": "posts",
+  "ignoreUnderscoreFiles": false,
   "keywordProperty": "targetKeyword",
   "descriptionProperty": "description",
   "titleProperty": "title",
   "useFilenameAsTitle": false,
-  "checkContentLength": true,
+  "slugProperty": "",
+  "useFilenameAsSlug": true,
+  "parentFolderSlugFilename": "index",
+  "checkTitleLength": true,
+  "checkHeadingOrder": true,
+  "checkAltText": true,
   "checkImageNaming": true,
-  "checkDuplicateContent": true,
+  "checkBrokenLinks": true,
+  "checkExternalLinks": true,
+  "enableExternalLinkButton": true,
+  "enableExternalLinkVaultCheck": false,
+  "checkNakedLinks": true,
+  "checkContentLength": true,
+  "checkDuplicateContent": false,
   "checkReadingLevel": true,
-  "showNotices": true,
-  "defaultSort": "warnings-desc",
+  "checkPotentiallyBrokenLinks": true,
+  "checkPotentiallyBrokenEmbeds": true,
+  "useNoteTitles": true,
+  "skipH1Check": true,
+  "publishMode": true,
+  "defaultSort": "issues-desc",
   "minContentLength": 300,
   "keywordDensityMin": 1,
   "keywordDensityMax": 2,
   "duplicateThreshold": 80,
   "cachedGlobalResults": [
     {
-      "file": "posts/sample-folder-post/index.md",
-      "checks": {
-        "titleLength": [
-          {
-            "passed": false,
-            "message": "Title too short: 24 characters",
-            "suggestion": "Aim for 30-60 characters.",
-            "severity": "warning"
-          }
-        ],
-        "metaDescription": [
-          {
-            "passed": false,
-            "message": "Description too short: 60 characters",
-            "suggestion": "Aim for 120-160 characters",
-            "severity": "warning"
-          }
-        ],
-        "keywordInTitle": [
-          {
-            "passed": false,
-            "message": "Target keyword \"\"\"\" not found in title",
-            "suggestion": "Include your target keyword in the title for better SEO",
-            "severity": "warning"
-          }
-        ],
-        "keywordDensity": [
-          {
-            "passed": false,
-            "message": "Target keyword \"\"\"\" not found in content",
-            "suggestion": "Include your target keyword naturally in the content",
-            "severity": "warning"
-          }
-        ],
-        "headingOrder": [
-          {
-            "passed": true,
-            "message": "Heading structure is correct",
-            "severity": "info"
-          }
-        ],
-        "contentLength": [
-          {
-            "passed": false,
-            "message": "Content too short: 82 words",
-            "suggestion": "Aim for at least 300 words for better SEO",
-            "severity": "warning"
-          }
-        ],
-        "duplicateContent": [
-          {
-            "passed": true,
-            "message": "No duplicate content found across vault",
-            "severity": "info"
-          }
-        ],
-        "altText": [
-          {
-            "passed": true,
-            "message": "All images have alt text",
-            "severity": "info"
-          }
-        ],
-        "imageNaming": [
-          {
-            "passed": true,
-            "message": "All images have good filenames",
-            "severity": "info"
-          }
-        ],
-        "brokenLinks": [
-          {
-            "passed": true,
-            "message": "No broken links found",
-            "severity": "info"
-          }
-        ],
-        "potentiallyBrokenLinks": [
-          {
-            "passed": true,
-            "message": "No potentially broken links found",
-            "severity": "info"
-          }
-        ],
-        "nakedLinks": [
-          {
-            "passed": true,
-            "message": "No naked links found",
-            "severity": "info"
-          }
-        ],
-        "readingLevel": [
-          {
-            "passed": true,
-            "message": "Good reading level: 10.0 (College Prep)",
-            "severity": "info"
-          }
-        ],
-        "notices": [
-          {
-            "passed": false,
-            "message": "Found 2 wikilink(s) that may not render on web",
-            "suggestion": "Consider converting to markdown links for web publishing:<br><br>• cover.png<br>• forest.png",
-            "severity": "warning"
-          },
-          {
-            "passed": false,
-            "message": "Found 2 embedded image(s) that may not work on web",
-            "suggestion": "Ensure images are properly linked and accessible:<br><br>• forest.png<br>• forest.png",
-            "severity": "warning"
-          }
-        ]
-      },
-      "overallScore": 40,
-      "issuesCount": 0,
-      "warningsCount": 7
-    },
-    {
-      "file": "posts/mermaid-diagram-test.md",
-      "checks": {
-        "titleLength": [
-          {
-            "passed": false,
-            "message": "Title too short: 20 characters",
-            "suggestion": "Aim for 30-60 characters.",
-            "severity": "warning"
-          }
-        ],
-        "metaDescription": [
-          {
-            "passed": false,
-            "message": "Description too short: 87 characters",
-            "suggestion": "Aim for 120-160 characters",
-            "severity": "warning"
-          }
-        ],
-        "keywordInTitle": [
-          {
-            "passed": false,
-            "message": "Target keyword \"aliases:\" not found in title",
-            "suggestion": "Include your target keyword in the title for better SEO",
-            "severity": "warning"
-          }
-        ],
-        "keywordDensity": [
-          {
-            "passed": false,
-            "message": "Target keyword \"aliases:\" not found in content",
-            "suggestion": "Include your target keyword naturally in the content",
-            "severity": "warning"
-          }
-        ],
-        "headingOrder": [
-          {
-            "passed": true,
-            "message": "Heading structure is correct",
-            "severity": "info"
-          }
-        ],
-        "contentLength": [
-          {
-            "passed": false,
-            "message": "Content too short: 105 words",
-            "suggestion": "Aim for at least 300 words for better SEO",
-            "severity": "warning"
-          }
-        ],
-        "duplicateContent": [
-          {
-            "passed": true,
-            "message": "No duplicate content found across vault",
-            "severity": "info"
-          }
-        ],
-        "altText": [
-          {
-            "passed": true,
-            "message": "No images in this post",
-            "severity": "info"
-          }
-        ],
-        "imageNaming": [
-          {
-            "passed": true,
-            "message": "All images have good filenames",
-            "severity": "info"
-          }
-        ],
-        "brokenLinks": [
-          {
-            "passed": true,
-            "message": "No broken links found",
-            "severity": "info"
-          }
-        ],
-        "potentiallyBrokenLinks": [
-          {
-            "passed": true,
-            "message": "No potentially broken links found",
-            "severity": "info"
-          }
-        ],
-        "nakedLinks": [
-          {
-            "passed": true,
-            "message": "No naked links found",
-            "severity": "info"
-          }
-        ],
-        "readingLevel": [
-          {
-            "passed": true,
-            "message": "Good reading level: 12.0 (College)",
-            "severity": "info"
-          }
-        ],
-        "notices": [
-          {
-            "passed": true,
-            "message": "No web compatibility issues found",
-            "severity": "info"
-          }
-        ]
-      },
-      "overallScore": 40,
-      "issuesCount": 0,
-      "warningsCount": 5
-    },
-    {
-      "file": "posts/getting-started.md",
-      "checks": {
-        "titleLength": [
-          {
-            "passed": false,
-            "message": "Title too short: 15 characters",
-            "suggestion": "Aim for 30-60 characters.",
-            "severity": "warning"
-          }
-        ],
-        "metaDescription": [
-          {
-            "passed": false,
-            "message": "Description too short: 78 characters",
-            "suggestion": "Aim for 120-160 characters",
-            "severity": "warning"
-          }
-        ],
-        "keywordInTitle": [
-          {
-            "passed": false,
-            "message": "Target keyword \"astro blog setup\" not found in title",
-            "suggestion": "Include your target keyword in the title for better SEO",
-            "severity": "warning"
-          }
-        ],
-        "keywordDensity": [
-          {
-            "passed": false,
-            "message": "Target keyword \"astro blog setup\" not found in content",
-            "suggestion": "Include your target keyword naturally in the content",
-            "severity": "warning"
-          }
-        ],
-        "headingOrder": [
-          {
-            "passed": true,
-            "message": "Heading structure is correct",
-            "severity": "info"
-          }
-        ],
-        "contentLength": [
-          {
-            "passed": true,
-            "message": "Good content length: 1841 words",
-            "severity": "info"
-          }
-        ],
-        "duplicateContent": [
-          {
-            "passed": true,
-            "message": "No duplicate content found across vault",
-            "severity": "info"
-          }
-        ],
-        "altText": [
-          {
-            "passed": true,
-            "message": "No images in this post",
-            "severity": "info"
-          }
-        ],
-        "imageNaming": [
-          {
-            "passed": true,
-            "message": "All images have good filenames",
-            "severity": "info"
-          }
-        ],
-        "brokenLinks": [
-          {
-            "passed": false,
-            "message": "Broken internal link: formatting-reference.md",
-            "suggestion": "Check the link path or create the target file",
-            "severity": "error"
-          }
-        ],
-        "potentiallyBrokenLinks": [
-          {
-            "passed": true,
-            "message": "No potentially broken links found",
-            "severity": "info"
-          }
-        ],
-        "nakedLinks": [
-          {
-            "passed": true,
-            "message": "No naked links found",
-            "severity": "info"
-          }
-        ],
-        "readingLevel": [
-          {
-            "passed": true,
-            "message": "Good reading level: 10.0 (College Prep)",
-            "severity": "info"
-          }
-        ],
-        "notices": [
-          {
-            "passed": false,
-            "message": "Found 4 wikilink(s) that may not render on web",
-            "suggestion": "Consider converting to markdown links for web publishing:<br><br>• images/sunset.jpg<br>• wikilinks<br>• Post Title|Custom Text<br>• Post Title",
-            "severity": "warning"
-          }
-        ]
-      },
-      "overallScore": 40,
-      "issuesCount": 1,
-      "warningsCount": 5
-    },
-    {
-      "file": "posts/formatting-reference.md",
-      "checks": {
-        "titleLength": [
-          {
-            "passed": false,
-            "message": "Title too short: 20 characters",
-            "suggestion": "Aim for 30-60 characters.",
-            "severity": "warning"
-          }
-        ],
-        "metaDescription": [
-          {
-            "passed": false,
-            "message": "Description too short: 99 characters",
-            "suggestion": "Aim for 120-160 characters",
-            "severity": "warning"
-          }
-        ],
-        "keywordInTitle": [
-          {
-            "passed": false,
-            "message": "Target keyword \"obsidian formatting\" not found in title",
-            "suggestion": "Include your target keyword in the title for better SEO",
-            "severity": "warning"
-          }
-        ],
-        "keywordDensity": [
-          {
-            "passed": false,
-            "message": "Target keyword \"obsidian formatting\" not found in content",
-            "suggestion": "Include your target keyword naturally in the content",
-            "severity": "warning"
-          }
-        ],
-        "headingOrder": [
-          {
-            "passed": true,
-            "message": "Heading structure is correct",
-            "severity": "info"
-          }
-        ],
-        "contentLength": [
-          {
-            "passed": true,
-            "message": "Good content length: 1620 words",
-            "severity": "info"
-          }
-        ],
-        "duplicateContent": [
-          {
-            "passed": true,
-            "message": "No duplicate content found across vault",
-            "severity": "info"
-          }
-        ],
-        "altText": [
-          {
-            "passed": true,
-            "message": "All images have alt text",
-            "severity": "info"
-          }
-        ],
-        "imageNaming": [
-          {
-            "passed": false,
-            "message": "Image 2 has generic filename: photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
-            "suggestion": "Use descriptive filenames for better SEO",
-            "severity": "warning"
-          },
-          {
-            "passed": false,
-            "message": "Image 3 has generic filename: photo-1439066615861-d1af74d74000?w=800&h=600&fit=crop",
-            "suggestion": "Use descriptive filenames for better SEO",
-            "severity": "warning"
-          },
-          {
-            "passed": false,
-            "message": "Image 4 has generic filename: photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop",
-            "suggestion": "Use descriptive filenames for better SEO",
-            "severity": "warning"
-          },
-          {
-            "passed": false,
-            "message": "Image 5 has generic filename: photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
-            "suggestion": "Use descriptive filenames for better SEO",
-            "severity": "warning"
-          },
-          {
-            "passed": false,
-            "message": "Image 6 has generic filename: photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop",
-            "suggestion": "Use descriptive filenames for better SEO",
-            "severity": "warning"
-          },
-          {
-            "passed": false,
-            "message": "Image 7 has generic filename: photo-1547036967-23d11aacaee0?w=800&h=600&fit=crop",
-            "suggestion": "Use descriptive filenames for better SEO",
-            "severity": "warning"
-          },
-          {
-            "passed": false,
-            "message": "Image 8 has generic filename: photo-1490750967868-88aa4486c946?w=800&h=600&fit=crop",
-            "suggestion": "Use descriptive filenames for better SEO",
-            "severity": "warning"
-          },
-          {
-            "passed": false,
-            "message": "Image 9 has generic filename: photo-1507525428034-b723cf961d3e?w=800&h=600&fit=crop",
-            "suggestion": "Use descriptive filenames for better SEO",
-            "severity": "warning"
-          },
-          {
-            "passed": false,
-            "message": "Image 10 has generic filename: photo-1441260038675-7329ab4cc264?w=800&h=600&fit=crop",
-            "suggestion": "Use descriptive filenames for better SEO",
-            "severity": "warning"
-          }
-        ],
-        "brokenLinks": [
-          {
-            "passed": false,
-            "message": "Broken link: posts/sample-folder-post/index#Benefits of Folder-Based Approach",
-            "suggestion": "Check if the wikilink target exists or create the target note",
-            "severity": "error"
-          }
-        ],
-        "potentiallyBrokenLinks": [
-          {
-            "passed": false,
-            "message": "Potentially broken link: getting-started",
-            "suggestion": "Wikilinks may not work on the web - consider converting to standard markdown links",
-            "severity": "warning"
-          }
-        ],
-        "nakedLinks": [
-          {
-            "passed": false,
-            "message": "Naked link found: https://example.com",
-            "suggestion": "Convert to markdown link format: [link text](url)",
-            "severity": "warning"
-          },
-          {
-            "passed": false,
-            "message": "Naked link found: https://daringfireball.net/projects/markdown/",
-            "suggestion": "Convert to markdown link format: [link text](url)",
-            "severity": "warning"
-          }
-        ],
-        "readingLevel": [
-          {
-            "passed": true,
-            "message": "Good reading level: 10.0 (College Prep)",
-            "severity": "info"
-          }
-        ],
-        "notices": [
-          {
-            "passed": false,
-            "message": "Found 5 wikilink(s) that may not render on web",
-            "suggestion": "Consider converting to markdown links for web publishing:<br><br>• images/mountains.png<br>• getting-started|Getting Started<br>• getting-started|Getting Started<br>• posts/sample-folder-post/index#Benefits of Folder-Based Approach|Benefits of Folder-Based Approach<br>• wikilink",
-            "severity": "warning"
-          },
-          {
-            "passed": false,
-            "message": "Found 14 embedded image(s) that may not work on web",
-            "suggestion": "Ensure images are properly linked and accessible:<br><br>• /posts/images/mountains.png<br>• https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop<br>• https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=800&h=600&fit=crop<br>• https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop<br>• https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop<br>• https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop<br>• https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&h=600&fit=crop<br>• https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800&h=600&fit=crop<br>• https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=600&fit=crop<br>• https://images.unsplash.com/photo-1441260038675-7329ab4cc264?w=800&h=600&fit=crop<br>• image1.jpg<br>• image2.jpg<br>• image3.jpg<br>• url",
-            "severity": "warning"
-          }
-        ]
-      },
-      "overallScore": 40,
-      "issuesCount": 1,
-      "warningsCount": 18
-    },
-    {
-      "file": "posts/astro-suite-vault-modular-guide.md",
+      "file": "posts/astro-suite-obsidian-vault-guide-astro-modular.md",
+      "displayName": "Astro Suite Obsidian Vault Guide (Astro Modular)",
       "checks": {
         "titleLength": [
           {
             "passed": true,
-            "message": "Good title length: 33 characters",
+            "message": "Good title length: 48 characters",
             "severity": "info"
           }
         ],
@@ -552,15 +53,30 @@
         "keywordInTitle": [
           {
             "passed": true,
-            "message": "Target keyword \"astro suite modular\" found in title",
+            "message": "Target keyword \"astro suite obsidian vault\" found in title",
             "severity": "info"
           }
         ],
+        "keywordInDescription": [
+          {
+            "passed": true,
+            "message": "Target keyword \"astro suite obsidian vault\" found in description",
+            "severity": "info"
+          }
+        ],
+        "keywordInSlug": [
+          {
+            "passed": true,
+            "message": "Target keyword \"astro suite obsidian vault\" found in slug",
+            "severity": "info"
+          }
+        ],
+        "slugFormat": [],
         "keywordDensity": [
           {
             "passed": false,
-            "message": "Target keyword \"astro suite modular\" not found in content",
-            "suggestion": "Include your target keyword naturally in the content",
+            "message": "Keyword density too low: 0.0%",
+            "suggestion": "Aim for at least 1% density",
             "severity": "warning"
           }
         ],
@@ -578,13 +94,9 @@
             "severity": "info"
           }
         ],
-        "duplicateContent": [
-          {
-            "passed": true,
-            "message": "No duplicate content found across vault",
-            "severity": "info"
-          }
-        ],
+        "duplicateTitles": [],
+        "duplicateDescriptions": [],
+        "duplicateContent": [],
         "altText": [
           {
             "passed": true,
@@ -592,24 +104,10 @@
             "severity": "info"
           }
         ],
-        "imageNaming": [
+        "imageFileNames": [
           {
             "passed": true,
-            "message": "All images have good filenames",
-            "severity": "info"
-          }
-        ],
-        "brokenLinks": [
-          {
-            "passed": true,
-            "message": "No broken links found",
-            "severity": "info"
-          }
-        ],
-        "potentiallyBrokenLinks": [
-          {
-            "passed": true,
-            "message": "No potentially broken links found",
+            "message": "All images have good file names",
             "severity": "info"
           }
         ],
@@ -620,32 +118,863 @@
             "severity": "info"
           }
         ],
-        "readingLevel": [
+        "brokenLinks": [
           {
             "passed": true,
-            "message": "Good reading level: 10.0 (College Prep)",
+            "message": "No broken internal links found",
             "severity": "info"
           }
         ],
-        "notices": [
+        "potentiallyBrokenLinks": [
           {
-            "passed": false,
-            "message": "Found 1 wikilink(s) that may not render on web",
-            "suggestion": "Consider converting to markdown links for web publishing:<br><br>• images/astro-composer-suite-for-obsidian.png",
-            "severity": "warning"
+            "passed": true,
+            "message": "No potentially broken links found",
+            "severity": "info"
+          }
+        ],
+        "potentiallyBrokenEmbeds": [],
+        "externalBrokenLinks": [
+          {
+            "passed": true,
+            "message": "External link: https://github.com/davidvkimball/astro-modular",
+            "suggestion": "To find if any of these are broken, use the 'Check external links for 404s' button to trigger it.",
+            "severity": "notice",
+            "position": {
+              "line": 24,
+              "searchText": "https://github.com/davidvkimball/astro-modular",
+              "context": "## Overview\n\nAll plugins, key bindings, and the theme can be customized to your liking, but this is what's on by default. Optimized for use with the [Modular Astro theme](https://github.com/davidvkimball/astro-modular).\n\n## Philosophy "
+            }
           },
           {
+            "passed": true,
+            "message": "External link: https://minimal.guide/home",
+            "suggestion": "To find if any of these are broken, use the 'Check external links for 404s' button to trigger it.",
+            "severity": "notice",
+            "position": {
+              "line": 34,
+              "searchText": "https://minimal.guide/home",
+              "context": "## Theme\n\nFor out-of-the-box customization, [Minimal](https://minimal.guide/home) theme is used. It uses an understated color scheme with high contract options. \n\nThe [Minimal Theme Settings](https://github.com/kepano/obsidian-minimal-settings), [Hider](https://github.com/kepano/obsidian-hider), and [Style Settings](https://obsidian.md/plugins?id=obsidian-style-settings) community plugins are also installed by default, giving you complete control over your experience. "
+            }
+          },
+          {
+            "passed": true,
+            "message": "External link: https://github.com/kepano/obsidian-minimal-settings",
+            "suggestion": "To find if any of these are broken, use the 'Check external links for 404s' button to trigger it.",
+            "severity": "notice",
+            "position": {
+              "line": 36,
+              "searchText": "https://github.com/kepano/obsidian-minimal-settings",
+              "context": "For out-of-the-box customization, [Minimal](https://minimal.guide/home) theme is used. It uses an understated color scheme with high contract options. \n\nThe [Minimal Theme Settings](https://github.com/kepano/obsidian-minimal-settings), [Hider](https://github.com/kepano/obsidian-hider), and [Style Settings](https://obsidian.md/plugins?id=obsidian-style-settings) community plugins are also installed by default, giving you complete control over your experience. \n\n## CSS Snippets"
+            }
+          },
+          {
+            "passed": true,
+            "message": "External link: https://github.com/kepano/obsidian-hider",
+            "suggestion": "To find if any of these are broken, use the 'Check external links for 404s' button to trigger it.",
+            "severity": "notice",
+            "position": {
+              "line": 36,
+              "searchText": "https://github.com/kepano/obsidian-hider",
+              "context": "For out-of-the-box customization, [Minimal](https://minimal.guide/home) theme is used. It uses an understated color scheme with high contract options. \n\nThe [Minimal Theme Settings](https://github.com/kepano/obsidian-minimal-settings), [Hider](https://github.com/kepano/obsidian-hider), and [Style Settings](https://obsidian.md/plugins?id=obsidian-style-settings) community plugins are also installed by default, giving you complete control over your experience. \n\n## CSS Snippets"
+            }
+          },
+          {
+            "passed": true,
+            "message": "External link: https://obsidian.md/plugins?id=obsidian-style-settings",
+            "suggestion": "To find if any of these are broken, use the 'Check external links for 404s' button to trigger it.",
+            "severity": "notice",
+            "position": {
+              "line": 36,
+              "searchText": "https://obsidian.md/plugins?id=obsidian-style-settings",
+              "context": "For out-of-the-box customization, [Minimal](https://minimal.guide/home) theme is used. It uses an understated color scheme with high contract options. \n\nThe [Minimal Theme Settings](https://github.com/kepano/obsidian-minimal-settings), [Hider](https://github.com/kepano/obsidian-hider), and [Style Settings](https://obsidian.md/plugins?id=obsidian-style-settings) community plugins are also installed by default, giving you complete control over your experience. \n\n## CSS Snippets"
+            }
+          },
+          {
+            "passed": true,
+            "message": "External link: https://obsidian.md/plugins?id=obsidian-git",
+            "suggestion": "To find if any of these are broken, use the 'Check external links for 404s' button to trigger it.",
+            "severity": "notice",
+            "position": {
+              "line": 178,
+              "searchText": "https://obsidian.md/plugins?id=obsidian-git",
+              "context": "### Git\n\nWith the [Git](https://obsidian.md/plugins?id=obsidian-git) plugin, you can easily publish to your Astro blog without leaving Obsidian using `CTRL + SHIFT + S`. Simply enable the plugin and configure with git to turn it on.\n\n### Disable Tabs"
+            }
+          }
+        ],
+        "readingLevel": [
+          {
+            "passed": true,
+            "message": "Good reading level: 9.6 (Moderately easy to read)",
+            "severity": "info"
+          }
+        ]
+      },
+      "overallScore": 84.71428571428571,
+      "issuesCount": 0,
+      "warningsCount": 2,
+      "noticesCount": 6
+    },
+    {
+      "file": "posts/mermaid-diagram-test.md",
+      "displayName": "Mermaid Diagram Test",
+      "checks": {
+        "titleLength": [
+          {
             "passed": false,
-            "message": "Found 1 embedded image(s) that may not work on web",
-            "suggestion": "Ensure images are properly linked and accessible:<br><br>• /posts/images/astro-composer-suite-for-obsidian.png",
+            "message": "Title too short: 20 characters",
+            "suggestion": "Aim for 30-60 characters",
+            "severity": "warning"
+          }
+        ],
+        "metaDescription": [
+          {
+            "passed": false,
+            "message": "Description too short: 87 characters",
+            "suggestion": "Aim for 120-160 characters",
+            "severity": "warning"
+          }
+        ],
+        "keywordInTitle": [
+          {
+            "passed": true,
+            "message": "No valid keyword defined in properties",
+            "severity": "notice"
+          }
+        ],
+        "keywordInDescription": [],
+        "keywordInSlug": [
+          {
+            "passed": true,
+            "message": "No valid keyword defined in properties",
+            "severity": "notice"
+          }
+        ],
+        "slugFormat": [],
+        "keywordDensity": [
+          {
+            "passed": true,
+            "message": "No valid keyword defined in properties",
+            "severity": "notice"
+          }
+        ],
+        "headingOrder": [
+          {
+            "passed": true,
+            "message": "Heading structure is correct",
+            "severity": "info"
+          }
+        ],
+        "contentLength": [
+          {
+            "passed": false,
+            "message": "Content too short: 105 words",
+            "suggestion": "Aim for at least 300 words",
+            "severity": "warning"
+          }
+        ],
+        "duplicateTitles": [],
+        "duplicateDescriptions": [],
+        "duplicateContent": [],
+        "altText": [
+          {
+            "passed": true,
+            "message": "No images in this post",
+            "severity": "info"
+          }
+        ],
+        "imageFileNames": [
+          {
+            "passed": true,
+            "message": "All images have good file names",
+            "severity": "info"
+          }
+        ],
+        "nakedLinks": [
+          {
+            "passed": true,
+            "message": "No naked links found",
+            "severity": "info"
+          }
+        ],
+        "brokenLinks": [
+          {
+            "passed": true,
+            "message": "No broken internal links found",
+            "severity": "info"
+          }
+        ],
+        "potentiallyBrokenLinks": [
+          {
+            "passed": true,
+            "message": "No potentially broken links found",
+            "severity": "info"
+          }
+        ],
+        "potentiallyBrokenEmbeds": [],
+        "externalBrokenLinks": [
+          {
+            "passed": true,
+            "message": "No external links found",
+            "severity": "info"
+          }
+        ],
+        "readingLevel": [
+          {
+            "passed": false,
+            "message": "Reading level too high: 16.3 (Difficult to read)",
+            "suggestion": "Consider simplifying sentence structure and using shorter words",
             "severity": "warning"
           }
         ]
       },
-      "overallScore": 71.33333333333333,
+      "overallScore": 61.63636363636363,
       "issuesCount": 0,
-      "warningsCount": 4
+      "warningsCount": 4,
+      "noticesCount": 3
+    },
+    {
+      "file": "posts/getting-started.md",
+      "displayName": "Getting Started",
+      "checks": {
+        "titleLength": [
+          {
+            "passed": false,
+            "message": "Title too short: 15 characters",
+            "suggestion": "Aim for 30-60 characters",
+            "severity": "warning"
+          }
+        ],
+        "metaDescription": [
+          {
+            "passed": false,
+            "message": "Description too short: 78 characters",
+            "suggestion": "Aim for 120-160 characters",
+            "severity": "warning"
+          }
+        ],
+        "keywordInTitle": [
+          {
+            "passed": false,
+            "message": "Target keyword \"astro blog setup\" not found in title",
+            "suggestion": "Include your target keyword in the title",
+            "severity": "warning"
+          }
+        ],
+        "keywordInDescription": [
+          {
+            "passed": false,
+            "message": "Target keyword \"astro blog setup\" not found in description",
+            "suggestion": "Include your target keyword in the description",
+            "severity": "warning"
+          }
+        ],
+        "keywordInSlug": [
+          {
+            "passed": false,
+            "message": "Target keyword \"astro blog setup\" not found in slug",
+            "suggestion": "Include your target keyword in the filename",
+            "severity": "warning"
+          }
+        ],
+        "slugFormat": [],
+        "keywordDensity": [
+          {
+            "passed": false,
+            "message": "Keyword density too low: 0.0%",
+            "suggestion": "Aim for at least 1% density",
+            "severity": "warning"
+          }
+        ],
+        "headingOrder": [
+          {
+            "passed": true,
+            "message": "Heading structure is correct",
+            "severity": "info"
+          }
+        ],
+        "contentLength": [
+          {
+            "passed": true,
+            "message": "Good content length: 1841 words",
+            "severity": "info"
+          }
+        ],
+        "duplicateTitles": [],
+        "duplicateDescriptions": [],
+        "duplicateContent": [],
+        "altText": [
+          {
+            "passed": true,
+            "message": "No images in this post",
+            "severity": "info"
+          }
+        ],
+        "imageFileNames": [
+          {
+            "passed": true,
+            "message": "All images have good file names",
+            "severity": "info"
+          }
+        ],
+        "nakedLinks": [
+          {
+            "passed": true,
+            "message": "No naked links found",
+            "severity": "info"
+          }
+        ],
+        "brokenLinks": [
+          {
+            "passed": true,
+            "message": "No broken internal links found",
+            "severity": "info"
+          }
+        ],
+        "potentiallyBrokenLinks": [
+          {
+            "passed": true,
+            "message": "No potentially broken links found",
+            "severity": "info"
+          }
+        ],
+        "potentiallyBrokenEmbeds": [],
+        "externalBrokenLinks": [
+          {
+            "passed": true,
+            "message": "External link: https://giscus.app",
+            "suggestion": "To find if any of these are broken, use the 'Check external links for 404s' button to trigger it.",
+            "severity": "notice",
+            "position": {
+              "line": 325,
+              "searchText": "https://giscus.app",
+              "context": "\n3. **Get Giscus Configuration**:\n   - Visit [giscus.app](https://giscus.app)\n   - Enter your repository: `username/repo-name`\n   - Select **\"General\"** as the discussion category"
+            }
+          },
+          {
+            "passed": true,
+            "message": "External link: https://docs.netlify.com/manage/forms/setup/",
+            "suggestion": "To find if any of these are broken, use the 'Check external links for 404s' button to trigger it.",
+            "severity": "notice",
+            "position": {
+              "line": 457,
+              "searchText": "https://docs.netlify.com/manage/forms/setup/",
+              "context": "### Other Page Details\n\nThe Contact page has an optional form embedded into it, which leads to the Thank You page when filled out. It's preconfigured to work with Netlify out of the box, you just have to [enable form detection](https://docs.netlify.com/manage/forms/setup/) on your project.\n\nAn optional Privacy Policy page can be edited or removed by deleting it if you don't want it. "
+            }
+          }
+        ],
+        "readingLevel": [
+          {
+            "passed": false,
+            "message": "Reading level too high: 12.2 (Moderately difficult to read)",
+            "suggestion": "Consider simplifying sentence structure and using shorter words",
+            "severity": "warning"
+          }
+        ]
+      },
+      "overallScore": 40,
+      "issuesCount": 0,
+      "warningsCount": 7,
+      "noticesCount": 2
+    },
+    {
+      "file": "posts/sample-folder-post/index.md",
+      "displayName": "Sample Folder-Based Post",
+      "checks": {
+        "titleLength": [
+          {
+            "passed": false,
+            "message": "Title too short: 24 characters",
+            "suggestion": "Aim for 30-60 characters",
+            "severity": "warning"
+          }
+        ],
+        "metaDescription": [
+          {
+            "passed": false,
+            "message": "Description too short: 60 characters",
+            "suggestion": "Aim for 120-160 characters",
+            "severity": "warning"
+          }
+        ],
+        "keywordInTitle": [
+          {
+            "passed": false,
+            "message": "Target keyword \"\"\"\" not found in title",
+            "suggestion": "Include your target keyword in the title",
+            "severity": "warning"
+          }
+        ],
+        "keywordInDescription": [
+          {
+            "passed": false,
+            "message": "Target keyword \"\"\"\" not found in description",
+            "suggestion": "Include your target keyword in the description",
+            "severity": "warning"
+          }
+        ],
+        "keywordInSlug": [
+          {
+            "passed": false,
+            "message": "Target keyword \"\"\"\" not found in slug",
+            "suggestion": "Include your target keyword in the filename",
+            "severity": "warning"
+          }
+        ],
+        "slugFormat": [],
+        "keywordDensity": [
+          {
+            "passed": false,
+            "message": "Keyword density too low: 0.0%",
+            "suggestion": "Aim for at least 1% density",
+            "severity": "warning"
+          }
+        ],
+        "headingOrder": [
+          {
+            "passed": true,
+            "message": "Heading structure is correct",
+            "severity": "info"
+          }
+        ],
+        "contentLength": [
+          {
+            "passed": false,
+            "message": "Content too short: 82 words",
+            "suggestion": "Aim for at least 300 words",
+            "severity": "warning"
+          }
+        ],
+        "duplicateTitles": [],
+        "duplicateDescriptions": [],
+        "duplicateContent": [],
+        "altText": [
+          {
+            "passed": true,
+            "message": "All images have alt text",
+            "severity": "info"
+          }
+        ],
+        "imageFileNames": [
+          {
+            "passed": true,
+            "message": "All images have good file names",
+            "severity": "info"
+          }
+        ],
+        "nakedLinks": [
+          {
+            "passed": true,
+            "message": "No naked links found",
+            "severity": "info"
+          }
+        ],
+        "brokenLinks": [
+          {
+            "passed": true,
+            "message": "No broken internal links found",
+            "severity": "info"
+          }
+        ],
+        "potentiallyBrokenLinks": [
+          {
+            "passed": true,
+            "message": "No potentially broken links found",
+            "severity": "info"
+          }
+        ],
+        "potentiallyBrokenEmbeds": [],
+        "externalBrokenLinks": [
+          {
+            "passed": true,
+            "message": "No external links found",
+            "severity": "info"
+          }
+        ],
+        "readingLevel": [
+          {
+            "passed": true,
+            "message": "Good reading level: 9.9 (Moderately easy to read)",
+            "severity": "info"
+          }
+        ]
+      },
+      "overallScore": 40,
+      "issuesCount": 0,
+      "warningsCount": 7,
+      "noticesCount": 0
+    },
+    {
+      "file": "posts/formatting-reference.md",
+      "displayName": "Formatting Reference",
+      "checks": {
+        "titleLength": [
+          {
+            "passed": false,
+            "message": "Title too short: 20 characters",
+            "suggestion": "Aim for 30-60 characters",
+            "severity": "warning"
+          }
+        ],
+        "metaDescription": [
+          {
+            "passed": false,
+            "message": "Description too short: 99 characters",
+            "suggestion": "Aim for 120-160 characters",
+            "severity": "warning"
+          }
+        ],
+        "keywordInTitle": [
+          {
+            "passed": true,
+            "message": "No valid keyword defined in properties",
+            "severity": "notice"
+          }
+        ],
+        "keywordInDescription": [],
+        "keywordInSlug": [
+          {
+            "passed": true,
+            "message": "No valid keyword defined in properties",
+            "severity": "notice"
+          }
+        ],
+        "slugFormat": [],
+        "keywordDensity": [
+          {
+            "passed": true,
+            "message": "No valid keyword defined in properties",
+            "severity": "notice"
+          }
+        ],
+        "headingOrder": [
+          {
+            "passed": false,
+            "message": "\"Heading 1\" (H1) appears after H3",
+            "suggestion": "H1 should be the first heading or not used at all",
+            "severity": "warning",
+            "position": {
+              "line": 34,
+              "searchText": "# Heading 1",
+              "context": "### Headings\n\n# Heading 1\n## Heading 2\n### Heading 3"
+            }
+          }
+        ],
+        "contentLength": [
+          {
+            "passed": true,
+            "message": "Good content length: 1622 words",
+            "severity": "info"
+          }
+        ],
+        "duplicateTitles": [],
+        "duplicateDescriptions": [],
+        "duplicateContent": [],
+        "altText": [
+          {
+            "passed": true,
+            "message": "All images have alt text",
+            "severity": "info"
+          }
+        ],
+        "imageFileNames": [
+          {
+            "passed": false,
+            "message": "Image 2 has a potentially generic file name: photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+            "suggestion": "Use descriptive file names",
+            "severity": "warning",
+            "position": {
+              "line": 121,
+              "searchText": "![Mountain landscape](https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop)",
+              "context": "#### Two Images Side by Side\n\n![Mountain landscape](https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop)\n![Ocean view](https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=800&h=600&fit=crop)\n"
+            }
+          },
+          {
+            "passed": false,
+            "message": "Image 3 has a potentially generic file name: photo-1439066615861-d1af74d74000?w=800&h=600&fit=crop",
+            "suggestion": "Use descriptive file names",
+            "severity": "warning",
+            "position": {
+              "line": 122,
+              "searchText": "![Ocean view](https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=800&h=600&fit=crop)",
+              "context": "\n![Mountain landscape](https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop)\n![Ocean view](https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=800&h=600&fit=crop)\n\n#### Three Images in a Row"
+            }
+          },
+          {
+            "passed": false,
+            "message": "Image 4 has a potentially generic file name: photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop",
+            "suggestion": "Use descriptive file names",
+            "severity": "warning",
+            "position": {
+              "line": 126,
+              "searchText": "![Forest path](https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop)",
+              "context": "#### Three Images in a Row\n\n![Forest path](https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop)\n![Desert sunset](https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop)\n![City skyline](https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop)"
+            }
+          },
+          {
+            "passed": false,
+            "message": "Image 5 has a potentially generic file name: photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+            "suggestion": "Use descriptive file names",
+            "severity": "warning",
+            "position": {
+              "line": 127,
+              "searchText": "![Desert sunset](https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop)",
+              "context": "\n![Forest path](https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop)\n![Desert sunset](https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop)\n![City skyline](https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop)\n"
+            }
+          },
+          {
+            "passed": false,
+            "message": "Image 6 has a potentially generic file name: photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop",
+            "suggestion": "Use descriptive file names",
+            "severity": "warning",
+            "position": {
+              "line": 128,
+              "searchText": "![City skyline](https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop)",
+              "context": "![Forest path](https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop)\n![Desert sunset](https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop)\n![City skyline](https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop)\n\n#### Four Images in a Row"
+            }
+          },
+          {
+            "passed": false,
+            "message": "Image 7 has a potentially generic file name: photo-1547036967-23d11aacaee0?w=800&h=600&fit=crop",
+            "suggestion": "Use descriptive file names",
+            "severity": "warning",
+            "position": {
+              "line": 132,
+              "searchText": "![Winter landscape](https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&h=600&fit=crop)",
+              "context": "#### Four Images in a Row\n\n![Winter landscape](https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&h=600&fit=crop)\n![Spring flowers](https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800&h=600&fit=crop)\n![Summer beach](https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=600&fit=crop)"
+            }
+          },
+          {
+            "passed": false,
+            "message": "Image 8 has a potentially generic file name: photo-1490750967868-88aa4486c946?w=800&h=600&fit=crop",
+            "suggestion": "Use descriptive file names",
+            "severity": "warning",
+            "position": {
+              "line": 133,
+              "searchText": "![Spring flowers](https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800&h=600&fit=crop)",
+              "context": "\n![Winter landscape](https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&h=600&fit=crop)\n![Spring flowers](https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800&h=600&fit=crop)\n![Summer beach](https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=600&fit=crop)\n![Autumn leaves](https://images.unsplash.com/photo-1441260038675-7329ab4cc264?w=800&h=600&fit=crop)"
+            }
+          },
+          {
+            "passed": false,
+            "message": "Image 9 has a potentially generic file name: photo-1507525428034-b723cf961d3e?w=800&h=600&fit=crop",
+            "suggestion": "Use descriptive file names",
+            "severity": "warning",
+            "position": {
+              "line": 134,
+              "searchText": "![Summer beach](https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=600&fit=crop)",
+              "context": "![Winter landscape](https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&h=600&fit=crop)\n![Spring flowers](https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800&h=600&fit=crop)\n![Summer beach](https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=600&fit=crop)\n![Autumn leaves](https://images.unsplash.com/photo-1441260038675-7329ab4cc264?w=800&h=600&fit=crop)\n"
+            }
+          },
+          {
+            "passed": false,
+            "message": "Image 10 has a potentially generic file name: photo-1441260038675-7329ab4cc264?w=800&h=600&fit=crop",
+            "suggestion": "Use descriptive file names",
+            "severity": "warning",
+            "position": {
+              "line": 135,
+              "searchText": "![Autumn leaves](https://images.unsplash.com/photo-1441260038675-7329ab4cc264?w=800&h=600&fit=crop)",
+              "context": "![Spring flowers](https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800&h=600&fit=crop)\n![Summer beach](https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=600&fit=crop)\n![Autumn leaves](https://images.unsplash.com/photo-1441260038675-7329ab4cc264?w=800&h=600&fit=crop)\n\n### How to Use Multiple Images / Gallery"
+            }
+          }
+        ],
+        "nakedLinks": [
+          {
+            "passed": false,
+            "message": "Naked link found: https://example.com",
+            "suggestion": "Convert to markdown link format: [link text](url)",
+            "severity": "warning",
+            "position": {
+              "line": 245,
+              "searchText": "https://example.com",
+              "context": "This is a [reference link][1] and this is another [reference link][markdown].\n\n[1]: https://example.com\n[markdown]: https://daringfireball.net/projects/markdown/\n"
+            }
+          },
+          {
+            "passed": false,
+            "message": "Naked link found: https://daringfireball.net/projects/markdown/",
+            "suggestion": "Convert to markdown link format: [link text](url)",
+            "severity": "warning",
+            "position": {
+              "line": 246,
+              "searchText": "https://daringfireball.net/projects/markdown/",
+              "context": "\n[1]: https://example.com\n[markdown]: https://daringfireball.net/projects/markdown/\n\n## Mathematical Notation"
+            }
+          }
+        ],
+        "brokenLinks": [
+          {
+            "passed": true,
+            "message": "No broken internal links found",
+            "severity": "info"
+          }
+        ],
+        "potentiallyBrokenLinks": [
+          {
+            "passed": true,
+            "message": "No potentially broken links found",
+            "severity": "info"
+          }
+        ],
+        "potentiallyBrokenEmbeds": [],
+        "externalBrokenLinks": [
+          {
+            "passed": true,
+            "message": "External link: https://unsplash.com/@antoinerault?utm_source=Obsidian%20Image%20Inserter%20Plugin&utm_medium=referral",
+            "suggestion": "To find if any of these are broken, use the 'Check external links for 404s' button to trigger it.",
+            "severity": "notice",
+            "position": {
+              "line": 114,
+              "searchText": "https://unsplash.com/@antoinerault?utm_source=Obsidian%20Image%20Inserter%20Plugin&utm_medium=referral",
+              "context": "\n![Mountains](/posts/images/mountains.png)\n*Photo by [Antoine Rault](https://unsplash.com/@antoinerault?utm_source=Obsidian%20Image%20Inserter%20Plugin&utm_medium=referral) on [Unsplash](https://unsplash.com/?utm_source=Obsidian%20Image%20Inserter%20Plugin&utm_medium=referral)*\n### Multiple Image Layouts\n"
+            }
+          },
+          {
+            "passed": true,
+            "message": "External link: https://unsplash.com/?utm_source=Obsidian%20Image%20Inserter%20Plugin&utm_medium=referral",
+            "suggestion": "To find if any of these are broken, use the 'Check external links for 404s' button to trigger it.",
+            "severity": "notice",
+            "position": {
+              "line": 114,
+              "searchText": "https://unsplash.com/?utm_source=Obsidian%20Image%20Inserter%20Plugin&utm_medium=referral",
+              "context": "\n![Mountains](/posts/images/mountains.png)\n*Photo by [Antoine Rault](https://unsplash.com/@antoinerault?utm_source=Obsidian%20Image%20Inserter%20Plugin&utm_medium=referral) on [Unsplash](https://unsplash.com/?utm_source=Obsidian%20Image%20Inserter%20Plugin&utm_medium=referral)*\n### Multiple Image Layouts\n"
+            }
+          },
+          {
+            "passed": true,
+            "message": "External link: https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+            "suggestion": "To find if any of these are broken, use the 'Check external links for 404s' button to trigger it.",
+            "severity": "notice",
+            "position": {
+              "line": 121,
+              "searchText": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+              "context": "#### Two Images Side by Side\n\n![Mountain landscape](https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop)\n![Ocean view](https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=800&h=600&fit=crop)\n"
+            }
+          },
+          {
+            "passed": true,
+            "message": "External link: https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=800&h=600&fit=crop",
+            "suggestion": "To find if any of these are broken, use the 'Check external links for 404s' button to trigger it.",
+            "severity": "notice",
+            "position": {
+              "line": 122,
+              "searchText": "https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=800&h=600&fit=crop",
+              "context": "\n![Mountain landscape](https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop)\n![Ocean view](https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=800&h=600&fit=crop)\n\n#### Three Images in a Row"
+            }
+          },
+          {
+            "passed": true,
+            "message": "External link: https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop",
+            "suggestion": "To find if any of these are broken, use the 'Check external links for 404s' button to trigger it.",
+            "severity": "notice",
+            "position": {
+              "line": 126,
+              "searchText": "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop",
+              "context": "#### Three Images in a Row\n\n![Forest path](https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop)\n![Desert sunset](https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop)\n![City skyline](https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop)"
+            }
+          },
+          {
+            "passed": true,
+            "message": "External link: https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop",
+            "suggestion": "To find if any of these are broken, use the 'Check external links for 404s' button to trigger it.",
+            "severity": "notice",
+            "position": {
+              "line": 128,
+              "searchText": "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop",
+              "context": "![Forest path](https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop)\n![Desert sunset](https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop)\n![City skyline](https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop)\n\n#### Four Images in a Row"
+            }
+          },
+          {
+            "passed": true,
+            "message": "External link: https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&h=600&fit=crop",
+            "suggestion": "To find if any of these are broken, use the 'Check external links for 404s' button to trigger it.",
+            "severity": "notice",
+            "position": {
+              "line": 132,
+              "searchText": "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&h=600&fit=crop",
+              "context": "#### Four Images in a Row\n\n![Winter landscape](https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&h=600&fit=crop)\n![Spring flowers](https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800&h=600&fit=crop)\n![Summer beach](https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=600&fit=crop)"
+            }
+          },
+          {
+            "passed": true,
+            "message": "External link: https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800&h=600&fit=crop",
+            "suggestion": "To find if any of these are broken, use the 'Check external links for 404s' button to trigger it.",
+            "severity": "notice",
+            "position": {
+              "line": 133,
+              "searchText": "https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800&h=600&fit=crop",
+              "context": "\n![Winter landscape](https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&h=600&fit=crop)\n![Spring flowers](https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800&h=600&fit=crop)\n![Summer beach](https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=600&fit=crop)\n![Autumn leaves](https://images.unsplash.com/photo-1441260038675-7329ab4cc264?w=800&h=600&fit=crop)"
+            }
+          },
+          {
+            "passed": true,
+            "message": "External link: https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=600&fit=crop",
+            "suggestion": "To find if any of these are broken, use the 'Check external links for 404s' button to trigger it.",
+            "severity": "notice",
+            "position": {
+              "line": 134,
+              "searchText": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=600&fit=crop",
+              "context": "![Winter landscape](https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&h=600&fit=crop)\n![Spring flowers](https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800&h=600&fit=crop)\n![Summer beach](https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=600&fit=crop)\n![Autumn leaves](https://images.unsplash.com/photo-1441260038675-7329ab4cc264?w=800&h=600&fit=crop)\n"
+            }
+          },
+          {
+            "passed": true,
+            "message": "External link: https://images.unsplash.com/photo-1441260038675-7329ab4cc264?w=800&h=600&fit=crop",
+            "suggestion": "To find if any of these are broken, use the 'Check external links for 404s' button to trigger it.",
+            "severity": "notice",
+            "position": {
+              "line": 135,
+              "searchText": "https://images.unsplash.com/photo-1441260038675-7329ab4cc264?w=800&h=600&fit=crop",
+              "context": "![Spring flowers](https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800&h=600&fit=crop)\n![Summer beach](https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=600&fit=crop)\n![Autumn leaves](https://images.unsplash.com/photo-1441260038675-7329ab4cc264?w=800&h=600&fit=crop)\n\n### How to Use Multiple Images / Gallery"
+            }
+          },
+          {
+            "passed": true,
+            "message": "External link: https://obsidian.md",
+            "suggestion": "To find if any of these are broken, use the 'Check external links for 404s' button to trigger it.",
+            "severity": "notice",
+            "position": {
+              "line": 228,
+              "searchText": "https://obsidian.md",
+              "context": "### External Links\n\nHere's an [external link](https://obsidian.md).\n\n### Internal Links"
+            }
+          },
+          {
+            "passed": true,
+            "message": "External link: https://example.com",
+            "suggestion": "To find if any of these are broken, use the 'Check external links for 404s' button to trigger it.",
+            "severity": "notice",
+            "position": {
+              "line": 245,
+              "searchText": "https://example.com",
+              "context": "This is a [reference link][1] and this is another [reference link][markdown].\n\n[1]: https://example.com\n[markdown]: https://daringfireball.net/projects/markdown/\n"
+            }
+          },
+          {
+            "passed": true,
+            "message": "External link: https://daringfireball.net/projects/markdown/",
+            "suggestion": "To find if any of these are broken, use the 'Check external links for 404s' button to trigger it.",
+            "severity": "notice",
+            "position": {
+              "line": 246,
+              "searchText": "https://daringfireball.net/projects/markdown/",
+              "context": "\n[1]: https://example.com\n[markdown]: https://daringfireball.net/projects/markdown/\n\n## Mathematical Notation"
+            }
+          }
+        ],
+        "readingLevel": [
+          {
+            "passed": true,
+            "message": "Good reading level: 6.8 (Easy to read)",
+            "severity": "info"
+          }
+        ]
+      },
+      "overallScore": 40,
+      "issuesCount": 0,
+      "warningsCount": 14,
+      "noticesCount": 16
     }
   ],
-  "lastScanTimestamp": 1759470777279
+  "lastScanTimestamp": 1759812666797,
+  "showNotices": true
 }
