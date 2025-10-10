@@ -75,7 +75,7 @@ const filteredHeadings = headings.filter(h => h.depth >= 2 && h.depth <= 4);
           // Collapse
           freshTocList.style.display = 'none';
           freshTocToggle.setAttribute('aria-expanded', 'false');
-          freshTocChevron.style.transform = 'rotate(-90deg)';
+          freshTocChevron.style.transform = 'rotate(90deg)';
         } else {
           // Expand
           freshTocList.style.display = 'block';
@@ -153,6 +153,11 @@ const filteredHeadings = headings.filter(h => h.depth >= 2 && h.depth <= 4);
   
   .toc-link.active {
     @apply text-highlight-600 dark:text-highlight-400 font-medium;
+  }
+  
+  /* Ensure proper transform origin for chevron rotation */
+  .toc-chevron {
+    transform-origin: center;
   }
   
   .toc-link.active::before {

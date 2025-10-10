@@ -508,17 +508,51 @@ import Icon from './Icon.astro';
         .slice(0, this.MAX_RESULTS);
     }
 
+    private applyPreservedSelection() {
+      // Only apply if we have a valid selection and the palette is open
+      if (this.selectedIndex >= 0 && this.isOpen) {
+        // Check if we're showing search results or default items
+        const searchResultsVisible = !this.searchResults.classList.contains('hidden');
+        const defaultItemsVisible = !this.defaultItems.classList.contains('hidden');
+        
+        let items: NodeListOf<Element>;
+        
+        if (searchResultsVisible) {
+          // Get search result items
+          items = this.searchResults.querySelectorAll('.command-palette-item');
+        } else if (defaultItemsVisible) {
+          // Get default items (quick actions, pages, social links)
+          items = this.defaultItems.querySelectorAll('a, button[data-action]');
+        } else {
+          return; // No items to highlight
+        }
+
+        // Ensure the selected index is within bounds
+        if (this.selectedIndex < items.length) {
+          this.updateSelection(items);
+        } else {
+          // If the preserved index is out of bounds, reset to -1
+          this.selectedIndex = -1;
+        }
+      }
+    }
 
     private open() {
       this.isOpen = true;
       this.overlay.classList.remove('hidden'); // Show the overlay
       this.input.focus(); // Focus the input field
       this.input.value = ''; // Clear any previous search query
-      this.selectedIndex = -1; // Reset selected index
+      // Don't reset selectedIndex - preserve last selection for better UX
       this.showDefault(); // Show default items initially
       document.body.style.overflow = 'hidden'; // Prevent background scrolling
       // Set initial theme preference
       this.setInitialTheme();
+      
+      // Apply visual highlighting to the preserved selection after a brief delay
+      // to ensure the DOM is ready
+      setTimeout(() => {
+        this.applyPreservedSelection();
+      }, 10);
     }
 
     private close() {
@@ -526,7 +560,7 @@ import Icon from './Icon.astro';
       this.overlay.classList.add('hidden'); // Hide the overlay
       this.input.blur(); // Remove focus from input
       this.input.value = ''; // Clear search input
-      this.selectedIndex = -1; // Reset selection
+      // Don't reset selectedIndex - preserve it for next time palette opens
       
       // Clear search timeout if active
       if (this.searchTimeout) {
@@ -592,8 +626,15 @@ import Icon from './Icon.astro';
 
       if (!query.trim()) {
         this.showDefault(); // Show default items if query is empty
+        // Apply preserved selection when returning to default view
+        setTimeout(() => {
+          this.applyPreservedSelection();
+        }, 10);
         return;
       }
+
+      // Reset selection when starting a new search
+      this.selectedIndex = -1;
 
       // Show inline loading indicator while keeping current results visible
       this.showInlineLoading();
@@ -1023,8 +1064,8 @@ import Icon from './Icon.astro';
             const isExternal = anchor.href.startsWith('http') && !anchor.href.includes(window.location.hostname);
             
             if (isExternal) {
-              // For external links, use regular navigation
-              window.location.href = anchor.href;
+              // For external links, open in new tab
+              window.open(anchor.href, '_blank');
             } else {
               // For internal links, use Swup if available, otherwise fallback to regular navigation
               if ((window as any).swup) {
