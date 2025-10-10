@@ -143,10 +143,12 @@ function processExcerptLinks(text: string, targetSlug: string): string {
         </h2>
       </div>
       <span id="linked-mentions-arrow">
-        <Icon 
-          name="chevron-down" 
-          class="w-5 h-5 text-primary-500 dark:text-primary-400 transition-transform duration-200" 
-        />
+        <span id="linked-mentions-arrow-icon">
+          <Icon 
+            name="chevron-down" 
+            class="w-5 h-5 text-primary-500 dark:text-primary-400" 
+          />
+        </span>
       </span>
     </button>
     
@@ -202,9 +204,9 @@ function processExcerptLinks(text: string, targetSlug: string): string {
   function initializeLinkedMentions() {
     const toggle = document.getElementById('linked-mentions-toggle') as HTMLButtonElement;
     const content = document.getElementById('linked-mentions-content') as HTMLElement;
-    const arrow = document.getElementById('linked-mentions-arrow') as HTMLElement;
+    const arrowIcon = document.getElementById('linked-mentions-arrow-icon') as HTMLElement;
     
-    if (toggle && content && arrow) {
+    if (toggle && content && arrowIcon) {
       // Remove any existing event listeners to prevent duplicates
       const newToggle = toggle.cloneNode(true) as HTMLButtonElement;
       const parentNode = toggle.parentNode;
@@ -212,28 +214,33 @@ function processExcerptLinks(text: string, targetSlug: string): string {
         parentNode.replaceChild(newToggle, toggle);
       }
       
+      // Get fresh references after cloning
+      const freshContent = document.getElementById('linked-mentions-content') as HTMLElement;
+      const freshArrowIcon = document.getElementById('linked-mentions-arrow-icon') as HTMLElement;
+      
       // Add click handler to the new toggle element
       newToggle.addEventListener('click', function() {
         const isExpanded = newToggle.getAttribute('aria-expanded') === 'true';
         
         if (isExpanded) {
           // Collapse
-          content.style.maxHeight = '0';
-          content.style.opacity = '0';
-          arrow.style.transform = 'rotate(90deg)';
+          freshContent.style.maxHeight = '0';
+          freshContent.style.opacity = '0';
+          freshArrowIcon.style.setProperty('--arrow-rotation', '90deg');
           newToggle.setAttribute('aria-expanded', 'false');
         } else {
           // Expand
-          content.style.maxHeight = content.scrollHeight + 'px';
-          content.style.opacity = '1';
-          arrow.style.transform = 'rotate(0deg)';
+          freshContent.style.maxHeight = freshContent.scrollHeight + 'px';
+          freshContent.style.opacity = '1';
+          freshArrowIcon.style.setProperty('--arrow-rotation', '0deg');
           newToggle.setAttribute('aria-expanded', 'true');
         }
       });
       
       // Initialize with expanded state
-      content.style.maxHeight = content.scrollHeight + 'px';
-      content.style.opacity = '1';
+      freshContent.style.maxHeight = freshContent.scrollHeight + 'px';
+      freshContent.style.opacity = '1';
+      freshArrowIcon.style.setProperty('--arrow-rotation', '0deg');
     }
   }
 
@@ -268,5 +275,12 @@ function processExcerptLinks(text: string, targetSlug: string): string {
   
   .linked-mention-item:hover::before {
     opacity: 1;
+  }
+  
+  /* Ensure smooth arrow transition */
+  #linked-mentions-arrow-icon {
+    display: inline-block;
+    transition: transform 200ms ease-in-out !important;
+    transform: rotate(var(--arrow-rotation, 0deg));
   }
 </style>
