@@ -25,6 +25,32 @@ const imageAlt = documentation.data.imageAlt || `Cover image for ${title}`;
 const category = documentation.data.category;
 const version = documentation.data.version;
 
+// Process image field to handle both string and array formats
+const processedImage = (() => {
+  if (!image) return image;
+  
+  // Handle case where image is an array (unquoted YAML syntax)
+  let imageValue = image;
+  if (Array.isArray(image)) {
+    // If it's an array, take the first element
+    imageValue = image[0];
+  }
+  
+  // Ensure imageValue is a string before calling string methods
+  if (typeof imageValue !== 'string') {
+    console.warn('DocumentationCard: imageValue is not a string:', imageValue);
+    return imageValue;
+  }
+  
+  // Check if it's Obsidian double bracket syntax
+  if (imageValue.startsWith('[[') && imageValue.endsWith(']]')) {
+    // Extract the content inside the double brackets
+    return imageValue.slice(2, -2);
+  }
+  
+  return imageValue;
+})();
+
 // Determine if we should show the cover image
 const shouldShowCoverImage = siteConfig.postOptions.showPostCardCoverImages !== 'none' && 
   (siteConfig.postOptions.showPostCardCoverImages === 'all' || 
@@ -34,7 +60,7 @@ const shouldShowCoverImage = siteConfig.postOptions.showPostCardCoverImages !== 
    (siteConfig.postOptions.showPostCardCoverImages === 'latest-and-posts' && (context === 'latest' || context === 'docs')));
 
 // Hide images for docs on homepage for cleaner look
-const showCoverImage = shouldShowCoverImage && image && context !== 'home';
+const showCoverImage = shouldShowCoverImage && processedImage && context !== 'home';
 ---
 
 <div class="group relative bg-white dark:bg-primary-800 rounded-lg border border-primary-200 dark:border-primary-700 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
@@ -54,10 +80,10 @@ const showCoverImage = shouldShowCoverImage && image && context !== 'home';
       <div class="px-4 pb-2">
         <div class="relative overflow-hidden rounded-md">
           <ImageWrapper
-            src={image}
+            src={processedImage}
             basePath={(() => {
               // 1. External URLs - no basePath needed
-              if (image.startsWith('http')) {
+              if (typeof processedImage === 'string' && processedImage.startsWith('http')) {
                 return '';
               }
               
@@ -67,13 +93,13 @@ const showCoverImage = shouldShowCoverImage && image && context !== 'home';
               
               if (isFolderBasedDoc) {
                 // Remove Obsidian brackets to get the actual image path
-                let cleanImagePath = image;
-                if (cleanImagePath.startsWith('[[') && cleanImagePath.endsWith(']]')) {
+                let cleanImagePath = processedImage;
+                if (typeof cleanImagePath === 'string' && cleanImagePath.startsWith('[[') && cleanImagePath.endsWith(']]')) {
                   cleanImagePath = cleanImagePath.slice(2, -2);
                 }
                 
                 // For folder-based docs, check if image is in images/ subfolder
-                if (cleanImagePath.startsWith('images/')) {
+                if (typeof cleanImagePath === 'string' && cleanImagePath.startsWith('images/')) {
                   return `/docs/${documentation.slug}/images/`;
                 }
                 // Image in same folder as index.md

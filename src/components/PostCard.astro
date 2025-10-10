@@ -24,13 +24,26 @@ const { title, description, date, tags, image: rawImage, imageAlt } = post.data;
 const image = (() => {
   if (!rawImage) return rawImage;
   
-  // Check if it's Obsidian bracket syntax
-  if (rawImage.startsWith('[[') && rawImage.endsWith(']]')) {
-    // Extract the content inside the brackets
-    return rawImage.slice(2, -2);
+  // Handle case where rawImage is an array (unquoted YAML syntax)
+  let imageValue = rawImage;
+  if (Array.isArray(rawImage)) {
+    // If it's an array, take the first element
+    imageValue = rawImage[0];
   }
   
-  return rawImage;
+  // Ensure imageValue is a string before calling string methods
+  if (typeof imageValue !== 'string') {
+    console.warn('PostCard: imageValue is not a string:', imageValue);
+    return imageValue;
+  }
+  
+  // Check if it's Obsidian double bracket syntax
+  if (imageValue.startsWith('[[') && imageValue.endsWith(']]')) {
+    // Extract the content inside the double brackets
+    return imageValue.slice(2, -2);
+  }
+  
+  return imageValue;
 })();
 
 // Determine if we should show the cover image based on configuration and context
@@ -70,14 +83,14 @@ const shouldShowCoverImage = (() => {
           src={(() => {
             // Clean the image path by removing Obsidian brackets
             let cleanImagePath = image;
-            if (cleanImagePath.startsWith('[[') && cleanImagePath.endsWith(']]')) {
+            if (typeof cleanImagePath === 'string' && cleanImagePath.startsWith('[[') && cleanImagePath.endsWith(']]')) {
               cleanImagePath = cleanImagePath.slice(2, -2);
             }
             
             // For folder-based posts with images in subfolder, remove the images/ prefix
             // since basePath already includes it
             const isFolderBasedPost = post.id.includes('/') && post.id.endsWith('/index.md');
-            if (isFolderBasedPost && cleanImagePath.startsWith('images/')) {
+            if (isFolderBasedPost && typeof cleanImagePath === 'string' && cleanImagePath.startsWith('images/')) {
               return cleanImagePath.slice(7); // Remove 'images/' prefix
             }
             
@@ -85,7 +98,7 @@ const shouldShowCoverImage = (() => {
           })()}
           basePath={(() => {
             // 1. External URLs - no basePath needed
-            if (image.startsWith('http')) {
+            if (typeof image === 'string' && image.startsWith('http')) {
               return '';
             }
             
@@ -96,12 +109,12 @@ const shouldShowCoverImage = (() => {
             if (isFolderBasedPost) {
               // Remove Obsidian brackets to get the actual image path
               let cleanImagePath = image;
-              if (cleanImagePath.startsWith('[[') && cleanImagePath.endsWith(']]')) {
+              if (typeof cleanImagePath === 'string' && cleanImagePath.startsWith('[[') && cleanImagePath.endsWith(']]')) {
                 cleanImagePath = cleanImagePath.slice(2, -2);
               }
               
               // For folder-based posts, check if image is in images/ subfolder
-              if (cleanImagePath.startsWith('images/')) {
+              if (typeof cleanImagePath === 'string' && cleanImagePath.startsWith('images/')) {
                 return `/posts/${post.slug}/images/`;
               }
               // Image in same folder as index.md

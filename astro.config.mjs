@@ -33,6 +33,7 @@ export default defineConfig({
   '/contact-me': '/contact',
   '/contact-us': '/contact',
   '/privacy': '/privacy-policy',
+  '/posts/astro-suite-vault-modular-guide': '/posts/astro-suite-obsidian-vault-guide-astro-modular',
   '/posts/mermaid-test': '/posts/mermaid-diagram-test',
   '/projects/obsidian-astro-composer': '/projects/astro-composer'
 },

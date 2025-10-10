@@ -9,7 +9,18 @@ const postsCollection = defineCollection({
     date: z.coerce.date().default(() => new Date()),
     tags: z.array(z.string()).nullable().optional(),
     draft: z.boolean().optional(),
-    image: z.string().nullable().optional(),
+    image: z.any().nullable().optional().transform((val) => {
+      // Handle various Obsidian syntax formats
+      if (Array.isArray(val)) {
+        // Handle array format from [[...]] syntax - take first element
+        return val[0] || null;
+      }
+      if (typeof val === 'string') {
+        // Handle string format - return as-is
+        return val;
+      }
+      return null;
+    }),
     imageOG: z.boolean().optional(),
     imageAlt: z.string().nullable().optional(),
     hideCoverImage: z.boolean().optional(),
@@ -27,7 +38,18 @@ const pagesCollection = defineCollection({
     description: z.string().nullable().optional().default('No description provided'),
     draft: z.boolean().optional(),
     lastModified: z.coerce.date().optional(),
-    image: z.string().nullable().optional(),
+    image: z.any().nullable().optional().transform((val) => {
+      // Handle various Obsidian syntax formats
+      if (Array.isArray(val)) {
+        // Handle array format from [[...]] syntax - take first element
+        return val[0] || null;
+      }
+      if (typeof val === 'string') {
+        // Handle string format - return as-is
+        return val;
+      }
+      return null;
+    }),
     imageAlt: z.string().nullable().optional(),
     hideCoverImage: z.boolean().optional(),
     hideTOC: z.boolean().optional(),
@@ -46,7 +68,18 @@ const projectsCollection = defineCollection({
     repositoryUrl: z.string().url().nullable().optional(),
     projectUrl: z.string().url().nullable().optional(),
     status: z.string().nullable().optional(),
-    image: z.string().nullable().optional(),
+    image: z.any().nullable().optional().transform((val) => {
+      // Handle various Obsidian syntax formats
+      if (Array.isArray(val)) {
+        // Handle array format from [[...]] syntax - take first element
+        return val[0] || null;
+      }
+      if (typeof val === 'string') {
+        // Handle string format - return as-is
+        return val;
+      }
+      return null;
+    }),
     imageAlt: z.string().nullable().optional(),
     hideCoverImage: z.boolean().optional(),
     hideTOC: z.boolean().optional(),
@@ -66,7 +99,18 @@ const docsCollection = defineCollection({
     order: z.number().default(0),
     lastModified: z.coerce.date().optional(),
     version: z.string().nullable().optional(),
-    image: z.string().nullable().optional(),
+    image: z.any().nullable().optional().transform((val) => {
+      // Handle various Obsidian syntax formats
+      if (Array.isArray(val)) {
+        // Handle array format from [[...]] syntax - take first element
+        return val[0] || null;
+      }
+      if (typeof val === 'string') {
+        // Handle string format - return as-is
+        return val;
+      }
+      return null;
+    }),
     imageAlt: z.string().nullable().optional(),
     hideCoverImage: z.boolean().optional(),
     hideTOC: z.boolean().optional(),

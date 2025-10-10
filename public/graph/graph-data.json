@@ -1,12 +1,12 @@
 {
   "nodes": [
     {
-      "id": "astro-suite-vault-modular-guide",
+      "id": "astro-suite-obsidian-vault-guide-astro-modular",
       "type": "post",
-      "title": "Astro Suite Vault (Modular) Guide",
-      "slug": "astro-suite-vault-modular-guide",
+      "title": "Astro Suite Obsidian Vault Guide (Astro Modular)",
+      "slug": "astro-suite-obsidian-vault-guide-astro-modular",
       "date": "2025-09-10T00:00:00.000Z",
-      "connections": 3
+      "connections": 2
     },
     {
       "id": "formatting-reference",
@@ -22,7 +22,7 @@
       "title": "Getting Started",
       "slug": "getting-started",
       "date": "2025-09-06T00:00:00.000Z",
-      "connections": 3
+      "connections": 2
     },
     {
       "id": "mermaid-diagram-test",
@@ -33,10 +33,10 @@
       "connections": 0
     },
     {
-      "id": "sample-folder-post",
+      "id": "sample-folder-based-post",
       "type": "post",
       "title": "Sample Folder-Based Post",
-      "slug": "sample-folder-post",
+      "slug": "sample-folder-based-post",
       "date": "2025-09-09T00:00:00.000Z",
       "connections": 0
     }
@@ -54,22 +54,17 @@
     },
     {
       "source": "formatting-reference",
-      "target": "astro-suite-vault-modular-guide",
+      "target": "sample-folder-based-post",
       "type": "link"
     },
     {
       "source": "formatting-reference",
-      "target": "astro-suite-vault-modular-guide",
+      "target": "astro-suite-obsidian-vault-guide-astro-modular",
       "type": "link"
     },
     {
       "source": "getting-started",
-      "target": "sample-folder-post",
-      "type": "link"
-    },
-    {
-      "source": "getting-started",
-      "target": "astro-suite-vault-modular-guide",
+      "target": "astro-suite-obsidian-vault-guide-astro-modular",
       "type": "link"
     },
     {
@@ -79,9 +74,9 @@
     }
   ],
   "metadata": {
-    "generated": "2025-10-03T06:30:47.038Z",
+    "generated": "2025-10-10T03:40:21.677Z",
     "totalPosts": 5,
-    "totalConnections": 7,
+    "totalConnections": 6,
     "maxNodesApplied": false,
     "originalNodeCount": 5
   }

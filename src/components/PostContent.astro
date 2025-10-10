@@ -24,13 +24,26 @@ const { Content, toc, readingTime, wordCount } = post;
 const processedImage = (() => {
   if (!post.data.image) return post.data.image;
   
-  // Check if it's Obsidian bracket syntax
-  if (post.data.image.startsWith('[[') && post.data.image.endsWith(']]')) {
-    // Extract the content inside the brackets
-    return post.data.image.slice(2, -2);
+  // Handle case where image is an array (unquoted YAML syntax)
+  let imageValue = post.data.image;
+  if (Array.isArray(post.data.image)) {
+    // If it's an array, take the first element
+    imageValue = post.data.image[0];
   }
   
-  return post.data.image;
+  // Ensure imageValue is a string before calling string methods
+  if (typeof imageValue !== 'string') {
+    console.warn('PostContent: imageValue is not a string:', imageValue);
+    return imageValue;
+  }
+  
+  // Check if it's Obsidian double bracket syntax
+  if (imageValue.startsWith('[[') && imageValue.endsWith(']]')) {
+    // Extract the content inside the double brackets
+    return imageValue.slice(2, -2);
+  }
+  
+  return imageValue;
 })();
 ---
 
@@ -98,14 +111,14 @@ const processedImage = (() => {
                 // Three simple options:
                 
                 // 1. External URLs - no basePath needed
-                if (processedImage.startsWith('http')) {
+                if (typeof processedImage === 'string' && processedImage.startsWith('http')) {
                   return '';
                 }
                 
                 // 2. Folder-based posts - check if post slug contains dashes (folder-based pattern)
                 if (post.slug.includes('-')) {
                   // Check if image is in subdirectory (images/image.jpg)
-                  if (processedImage.includes('/')) {
+                  if (typeof processedImage === 'string' && processedImage.includes('/')) {
                     return `/posts/${post.slug}/`;
                   }
                   // Image in same folder as index.md
@@ -119,7 +132,7 @@ const processedImage = (() => {
               class="w-full h-full"
               width={1200}
               height={675}
-              format={processedImage.endsWith('.svg') ? undefined : "webp"}
+              format={typeof processedImage === 'string' && processedImage.endsWith('.svg') ? undefined : "webp"}
               quality={90}
               densities={[1, 2]}
               loading="eager"

@@ -30,6 +30,32 @@ const status = normalizeStatus(project.data.status);
 const repositoryUrl = project.data.repositoryUrl;
 const projectUrl = project.data.projectUrl;
 
+// Process image field to handle both string and array formats
+const processedImage = (() => {
+  if (!image) return image;
+  
+  // Handle case where image is an array (unquoted YAML syntax)
+  let imageValue = image;
+  if (Array.isArray(image)) {
+    // If it's an array, take the first element
+    imageValue = image[0];
+  }
+  
+  // Ensure imageValue is a string before calling string methods
+  if (typeof imageValue !== 'string') {
+    console.warn('ProjectCard: imageValue is not a string:', imageValue);
+    return imageValue;
+  }
+  
+  // Check if it's Obsidian double bracket syntax
+  if (imageValue.startsWith('[[') && imageValue.endsWith(']]')) {
+    // Extract the content inside the double brackets
+    return imageValue.slice(2, -2);
+  }
+  
+  return imageValue;
+})();
+
 // Get aspect ratio for cover image
 const aspectRatio = getPostCardAspectRatio();
 
@@ -41,7 +67,7 @@ const shouldShowCoverImage = siteConfig.postOptions.showPostCardCoverImages !== 
    (siteConfig.postOptions.showPostCardCoverImages === 'posts' && context === 'projects') ||
    (siteConfig.postOptions.showPostCardCoverImages === 'latest-and-posts' && (context === 'latest' || context === 'projects' || context === 'home')));
 
-const showCoverImage = shouldShowCoverImage && image;
+const showCoverImage = shouldShowCoverImage && processedImage;
 ---
 
 <div class="group relative bg-white dark:bg-primary-800 rounded-xl border border-primary-200 dark:border-primary-700 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 aspect-[4/3]" data-project-categories={categories.join(',')}>
@@ -50,10 +76,10 @@ const showCoverImage = shouldShowCoverImage && image;
     {showCoverImage ? (
       <div class="absolute inset-0">
         <ImageWrapper
-          src={image}
+          src={processedImage}
           basePath={(() => {
             // 1. External URLs - no basePath needed
-            if (image.startsWith('http')) {
+            if (typeof processedImage === 'string' && processedImage.startsWith('http')) {
               return '';
             }
             
@@ -63,13 +89,13 @@ const showCoverImage = shouldShowCoverImage && image;
             
             if (isFolderBasedProject) {
               // Remove Obsidian brackets to get the actual image path
-              let cleanImagePath = image;
-              if (cleanImagePath.startsWith('[[') && cleanImagePath.endsWith(']]')) {
+              let cleanImagePath = processedImage;
+              if (typeof cleanImagePath === 'string' && cleanImagePath.startsWith('[[') && cleanImagePath.endsWith(']]')) {
                 cleanImagePath = cleanImagePath.slice(2, -2);
               }
               
               // For folder-based projects, check if image is in images/ subfolder
-              if (cleanImagePath.startsWith('images/')) {
+              if (typeof cleanImagePath === 'string' && cleanImagePath.startsWith('images/')) {
                 return `/projects/${project.slug}/images/`;
               }
               // Image in same folder as index.md

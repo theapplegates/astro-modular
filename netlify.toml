@@ -169,6 +169,12 @@
   force = true
 
 [[redirects]]
+  from = "/posts/astro-suite-vault-modular-guide"
+  to = "/posts/astro-suite-obsidian-vault-guide-astro-modular"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/posts/mermaid-test"
   to = "/posts/mermaid-diagram-test"
   status = 301
