@@ -90,7 +90,7 @@ function checkImageExists(imageSrc, filePath) {
       return { exists: true, path: sameFolderPath };
     }
     
-    // Check in /images/ subfolder within the content folder
+    // Check in /attachments/ subfolder within the content folder
     const imagesSubfolderPath = path.join(contentDir, 'images', imagePath);
     if (fs.existsSync(imagesSubfolderPath)) {
       return { exists: true, path: imagesSubfolderPath };

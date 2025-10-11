@@ -156,14 +156,14 @@ const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProject
                   }
                   
                   if (cleanImagePath.startsWith('images/')) {
-                    return `/projects/${project.slug}/images/`;
+                    return `/projects/${project.slug}/attachments/`;
                   }
                   // Image in same folder as index.md
                   return `/projects/${project.slug}/`;
                 }
                 
                 // 3. Regular projects - use global images directory
-                return "/projects/images/";
+                return "/projects/attachments/";
               })()}
               alt={project.data.imageAlt || `Featured image for project: ${project.data.title}`}
               class="w-full h-full object-cover"

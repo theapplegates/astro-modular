@@ -59,7 +59,7 @@ const structuredData = {
       <link 
         rel="preload" 
         as="image" 
-        href={`/pages/images/${page.data.image}`}
+        href={`/pages/attachments/${page.data.image}`}
         fetchpriority="high"
       />
     )}
@@ -73,7 +73,7 @@ const structuredData = {
           <div class="h-40 sm:h-48 md:h-56 lg:h-64 overflow-hidden rounded-t-lg bg-primary-100 dark:bg-primary-800">
             <ImageWrapper
               src={page.data.image}
-              basePath="/pages/images/"
+              basePath="/pages/attachments/"
               alt={page.data.imageAlt || `Featured image for page: ${page.data.title}`}
               class="w-full h-full object-cover"
               width={800}

@@ -1197,3 +1197,96 @@ svg:has(text:contains("mermaid version")) {
   width: 0 !important;
   overflow: hidden !important;
 }
+
+/* ============================================================================
+   OBSIDIAN EMBEDS
+   ============================================================================ */
+
+/* Audio embeds */
+.audio-embed {
+  @apply my-6 rounded-lg overflow-hidden;
+  @apply bg-primary-100 dark:bg-primary-800;
+  @apply border border-primary-200 dark:border-primary-600;
+}
+
+.audio-embed audio {
+  @apply w-full;
+  @apply bg-transparent;
+}
+
+.audio-filename {
+  @apply px-4 py-2 text-sm;
+  @apply text-primary-600 dark:text-primary-400;
+}
+
+/* Video embeds */
+.video-embed {
+  @apply my-8 rounded-xl overflow-hidden;
+  @apply aspect-video;
+  @apply flex items-center justify-center;
+  @apply bg-black;
+}
+
+.video-embed video {
+  @apply w-full h-full object-contain;
+}
+
+/* Twitter embeds */
+.twitter-tweet {
+  @apply my-8 mx-auto;
+  @apply max-w-none;
+}
+
+/* YouTube embeds */
+.youtube-embed {
+  @apply aspect-video overflow-hidden rounded-xl my-8;
+}
+
+.youtube-embed iframe {
+  @apply w-full h-full;
+}
+
+/* Twitter/X embeds */
+.twitter-embed {
+  @apply my-8;
+}
+
+.twitter-embed blockquote {
+  @apply border-l-4 border-highlight-500 dark:border-highlight-400 pl-4 py-2;
+  @apply bg-primary-50 dark:bg-primary-800 rounded-r-lg;
+}
+
+/* PDF embeds */
+.pdf-embed {
+  @apply my-8;
+}
+
+.pdf-embed iframe {
+  @apply w-full h-[600px] rounded-lg;
+  @apply border border-primary-200 dark:border-primary-600;
+}
+
+/* PDF download button - use existing button classes with higher specificity */
+.prose .pdf-download-link {
+  @apply btn btn-primary mt-3;
+}
+
+.prose .pdf-download-link:hover {
+  color: white !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .pdf-embed iframe {
+    @apply h-[400px];
+  }
+  
+  .audio-embed {
+    @apply my-4;
+  }
+  
+  .video-embed,
+  .youtube-embed {
+    @apply my-6;
+  }
+}

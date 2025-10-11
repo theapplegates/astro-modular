@@ -106,35 +106,38 @@ You can make callouts collapsible by adding `+` (expanded by default) or `-` (co
 > [!quote] Quote
 > Quote callouts can be used to highlight important quotes or references.
 
-## Images
+## Media Content
 
-### Single Image With Caption
+### Images
 
-![Mountains](/posts/images/mountains.png)
+#### Single Image With Caption
+
+![Mountains](/posts/attachments/mountains.png)
 *Photo by [Antoine Rault](https://unsplash.com/@antoinerault?utm_source=Obsidian%20Image%20Inserter%20Plugin&utm_medium=referral) on [Unsplash](https://unsplash.com/?utm_source=Obsidian%20Image%20Inserter%20Plugin&utm_medium=referral)*
-### Multiple Image Layouts
+
+#### Multiple Image Layouts
 
 This theme automatically arranges consecutive images in responsive grid layouts based on the number of images. Images can be placed together without empty lines between them to create these layouts.
 
-#### Two Images Side by Side
+**Two Images Side by Side**
 
 ![Mountain landscape](https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop)
 ![Ocean view](https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=800&h=600&fit=crop)
 
-#### Three Images in a Row
+**Three Images in a Row**
 
 ![Forest path](https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop)
 ![Desert sunset](https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop)
 ![City skyline](https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop)
 
-#### Four Images in a Row
+**Four Images in a Row**
 
 ![Winter landscape](https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&h=600&fit=crop)
 ![Spring flowers](https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800&h=600&fit=crop)
 ![Summer beach](https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=600&fit=crop)
 ![Autumn leaves](https://images.unsplash.com/photo-1441260038675-7329ab4cc264?w=800&h=600&fit=crop)
 
-### How to Use Multiple Images / Gallery
+**How to Use Multiple Images / Gallery**
 
 Simply place multiple images together without empty lines between them:
 
@@ -146,31 +149,37 @@ Simply place multiple images together without empty lines between them:
 
 On mobile devices, all layouts switch to a single column for better readability.
 
-## Videos
+### Video Files
 
-Here's an example of a responsive embedded video: 
+![[attachments/video.mp4]]
 
-<div class="aspect-video overflow-hidden rounded-xl mb-8">
-<iframe 
-  src="https://www.youtube.com/embed/ZhizarvwLnU?rel=0&modestbranding=1" 
-  title="YouTube video player" 
-  allowfullscreen 
-  loading="lazy"
-  class="w-full h-full"
-></iframe>
-</div>
+Video files are embedded as HTML5 video players with controls and responsive design.
 
-```html
-<div class="aspect-video overflow-hidden rounded-xl mb-8">
-<iframe 
-  src="https://www.youtube.com/embed/ZhizarvwLnU?rel=0&modestbranding=1" 
-  title="YouTube video player" 
-  allowfullscreen 
-  loading="lazy"
-  class="w-full h-full"
-></iframe>
-</div>
-```
+### YouTube Videos
+
+![](https://www.youtube.com/watch?v=ZhizarvwLnU)
+
+YouTube videos are automatically embedded with responsive design and optimized settings.
+
+### Audio Files
+
+![[attachments/sound.wav]]
+
+Audio files are embedded as HTML5 audio players with controls and filename display.
+
+### PDF Documents
+
+![[attachments/document.pdf]]
+
+PDFs are embedded as inline viewers with download links. 
+
+Use `![[attachments/document.pdf#page=3]]` to select a specific PDF page to display.
+
+### Twitter/X Posts
+
+![](https://x.com/davidvkimball/status/1933196479801536736)
+
+Twitter posts are embedded with theme-aware styling that matches your site's light/dark mode.
 
 ## Buttons
 
@@ -435,13 +444,13 @@ echo "Development server started on http://localhost:3000"
 
 ### Basic Tables
 
-| Feature | Supported | Notes |
-|---------|-----------|-------|
-| Markdown | ✅ | Full CommonMark support |
-| Wikilinks | ✅ | Obsidian-style double brackets |
-| Callouts | ✅ | Multiple types with icons |
-| Math | ✅ | LaTeX math with KaTeX rendering |
-| Diagrams | 🔄 | Planned for future release |
+| Feature   | Supported | Notes                           |
+| --------- | --------- | ------------------------------- |
+| Markdown  | ✅         | Full CommonMark support         |
+| Wikilinks | ✅         | Obsidian-style double brackets  |
+| Callouts  | ✅         | Multiple types with icons       |
+| Math      | ✅         | LaTeX math with KaTeX rendering |
+| Diagrams  | ✅         | Mermaid diagram support         |
 
 ### Advanced Tables
 
@@ -498,6 +507,7 @@ Use <kbd>Cmd</kbd> + <kbd>K</kbd> to open the command palette.
 - Symbols: ★ ☆ ♠ ♣ ♥ ♦
 - Currency: $ € £ ¥
 
+
 ## HTML Elements
 
 Sometimes you need to use HTML for more complex formatting:
@@ -508,8 +518,6 @@ Sometimes you need to use HTML for more complex formatting:
 This content is hidden by default and can be expanded by clicking the summary.
 
 </details>
-
-<mark>Highlighted text using HTML</mark>
 
 <small>Small text for fine print</small>
 

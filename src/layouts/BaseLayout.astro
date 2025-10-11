@@ -98,6 +98,9 @@ const { seoData, bodyClass = '' } = Astro.props;
     </>
   )}
 
+  <!-- Twitter Widget Theme Configuration -->
+  <meta name="twitter:widgets:theme" content="preferred_color_scheme">
+  <meta name="twitter:widgets:border-color" content="rgb(var(--color-primary-200))">
 
   <!-- Article specific meta tags -->
   {seoData.ogType === 'article' && (
@@ -136,6 +139,7 @@ const { seoData, bodyClass = '' } = Astro.props;
   <!-- Font Awesome Icons now handled by hybrid Icon component -->
 
   <!-- Swup handled via Astro integration -->
+  
   
   <!-- Font CSS Variables -->
   <style define:vars={{
@@ -421,6 +425,13 @@ const { seoData, bodyClass = '' } = Astro.props;
 
   <!-- Additional head content -->
   <slot name="head" />
+  
+  <!-- Twitter Widgets Theme Configuration -->
+  <meta name="twitter:widgets:theme" content="preferred_color_scheme">
+  <meta name="twitter:widgets:border-color" content="rgb(var(--color-primary-200))">
+  
+  <!-- Twitter Widgets Script -->
+  <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
   
 </head>
 
@@ -994,12 +1005,92 @@ const { seoData, bodyClass = '' } = Astro.props;
     // Listen for browser back/forward button
     window.addEventListener('popstate', handlePopState);
 
+    // Twitter widget initialization
+    function initializeTwitterWidgets() {
+      if (typeof window.twttr !== 'undefined' && window.twttr.widgets) {
+        // Find all Twitter embeds on the page
+        const twitterEmbeds = document.querySelectorAll('[data-twitter-embed]');
+        if (twitterEmbeds.length > 0) {
+          // Load Twitter widgets for new content
+          window.twttr.widgets.load();
+        }
+      }
+    }
+
+    // Make Twitter widget function globally available
+    if (typeof window !== 'undefined') {
+      window.initializeTwitterWidgets = initializeTwitterWidgets;
+    }
+
+
+    // Initialize Twitter theme immediately on page load (before widgets render)
+    function initializeTwitterThemeImmediately() {
+      const isDark = document.documentElement.classList.contains('dark');
+      const newTheme = isDark ? 'dark' : 'light';
+      
+      // Update the meta tag immediately
+      const themeMeta = document.querySelector('meta[name="twitter:widgets:theme"]');
+      if (themeMeta) {
+        themeMeta.setAttribute('content', newTheme);
+      }
+      
+      // Update data-theme attributes on any existing blockquotes
+      const twitterEmbeds = document.querySelectorAll('.twitter-tweet');
+      twitterEmbeds.forEach(embed => {
+        embed.setAttribute('data-theme', newTheme);
+      });
+    }
+
+    // Initialize Twitter theme immediately (before widgets load)
+    initializeTwitterThemeImmediately();
+
+    // Initialize Twitter widgets when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        initializeTwitterWidgets();
+        // Also initialize theme again after widgets load (as backup)
+        setTimeout(initializeTwitterTheme, 1000);
+      });
+    } else {
+      initializeTwitterWidgets();
+      // Also initialize theme again after widgets load (as backup)
+      setTimeout(initializeTwitterTheme, 1000);
+    }
+
     // Mermaid theme change handling
     function handleMermaidThemeChange() {
       // Use the utility's theme change handler
       if (typeof window.handleMermaidThemeChange === 'function') {
         window.handleMermaidThemeChange();
       }
+    }
+
+    // Twitter theme change handling - force iframe update
+    function handleTwitterThemeChange(isDark) {
+      const newTheme = isDark ? 'dark' : 'light';
+      
+      // Update the meta tag
+      const themeMeta = document.querySelector('meta[name="twitter:widgets:theme"]');
+      if (themeMeta) {
+        themeMeta.setAttribute('content', newTheme);
+      }
+      
+      // Force update all Twitter iframes by updating their src URLs
+      const twitterIframes = document.querySelectorAll('iframe[src*="platform.twitter.com/embed/Tweet.html"]');
+      twitterIframes.forEach(iframe => {
+        const currentSrc = iframe.src;
+        // Replace theme parameter in URL
+        const updatedSrc = currentSrc.replace(/theme=[^&]+/, `theme=${newTheme}`);
+        if (updatedSrc !== currentSrc) {
+          iframe.src = updatedSrc;
+        }
+      });
+    }
+
+    // Initialize Twitter theme on page load
+    function initializeTwitterTheme() {
+      const isDark = document.documentElement.classList.contains('dark');
+      handleTwitterThemeChange(isDark);
     }
 
     // Listen for theme changes
@@ -1014,6 +1105,7 @@ const { seoData, bodyClass = '' } = Astro.props;
             // Only re-render if theme actually changed
             if (isDark !== wasDark) {
               handleMermaidThemeChange();
+              handleTwitterThemeChange(isDark);
             }
           }
         });
@@ -1060,6 +1152,10 @@ const { seoData, bodyClass = '' } = Astro.props;
           if (window.initializeTableOfContents) {
             window.initializeTableOfContents();
           }
+          // Initialize Twitter widgets after page transition is complete
+          if (window.initializeTwitterWidgets) {
+            window.initializeTwitterWidgets();
+          }
           // Graph initialization is handled in page:view hook to prevent duplicates
           // Don't call handleInitialHashScroll() here - it interferes with back/forward navigation
         });
@@ -1071,9 +1167,15 @@ const { seoData, bodyClass = '' } = Astro.props;
     if (typeof window !== 'undefined') {
       // Setup smooth scrolling when DOM is ready
       if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', setupSmoothScrolling);
+        document.addEventListener('DOMContentLoaded', () => {
+          setupSmoothScrolling();
+          // Initialize Twitter widgets on initial page load
+          initializeTwitterWidgets();
+        });
       } else {
         setupSmoothScrolling();
+        // Initialize Twitter widgets on initial page load
+        initializeTwitterWidgets();
       }
     }
 

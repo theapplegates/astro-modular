@@ -1034,9 +1034,9 @@ When working with Obsidian and actively editing content, missing image errors ar
 ### Placeholder Images
 
 The system automatically uses placeholder images when assets are missing:
-- **Posts**: `/posts/images/placeholder.jpg`
-- **Pages**: `/pages/images/placeholder.jpg`
-- **Default**: `/posts/images/placeholder.jpg`
+- **Posts**: `/posts/attachments/placeholder.jpg`
+- **Pages**: `/pages/attachments/placeholder.jpg`
+- **Default**: `/posts/attachments/placeholder.jpg`
 
 ### Image Reference Formats
 
@@ -1072,7 +1072,7 @@ imageAlt: Cover image description
 
 The theme automatically handles image resolution for folder-based posts:
 - **Relative paths** (`image.jpg`) → `/posts/post-slug/image.jpg`
-- **Absolute paths** (`/images/image.jpg`) → `/images/image.jpg`
+- **Absolute paths** (`/attachments/image.jpg`) → `/attachments/image.jpg`
 - **External URLs** (`https://...`) → Used as-is
 
 ### Development Tools
@@ -1098,9 +1098,9 @@ export const devConfig = {
     showPlaceholders: true,        // Show placeholder images
     logMissingImages: true,        // Log missing images to console
     fallbacks: {
-      posts: '/posts/images/placeholder.jpg',
-      pages: '/pages/images/placeholder.jpg',
-      default: '/posts/images/placeholder.jpg'
+      posts: '/posts/attachments/placeholder.jpg',
+      pages: '/pages/attachments/placeholder.jpg',
+      default: '/posts/attachments/placeholder.jpg'
     }
   },
   content: {
@@ -1120,19 +1120,29 @@ The build process automatically syncs folder-based assets to the public director
 src/content/posts/my-post/
 ├── index.md
 ├── image.jpg
+├── audio.wav
+├── video.mp4
 └── document.pdf
 
 ↓ (build process) ↓
 
 public/posts/my-post/
 ├── image.jpg
+├── audio.wav
+├── video.mp4
 └── document.pdf
 ```
+
+**Supported Media Types:**
+- **Images**: JPG, JPEG, PNG, GIF, WEBP, SVG, BMP, TIFF, TIF, ICO
+- **Audio**: MP3, WAV, OGG, M4A, 3GP, FLAC, AAC
+- **Video**: MP4, WEBM, OGV, MOV, MKV, AVI
+- **Documents**: PDF
 
 ### Build Scripts
 
 The build process includes several pre-build steps:
-1. **Sync Images**: Copy images from content to public directory
+1. **Sync Media Files**: Copy images, audio, video, and PDF files from content to public directory
 2. **Process Aliases**: Convert content aliases to redirects
 3. **Generate Redirects**: Create redirect rules for deployment platforms
 4. **Build Astro**: Compile the site
@@ -1946,9 +1956,9 @@ images: {
   showPlaceholders: true,        // Show placeholder images for missing assets
   logMissingImages: true,        // Log missing images to console
   fallbacks: {
-    posts: '/posts/images/placeholder.jpg',
-    pages: '/pages/images/placeholder.jpg',
-    default: '/posts/images/placeholder.jpg'
+    posts: '/posts/attachments/placeholder.jpg',
+    pages: '/pages/attachments/placeholder.jpg',
+    default: '/posts/attachments/placeholder.jpg'
   }
 }
 ```
@@ -2890,6 +2900,159 @@ The Mermaid implementation maintains full compatibility with Obsidian:
 - **Memory management**: Clear cache when needed for development
 
 This comprehensive Mermaid support maintains the theme's core principles of clarity, performance, and Obsidian compatibility while providing powerful diagram capabilities with optimized performance.
+
+## Native Obsidian Embed Support
+
+### Overview
+
+The theme includes comprehensive native Obsidian embed support for audio, video, YouTube, PDF, and Twitter/X content. All embeds use Obsidian's native syntax and automatically convert to appropriate HTML5 players or embedded content, maintaining full compatibility with Obsidian workflows.
+
+### Implementation Details
+
+#### Dependencies
+- **`remark-obsidian-embeds`**: Custom remark plugin for processing Obsidian embed syntax
+- **HTML5 Audio/Video**: Native browser support for media playback
+- **YouTube API**: Embedded iframe player
+- **Twitter Widget**: Twitter's official embed script
+
+#### Plugin Chain Integration
+The embed processing is integrated into the existing markdown pipeline:
+
+**Remark Plugins (Processing Order):**
+1. `remarkInternalLinks` - Process wikilinks and standard links
+2. `remarkFolderImages` - Handle folder-based images
+3. `remarkImageCaptions` - Process image captions
+4. `remarkMath` - Parse LaTeX math syntax
+5. `remarkCallouts` - Process Obsidian-style callouts
+6. `remarkImageGrids` - Handle image grid layouts
+7. **`remarkObsidianEmbeds`** - Process Obsidian embed syntax
+8. `remarkMermaid` - Process Mermaid diagrams
+9. `remarkReadingTime` - Calculate reading time
+10. `remarkToc` - Generate table of contents
+
+### Supported Embed Types
+
+#### Audio Files
+- **Syntax**: `![[audio.mp3]]`, `![[audio.wav]]`, `![[audio.ogg]]`
+- **Supported Formats**: MP3, WAV, OGG, M4A, 3GP, FLAC, AAC
+- **Output**: HTML5 audio player with controls and filename display
+- **Styling**: Theme-aware audio player with rounded corners and borders
+
+#### Video Files
+- **Syntax**: `![[video.mp4]]`, `![[video.webm]]`, `![[video.mov]]`
+- **Supported Formats**: MP4, WEBM, OGV, MOV, MKV, AVI
+- **Output**: HTML5 video player with controls
+- **Styling**: Responsive video player with 16:9 aspect ratio
+
+#### YouTube Videos
+- **Syntax**: `![](https://www.youtube.com/watch?v=VIDEO_ID)`
+- **Supported URL Formats**:
+  - `https://www.youtube.com/watch?v=VIDEO_ID`
+  - `https://youtu.be/VIDEO_ID`
+  - `https://www.youtube.com/embed/VIDEO_ID`
+- **Output**: Responsive iframe embed with YouTube's player
+- **Features**: Modest branding, no related videos, lazy loading
+
+
+#### PDF Documents
+- **Syntax**: `![[document.pdf]]`, `![[document.pdf#page=3]]`
+- **Output**: Inline PDF viewer with download link
+- **Features**: Page-specific linking, download functionality
+- **Styling**: Fixed height viewer with theme-aware borders
+
+#### Twitter/X Posts
+- **Syntax**: `![](https://twitter.com/user/status/ID)`
+- **Supported URL Formats**:
+  - `https://twitter.com/user/status/ID`
+  - `https://x.com/user/status/ID`
+- **Output**: Embedded tweet using Twitter's widget script
+- **Features**: Automatic tweet loading, responsive design
+
+### Technical Implementation
+
+#### Core Files
+- **`src/utils/remark-obsidian-embeds.ts`**: Main embed processing plugin
+- **`src/styles/global.css`**: Embed-specific styling
+- **`astro.config.mjs`**: Plugin configuration
+
+#### Key Functions
+- **Audio Processing**: Detects audio file extensions and generates HTML5 audio elements
+- **Video Processing**: Detects video file extensions and generates HTML5 video elements
+- **YouTube Processing**: Extracts video IDs and generates embed iframes
+- **PDF Processing**: Generates iframe viewers with download links
+- **Twitter Processing**: Generates Twitter widget embeds
+
+#### CSS Styling
+```css
+/* Audio embeds */
+.audio-embed {
+  @apply my-6 rounded-lg overflow-hidden;
+  @apply bg-primary-100 dark:bg-primary-800;
+  @apply border border-primary-200 dark:border-primary-600;
+}
+
+/* Video embeds */
+.video-embed {
+  @apply my-8 rounded-xl overflow-hidden;
+  @apply aspect-video;
+}
+
+/* YouTube embeds */
+.youtube-embed {
+  @apply aspect-video overflow-hidden rounded-xl my-8;
+}
+
+/* PDF embeds */
+.pdf-embed iframe {
+  @apply w-full h-[600px] rounded-lg;
+  @apply border border-primary-200 dark:border-primary-600;
+}
+```
+
+### Obsidian Compatibility
+
+The embed implementation maintains full compatibility with Obsidian:
+
+- **Identical Syntax**: Same `![[file]]` and `![](url)` syntax as Obsidian
+- **File Format Support**: All supported formats work in both Obsidian and the blog
+- **Seamless Workflow**: Write in Obsidian, publish to blog with identical rendering
+- **Theme Integration**: Embeds adapt to all available themes automatically
+
+### Performance Considerations
+
+- **Lazy Loading**: YouTube embeds use lazy loading for better performance
+- **Responsive Design**: All embeds scale properly on mobile devices
+- **Theme Integration**: Embeds use theme-aware colors and styling
+- **Fallback Support**: Graceful degradation for unsupported browsers
+
+### Browser Support
+
+- **Modern Browsers**: Full support in Chrome, Firefox, Safari, Edge
+- **Mobile Devices**: Responsive embed rendering on all screen sizes
+- **Accessibility**: Proper ARIA labels and keyboard navigation
+- **Print Styles**: Embeds render correctly in print layouts
+
+### Best Practices for AI Agents
+
+#### Embed Implementation
+- **Always use Obsidian syntax**: Maintain compatibility with Obsidian workflows
+- **Test all embed types**: Verify audio, video, YouTube, PDF, and Twitter embeds
+- **Check responsive behavior**: Ensure embeds work on mobile devices
+- **Verify theme compatibility**: Test embeds in both light and dark themes
+
+#### Content Creation
+- **Use standard formats**: Stick to widely supported audio/video formats
+- **Test in Obsidian**: Verify embeds render correctly in Obsidian
+- **Include examples**: Provide comprehensive embed examples in documentation
+- **Error handling**: Graceful fallbacks for malformed embeds
+
+#### Performance Optimization
+- **Lazy loading**: Essential for pages with multiple embeds
+- **Responsive design**: Critical for mobile user experience
+- **Theme integration**: Embeds should adapt to all themes
+- **Fallback support**: Handle cases where embeds fail to load
+
+This comprehensive embed support maintains the theme's core principles of clarity, performance, and Obsidian compatibility while providing powerful media embedding capabilities.
 
 ## Comments System (Giscus Integration)
 

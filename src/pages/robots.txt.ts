@@ -22,8 +22,8 @@ Disallow: /admin/
 Disallow: /.well-known/
 
 # Allow search engines to crawl images
-Allow: /posts/images/
-Allow: /pages/images/
+Allow: /posts/attachments/
+Allow: /pages/attachments/
 
 # Crawl delay (optional)
 # Crawl-delay: 1

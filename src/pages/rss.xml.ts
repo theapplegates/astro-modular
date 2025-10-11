@@ -50,7 +50,7 @@ export async function GET(context: any) {
         enclosure: post.data.image && post.data.imageOG ? {
           url: post.data.image.startsWith('http') 
             ? post.data.image 
-            : `${siteUrl}posts/images/${post.data.image.replace(/^.*\//, '').replace(/^\[\[|\]\]$/g, '')}`,
+            : `${siteUrl}posts/attachments/${post.data.image.replace(/^.*\//, '').replace(/^\[\[|\]\]$/g, '')}`,
           type: getMimeTypeFromPath(post.data.image),
           length: 0 // Length is optional
         } : undefined,
@@ -58,7 +58,7 @@ export async function GET(context: any) {
           post.data.targetKeyword && `<keyword>${post.data.targetKeyword}</keyword>`,
           post.data.image && `<image>${post.data.image.startsWith('http') 
             ? post.data.image 
-            : `${siteUrl}posts/images/${post.data.image.replace(/^.*\//, '').replace(/^\[\[|\]\]$/g, '')}`}</image>`,
+            : `${siteUrl}posts/attachments/${post.data.image.replace(/^.*\//, '').replace(/^\[\[|\]\]$/g, '')}`}</image>`,
         ].filter(Boolean).join(''),
       };
     }),

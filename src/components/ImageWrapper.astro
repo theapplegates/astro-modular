@@ -52,7 +52,7 @@ if (cleanSrc.startsWith('[[') && cleanSrc.endsWith(']]')) {
 
 // Determine image type using cleaned src
 // For folder-based content, if basePath indicates a synced folder, treat as public
-const isSyncedFolder = basePath && basePath.includes('/') && !basePath.endsWith('/images/');
+const isSyncedFolder = basePath && basePath.includes('/') && !basePath.endsWith('/attachments/');
 const isLocal = !(
   cleanSrc.startsWith("/") ||
   cleanSrc.startsWith("http") ||
@@ -80,13 +80,13 @@ if (isLocal) {
     
     // Remove leading "images/" if present since basePath already includes it
     // But only for global images, not folder-based images
-    if (cleanSrc.startsWith('images/') && (basePath === '/posts/images/' || basePath === '/projects/images/' || basePath === '/docs/images/')) {
+    if (cleanSrc.startsWith('images/') && (basePath === '/posts/attachments/' || basePath === '/projects/attachments/' || basePath === '/docs/attachments/')) {
       cleanSrc = cleanSrc.slice(7);
     }
     
     // For folder-based content, if basePath already includes 'images/' and cleanSrc starts with 'images/',
     // remove the prefix from cleanSrc to avoid double 'images/'
-    if (cleanSrc.startsWith('images/') && basePath.includes('/images/') && basePath !== '/posts/images/' && basePath !== '/projects/images/' && basePath !== '/docs/images/') {
+    if (cleanSrc.startsWith('images/') && basePath.includes('/attachments/') && basePath !== '/posts/attachments/' && basePath !== '/projects/attachments/' && basePath !== '/docs/attachments/') {
       cleanSrc = cleanSrc.slice(7);
     }
     

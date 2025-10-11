@@ -126,7 +126,7 @@ const processedImage = (() => {
                 }
                 
                 // 3. Regular posts - use global images directory
-                return "/posts/images/";
+                return "/posts/attachments/";
               })()}
               alt={post.data.imageAlt || `Image in post: ${post.data.title}`}
               class="w-full h-full"
@@ -224,8 +224,9 @@ const processedImage = (() => {
   // Handle heading links with smooth scrolling (outside DOMContentLoaded)
   document.addEventListener('click', (e) => {
     // Check if clicked element is an anchor link
-    if (e.target.tagName === 'A' && e.target.classList.contains('anchor-link')) {
-      const href = e.target.getAttribute('href');
+    const target = e.target as HTMLElement;
+    if (target && target.tagName === 'A' && target.classList.contains('anchor-link')) {
+      const href = target.getAttribute('href');
       
       if (href && href.startsWith('#') && href.length > 1) {
         const targetElement = document.querySelector(href);
@@ -237,13 +238,13 @@ const processedImage = (() => {
           history.pushState(null, '', href);
           
           // Custom smooth scroll implementation
-          const targetPosition = targetElement.offsetTop - 100; // Account for header
+          const targetPosition = (targetElement as HTMLElement).offsetTop - 100; // Account for header
           const startPosition = window.pageYOffset;
           const distance = targetPosition - startPosition;
           const duration = 800; // 800ms duration
-          let start = null;
+          let start: number | null = null;
 
-          function step(timestamp) {
+          function step(timestamp: number) {
             if (!start) start = timestamp;
             const progress = timestamp - start;
             const percentage = Math.min(progress / duration, 1);

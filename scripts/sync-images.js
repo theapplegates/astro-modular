@@ -15,27 +15,27 @@ const log = {
 const IMAGE_SYNC_CONFIGS = [
   {
     source: 'src/content/posts/attachments',
-    target: 'public/posts/images',
+    target: 'public/posts/attachments',
     name: 'posts'
   },
   {
     source: 'src/content/pages/attachments',
-    target: 'public/pages/images',
+    target: 'public/pages/attachments',
     name: 'pages'
   },
   {
     source: 'src/content/projects/attachments',
-    target: 'public/projects/images',
+    target: 'public/projects/attachments',
     name: 'projects'
   },
   {
     source: 'src/content/docs/attachments',
-    target: 'public/docs/images',
+    target: 'public/docs/attachments',
     name: 'docs'
   }
 ];
 
-// Recursively find all image files in a directory
+// Recursively find all media files in a directory (images, audio, video, PDF)
 async function findImageFiles(dir, relativePath = '') {
   const imageFiles = [];
   
@@ -51,7 +51,7 @@ async function findImageFiles(dir, relativePath = '') {
         // Recursively search subdirectories
         const subImages = await findImageFiles(itemPath, itemRelativePath);
         imageFiles.push(...subImages);
-      } else if (/\.(jpg|jpeg|png|gif|webp|svg|bmp|tiff|tif|ico)$/i.test(item)) {
+      } else if (/\.(jpg|jpeg|png|gif|webp|svg|bmp|tiff|tif|ico|mp3|wav|ogg|m4a|3gp|flac|aac|mp4|webm|ogv|mov|mkv|avi|pdf)$/i.test(item)) {
         imageFiles.push({
           sourcePath: itemPath,
           relativePath: itemRelativePath
@@ -86,7 +86,7 @@ async function syncFolderBasedImages(contentType) {
       if (stat.isDirectory()) {
         const targetDir = path.join(publicContentDir, item);
         
-        // Find all image files recursively
+        // Find all media files recursively
         const imageFiles = await findImageFiles(itemPath);
         
         for (const imageFile of imageFiles) {

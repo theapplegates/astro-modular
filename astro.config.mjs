@@ -6,6 +6,7 @@ import { remarkInternalLinks, remarkFolderImages, remarkImageCaptions } from './
 import remarkCallouts from './src/utils/remark-callouts.ts';
 import remarkImageGrids from './src/utils/remark-image-grids.ts';
 import remarkMermaid from './src/utils/remark-mermaid.ts';
+import { remarkObsidianEmbeds } from './src/utils/remark-obsidian-embeds.ts';
 import remarkMath from 'remark-math';
 import remarkReadingTime from 'remark-reading-time';
 import remarkToc from 'remark-toc';
@@ -77,6 +78,7 @@ export default defineConfig({
         remarkPlugins: [
           remarkInternalLinks,
       remarkFolderImages,
+      remarkObsidianEmbeds,
       remarkImageCaptions,
       remarkMath,
       remarkCallouts,

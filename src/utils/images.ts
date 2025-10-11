@@ -118,7 +118,7 @@ export function optimizeImagePath(imagePath: string): string {
 export function optimizePageImagePath(imagePath: string): string {
   // Handle null, undefined, or empty strings
   if (!imagePath || typeof imagePath !== 'string') {
-    return '/pages/images/placeholder.jpg'; // Fallback to placeholder
+    return '/pages/attachments/placeholder.jpg'; // Fallback to placeholder
   }
 
   // Strip Obsidian brackets first
@@ -126,7 +126,7 @@ export function optimizePageImagePath(imagePath: string): string {
   
   // Handle empty path after cleaning
   if (!cleanPath) {
-    return '/pages/images/placeholder.jpg';
+    return '/pages/attachments/placeholder.jpg';
   }
 
   // Handle different image path formats
@@ -139,13 +139,13 @@ export function optimizePageImagePath(imagePath: string): string {
   }
 
   // Prevent double processing - if already optimized, return as-is
-  if (cleanPath.startsWith('/pages/images/')) {
+  if (cleanPath.startsWith('/pages/attachments/')) {
     return cleanPath;
   }
 
   // Handle Obsidian-style relative paths from markdown content
   if (cleanPath.startsWith('./images/')) {
-    return cleanPath.replace('./images/', '/pages/images/');
+    return cleanPath.replace('./images/', '/pages/attachments/');
   }
 
   if (cleanPath.startsWith('images/')) {
@@ -154,11 +154,11 @@ export function optimizePageImagePath(imagePath: string): string {
 
   // Handle case where filename is provided without path
   if (!cleanPath.includes('/')) {
-    return `/pages/images/${cleanPath}`;
+    return `/pages/attachments/${cleanPath}`;
   }
 
   // Default - assume it's a relative path in the pages directory
-  return `/pages/images/${cleanPath}`;
+  return `/pages/attachments/${cleanPath}`;
 }
 
 // Strip Obsidian double bracket syntax from image paths
@@ -177,7 +177,7 @@ export function stripObsidianBrackets(imagePath: string): string {
 export function optimizePostImagePath(imagePath: string, postSlug?: string, postId?: string): string {
   // Handle null, undefined, or empty strings
   if (!imagePath || typeof imagePath !== 'string') {
-    return '/posts/images/placeholder.jpg'; // Fallback to placeholder
+    return '/posts/attachments/placeholder.jpg'; // Fallback to placeholder
   }
 
   // Strip Obsidian brackets first
@@ -185,7 +185,7 @@ export function optimizePostImagePath(imagePath: string, postSlug?: string, post
   
   // Handle empty path after cleaning
   if (!cleanPath) {
-    return '/posts/images/placeholder.jpg';
+    return '/posts/attachments/placeholder.jpg';
   }
 
   // Handle different image path formats
@@ -198,7 +198,7 @@ export function optimizePostImagePath(imagePath: string, postSlug?: string, post
   }
 
   // Prevent double processing - if already optimized, return as-is
-  if (cleanPath.startsWith('/posts/images/')) {
+  if (cleanPath.startsWith('/posts/attachments/')) {
     return cleanPath;
   }
 
@@ -213,7 +213,7 @@ export function optimizePostImagePath(imagePath: string, postSlug?: string, post
 
   // Handle Obsidian-style relative paths from markdown content
   if (cleanPath.startsWith('./images/')) {
-    return cleanPath.replace('./images/', '/posts/images/');
+    return cleanPath.replace('./images/', '/posts/attachments/');
   }
 
   if (cleanPath.startsWith('images/')) {
@@ -222,7 +222,7 @@ export function optimizePostImagePath(imagePath: string, postSlug?: string, post
 
   // Handle Obsidian attachments subfolder within folder-based posts
   if (cleanPath.startsWith('./attachments/')) {
-    return cleanPath.replace('./attachments/', '/posts/images/');
+    return cleanPath.replace('./attachments/', '/posts/attachments/');
   }
 
   if (cleanPath.startsWith('attachments/')) {
@@ -235,11 +235,11 @@ export function optimizePostImagePath(imagePath: string, postSlug?: string, post
     if (isFolderBasedPost && postSlug) {
       return `/posts/${postSlug}/${cleanPath}`;
     }
-    return `/posts/images/${cleanPath}`;
+    return `/posts/attachments/${cleanPath}`;
   }
 
   // Default - assume it's a relative path in the posts directory
-  return `/posts/images/${cleanPath}`;
+  return `/posts/attachments/${cleanPath}`;
 }
 
 // Generic image optimization function for all content types
@@ -249,7 +249,7 @@ export function optimizeContentImagePath(imagePath: string, contentType: 'posts'
   
   // Handle null, undefined, or empty strings
   if (!imagePath || typeof imagePath !== 'string') {
-    return `/${urlPath}/images/placeholder.jpg`; // Fallback to placeholder
+    return `/${urlPath}/attachments/placeholder.jpg`; // Fallback to placeholder
   }
 
   // Strip Obsidian brackets first
@@ -257,7 +257,7 @@ export function optimizeContentImagePath(imagePath: string, contentType: 'posts'
   
   // Handle empty path after cleaning
   if (!cleanPath) {
-    return `/${urlPath}/images/placeholder.jpg`;
+    return `/${urlPath}/attachments/placeholder.jpg`;
   }
 
   // Handle different image path formats
@@ -270,7 +270,7 @@ export function optimizeContentImagePath(imagePath: string, contentType: 'posts'
   }
 
   // Prevent double processing - if already optimized, return as-is
-  if (cleanPath.startsWith(`/${urlPath}/images/`)) {
+  if (cleanPath.startsWith(`/${urlPath}/attachments/`)) {
     return cleanPath;
   }
 
@@ -285,7 +285,7 @@ export function optimizeContentImagePath(imagePath: string, contentType: 'posts'
 
   // Handle Obsidian-style relative paths from markdown content
   if (cleanPath.startsWith('./images/')) {
-    return cleanPath.replace('./images/', `/${urlPath}/images/`);
+    return cleanPath.replace('./images/', `/${urlPath}/attachments/`);
   }
 
   if (cleanPath.startsWith('images/')) {
@@ -294,7 +294,7 @@ export function optimizeContentImagePath(imagePath: string, contentType: 'posts'
 
   // Handle Obsidian attachments subfolder within folder-based content
   if (cleanPath.startsWith('./attachments/')) {
-    return cleanPath.replace('./attachments/', `/${urlPath}/images/`);
+    return cleanPath.replace('./attachments/', `/${urlPath}/attachments/`);
   }
 
   if (cleanPath.startsWith('attachments/')) {
@@ -307,11 +307,11 @@ export function optimizeContentImagePath(imagePath: string, contentType: 'posts'
     if (isFolderBasedContent && contentSlug) {
       return `/${urlPath}/${contentSlug}/${cleanPath}`;
     }
-    return `/${urlPath}/images/${cleanPath}`;
+    return `/${urlPath}/attachments/${cleanPath}`;
   }
 
   // Default - assume it's a relative path in the content directory
-  return `/${urlPath}/images/${cleanPath}`;
+  return `/${urlPath}/attachments/${cleanPath}`;
 }
 
 // Generate responsive image srcset

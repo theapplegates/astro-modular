@@ -12,9 +12,9 @@ export const devConfig = {
     logMissingImages: true,
     // Fallback image paths
     fallbacks: {
-      posts: '/posts/images/placeholder.jpg',
-      pages: '/pages/images/placeholder.jpg',
-      default: '/posts/images/placeholder.jpg'
+      posts: '/posts/attachments/placeholder.jpg',
+      pages: '/pages/attachments/placeholder.jpg',
+      default: '/posts/attachments/placeholder.jpg'
     }
   },
   
