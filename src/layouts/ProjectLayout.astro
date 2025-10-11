@@ -85,7 +85,7 @@ const visiblePosts = allPosts.filter(p => shouldShowPost(p as any, isDev));
 // Get all projects to check if any have categories
 const allProjectsForCategories = await getCollection('projects');
 const visibleProjectsForCategories = allProjectsForCategories.filter(p => shouldShowPost(p as any, isDev));
-const projectsHaveCategories = hasProjectCategories(visibleProjectsForCategories);
+const projectsHaveCategories = hasProjectCategories(allProjectsForCategories);
 
 // Process the project content and get processed data including word count
 const { Content, headings } = await processPost(project as any);
@@ -148,21 +148,23 @@ const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProject
                 const isFolderBasedProject = project.id.includes('/') && project.id.endsWith('/index.md');
                 
                 if (isFolderBasedProject) {
-                  // For folder-based projects, check if image is in images/ subfolder
+                  // For folder-based projects, check if image is in attachments/ subfolder
                   // We need to check the cleaned path to determine the basePath
                   let cleanImagePath = project.data.image;
                   if (cleanImagePath.startsWith('[[') && cleanImagePath.endsWith(']]')) {
                     cleanImagePath = cleanImagePath.slice(2, -2);
                   }
                   
-                  if (cleanImagePath.startsWith('images/')) {
-                    return `/projects/${project.slug}/attachments/`;
+                  if (cleanImagePath.startsWith('attachments/')) {
+                    // The sync script removes the attachments/ prefix, so the image is directly in the project folder
+                    return `/projects/${project.slug}/`;
                   }
                   // Image in same folder as index.md
                   return `/projects/${project.slug}/`;
                 }
                 
-                // 3. Regular projects - use global images directory
+                // 3. Single-file projects - use global images directory
+                // For single-file projects, images in attachments/ folder are synced to global attachments directory
                 return "/projects/attachments/";
               })()}
               alt={project.data.imageAlt || `Featured image for project: ${project.data.title}`}

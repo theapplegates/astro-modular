@@ -290,20 +290,37 @@ function readContentFiles(dirPath) {
  */
 function parseMarkdownFile(content, slug) {
   try {
-    // Extract frontmatter
-    const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+    // Extract frontmatter (handle both \n and \r\n line endings)
+    const frontmatterMatch = content.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
     if (!frontmatterMatch) {
       return null;
     }
     
     const [, frontmatter, body] = frontmatterMatch;
-    const lines = frontmatter.split('\n');
+    const lines = frontmatter.split(/\r?\n/);
     const data = {};
     
-    // Parse frontmatter (simple YAML parser)
-    for (const line of lines) {
+    // Parse frontmatter (improved YAML parser)
+    let currentKey = null;
+    let currentArray = [];
+    
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const trimmedLine = line.trim();
+      
+      // Skip empty lines
+      if (!trimmedLine) continue;
+      
+      
+      // Check if this is a key-value pair
       const colonIndex = line.indexOf(':');
-      if (colonIndex > 0) {
+      if (colonIndex > 0 && !line.startsWith(' ')) {
+        // Save previous array if we have one
+        if (currentKey && currentArray.length > 0) {
+          data[currentKey] = [...currentArray];
+          currentArray = [];
+        }
+        
         const key = line.substring(0, colonIndex).trim();
         let value = line.substring(colonIndex + 1).trim();
         
@@ -313,24 +330,32 @@ function parseMarkdownFile(content, slug) {
           value = value.slice(1, -1);
         }
         
-        // Parse arrays (simple implementation)
-        if (value.startsWith('[') && value.endsWith(']')) {
-          const arrayContent = value.slice(1, -1);
-          data[key] = arrayContent.split(',').map(item => item.trim().replace(/^["']|["']$/g, ''));
-        } else if (key === 'date') {
-          data[key] = new Date(value);
-        } else if (key === 'draft') {
-          data[key] = value === 'true';
+        // Check if this is an array key (next line starts with dash)
+        if (i + 1 < lines.length && lines[i + 1].trim().startsWith('- ')) {
+          currentKey = key;
+          currentArray = [];
         } else {
-          data[key] = value;
+          // Single value
+          if (key === 'date') {
+            data[key] = new Date(value);
+          } else if (key === 'draft') {
+            data[key] = value === 'true';
+          } else if (key === 'imageOG' || key === 'hideCoverImage' || key === 'noIndex' || key === 'featured') {
+            data[key] = value === 'true';
+          } else {
+            data[key] = value;
+          }
         }
+      } else if (trimmedLine.startsWith('- ')) {
+        // This is an array item
+        const item = trimmedLine.substring(2).trim();
+        currentArray.push(item);
       }
     }
     
-    // Handle multi-line arrays (like tags with dashes)
-    const tagLines = lines.filter(line => line.trim().startsWith('- '));
-    if (tagLines.length > 0) {
-      data.tags = tagLines.map(line => line.trim().substring(2).trim());
+    // Save final array if we have one
+    if (currentKey && currentArray.length > 0) {
+      data[currentKey] = [...currentArray];
     }
     
     return {

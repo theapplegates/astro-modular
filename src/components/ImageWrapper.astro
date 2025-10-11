@@ -90,6 +90,16 @@ if (isLocal) {
       cleanSrc = cleanSrc.slice(7);
     }
     
+    // For content with attachments/ prefix, remove it since the sync script already handles this
+    if (cleanSrc.startsWith('attachments/') && basePath.includes('/projects/') && !basePath.includes('/attachments/')) {
+      cleanSrc = cleanSrc.slice(12); // Remove 'attachments/' prefix
+    }
+    
+    // For single-file projects, also remove attachments/ prefix when using global attachments directory
+    if (cleanSrc.startsWith('attachments/') && basePath === '/projects/attachments/') {
+      cleanSrc = cleanSrc.slice(12); // Remove 'attachments/' prefix
+    }
+    
     // Normalize the path for the glob pattern
     let normalizedPath = path
       .normalize(path.join("/public", basePath, cleanSrc))
