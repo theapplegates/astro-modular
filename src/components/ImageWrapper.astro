@@ -42,6 +42,10 @@ const className = Astro.props.class;
 
 // Clean the src path first - remove Obsidian brackets if present
 let cleanSrc = src;
+if (!cleanSrc) {
+  console.warn('ImageWrapper: src is undefined');
+  cleanSrc = '';
+}
 if (cleanSrc.startsWith('[[') && cleanSrc.endsWith(']]')) {
   cleanSrc = cleanSrc.slice(2, -2);
 }

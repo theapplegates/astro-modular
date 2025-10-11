@@ -9,7 +9,7 @@ tags:
   - reference
   - meta
   - blog
-image: "[[images/mountains.png]]"
+image: "[[attachments/mountains.png]]"
 imageAlt: Mountains and water.
 imageOG: false
 hideCoverImage: false

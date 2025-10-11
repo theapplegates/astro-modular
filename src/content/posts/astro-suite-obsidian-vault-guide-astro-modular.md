@@ -8,7 +8,7 @@ tags:
   - configuration
   - astro
   - obsidian
-image: images/astro-composer-suite-for-obsidian.png
+image: attachments/astro-composer-suite-for-obsidian.png
 imageAlt: Astro and Obsidian logos stacked vertically with a "+" (plus) sign between them.
 imageOG: true
 hideCoverImage: true
@@ -17,7 +17,7 @@ draft: false
 aliases:
   - astro-suite-vault-modular-guide
 ---
-![Astro and Obsidian logos stacked vertically with a "+" (plus) sign between them.](/posts/images/astro-composer-suite-for-obsidian.png)
+![Astro and Obsidian logos stacked vertically with a "+" (plus) sign between them.](/posts/attachments/astro-composer-suite-for-obsidian.png)
 
 ## Overview
 

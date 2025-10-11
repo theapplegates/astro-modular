@@ -9,7 +9,7 @@ categories:
 repositoryUrl:
 projectUrl: https://github.com/davidvkimball/obsidian-astro-composer
 status: in-progress
-image: "[[images/rock.png]]"
+image: "[[attachments/rock.png]]"
 imageAlt: Gray, rocky wall
 hideCoverImage: false
 hideTOC: false

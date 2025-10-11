@@ -40,5 +40,5 @@ Every feature can be toggled on or off through a single configuration file. Enab
 - [Astro Suite Vault (Modular) Guide](posts/astro-suite-vault-modular-guide.md) 
 
 ---
-![](images/water.png)
+![Water droplet](attachments/water.png)
 *Photo by [Herbert Goetsch](https://unsplash.com/@hg_photo?utm_source=Obsidian%20Image%20Inserter%20Plugin&utm_medium=referral) on [Unsplash](https://unsplash.com/?utm_source=Obsidian%20Image%20Inserter%20Plugin&utm_medium=referral)*

@@ -5,7 +5,7 @@ category: Setup
 order: 1
 version: 1.0.0
 lastModified: 2025-09-17
-image: "[[images/obsidian-cover.png]]"
+image: "[[attachments/obsidian-cover.png]]"
 imageAlt:
 hideCoverImage: false
 hideTOC: false

@@ -9,7 +9,7 @@ tags:
   - astro
   - blog
   - obsidian
-image: "[[images/sunset.jpg]]"
+image: "[[attachments/sunset.jpg]]"
 imageAlt: Sunset skyline.
 imageOG: true
 hideCoverImage: false
@@ -376,25 +376,25 @@ Comments are publicly visible and associated with users' GitHub profiles. Consid
 ```
 src/content/
 ├── posts/                   # Blog posts
-│   ├── images/              # Shared post images
+│   ├── attachments/           # Shared post images, audio, or other attachments.
 │   ├── getting-started.md   # File-based post
 │   └── sample-folder-post/  # Folder-based post
 │       ├── index.md         # Main content file
 │       ├── hero-image.jpg   # Post-specific assets
 │       └── diagram.png
 ├── pages/                   # Static pages
-│   ├── images/              # Shared page images
+│   ├── attachments/           # Shared page images, audio, or other attachments.
 │   ├── about.md
 │   ├── contact.md
 │   ├── privacy-policy.md
 │   └── index.md             # Homepage blurb content
 ├── projects/                # Featured projects
-│   ├── images/              # Shared project images
+│   ├── attachments/           # Shared project images, audio, or other attachments.
 │   └── sample-project/      # Folder-based project
 │       ├── index.md
 │       └── screenshot.png
 ├── docs/                    # Documentation
-│   ├── images/              # Shared doc images
+│   ├── attachments/           # Shared doc images, audio, or other attachments.
 │   └── sample-guide.md      # Documentation files
 └── .obsidian/               # Obsidian vault setup
     ├── plugins/             # Configured plugins
@@ -607,7 +607,7 @@ Generates a static site ready for any hosting platform with automatic optimizati
 ## Troubleshooting
 
 Common issues:
-- **Image paths**: Check folder structure in `src/content/posts/images/`
+- **Image paths**: Check folder structure in `src/content/posts/attachments/`
 - **Wikilinks**: Ensure target posts exist and are published
 - **Build errors**: Verify frontmatter syntax
 

@@ -220,6 +220,15 @@ export function optimizePostImagePath(imagePath: string, postSlug?: string, post
     return `/posts/${cleanPath}`;
   }
 
+  // Handle Obsidian attachments subfolder within folder-based posts
+  if (cleanPath.startsWith('./attachments/')) {
+    return cleanPath.replace('./attachments/', '/posts/images/');
+  }
+
+  if (cleanPath.startsWith('attachments/')) {
+    return `/posts/${cleanPath}`;
+  }
+
   // Handle case where filename is provided without path
   if (!cleanPath.includes('/')) {
     // For folder-based posts, check if the image exists in the post folder first
@@ -280,6 +289,15 @@ export function optimizeContentImagePath(imagePath: string, contentType: 'posts'
   }
 
   if (cleanPath.startsWith('images/')) {
+    return `/${urlPath}/${cleanPath}`;
+  }
+
+  // Handle Obsidian attachments subfolder within folder-based content
+  if (cleanPath.startsWith('./attachments/')) {
+    return cleanPath.replace('./attachments/', `/${urlPath}/images/`);
+  }
+
+  if (cleanPath.startsWith('attachments/')) {
     return `/${urlPath}/${cleanPath}`;
   }
 

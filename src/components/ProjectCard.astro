@@ -50,7 +50,23 @@ const processedImage = (() => {
   // Check if it's Obsidian double bracket syntax
   if (imageValue.startsWith('[[') && imageValue.endsWith(']]')) {
     // Extract the content inside the double brackets
-    return imageValue.slice(2, -2);
+    imageValue = imageValue.slice(2, -2);
+  }
+  
+  // For folder-based projects, handle different image locations
+  const isFolderBasedProject = project.id.includes('/') && project.id.endsWith('/index.md');
+  if (isFolderBasedProject) {
+    // If image is in subfolder (images/ or attachments/), remove the prefix
+    if (imageValue.startsWith('images/') || imageValue.startsWith('attachments/')) {
+      return imageValue.replace(/^(images|attachments)\//, '');
+    }
+    // If image is co-located (like cover.png), return as-is
+    return imageValue;
+  }
+  
+  // For regular projects with images in attachments subfolder, remove the attachments/ prefix
+  if (!isFolderBasedProject && (imageValue.startsWith('attachments/'))) {
+    return imageValue.replace('attachments/', '');
   }
   
   return imageValue;
@@ -94,16 +110,17 @@ const showCoverImage = shouldShowCoverImage && processedImage;
                 cleanImagePath = cleanImagePath.slice(2, -2);
               }
               
-              // For folder-based projects, check if image is in images/ subfolder
-              if (typeof cleanImagePath === 'string' && cleanImagePath.startsWith('images/')) {
-                return `/projects/${project.slug}/images/`;
+              // For folder-based projects, check if image is in images/ or attachments/ subfolder
+              if (typeof cleanImagePath === 'string' && (cleanImagePath.startsWith('images/') || cleanImagePath.startsWith('attachments/'))) {
+                // Sync script copies images to the root folder, so no subfolder in the URL
+                return `/projects/${project.slug}/`;
               }
               // Image in same folder as index.md
               return `/projects/${project.slug}/`;
             }
             
-            // 3. Regular projects - use global images directory
-            return "/projects/images/";
+            // 3. Regular projects - use global attachments directory
+            return "/projects/attachments/";
           })()}
           alt={imageAlt}
           width={800}

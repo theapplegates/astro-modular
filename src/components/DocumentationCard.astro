@@ -45,7 +45,23 @@ const processedImage = (() => {
   // Check if it's Obsidian double bracket syntax
   if (imageValue.startsWith('[[') && imageValue.endsWith(']]')) {
     // Extract the content inside the double brackets
-    return imageValue.slice(2, -2);
+    imageValue = imageValue.slice(2, -2);
+  }
+  
+  // For folder-based docs, handle different image locations
+  const isFolderBasedDoc = documentation.id.includes('/') && documentation.id.endsWith('/index.md');
+  if (isFolderBasedDoc) {
+    // If image is in subfolder (images/ or attachments/), remove the prefix
+    if (imageValue.startsWith('images/') || imageValue.startsWith('attachments/')) {
+      return imageValue.replace(/^(images|attachments)\//, '');
+    }
+    // If image is co-located (like cover.png), return as-is
+    return imageValue;
+  }
+  
+  // For regular docs with images in attachments subfolder, remove the attachments/ prefix
+  if (!isFolderBasedDoc && (imageValue.startsWith('attachments/'))) {
+    return imageValue.replace('attachments/', '');
   }
   
   return imageValue;
@@ -98,16 +114,17 @@ const showCoverImage = shouldShowCoverImage && processedImage && context !== 'ho
                   cleanImagePath = cleanImagePath.slice(2, -2);
                 }
                 
-                // For folder-based docs, check if image is in images/ subfolder
-                if (typeof cleanImagePath === 'string' && cleanImagePath.startsWith('images/')) {
-                  return `/docs/${documentation.slug}/images/`;
+                // For folder-based docs, check if image is in images/ or attachments/ subfolder
+                if (typeof cleanImagePath === 'string' && (cleanImagePath.startsWith('images/') || cleanImagePath.startsWith('attachments/'))) {
+                  // Sync script copies images to the root folder, so no subfolder in the URL
+                  return `/docs/${documentation.slug}/`;
                 }
                 // Image in same folder as index.md
                 return `/docs/${documentation.slug}/`;
               }
               
-              // 3. Regular docs - use global images directory
-              return "/docs/images/";
+              // 3. Regular docs - use global attachments directory
+              return "/docs/attachments/";
             })()}
             alt={imageAlt}
             width={400}

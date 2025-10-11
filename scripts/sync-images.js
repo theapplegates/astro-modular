@@ -14,22 +14,22 @@ const log = {
 // Define source and target directories for posts, pages, projects, and docs
 const IMAGE_SYNC_CONFIGS = [
   {
-    source: 'src/content/posts/images',
+    source: 'src/content/posts/attachments',
     target: 'public/posts/images',
     name: 'posts'
   },
   {
-    source: 'src/content/pages/images',
+    source: 'src/content/pages/attachments',
     target: 'public/pages/images',
     name: 'pages'
   },
   {
-    source: 'src/content/projects/images',
+    source: 'src/content/projects/attachments',
     target: 'public/projects/images',
     name: 'projects'
   },
   {
-    source: 'src/content/docs/images',
+    source: 'src/content/docs/attachments',
     target: 'public/docs/images',
     name: 'docs'
   }
@@ -90,7 +90,15 @@ async function syncFolderBasedImages(contentType) {
         const imageFiles = await findImageFiles(itemPath);
         
         for (const imageFile of imageFiles) {
-          const targetPath = path.join(targetDir, imageFile.relativePath);
+          // Handle attachments subfolder within folder-based content
+          // Convert src/content/posts/post-name/attachments/image.png -> public/posts/post-name/image.png
+          let targetRelativePath = imageFile.relativePath;
+          // Handle both forward and backward slashes for cross-platform compatibility
+          if (targetRelativePath.startsWith('attachments/') || targetRelativePath.startsWith('attachments\\')) {
+            targetRelativePath = targetRelativePath.replace(/^attachments[/\\]/, '');
+          }
+          
+          const targetPath = path.join(targetDir, targetRelativePath);
           const targetDirForFile = path.dirname(targetPath);
           
           // Ensure target directory exists
@@ -203,7 +211,15 @@ async function syncImagesForConfig(config) {
 
 // Recursively clean up target directory, removing files that no longer exist in source
 async function cleanupTargetDirectory(targetDir, sourceImageFiles) {
-  const sourceFileSet = new Set(sourceImageFiles.map(f => f.relativePath));
+  // Create a set that maps both original paths and attachments subfolder paths
+  const sourceFileSet = new Set();
+  sourceImageFiles.forEach(f => {
+    sourceFileSet.add(f.relativePath);
+    // Also add the path without attachments/ prefix for cleanup
+    if (f.relativePath.startsWith('attachments/') || f.relativePath.startsWith('attachments\\')) {
+      sourceFileSet.add(f.relativePath.replace(/^attachments[/\\]/, ''));
+    }
+  });
   let removed = 0;
 
   try {

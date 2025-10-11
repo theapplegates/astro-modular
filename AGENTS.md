@@ -337,6 +337,9 @@ src/content/posts/
 ├── folder-based-post/
 │   ├── index.md          # Main content file
 │   ├── hero-image.jpg    # Assets co-located
+│   ├── attachments/      # Optional: Obsidian subfolder setting
+│   │   ├── cover.png
+│   │   └── diagram.svg
 │   ├── gallery-1.jpg
 │   ├── diagram.png
 │   └── document.pdf
@@ -349,6 +352,24 @@ src/content/posts/
 - **Folder name becomes the slug**: `folder-based-post` → `/posts/folder-based-post/`
 - **index.md contains the content**: Main content goes in the `index.md` file
 - **Assets are co-located**: All related files stay in the same folder
+
+### Obsidian Subfolder Support
+The theme supports Obsidian's "subfolder" setting where attachments are stored in an `attachments/` subfolder within folder-based content:
+
+```
+src/content/posts/my-post/
+├── index.md
+├── attachments/      # Obsidian subfolder setting
+│   ├── cover.png
+│   └── diagram.svg
+└── other-file.jpg    # Co-located assets still work
+```
+
+**How it works:**
+- Images in `attachments/` subfolders are automatically processed
+- They're copied to the public directory without the `attachments/` prefix
+- Both `attachments/image.png` and `image.png` references work seamlessly
+- This prevents breaking when users switch between Obsidian's subfolder settings
 
 ### Content Types
 
@@ -663,7 +684,7 @@ The theme uses Astro's content collections system with predefined collections:
 ```
 src/content/
 ├── posts/                   # Blog posts collection
-│   ├── images/              # Shared post images
+│   ├── attachments/           # Shared post images
 │   ├── getting-started.md   # File-based post
 │   ├── sample-folder-post/  # Folder-based post
 │   │   ├── index.md         # Main content file
@@ -674,18 +695,18 @@ src/content/
 │       ├── index.md
 │       └── cover.jpg
 ├── pages/                   # Static pages collection
-│   ├── images/              # Shared page images
+│   ├── attachments/           # Shared page images
 │   ├── about.md
 │   ├── contact.md
 │   └── privacy.md
 ├── projects/                # Projects collection
-│   ├── images/              # Shared project images
+│   ├── attachments/           # Shared project images
 │   ├── project-1.md
 │   └── project-2/
 │       ├── index.md
 │       └── screenshot.png
 ├── docs/                    # Documentation collection
-│   ├── images/              # Shared doc images
+│   ├── attachments/           # Shared doc images
 │   ├── guide-1.md
 │   └── guide-2/
 │       ├── index.md
@@ -2125,18 +2146,18 @@ typography: {
 
 #### Traditional Posts
 - Single markdown files in `src/content/posts/`
-- Images in `src/content/posts/images/`
+- Images in `src/content/posts/attachments/`
 - Use relative paths for images
 
 #### Pages
 - Static pages in `src/content/pages/`
-- Images in `src/content/pages/images/`
+- Images in `src/content/pages/attachments/`
 - NO H1 headings in markdown content - title comes from frontmatter
 
 #### Projects
 - Showcase work, side projects, and portfolio items
 - Support both folder-based and single-file organization
-- Images in `src/content/projects/images/` or co-located with content
+- Images in `src/content/projects/attachments/` or co-located with content
 - Frontmatter includes: title, description, date, categories, repositoryUrl, demoUrl, status, image, imageAlt, hideCoverImage, draft, noIndex, featured
 - Status: Any string value with intelligent handling:
   - **Recognized values**: "completed", "in-progress" (case-insensitive)
@@ -2149,7 +2170,7 @@ typography: {
 #### Documentation
 - Technical documentation and guides
 - Support both folder-based and single-file organization  
-- Images in `src/content/docs/images/` or co-located with content
+- Images in `src/content/docs/attachments/` or co-located with content
 - Frontmatter includes: title, description, category, order, lastModified (optional), version, image, imageAlt, hideCoverImage, draft, noIndex, showTOC, featured
 - Featured: `true` to show on homepage (requires `homeDocs: true` in config)
 - URL structure: `/docs/doc-slug`
@@ -2164,7 +2185,7 @@ src/content/docs/
 ├── api-reference/
 │   ├── index.md
 │   └── code.png
-├── images/
+├── attachments/
 │   └── sample-guide-hero.png
 └── sample-guide.md
 ```
