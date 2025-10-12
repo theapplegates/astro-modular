@@ -18,6 +18,14 @@ draft: false
 ---
 This post demonstrates all the markdown, extended markdown, and other embed features available in Astro Modular. Use this as both a reference guide and a showcase of what's possible.
 
+**Test URL Mapping:**
+- [About Page](/pages/about) → should become `/about`
+- [Home Page](/special/index) → should become `/`
+- [404 Page](/special/404) → should become `/404`
+- [Projects Index](/special/projects) → should become `/projects`
+- [Docs Index](/special/docs) → should become `/docs`
+- [Folder-Based Page](/pages/folder-based-page) → should become `/folder-based-page`
+
 ## Basic Formatting
 
 ### Text Emphasis
@@ -247,6 +255,8 @@ For example: [[getting-started|Getting Started]] or [Astro Suite Vault (Modular)
 ```
 
 Here's an internal link with an anchor: [[sample-folder-based-post/index#Benefits of Folder-Based Approach|Benefits of Folder-Based Approach]]
+
+Here's a relative link: [Mermaid Diagram Test](/posts/mermaid-diagram-test) 
 ### Reference Links
 
 This is a [reference link][1] and this is another [reference link][markdown].

@@ -370,7 +370,6 @@ postOptions: {
 
 Comments are publicly visible and associated with users' GitHub profiles. Consider adding a privacy policy section about comments (see the included Privacy Policy page for reference).
 
-
 ## Content Structure
 
 ```
@@ -401,6 +400,41 @@ src/content/
     ├── themes/              # Minimal theme
     └── snippets/            # Custom CSS snippets
 ```
+
+## Content Organization
+
+### Special Content Collection
+Special index pages (homepage blurb, 404, projects index, docs index) are handled by the `special` content collection in `src/content/special/`:
+
+- **`index.md`** - Homepage blurb content
+- **`404.md`** - 404 error page
+- **`projects.md`** - Projects index page content
+- **`docs.md`** - Documentation index page content
+
+These pages have minimal frontmatter and fixed URLs to prevent accidental breakage of core functionality.
+
+### Optional Content Types
+You can globally enable/disable optional content sections in `src/config.ts`:
+
+```typescript
+optionalContentTypes: {
+  projects: true, // Enable projects section
+  docs: true,     // Enable documentation section
+},
+```
+
+When disabled, the dynamic index pages redirect to 404, allowing you to create static fallback pages in `src/content/pages/` (e.g., `pages/projects.md`).
+
+### Tags
+Tags sync between Obsidian and your blog, creating:
+- Tag pages for related posts
+- Command palette filtering
+- Organized navigation
+
+### Drafts
+- **Development**: All posts visible
+- **Production**: Only published posts
+- Use `draft: true` in frontmatter to hide
 
 ## Writing Posts
 
@@ -537,17 +571,20 @@ Press `Ctrl+K` (or custom hotkey) for instant navigation, search, and dark/light
 ### Post Internal Linking & Connections
 - `[[Post Title|Custom Text]]` - wikilinks (posts only)
 - `[Post Title](posts/post-slug.md)` - standard markdown links
+- `[Post Title](/posts/post-slug)` - relative standard markdown links (these work for every content type except for pages*)
 - **Linked mentions** show post connections automatically with collapsible interface
 - **Compact or detailed view** options for linked mentions display
+
+<small>*Because standard pages live under the `pages` folder and special pages live under the `special` folder, relative links won't BOTH work in Obsidian as expected to link *and* show up on your blog. If you don't care about it working in Obsidian, you can do something like <code>[About](/about])</code> and it will work as expected on your site.</small>
 
 ### Linking Between Content Types
 
 **Wikilinks** work seamlessly for posts but are limited to the posts collection only. For linking to other content types (pages, projects, docs), use standard markdown links:
 
-- **Posts**: `[[Post Title]]` or `[Custom Text](posts/post-slug.md)`
-- **Pages**: `[Page Title](page-slug)` (e.g., `[About](pages/about.md)`)
-- **Projects**: `[Project Name](projects/project-slug.md)`
-- **Docs**: `[Documentation](docs/doc-slug.md)`
+- **Posts**: `[[file-name|Post Title]]`, `[Post Title](posts/file-name.md)` or `[Post Title](/posts/file-name)`
+- **Pages**: `[Page Title](file-name.md)` (e.g., `[About](pages/about.md)`
+- **Projects**: `[Project Name](projects/file-name.md)`
+- **Docs**: `[Documentation](docs/file-name.md)`
 
 **Why this limitation?** Wikilinks assume posts for simplicity and to maintain the seamless Obsidian experience. Standard markdown links provide explicit control over which content type you're linking to, preventing confusion when multiple content types might have similar titles.
 
@@ -561,41 +598,6 @@ Press `Ctrl+K` (or custom hotkey) for instant navigation, search, and dark/light
 - **Open Graph** meta tags
 - **Optimized for performance and accessibility**
 - **Static generation**
-
-## Content Organization
-
-### Special Content Collection
-Special index pages (homepage blurb, 404, projects index, docs index) are handled by the `special` content collection in `src/content/special/`:
-
-- **`index.md`** - Homepage blurb content
-- **`404.md`** - 404 error page
-- **`projects.md`** - Projects index page content
-- **`docs.md`** - Documentation index page content
-
-These pages have minimal frontmatter and fixed URLs to prevent accidental breakage of core functionality.
-
-### Optional Content Types
-You can globally enable/disable optional content sections in `src/config.ts`:
-
-```typescript
-optionalContentTypes: {
-  projects: true, // Enable projects section
-  docs: true,     // Enable documentation section
-},
-```
-
-When disabled, the dynamic index pages redirect to 404, allowing you to create static fallback pages in `src/content/pages/` (e.g., `pages/projects.md`).
-
-### Tags
-Tags sync between Obsidian and your blog, creating:
-- Tag pages for related posts
-- Command palette filtering
-- Organized navigation
-
-### Drafts
-- **Development**: All posts visible
-- **Production**: Only published posts
-- Use `draft: true` in frontmatter to hide
 
 ## Deployment
 

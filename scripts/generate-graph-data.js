@@ -144,8 +144,18 @@ function extractStandardLinks(content) {
     if (isInternalLink(url)) {
       const { linkText } = extractLinkTextFromUrl(url);
       if (linkText) {
-        // Only include posts in graph data
-        if (linkText.startsWith('posts/') || (!linkText.includes('/') && !url.startsWith('/'))) {
+        // Only include posts in graph data - this includes:
+        // - posts/ prefixed links
+        // - /posts/ relative links  
+        // - .md files (assumed to be posts)
+        // - Simple slugs (assumed to be posts for backward compatibility)
+        const isPostLink = linkText.startsWith('posts/') || 
+                          url.startsWith('/posts/') || 
+                          url.startsWith('posts/') ||
+                          url.endsWith('.md') ||
+                          (!linkText.includes('/') && !url.startsWith('/'));
+        
+        if (isPostLink) {
           // Generate target ID from the link
           const targetId = generateNodeId(linkText, 'posts');
 
@@ -183,8 +193,13 @@ function isInternalLink(url) {
     return false;
   }
 
-  // Check if it's a post link
-  const isInternal = url.endsWith('.md') || url.startsWith('/posts/') || url.startsWith('posts/') || !url.includes('/');
+  // Check if it's an internal link:
+  // - Ends with .md (markdown files)
+  // - Starts with /posts/ or posts/ (post relative URLs)
+  // - Is just a slug (no slashes) - assumes posts for backward compatibility
+  const isInternal = url.endsWith('.md') || 
+    url.startsWith('/posts/') || url.startsWith('posts/') ||
+    !url.includes('/');
   
   return isInternal;
 }
@@ -213,6 +228,19 @@ function extractLinkTextFromUrl(url) {
     };
   }
   
+  // Handle /posts/ URLs (relative links)
+  if (link.startsWith('/posts/')) {
+    let linkText = link.replace('/posts/', '').replace(/\.md$/, '');
+    // Remove /index for folder-based posts
+    if (linkText.endsWith('/index') && linkText.split('/').length === 2) {
+      linkText = linkText.replace('/index', '');
+    }
+    return {
+      linkText: linkText,
+      anchor: anchor
+    };
+  }
+  
   // Handle .md files
   if (link.endsWith('.md')) {
     let linkText = link.replace(/\.md$/, '');
@@ -222,14 +250,6 @@ function extractLinkTextFromUrl(url) {
     }
     return {
       linkText: linkText,
-      anchor: anchor
-    };
-  }
-
-  // Handle /posts/ URLs
-  if (link.startsWith('/posts/')) {
-    return {
-      linkText: link.replace('/posts/', ''),
       anchor: anchor
     };
   }

@@ -139,10 +139,78 @@ function isInternalLink(url: string): boolean {
   // Parse anchor if present to check the base URL
   const { link } = parseLinkWithAnchor(url);
 
-  // Check if it's a post link (ends with .md, starts with /posts/, or is a slug)
-  const isInternal = link.endsWith('.md') || link.startsWith('/posts/') || link.startsWith('posts/') || !link.includes('/');
+  // Check if it's an internal link:
+  // - Ends with .md (markdown files)
+  // - Starts with /posts/, /pages/, /projects/, /docs/, /special/ (relative URLs)
+  // - Starts with posts/, pages/, projects/, docs/, special/ (relative paths)
+  // - Is just a slug (no slashes) - assumes posts for backward compatibility
+  const isInternal = link.endsWith('.md') || 
+    link.startsWith('/posts/') || link.startsWith('/pages/') || 
+    link.startsWith('/projects/') || link.startsWith('/docs/') || 
+    link.startsWith('/special/') ||
+    link.startsWith('posts/') || link.startsWith('pages/') || 
+    link.startsWith('projects/') || link.startsWith('docs/') || 
+    link.startsWith('special/') ||
+    !link.includes('/');
   
   return isInternal;
+}
+
+// Helper function to map relative URLs to their actual site URLs
+function mapRelativeUrlToSiteUrl(url: string): string {
+  // Handle special case: /index/ or /index -> homepage
+  if (url === '/index/' || url === '/index') {
+    return '/';
+  }
+
+  // Handle special pages mapping
+  if (url.startsWith('/special/')) {
+    const specialPath = url.replace('/special/', '');
+    if (specialPath === 'index') {
+      return '/'; // Homepage
+    } else if (specialPath === '404') {
+      return '/404'; // 404 page
+    } else if (specialPath === 'projects') {
+      return '/projects'; // Projects index
+    } else if (specialPath === 'docs') {
+      return '/docs'; // Docs index
+    } else {
+      // Other special pages - use normal page routing
+      return `/${specialPath}`;
+    }
+  }
+
+  // Handle pages mapping - remove /pages prefix
+  if (url.startsWith('/pages/')) {
+    const pagePath = url.replace('/pages/', '');
+    return `/${pagePath}`;
+  }
+
+  // Handle special/ prefixed links (without leading slash)
+  if (url.startsWith('special/')) {
+    const specialPath = url.replace('special/', '');
+    if (specialPath === 'index') {
+      return '/'; // Homepage
+    } else if (specialPath === '404') {
+      return '/404'; // 404 page
+    } else if (specialPath === 'projects') {
+      return '/projects'; // Projects index
+    } else if (specialPath === 'docs') {
+      return '/docs'; // Docs index
+    } else {
+      // Other special pages - use normal page routing
+      return `/${specialPath}`;
+    }
+  }
+
+  // Handle pages/ prefixed links (without leading slash)
+  if (url.startsWith('pages/')) {
+    const pagePath = url.replace('pages/', '');
+    return `/${pagePath}`;
+  }
+
+  // For all other URLs, return as-is
+  return url;
 }
 
 // Helper function to extract link text and anchor from URL for internal links
@@ -155,6 +223,19 @@ function extractLinkTextFromUrlWithAnchor(url: string, allPosts: any[] = [], all
   // Handle posts/ prefixed links first
   if (link.startsWith('posts/')) {
     let linkText = link.replace('posts/', '').replace(/\.md$/, '');
+    // Conservative approach: only remove /index if it follows folder-based pattern
+    if (linkText.endsWith('/index') && linkText.split('/').length === 2) {
+      linkText = linkText.replace('/index', '');
+    }
+    return {
+      linkText: linkText,
+      anchor: anchor
+    };
+  }
+  
+  // Handle /posts/ URLs (relative links)
+  if (link.startsWith('/posts/')) {
+    let linkText = link.replace('/posts/', '').replace(/\.md$/, '');
     // Conservative approach: only remove /index if it follows folder-based pattern
     if (linkText.endsWith('/index') && linkText.split('/').length === 2) {
       linkText = linkText.replace('/index', '');
@@ -185,27 +266,6 @@ function extractLinkTextFromUrlWithAnchor(url: string, allPosts: any[] = [], all
       };
     }
   }
-  
-  // Handle .md files - these should be treated as post references
-  if (link.endsWith('.md')) {
-    let linkText = link.replace(/\.md$/, '');
-    // Conservative approach: only remove /index if it follows folder-based pattern
-    if (linkText.endsWith('/index') && linkText.split('/').length === 1) {
-      linkText = linkText.replace('/index', '');
-    }
-    return {
-      linkText: linkText,
-      anchor: anchor
-    };
-  }
-
-  // Handle /posts/ URLs
-  if (link.startsWith('/posts/')) {
-    return {
-      linkText: link.replace('/posts/', ''),
-      anchor: anchor
-    };
-  }
 
   // Handle /special/ URLs
   if (link.startsWith('/special/')) {
@@ -226,6 +286,43 @@ function extractLinkTextFromUrlWithAnchor(url: string, allPosts: any[] = [], all
         anchor: anchor
       };
     }
+  }
+  
+  // Handle /pages/ URLs (relative links)
+  if (link.startsWith('/pages/')) {
+    let linkText = link.replace('/pages/', '').replace(/\.md$/, '');
+    if (linkText.endsWith('/index')) {
+      linkText = linkText.replace('/index', '');
+    }
+    return {
+      linkText: linkText === '' ? 'homepage' : linkText, // Special case for /pages/index -> homepage
+      anchor: anchor
+    };
+  }
+  
+  // Handle pages/ prefixed links (without leading slash)
+  if (link.startsWith('pages/')) {
+    let linkText = link.replace('pages/', '').replace(/\.md$/, '');
+    if (linkText.endsWith('/index')) {
+      linkText = linkText.replace('/index', '');
+    }
+    return {
+      linkText: linkText === '' ? 'homepage' : linkText, // Special case for pages/index -> homepage
+      anchor: anchor
+    };
+  }
+  
+  // Handle .md files - these should be treated as post references
+  if (link.endsWith('.md')) {
+    let linkText = link.replace(/\.md$/, '');
+    // Conservative approach: only remove /index if it follows folder-based pattern
+    if (linkText.endsWith('/index') && linkText.split('/').length === 1) {
+      linkText = linkText.replace('/index', '');
+    }
+    return {
+      linkText: linkText,
+      anchor: anchor
+    };
   }
 
   // If it's just a slug (no slashes), use it directly
@@ -521,8 +618,18 @@ export function remarkStandardLinks() {
       if (node.url && isInternalLink(node.url)) {
         const { linkText, anchor } = extractLinkTextFromUrlWithAnchor(node.url);
         if (linkText) {
+          // Handle /pages/ URLs that don't end in .md (simple URL mapping)
+          if (node.url.startsWith('/pages/') && !node.url.endsWith('.md') && !node.url.includes('.md#')) {
+            let mappedUrl = mapRelativeUrlToSiteUrl(node.url);
+            if (anchor) {
+              if (!mappedUrl.includes('#')) {
+                mappedUrl += `#${createAnchorSlug(anchor)}`;
+              }
+            }
+            node.url = mappedUrl;
+          }
           // Convert .md file references to proper URLs based on collection
-          if (node.url.endsWith('.md') || node.url.includes('.md#')) {
+          else if (node.url.endsWith('.md') || node.url.includes('.md#')) {
             let baseUrl = '';
             
             // Determine collection and URL based on path structure
@@ -551,12 +658,17 @@ export function remarkStandardLinks() {
                 baseUrl = baseUrl.replace('/index', '');
               }
             } else if (node.url.startsWith('pages/')) {
-              // Pages: /slug/ (no prefix)
-              baseUrl = `/${node.url.replace(/^pages\//, '').replace(/\.md.*$/, '')}`;
-              // Remove /index for folder-based pages
-              if (baseUrl.endsWith('/index') && baseUrl.split('/').length === 2) {
-                baseUrl = baseUrl.replace('/index', '');
-              }
+              // Pages: /slug/ (no prefix) - use URL mapping
+              baseUrl = mapRelativeUrlToSiteUrl(node.url.replace(/\.md.*$/, ''));
+            } else if (node.url.startsWith('/pages/')) {
+              // Pages: /slug/ (no prefix) - use URL mapping
+              baseUrl = mapRelativeUrlToSiteUrl(node.url);
+            } else if (node.url.startsWith('/special/')) {
+              // Special pages: handle special routing
+              baseUrl = mapRelativeUrlToSiteUrl(node.url);
+            } else if (node.url.startsWith('special/')) {
+              // Special pages: handle special routing
+              baseUrl = mapRelativeUrlToSiteUrl(node.url);
             } else if (node.url.startsWith('projects/')) {
               // Projects: /projects/slug/
               baseUrl = `/${node.url.replace(/\.md.*$/, '')}`;
@@ -595,11 +707,16 @@ export function remarkStandardLinks() {
               baseUrl += `#${createAnchorSlug(anchor)}`;
             }
             node.url = baseUrl;
-          } else if (anchor) {
-            // Handle anchors in non-.md URLs - only add if not already present
-            if (!node.url.includes('#')) {
-              node.url += `#${createAnchorSlug(anchor)}`;
+          } else {
+            // For non-.md URLs, apply URL mapping and handle anchors
+            let mappedUrl = mapRelativeUrlToSiteUrl(node.url);
+            if (anchor) {
+              // Handle anchors in non-.md URLs - only add if not already present
+              if (!mappedUrl.includes('#')) {
+                mappedUrl += `#${createAnchorSlug(anchor)}`;
+              }
             }
+            node.url = mappedUrl;
           }
 
           // Add wikilink styling to internal links for visual consistency
@@ -643,8 +760,18 @@ export function extractStandardLinks(content: string): WikilinkMatch[] {
     if (isInternalLink(url)) {
       const { linkText } = extractLinkTextFromUrlWithAnchor(url);
       if (linkText) {
-        // Only include posts in linked mentions (other content types are processed but not tracked)
-        if (linkText.startsWith('posts/') || (!linkText.includes('/') && !url.startsWith('/'))) {
+        // Only include posts in linked mentions - this includes:
+        // - posts/ prefixed links
+        // - /posts/ relative links  
+        // - .md files (assumed to be posts)
+        // - Simple slugs (assumed to be posts for backward compatibility)
+        const isPostLink = linkText.startsWith('posts/') || 
+                          url.startsWith('/posts/') || 
+                          url.startsWith('posts/') ||
+                          url.endsWith('.md') ||
+                          (!linkText.includes('/') && !url.startsWith('/'));
+        
+        if (isPostLink) {
           // Create proper slug for linked mentions
           let slug = linkText;
           if (linkText.startsWith('posts/')) {

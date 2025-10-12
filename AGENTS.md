@@ -23,6 +23,8 @@ This document contains essential information for AI agents working with this Ast
 2. **🚨 MATH RENDERING DUPLICATION** - Math appears twice due to wrong CSS. [See solution](#1--math-rendering-duplication-most-critical)
 3. **🚨 PRODUCTION LOGGING** - Never use raw `console.log()` in production code
 4. **🚨 IMAGE SYSTEM CONFUSION** - Post cards vs post content images are separate systems
+5. **🚨 URL MAPPING SYSTEM CONFUSION** - URL mapping is for rendering only, doesn't affect linked mentions/graph view
+6. **🚨 FOLDER-BASED CONTENT ASSUMPTIONS** - ALL content types support folder-based organization, not just posts
 
 **These issues are documented in detail in the [Common AI Agent Mistakes](#common-ai-agent-mistakes) section.**
 
@@ -353,6 +355,38 @@ src/content/posts/
 - **index.md contains the content**: Main content goes in the `index.md` file
 - **Assets are co-located**: All related files stay in the same folder
 
+### Folder-Based Content Support
+
+**All content types support folder-based organization:**
+
+#### **Posts** (`src/content/posts/`)
+- **Folder-based**: `folder-based-post/index.md` → `/posts/folder-based-post/`
+- **Single-file**: `traditional-post.md` → `/posts/traditional-post/`
+
+#### **Pages** (`src/content/pages/`)
+- **Folder-based**: `folder-based-page/index.md` → `/folder-based-page/`
+- **Single-file**: `about.md` → `/about/`
+
+#### **Projects** (`src/content/projects/`)
+- **Folder-based**: `project-name/index.md` → `/projects/project-name/`
+- **Single-file**: `project.md` → `/projects/project/`
+
+#### **Documentation** (`src/content/docs/`)
+- **Folder-based**: `guide-name/index.md` → `/docs/guide-name/`
+- **Single-file**: `guide.md` → `/docs/guide/`
+
+**Key Benefits:**
+- **Asset Co-location**: Images, PDFs, and other files stay with content
+- **Obsidian Compatibility**: Works seamlessly with Obsidian's folder-based organization
+- **Clean URLs**: Folder name becomes the URL slug automatically
+- **Flexible Organization**: Mix single-file and folder-based content as needed
+
+**Technical Implementation:**
+- **Astro Content Collections**: Automatically handles folder-based content
+- **Asset Syncing**: `scripts/sync-images.js` copies assets to public directory
+- **URL Generation**: Folder name becomes slug, `index.md` provides content
+- **Image Processing**: Co-located images work with both `[[image.jpg]]` and `![image](image.jpg)` syntax
+
 ### Obsidian Subfolder Support
 The theme supports Obsidian's "subfolder" setting where attachments are stored in an `attachments/` subfolder within folder-based content:
 
@@ -672,6 +706,95 @@ This theme supports two distinct linking behaviors, each with specific use cases
 - **Wikilink Processing**: `remarkWikilinks()` - handles `[[...]]` syntax (posts only)
 - **Standard Link Processing**: `remarkStandardLinks()` - handles `[text](url)` syntax (all content types)
 - **Combined Processing**: `remarkInternalLinks()` - combines both for Astro configuration
+
+### URL Mapping System for Obsidian Compatibility
+
+The theme includes a sophisticated URL mapping system that ensures Obsidian-style relative links work seamlessly on the live website while maintaining full Obsidian compatibility.
+
+#### **Purpose**
+- **Obsidian Compatibility**: Links written in Obsidian work naturally without conversion
+- **Live Site Functionality**: Relative links resolve correctly on the published website
+- **Seamless Publishing**: Write in Obsidian, publish to blog with identical link behavior
+
+#### **Supported URL Mappings**
+
+**Pages Collection Mapping:**
+- `[About](/pages/about)` → `/about` (removes `/pages` prefix)
+- `[About](/pages/about/)` → `/about` (handles trailing slashes)
+- `[Contact](pages/contact)` → `/contact` (handles both leading slash variants)
+
+**Special Pages Mapping:**
+- `[Home](/special/index)` → `/` (homepage)
+- `[Home](/special/index/)` → `/` (handles trailing slashes)
+- `[404 Page](/special/404)` → `/404` (404 error page)
+- `[Projects](/special/projects)` → `/projects` (projects index)
+- `[Docs](/special/docs)` → `/docs` (documentation index)
+
+**Direct Index Mapping:**
+- `[Home](/index)` → `/` (homepage)
+- `[Home](/index/)` → `/` (handles trailing slashes)
+
+#### **Technical Implementation**
+
+**Core Functions:**
+- **`mapRelativeUrlToSiteUrl()`**: Main URL mapping function in `src/utils/internallinks.ts`
+- **`extractLinkTextFromUrlWithAnchor()`**: Processes URLs and extracts link text
+- **`remarkStandardLinks()`**: Applies URL mapping during markdown processing
+
+**Processing Flow:**
+1. **Link Detection**: `isInternalLink()` identifies relative links
+2. **URL Mapping**: `mapRelativeUrlToSiteUrl()` transforms Obsidian paths to site URLs
+3. **Rendering**: `remarkStandardLinks()` applies mappings during HTML generation
+4. **Anchor Handling**: Anchors (`#section`) are preserved and properly formatted
+
+#### **Linked Mentions & Graph View Integration**
+
+**Important Distinction**: URL mapping is applied for **rendering only**. The linked mentions and graph view features maintain their **posts-only** filtering:
+
+- **URL Mapping**: Applied to all content types for proper rendering
+- **Linked Mentions**: Only includes posts (filtered by `isPostLink` logic)
+- **Graph View**: Only includes posts (filtered by `isPostLink` logic)
+
+**Why This Design:**
+- **Rendering**: All links work correctly on the live site
+- **Features**: Linked mentions and graph view remain focused on blog content
+- **Performance**: No unnecessary processing of non-post content for these features
+
+#### **Edge Cases Handled**
+
+**Trailing Slashes:**
+- `/pages/about/` → `/about`
+- `/special/index/` → `/`
+- `/index/` → `/`
+
+**Mixed Formats:**
+- Both `/pages/about` and `pages/about` work identically
+- Both `/special/index` and `special/index` work identically
+- Obsidian's flexible linking is fully supported
+
+**Anchor Preservation:**
+- `[About](/pages/about#section)` → `/about#section`
+- `[Home](/special/index#top)` → `/#top`
+- Anchors are properly slugified for web compatibility
+
+#### **Best Practices for AI Agents**
+
+**URL Mapping Implementation:**
+- **Always use `mapRelativeUrlToSiteUrl()`** for URL transformations
+- **Test both leading slash variants** (`/pages/about` and `pages/about`)
+- **Handle trailing slashes** in all mapping logic
+- **Preserve anchors** during URL transformation
+
+**Content Creation:**
+- **Use Obsidian-style links** - they work seamlessly on the live site
+- **Test URL mappings** with various link formats
+- **Don't manually convert links** - the system handles it automatically
+- **Include examples** in documentation for all supported formats
+
+**Performance Considerations:**
+- **URL mapping is lightweight** - minimal performance impact
+- **Caching friendly** - mappings are applied during build time
+- **No runtime overhead** - all processing happens during markdown compilation
 
 ### Automatic Aliases & Redirects
 When you rename a post or page in Obsidian, the old filename is automatically stored as an alias. Astro processes these aliases and creates redirect rules, so old URLs continue to work. You don't need to add aliases manually - they appear automatically when you use Obsidian's rename functionality.
@@ -3215,12 +3338,29 @@ The comments are styled to match your theme automatically. If you see styling is
 - **Linked mentions only track posts** - pages, projects, and docs are not included in linked mentions
 - **File renamed for clarity**: `wikilinks.ts` → `internallinks.ts` to distinguish between the two behaviors
 
-#### 4. **H1 Title Handling**
+#### 4. **🚨 URL MAPPING SYSTEM CONFUSION (CRITICAL)**
+- **URL mapping is for RENDERING ONLY** - it doesn't affect linked mentions or graph view filtering
+- **Linked mentions and graph view remain posts-only** - URL mapping doesn't change this behavior
+- **Two separate systems**:
+  - **URL Mapping**: Applied to all content types for proper rendering (`/pages/about` → `/about`)
+  - **Linked Mentions/Graph**: Only includes posts (filtered by `isPostLink` logic)
+- **Don't confuse the systems** - URL mapping makes links work, but doesn't change feature scope
+- **Test both systems independently** - URL mapping and linked mentions are separate concerns
+
+#### 5. **🚨 FOLDER-BASED CONTENT ASSUMPTIONS (CRITICAL)**
+- **ALL content types support folder-based organization** - not just posts
+- **Pages, projects, and docs work identically to posts** for folder-based content
+- **Don't assume folder-based is posts-only** - all collections handle `folder-name/index.md` structure
+- **Astro Content Collections handle this automatically** - no special configuration needed
+- **Asset syncing works for all content types** - images, PDFs, etc. are copied to public directory
+- **URL generation is consistent** - folder name becomes slug for all content types
+
+#### 6. **H1 Title Handling**
 - **Both Posts and Pages**: NO H1 in markdown content - title comes from frontmatter, content starts with H2
 - **H1 is hardcoded** in both PostLayout and PageLayout using frontmatter title
 - **NEVER add H1** to any markdown content - both posts and pages have hardcoded H1s from frontmatter
 
-#### 5. **Custom Collections Approach**
+#### 7. **Custom Collections Approach**
 - **Use subfolders within pages collection** - avoid creating custom collections at content level
 - **No Astro warnings** - subfolders within pages don't trigger auto-generation warnings
 - **Same URL structure** - `/services/web-development` works the same way
@@ -3229,7 +3369,7 @@ The comments are styled to match your theme automatically. If you see styling is
   - `pages/services/web-development.md` → `/services/web-development`
   - `pages/services/web-development/index.md` → `/services/web-development`
 
-#### 6. **🚨 FAVICON THEME BEHAVIOR (CRITICAL)**
+#### 8. **🚨 FAVICON THEME BEHAVIOR (CRITICAL)**
 - **Favicon should NOT change with manual theme toggle** - it should only change with browser system theme
 - **System theme detection**: Use `window.matchMedia('(prefers-color-scheme: dark)')` to detect browser preference
 - **Favicon logic**: 
@@ -3240,25 +3380,25 @@ The comments are styled to match your theme automatically. If you see styling is
 - **NEVER update favicon** when user manually toggles theme - only when system theme changes
 - **Implementation**: Use CSS media queries + JavaScript system theme detection, not manual theme state
 
-#### 7. **🎨 COLOR USAGE (CRITICAL)**
+#### 9. **🎨 COLOR USAGE (CRITICAL)**
 - **NEVER use hardcoded colors** - Always use theme variables from `src/themes/index.ts`
 - **Use Tailwind classes** that reference theme variables (`primary-*`, `highlight-*`)
 - **Include dark mode variants** for all color definitions (`dark:bg-primary-800`)
 - **Check existing code** for hardcoded colors and replace them
 - **Reference theme files** to understand available color scales
 
-#### 8. **Package Manager**
+#### 10. **Package Manager**
 - Always use `pnpm` instead of `npm` for all commands
 - Scripts: `pnpm run <script-name>`, not `npm run <script-name>`
 
-#### 9. **Deployment Platform Configuration**
+#### 11. **Deployment Platform Configuration**
 - **Set platform once in config** - Use `deployment.platform` in `src/config.ts`, not environment variables
 - **No environment variables needed** - The build process automatically detects the platform from config
 - **Platform options**: "netlify", "vercel", "github-pages" (all lowercase with hyphens)
 - **Backward compatibility**: Environment variables still work but are not recommended
 - **Configuration files**: Automatically generated based on platform choice
 
-#### 10. **Homepage Configuration Structure**
+#### 12. **Homepage Configuration Structure**
 - **Use `homeOptions`** - All homepage content is now under `homeOptions`, not `features` or `homeBlurb`
 - **Featured Post**: Use `homeOptions.featuredPost` with `type: "latest"` or `type: "featured"`
 - **Slug Flexibility**: Slug can be present even when `type: "latest"` - it will be ignored until switched to "featured"
