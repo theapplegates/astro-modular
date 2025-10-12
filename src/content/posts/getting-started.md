@@ -385,8 +385,12 @@ src/content/
 │   ├── attachments/           # Shared page images, audio, or other attachments.
 │   ├── about.md
 │   ├── contact.md
-│   ├── privacy-policy.md
-│   └── index.md             # Homepage blurb content
+│   └── privacy-policy.md
+├── special/                 # Special pages
+│   ├── home.md             # Homepage blurb content
+│   ├── 404.md              # 404 error page
+│   ├── projects.md         # Projects index page content
+│   └── docs.md             # Docs index page content
 ├── projects/                # Featured projects
 │   ├── attachments/           # Shared project images, audio, or other attachments.
 │   └── sample-project/      # Folder-based project
@@ -406,7 +410,7 @@ src/content/
 ### Special Content Collection
 Special index pages (homepage blurb, 404, projects index, docs index) are handled by the `special` content collection in `src/content/special/`:
 
-- **`index.md`** - Homepage blurb content
+- **`home.md`** - Homepage blurb content
 - **`404.md`** - 404 error page
 - **`projects.md`** - Projects index page content
 - **`docs.md`** - Documentation index page content
@@ -492,7 +496,7 @@ The Contact page has an optional form embedded into it, which leads to the Thank
 
 An optional Privacy Policy page can be edited or removed by deleting it if you don't want it. 
 
-`pages/index.md` controls what goes on the homepage blurb. Adding content to `pages/404.md` will display on any "not found" page.
+`special/home.md` controls what goes on the homepage blurb. Adding content to `special/404.md` will display on any "not found" page.
 
 ## Creating Projects
 

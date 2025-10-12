@@ -112,7 +112,7 @@ let HomeBlurbContent = null;
 
 if (siteConfig.homeOptions.blurb.placement !== 'none') {
   try {
-    homeBlurbContent = await getEntry('special', 'index');
+    homeBlurbContent = await getEntry('special', 'home');
     if (homeBlurbContent) {
       const { Content } = await homeBlurbContent.render();
       HomeBlurbContent = Content;

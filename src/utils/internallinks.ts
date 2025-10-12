@@ -166,7 +166,7 @@ function mapRelativeUrlToSiteUrl(url: string): string {
   // Handle special pages mapping
   if (url.startsWith('/special/')) {
     const specialPath = url.replace('/special/', '');
-    if (specialPath === 'index') {
+    if (specialPath === 'home') {
       return '/'; // Homepage
     } else if (specialPath === '404') {
       return '/404'; // 404 page
@@ -189,7 +189,7 @@ function mapRelativeUrlToSiteUrl(url: string): string {
   // Handle special/ prefixed links (without leading slash)
   if (url.startsWith('special/')) {
     const specialPath = url.replace('special/', '');
-    if (specialPath === 'index') {
+    if (specialPath === 'home') {
       return '/'; // Homepage
     } else if (specialPath === '404') {
       return '/404'; // 404 page
@@ -249,7 +249,7 @@ function extractLinkTextFromUrlWithAnchor(url: string, allPosts: any[] = [], all
   // Handle special pages first
   if (link.startsWith('special/')) {
     const specialPath = link.replace('special/', '').replace(/\.md$/, '');
-    if (specialPath === 'index') {
+    if (specialPath === 'home') {
       return {
         linkText: 'homepage', // Special marker for homepage
         anchor: anchor
@@ -270,7 +270,7 @@ function extractLinkTextFromUrlWithAnchor(url: string, allPosts: any[] = [], all
   // Handle /special/ URLs
   if (link.startsWith('/special/')) {
     const specialPath = link.replace('/special/', '');
-    if (specialPath === 'index') {
+    if (specialPath === 'home') {
       return {
         linkText: 'homepage', // Special marker for homepage
         anchor: anchor
@@ -605,7 +605,7 @@ export function validateWikilinks(posts: Post[], content: string): {
  * - Pages: [Page Title](pages/page-slug) or [Page Title](page-slug)  
  * - Projects: [Project Title](projects/project-slug)
  * - Documentation: [Doc Title](docs/doc-slug)
- * - Special pages: [Home](special/index) or [Home](homepage)
+ * - Special pages: [Home](special/home) or [Home](homepage)
  * 
  * This is the standard markdown linking behavior that works everywhere.
  */
@@ -636,7 +636,7 @@ export function remarkStandardLinks() {
             if (node.url.startsWith('special/')) {
               // Special pages: handle special routing
               const specialPath = node.url.replace('special/', '').replace(/\.md.*$/, '');
-              if (specialPath === 'index') {
+              if (specialPath === 'home') {
                 baseUrl = '/'; // Homepage
               } else if (specialPath === '404') {
                 baseUrl = '/404'; // 404 page
@@ -685,7 +685,7 @@ export function remarkStandardLinks() {
               }
             } else {
               // Direct .md reference without collection prefix - check for special pages first
-              if (linkText === 'special/index') {
+              if (linkText === 'special/home') {
                 baseUrl = '/'; // Homepage
               } else if (linkText === 'special/404') {
                 baseUrl = '/404'; // 404 page

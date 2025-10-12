@@ -13,7 +13,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
   // Filter out special pages that are handled by dedicated routes
   // Note: 'projects' and 'docs' are NOT filtered out here because they can be fallback pages
-  const specialPageSlugs = ['index', '404'];
+  const specialPageSlugs = ['home', '404'];
   const visiblePages = pages.filter(page => !specialPageSlugs.includes(page.slug));
 
   // Generate paths for regular pages
@@ -22,12 +22,12 @@ export const getStaticPaths: GetStaticPaths = async () => {
     props: { page }
   }));
 
-  // Generate paths for special pages (excluding index and 404 which have special handling)
+  // Generate paths for special pages (excluding home and 404 which have special handling)
   // Special pages serve as fallback content when features are disabled
   const specialPaths = specialPages
     .filter(page => {
-      // Always exclude index and 404
-      if (['index', '404'].includes(page.slug)) {
+      // Always exclude home and 404
+      if (['home', '404'].includes(page.slug)) {
         return false;
       }
       

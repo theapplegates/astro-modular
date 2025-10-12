@@ -5,7 +5,7 @@ formulas:
   Slug: |-
     if(file.folder == "posts", "/posts/" + file.name.replace(".md", ""), 
       if(file.folder == "pages", "/" + file.name.replace(".md", ""), 
-        if(file.folder == "special", if(file.name.replace(".md", "") == "index", "/", "/" + file.name.replace(".md", "")), 
+        if(file.folder == "special", if(file.name.replace(".md", "") == "home", "/", "/" + file.name.replace(".md", "")), 
           if(file.folder == "projects", "/projects/" + file.name.replace(".md", ""), 
             if(file.folder == "docs", "/docs/" + file.name.replace(".md", ""), 
               "/" + file.folder)))))

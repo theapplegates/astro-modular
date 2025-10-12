@@ -694,7 +694,7 @@ This theme supports two distinct linking behaviors, each with specific use cases
   - `[Page Title](pages/page-slug)` or `[Page Title](page-slug)` → Pages  
   - `[Project Title](projects/project-slug)` → Projects
   - `[Doc Title](docs/doc-slug)` → Documentation
-  - `[Home](special/index)` or `[Home](homepage)` → Special pages
+  - `[Home](special/home)` or `[Home](homepage)` → Special pages
 
 #### **When to Use Which**
 - **Use Wikilinks** when writing in Obsidian for posts - they feel natural and work seamlessly
@@ -724,8 +724,8 @@ The theme includes a sophisticated URL mapping system that ensures Obsidian-styl
 - `[Contact](pages/contact)` → `/contact` (handles both leading slash variants)
 
 **Special Pages Mapping:**
-- `[Home](/special/index)` → `/` (homepage)
-- `[Home](/special/index/)` → `/` (handles trailing slashes)
+- `[Home](/special/home)` → `/` (homepage)
+- `[Home](/special/home/)` → `/` (handles trailing slashes)
 - `[404 Page](/special/404)` → `/404` (404 error page)
 - `[Projects](/special/projects)` → `/projects` (projects index)
 - `[Docs](/special/docs)` → `/docs` (documentation index)
@@ -764,17 +764,17 @@ The theme includes a sophisticated URL mapping system that ensures Obsidian-styl
 
 **Trailing Slashes:**
 - `/pages/about/` → `/about`
-- `/special/index/` → `/`
+- `/special/home/` → `/`
 - `/index/` → `/`
 
 **Mixed Formats:**
 - Both `/pages/about` and `pages/about` work identically
-- Both `/special/index` and `special/index` work identically
+- Both `/special/home` and `special/home` work identically
 - Obsidian's flexible linking is fully supported
 
 **Anchor Preservation:**
 - `[About](/pages/about#section)` → `/about#section`
-- `[Home](/special/index#top)` → `/#top`
+- `[Home](/special/home#top)` → `/#top`
 - Anchors are properly slugified for web compatibility
 
 #### **Best Practices for AI Agents**
@@ -835,7 +835,7 @@ src/content/
 │       ├── index.md
 │       └── diagram.png
 └── special/                 # Special pages collection
-    ├── index.md             # Homepage blurb content
+    ├── home.md             # Homepage blurb content
     ├── 404.md               # 404 page content
     ├── projects.md          # Projects index page content
     └── docs.md              # Docs index page content
@@ -848,13 +848,13 @@ The `special` collection contains content for specific pages that have special r
 **Purpose**: Provides content for pages that need custom behavior or fixed URLs
 
 **Files and Their Uses**:
-- **`index.md`** - Homepage blurb content (controlled by `homeOptions.blurb.placement`)
+- **`home.md`** - Homepage blurb content (controlled by `homeOptions.blurb.placement`)
 - **`404.md`** - 404 error page content
 - **`projects.md`** - Projects index page content (if `homeOptions.projects.enabled: true`)
 - **`docs.md`** - Documentation index page content (if `homeOptions.docs.enabled: true`)
 
 **URL Mapping**:
-- `special/index.md` → `/` (homepage blurb)
+- `special/home.md` → `/` (homepage blurb)
 - `special/404.md` → `/404` (404 error page)
 - `special/projects.md` → `/projects` (projects index)
 - `special/docs.md` → `/docs` (documentation index)

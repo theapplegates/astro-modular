@@ -121,7 +121,7 @@ const docsCollection = defineCollection({
   }),
 });
 
-// Define schema for special index pages (homepage blurb, 404, projects index, docs index)
+// Define schema for special home pages (homepage blurb, 404, projects index, docs index)
 const specialCollection = defineCollection({
   type: 'content',
   schema: z.object({
