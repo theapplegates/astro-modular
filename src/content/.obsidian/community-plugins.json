@@ -14,9 +14,10 @@
   "cmdr",
   "obsidian-shellcommands",
   "obsidian-git",
-  "iconic",
   "seo",
   "astro-composer",
   "alias-file-name-history",
-  "property-over-file-name"
+  "property-over-file-name",
+  "disable-tabs",
+  "iconic"
 ]
