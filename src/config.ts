@@ -128,7 +128,7 @@ export interface SiteConfig {
       showOrphanedPosts: boolean;
     };
     postNavigation: boolean;
-    showPostCardCoverImages: "all" | "latest" | "home" | "posts" | "latest-and-posts" | "none";
+    showPostCardCoverImages: "all" | "featured" | "home" | "posts" | "featured-and-posts" | "none";
     postCardAspectRatio: AspectRatio;
     customPostCardAspectRatio?: string;
     comments: {
@@ -304,7 +304,7 @@ export const siteConfig: SiteConfig = {
       showOrphanedPosts: true,
     },
     postNavigation: true,
-    showPostCardCoverImages: "latest-and-posts", // "all" | "latest" | "home" | "posts" | "latest-and-posts" | "none"
+    showPostCardCoverImages: "featured-and-posts", // "all" | "featured" | "home" | "posts" | "featured-and-posts" | "none"
     postCardAspectRatio: "og", // "16:9" | "4:3" | "3:2" | "og" | "square" | "golden" | "custom"
     customPostCardAspectRatio: "2.5/1", // Only used when postCardAspectRatio is "custom" (e.g., "2.5/1")
     comments: {
@@ -527,7 +527,7 @@ function validateSiteConfig(config: SiteConfig): { isValid: boolean; errors: str
   }
 
   // Cover image options validation
-  const validCoverImageOptions = ['all', 'latest', 'home', 'posts', 'latest-and-posts', 'none'];
+  const validCoverImageOptions = ['all', 'featured', 'home', 'posts', 'featured-and-posts', 'none'];
   if (!validCoverImageOptions.includes(config.postOptions.showPostCardCoverImages)) {
     errors.push(`postOptions.showPostCardCoverImages must be one of: ${validCoverImageOptions.join(', ')}`);
   }

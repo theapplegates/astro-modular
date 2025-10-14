@@ -1126,17 +1126,31 @@ The project includes custom Swup behavior in `BaseLayout.astro`:
 
 #### 1. Post Card Images (Listings, Homepage, Tag Pages)
 - **Controlled by**: `siteConfig.postOptions.showPostCardCoverImages` in `config.ts`
-- **Options**: `"all"`, `"latest"`, `"home"`, `"posts"`, `"latest-and-posts"`, `"none"`
-- **Current Setting**: `"latest-and-posts"` (shows on latest posts and posts/tags pages)
+- **Options**: `"all"`, `"featured"`, `"home"`, `"posts"`, `"featured-and-posts"`, `"none"`
+- **Current Setting**: `"featured-and-posts"` (shows on featured posts and posts/tags pages)
 - **Frontmatter**: The `image` field in post frontmatter is used for card images
 - **NOT affected by**: `hideCoverImage` frontmatter field
 - **Loading**: Uses `eager` loading for first post on pages, `lazy` for others
+- **Scope**: **ONLY affects post cards** - projects and documentation cards are not controlled by this setting
 
 #### 2. Post Content Images (Inside Individual Posts)
 - **Controlled by**: `hideCoverImage` frontmatter field
 - **Purpose**: Controls whether the main post image appears in the post content
 - **Loading**: Always uses `eager` loading and `fetchpriority="high"`
 - **Location**: Rendered by `PostContent.astro` component
+
+#### 3. Project Card Images
+- **Controlled by**: Always show when available (not controlled by postOptions)
+- **Purpose**: Project cards always display cover images when present
+- **Frontmatter**: Controlled by `hideCoverImage` frontmatter field
+- **Loading**: Uses `eager` loading for first project, `lazy` for others
+
+#### 4. Documentation Card Images
+- **Controlled by**: Always show when available (not controlled by postOptions)
+- **Purpose**: Documentation cards always display cover images when present
+- **Frontmatter**: Controlled by `hideCoverImage` frontmatter field
+- **Loading**: Uses `eager` loading for first doc, `lazy` for others
+- **Homepage Exception**: Hidden on homepage for cleaner look
 
 #### Key Rules for AI Agents
 - **Never confuse these two systems** - they are completely independent
@@ -1788,7 +1802,7 @@ features: {
   commandPalette: true,
   postNavigation: true,
   showSocialIconsInFooter: true,
-  showPostCardCoverImages: "latest-and-posts", // See cover image options below
+  showPostCardCoverImages: "featured-and-posts", // See cover image options below
 }
 ```
 
@@ -1798,10 +1812,10 @@ features: {
 
 #### Cover Image Options
 - `"all"` - Show cover images everywhere
-- `"latest"` - Show only on the latest post section and featured posts
-- `"home"` - Show on homepage sections (latest and recent)
+- `"featured"` - Show only on the featured post section and featured posts
+- `"home"` - Show on homepage sections (featured and recent)
 - `"posts"` - Show only on posts pages, tag pages, and post listings
-- `"latest-and-posts"` - Show on latest post section AND posts pages/tags (but not recent posts section)
+- `"featured-and-posts"` - Show on featured post section AND posts pages/tags (but not recent posts section)
 - `"none"` - Never show cover images
 
 #### Homepage Content Options

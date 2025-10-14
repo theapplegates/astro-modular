@@ -76,7 +76,7 @@ const pagination = {
       if (!firstPost.data.image || firstPost.data.image.startsWith('http')) return null;
       
       const showCoverImages = siteConfig.postOptions.showPostCardCoverImages;
-      const shouldShowCoverImage = ['all', 'posts', 'latest-and-posts'].includes(showCoverImages);
+      const shouldShowCoverImage = ['all', 'posts', 'featured-and-posts'].includes(showCoverImages);
       
       return shouldShowCoverImage ? (
         <link 

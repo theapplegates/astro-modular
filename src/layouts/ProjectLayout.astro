@@ -108,9 +108,8 @@ const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProject
     {(() => {
       if (!project.data.image || project.data.hideCoverImage === true) return false;
       
-      const showCoverImages = siteConfig.postOptions.showPostCardCoverImages;
-      // Only preload for projects that are likely to show the image immediately
-      const shouldPreload = ['all', 'posts', 'latest-and-posts'].includes(showCoverImages);
+      // Projects always show images when available, so always preload
+      const shouldPreload = true;
       
       return shouldPreload;
     })() && (
@@ -131,9 +130,9 @@ const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProject
   <div class="py-8 relative">
     <div class="mx-auto px-4 sm:px-6 lg:px-8 relative" style={`max-width: ${siteConfig.layout.contentWidth}`}>
       <!-- Main content -->
-      <article class={`bg-primary-50 dark:bg-primary-900 rounded-lg border border-primary-200 dark:border-primary-700 shadow-sm ${siteConfig.postOptions.showPostCardCoverImages !== 'none' && project.data.image && project.data.hideCoverImage !== true ? 'overflow-hidden' : ''}`}>
+      <article class={`bg-primary-50 dark:bg-primary-900 rounded-lg border border-primary-200 dark:border-primary-700 shadow-sm ${project.data.image && project.data.hideCoverImage !== true ? 'overflow-hidden' : ''}`}>
         {/* Cover image - shown if global config allows and not hidden by frontmatter */}
-        {siteConfig.postOptions.showPostCardCoverImages !== 'none' && project.data.image && project.data.hideCoverImage !== true && (
+        {project.data.image && project.data.hideCoverImage !== true && (
           <div class="h-40 sm:h-48 md:h-56 lg:h-64 overflow-hidden rounded-t-lg bg-primary-100 dark:bg-primary-800">
             <ImageWrapper
               src={project.data.image}
@@ -180,7 +179,7 @@ const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProject
         )}
 
         <!-- Project content wrapper -->
-        <div class={`p-6 ${siteConfig.postOptions.showPostCardCoverImages !== 'none' && project.data.image && project.data.hideCoverImage !== true ? 'rounded-b-lg' : 'rounded-lg'}`}>
+        <div class={`p-6 ${project.data.image && project.data.hideCoverImage !== true ? 'rounded-b-lg' : 'rounded-lg'}`}>
           <!-- Project header -->
           <header class="mb-4 relative">
             <h1 class="text-xl font-bold text-primary-900 dark:text-primary-50 mb-6 leading-tight pr-20">

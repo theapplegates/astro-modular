@@ -233,7 +233,7 @@ postOptions: {
     showOrphanedPosts: true,
   },
   postNavigation: true,
-  showPostCardCoverImages: "latest-and-posts",
+  showPostCardCoverImages: "featured-and-posts",
   postCardAspectRatio: "og",
   customPostCardAspectRatio: "2.5/1",
   comments: {
@@ -254,11 +254,13 @@ Enabling table of contents is a global toggle for all posts. This is different f
 
 **Cover Image Options:**
 - `"all"` - show cover images on all post cards
-- `"latest"` - show only on the latest post section and featured posts
-- `"home"` - show only on homepage sections (latest and recent)
+- `"featured"` - show only on the featured post section and featured posts
+- `"home"` - show only on homepage sections (featured and recent)
 - `"posts"` - show only on posts pages, tag pages, and post cards
-- `"latest-and-posts"` - show on latest post section AND posts pages/tags cards (but not recent posts section)
+- `"featured-and-posts"` - show on featured post section AND posts pages/tags cards (but not recent posts section)
 - `"none"` - never show cover images on post cards
+
+**Note:** This setting only affects post cards. Project and documentation cards always show cover images when available.
 
 **Post Card Aspect Ratio:**
 Configure the aspect ratio for post card cover images:

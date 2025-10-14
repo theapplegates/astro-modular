@@ -9,7 +9,7 @@ interface Props {
   documentation: CollectionEntry<'docs'>;
   featured?: boolean;
   eager?: boolean;
-  context?: 'latest' | 'recent' | 'docs' | 'tags' | 'home';
+  context?: 'featured' | 'recent' | 'docs' | 'tags' | 'home';
 }
 
 const { documentation, featured = false, eager = false, context = 'docs' } = Astro.props;
@@ -68,12 +68,8 @@ const processedImage = (() => {
 })();
 
 // Determine if we should show the cover image
-const shouldShowCoverImage = siteConfig.postOptions.showPostCardCoverImages !== 'none' && 
-  (siteConfig.postOptions.showPostCardCoverImages === 'all' || 
-   (siteConfig.postOptions.showPostCardCoverImages === 'latest' && context === 'latest') ||
-   (siteConfig.postOptions.showPostCardCoverImages === 'home' && (context === 'latest' || context === 'recent' || context === 'home')) ||
-   (siteConfig.postOptions.showPostCardCoverImages === 'posts' && context === 'docs') ||
-   (siteConfig.postOptions.showPostCardCoverImages === 'latest-and-posts' && (context === 'latest' || context === 'docs')));
+// Documentation should always show images when available (not controlled by postOptions)
+const shouldShowCoverImage = true;
 
 // Hide images for docs on homepage for cleaner look
 const showCoverImage = shouldShowCoverImage && processedImage && context !== 'home';

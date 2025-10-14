@@ -8,7 +8,7 @@ interface Props {
   post: CollectionEntry<'posts'>;
   featured?: boolean;
   eager?: boolean;
-  context?: 'latest' | 'recent' | 'posts' | 'tags';
+  context?: 'featured' | 'recent' | 'posts' | 'tags';
 }
 
 const { post, featured = false, eager = false, context = 'posts' } = Astro.props;
@@ -58,14 +58,14 @@ const shouldShowCoverImage = (() => {
   switch (showCoverImages) {
     case 'all':
       return true;
-    case 'latest':
-      return context === 'latest' || featured;
+    case 'featured':
+      return context === 'featured' || featured;
     case 'home':
-      return context === 'latest' || context === 'recent';
+      return context === 'featured' || context === 'recent';
     case 'posts':
       return context === 'posts' || context === 'tags';
-    case 'latest-and-posts':
-      return context === 'latest' || context === 'posts' || context === 'tags' || featured;
+    case 'featured-and-posts':
+      return context === 'featured' || context === 'posts' || context === 'tags' || featured;
     case 'none':
     default:
       return false;
@@ -83,8 +83,8 @@ const shouldShowCoverImage = (() => {
           src={(() => {
             // Clean the image path by removing Obsidian brackets
             let cleanImagePath = image;
-            if (!cleanImagePath) return '';
-            if (typeof cleanImagePath === 'string' && cleanImagePath.startsWith('[[') && cleanImagePath.endsWith(']]')) {
+            if (!cleanImagePath || typeof cleanImagePath !== 'string') return '';
+            if (cleanImagePath.startsWith('[[') && cleanImagePath.endsWith(']]')) {
               cleanImagePath = cleanImagePath.slice(2, -2);
             }
             
@@ -103,6 +103,8 @@ const shouldShowCoverImage = (() => {
             if (!isFolderBasedPost && typeof cleanImagePath === 'string' && cleanImagePath.startsWith('attachments/')) {
               return cleanImagePath.replace('attachments/', ''); // Remove 'attachments/' prefix
             }
+            
+            return cleanImagePath || '';
           })()}
           basePath={(() => {
             // 1. External URLs - no basePath needed

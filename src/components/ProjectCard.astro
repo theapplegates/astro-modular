@@ -11,7 +11,7 @@ interface Props {
   project: CollectionEntry<'projects'>;
   featured?: boolean;
   eager?: boolean;
-  context?: 'latest' | 'recent' | 'projects' | 'tags' | 'home';
+  context?: 'featured' | 'recent' | 'projects' | 'tags' | 'home';
   showCategories?: boolean;
 }
 
@@ -76,12 +76,8 @@ const processedImage = (() => {
 const aspectRatio = getPostCardAspectRatio();
 
 // Determine if we should show the cover image
-const shouldShowCoverImage = siteConfig.postOptions.showPostCardCoverImages !== 'none' && 
-  (siteConfig.postOptions.showPostCardCoverImages === 'all' || 
-   (siteConfig.postOptions.showPostCardCoverImages === 'latest' && context === 'latest') ||
-   (siteConfig.postOptions.showPostCardCoverImages === 'home' && (context === 'latest' || context === 'recent' || context === 'home')) ||
-   (siteConfig.postOptions.showPostCardCoverImages === 'posts' && context === 'projects') ||
-   (siteConfig.postOptions.showPostCardCoverImages === 'latest-and-posts' && (context === 'latest' || context === 'projects' || context === 'home')));
+// Projects should always show images when available (not controlled by postOptions)
+const shouldShowCoverImage = true;
 
 const showCoverImage = shouldShowCoverImage && processedImage;
 ---

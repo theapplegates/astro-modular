@@ -102,7 +102,7 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
       const showCoverImages = siteConfig.postOptions.showPostCardCoverImages;
       // Only preload for posts that are likely to show the image immediately
       // Skip preload for complex posts that might have delayed rendering
-      const shouldPreload = ['all', 'posts', 'latest-and-posts'].includes(showCoverImages) && 
+      const shouldPreload = ['all', 'posts', 'featured-and-posts'].includes(showCoverImages) && 
                            post.slug !== 'formatting-reference';
       
       return shouldPreload;
