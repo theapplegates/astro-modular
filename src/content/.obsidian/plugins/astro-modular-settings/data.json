@@ -1,0 +1,27 @@
+{
+  "runWizardOnStartup": true,
+  "doNotShowWizardAgain": false,
+  "currentTemplate": "standard",
+  "currentTheme": "oxygen",
+  "contentOrganization": "file-based",
+  "features": {
+    "commandPalette": true,
+    "tableOfContents": true,
+    "readingTime": true,
+    "linkedMentions": true,
+    "comments": true
+  },
+  "pluginConfig": {
+    "obsidianSettings": {
+      "attachmentLocation": "subfolder",
+      "subfolderName": "attachments"
+    },
+    "astroComposerSettings": {
+      "creationMode": "file-based",
+      "indexFileName": "index"
+    },
+    "imageInserterSettings": {
+      "insertFormat": "[[attachments/{image-url}]]"
+    }
+  }
+}

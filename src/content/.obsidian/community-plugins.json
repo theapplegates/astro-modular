@@ -15,9 +15,9 @@
   "obsidian-shellcommands",
   "obsidian-git",
   "seo",
-  "astro-composer",
   "alias-file-name-history",
   "property-over-file-name",
   "disable-tabs",
-  "iconic"
+  "iconic",
+  "astro-composer"
 ]
