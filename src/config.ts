@@ -169,10 +169,15 @@ export interface SiteConfig {
 // ═══════════════════════════════════════════════════════════════════════════════
 export const siteConfig: SiteConfig = {
   // Site Information
+  // [CONFIG:SITE_URL]
   site: "https://astro-modular.netlify.app",
+  // [CONFIG:SITE_TITLE]
   title: "Astro Modular",
+  // [CONFIG:SITE_DESCRIPTION]
   description: "A flexible blog theme designed for Obsidian users.",
+  // [CONFIG:SITE_AUTHOR]
   author: "David V. Kimball",
+  // [CONFIG:SITE_LANGUAGE]
   language: "en",
 
   // Global Settings
@@ -269,6 +274,7 @@ export const siteConfig: SiteConfig = {
     style: "traditional", // 'minimal' or 'traditional'
     // [CONFIG:NAVIGATION_SHOW_MOBILE_MENU]
     showMobileMenu: true,
+    // [CONFIG:NAVIGATION_PAGES]
     pages: [
       { title: "Posts", url: "/posts" },
       { title: "Projects", url: "/projects" },
@@ -276,6 +282,7 @@ export const siteConfig: SiteConfig = {
       { title: "About", url: "/about" },
       { title: "GitHub", url: "https://github.com/davidvkimball/astro-modular" },
     ],
+    // [CONFIG:NAVIGATION_SOCIAL]
     social: [
       {
         title: "X",

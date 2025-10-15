@@ -2125,6 +2125,354 @@ tags: {
 }
 ```
 
+### 🚨 CRITICAL: Config Marker System for Obsidian Plugin
+
+**⚠️ AI AGENTS MUST READ THIS SECTION CAREFULLY ⚠️**
+
+The Astro Modular theme includes an **Obsidian plugin** that allows users to configure their theme settings directly from within Obsidian. This plugin relies on a **marker-based system** in `src/config.ts` that is **CRITICAL** for plugin functionality and **MUST NEVER BE BROKEN**.
+
+#### What Are Config Markers?
+
+Config markers are special comment lines in `src/config.ts` that look like this:
+
+```typescript
+// [CONFIG:THEME]
+theme: "oxygen",
+
+// [CONFIG:COMMAND_PALETTE_ENABLED]
+enabled: true,
+```
+
+#### Why Markers Exist
+
+The Obsidian plugin uses these markers to:
+- **Reliably identify** which configuration values it can update
+- **Avoid fragile regex** that breaks when config structure changes
+- **Prevent conflicts** with user modifications
+- **Enable safe updates** without affecting other parts of the config
+
+#### 🚨 CRITICAL RULES FOR AI AGENTS
+
+#### 1. **NEVER Remove Config Markers**
+- **DO NOT** delete any `// [CONFIG:KEY]` comments
+- **DO NOT** modify marker format (must be exactly `// [CONFIG:KEY]`)
+- **DO NOT** move markers to different lines
+- **DO NOT** change marker names
+
+#### 2. **ALWAYS Add Markers for New Configurable Values**
+When adding new configuration options that the Obsidian plugin should manage:
+
+```typescript
+// ✅ CORRECT - Add marker for new configurable value
+// [CONFIG:NEW_FEATURE_ENABLED]
+newFeature: true,
+
+// ❌ WRONG - No marker means plugin can't update it
+newFeature: true,
+```
+
+#### 3. **Maintain Marker Consistency**
+- **Use consistent naming**: `CONFIG:FEATURE_NAME` (uppercase, underscores)
+- **Place markers correctly**: One line before the config value
+- **Keep format exact**: `// [CONFIG:KEY]` (no spaces inside brackets)
+
+#### 4. **Update Plugin When Adding Markers**
+When adding new markers to `config.ts`, you MUST also:
+- Add the marker to the `validateMarkers()` function in the Obsidian plugin
+- Add replacement logic in the plugin's `modifyConfigFromPreset()` method
+- Update plugin documentation
+
+#### Standardized Marker System
+
+All configurable values in `src/config.ts` MUST follow this standardized pattern:
+
+**Global Settings:**
+```typescript
+// [CONFIG:THEME]
+theme: "oxygen",
+
+// [CONFIG:FONT_SOURCE]
+source: "local",
+
+// [CONFIG:FONT_BODY]
+body: "Inter",
+
+// [CONFIG:FONT_HEADING]
+heading: "Inter",
+
+// [CONFIG:FONT_MONO]
+mono: "JetBrains Mono",
+
+// [CONFIG:LAYOUT_CONTENT_WIDTH]
+contentWidth: "45rem",
+
+// [CONFIG:FOOTER_ENABLED]
+enabled: true,
+
+// [CONFIG:FOOTER_SHOW_SOCIAL_ICONS]
+showSocialIconsInFooter: true,
+
+// [CONFIG:SCROLL_TO_TOP]
+scrollToTop: true,
+
+// [CONFIG:DARK_MODE_TOGGLE_BUTTON]
+darkModeToggleButton: "both",
+
+// [CONFIG:DEPLOYMENT_PLATFORM]
+platform: "netlify",
+```
+
+**Command Palette Settings:**
+```typescript
+// [CONFIG:COMMAND_PALETTE_ENABLED]
+enabled: true,
+
+// [CONFIG:COMMAND_PALETTE_SHORTCUT]
+shortcut: "ctrl+K",
+
+// [CONFIG:COMMAND_PALETTE_PLACEHOLDER]
+placeholder: "Search posts",
+
+// [CONFIG:COMMAND_PALETTE_SEARCH_POSTS]
+posts: true,
+
+// [CONFIG:COMMAND_PALETTE_SEARCH_PAGES]
+pages: false,
+
+// [CONFIG:COMMAND_PALETTE_SEARCH_PROJECTS]
+projects: false,
+
+// [CONFIG:COMMAND_PALETTE_SEARCH_DOCS]
+docs: false,
+
+// [CONFIG:COMMAND_PALETTE_SECTIONS_QUICK_ACTIONS]
+quickActions: true,
+
+// [CONFIG:COMMAND_PALETTE_SECTIONS_PAGES]
+pages: true,
+
+// [CONFIG:COMMAND_PALETTE_SECTIONS_SOCIAL]
+social: true,
+```
+
+**Profile Picture Settings:**
+```typescript
+// [CONFIG:PROFILE_PICTURE_ENABLED]
+enabled: false,
+
+// [CONFIG:PROFILE_PICTURE_IMAGE]
+image: "/profile.jpg",
+
+// [CONFIG:PROFILE_PICTURE_ALT]
+alt: "Profile picture",
+
+// [CONFIG:PROFILE_PICTURE_SIZE]
+size: "md",
+
+// [CONFIG:PROFILE_PICTURE_URL]
+url: "/about",
+
+// [CONFIG:PROFILE_PICTURE_PLACEMENT]
+placement: "footer",
+
+// [CONFIG:PROFILE_PICTURE_STYLE]
+style: "circle",
+```
+
+**Navigation Settings:**
+```typescript
+// [CONFIG:NAVIGATION_SHOW_NAVIGATION]
+showNavigation: true,
+
+// [CONFIG:NAVIGATION_STYLE]
+style: "traditional",
+
+// [CONFIG:NAVIGATION_SHOW_MOBILE_MENU]
+showMobileMenu: true,
+```
+
+**Optional Content Types:**
+```typescript
+// [CONFIG:OPTIONAL_CONTENT_TYPES_PROJECTS]
+projects: true,
+
+// [CONFIG:OPTIONAL_CONTENT_TYPES_DOCS]
+docs: true,
+```
+
+**Home Options:**
+```typescript
+// [CONFIG:HOME_OPTIONS_FEATURED_POST_ENABLED]
+enabled: true,
+
+// [CONFIG:HOME_OPTIONS_FEATURED_POST_TYPE]
+type: "latest",
+
+// [CONFIG:HOME_OPTIONS_FEATURED_POST_SLUG]
+slug: "getting-started",
+
+// [CONFIG:HOME_OPTIONS_RECENT_POSTS_ENABLED]
+enabled: true,
+
+// [CONFIG:HOME_OPTIONS_RECENT_POSTS_COUNT]
+count: 7,
+
+// [CONFIG:HOME_OPTIONS_PROJECTS_ENABLED]
+enabled: true,
+
+// [CONFIG:HOME_OPTIONS_PROJECTS_COUNT]
+count: 2,
+
+// [CONFIG:HOME_OPTIONS_DOCS_ENABLED]
+enabled: true,
+
+// [CONFIG:HOME_OPTIONS_DOCS_COUNT]
+count: 3,
+
+// [CONFIG:HOME_OPTIONS_BLURB_PLACEMENT]
+placement: "below",
+```
+
+**Post Options:**
+```typescript
+// [CONFIG:POST_OPTIONS_POSTS_PER_PAGE]
+postsPerPage: 6,
+
+// [CONFIG:POST_OPTIONS_READING_TIME]
+readingTime: true,
+
+// [CONFIG:POST_OPTIONS_WORD_COUNT]
+wordCount: true,
+
+// [CONFIG:POST_OPTIONS_TABLE_OF_CONTENTS]
+tableOfContents: true,
+
+// [CONFIG:POST_OPTIONS_TAGS]
+tags: true,
+
+// [CONFIG:POST_OPTIONS_LINKED_MENTIONS_ENABLED]
+enabled: true,
+
+// [CONFIG:POST_OPTIONS_LINKED_MENTIONS_COMPACT]
+linkedMentionsCompact: false,
+
+// [CONFIG:POST_OPTIONS_GRAPH_VIEW_ENABLED]
+enabled: true,
+
+// [CONFIG:POST_OPTIONS_GRAPH_VIEW_SHOW_IN_SIDEBAR]
+showInSidebar: true,
+
+// [CONFIG:POST_OPTIONS_GRAPH_VIEW_SHOW_IN_COMMAND_PALETTE]
+showInCommandPalette: true,
+
+// [CONFIG:POST_OPTIONS_GRAPH_VIEW_MAX_NODES]
+maxNodes: 100,
+
+// [CONFIG:POST_OPTIONS_GRAPH_VIEW_SHOW_ORPHANED_POSTS]
+showOrphanedPosts: true,
+
+// [CONFIG:POST_OPTIONS_POST_NAVIGATION]
+postNavigation: true,
+
+// [CONFIG:POST_OPTIONS_SHOW_POST_CARD_COVER_IMAGES]
+showPostCardCoverImages: "featured-and-posts",
+
+// [CONFIG:POST_OPTIONS_POST_CARD_ASPECT_RATIO]
+postCardAspectRatio: "og",
+
+// [CONFIG:POST_OPTIONS_CUSTOM_POST_CARD_ASPECT_RATIO]
+customPostCardAspectRatio: "2.5/1",
+
+// [CONFIG:POST_OPTIONS_COMMENTS_ENABLED]
+enabled: false,
+```
+
+#### What Happens If Markers Are Missing?
+
+If config markers are missing or malformed:
+
+1. **Plugin validation fails** - Shows error message with missing markers list
+2. **Configuration updates fail** - Plugin cannot update config.ts
+3. **User experience breaks** - Theme changes, presets, and wizard don't work
+4. **Debugging required** - Must manually restore markers
+
+#### How to Add New Markers
+
+When adding new configurable values:
+
+1. **Add marker to config.ts**:
+   ```typescript
+   // [CONFIG:NEW_FEATURE_ENABLED]
+   newFeature: true,
+   ```
+
+2. **Add marker to Obsidian plugin validation**:
+   ```typescript
+   const requiredMarkers = [
+     // ... existing markers
+     'CONFIG:NEW_FEATURE_ENABLED',
+   ];
+   ```
+
+3. **Add replacement logic in Obsidian plugin**:
+   ```typescript
+   modifiedConfig = modifiedConfig.replace(
+     /\/\/ \[CONFIG:NEW_FEATURE_ENABLED\]\s*\n\s*newFeature:\s*(true|false)/,
+     `// [CONFIG:NEW_FEATURE_ENABLED]\n    newFeature: ${settings.newFeature}`
+   );
+   ```
+
+4. **Update plugin documentation** with new marker information
+
+#### Migration Script for Existing Users
+
+For users who have config.ts files without markers, provide a migration script that:
+
+1. **Detects missing markers** in their config.ts
+2. **Adds markers automatically** in the correct locations
+3. **Preserves existing values** while adding markers
+4. **Validates the result** to ensure all markers are present
+
+#### Best Practices for AI Agents
+
+#### ✅ DO:
+- **Always check for markers** before modifying config.ts
+- **Add markers for new configurable values** immediately
+- **Use consistent marker naming** (CONFIG:FEATURE_NAME)
+- **Test marker functionality** after changes
+- **Update plugin code** when adding new markers
+- **Document new markers** in plugin documentation
+
+#### ❌ DON'T:
+- **Remove existing markers** under any circumstances
+- **Modify marker format** or naming
+- **Add configurable values without markers**
+- **Ignore marker validation errors**
+- **Assume markers are optional**
+
+#### Emergency Recovery
+
+If markers are accidentally removed:
+
+1. **Check git history** for last working version with markers
+2. **Use migration script** to restore markers
+3. **Manually add markers** following the standardized format
+4. **Test plugin functionality** to ensure everything works
+5. **Update documentation** to prevent future issues
+
+#### Testing Checklist
+
+Before deploying any changes to config.ts:
+
+- [ ] All existing markers are preserved
+- [ ] New configurable values have markers
+- [ ] Marker format is exactly `// [CONFIG:KEY]`
+- [ ] Plugin validation passes
+- [ ] All preset templates work
+- [ ] Theme changes work
+- [ ] Wizard functionality works
+- [ ] Documentation is updated
+
 ### Theme Customization
 
 #### Available Themes
