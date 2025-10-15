@@ -160,6 +160,10 @@ export interface SiteConfig {
 // ASTRO MODULAR CONFIGURATION
 // ═══════════════════════════════════════════════════════════════════════════════
 // 
+// ⚠️ IMPORTANT: Comment markers like // [CONFIG:KEY] are used by the Astro Modular
+// Settings Obsidian plugin. Do not remove these markers or the plugin will not be
+// able to update your configuration automatically.
+// 
 // Most settings have helpful comments explaining what they do.
 // 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -172,67 +176,98 @@ export const siteConfig: SiteConfig = {
   language: "en",
 
   // Global Settings
+  // [CONFIG:THEME]
   theme: "oxygen", // Available themes: "minimal" | "oxygen" | "atom" | "ayu" | "catppuccin" | "charcoal" | "dracula" | "everforest" | "flexoki" | "gruvbox" | "macos" | "nord" | "obsidian" | "rose-pine" | "sky" | "solarized" | "things" | "custom"
   customThemeFile: "custom", // Only used if theme is set to "custom" above. Filename in src/themes/custom/ (without .ts extension)
   fonts: {
+    // [CONFIG:FONT_SOURCE]
     source: "local", // "local" for self-hosted @fontsource fonts, "cdn" for Google Fonts CDN
     families: {
+      // [CONFIG:FONT_BODY]
       body: "Inter",      // Body text font family
+      // [CONFIG:FONT_HEADING]
       heading: "Inter",   // Heading font family  
+      // [CONFIG:FONT_MONO]
       mono: "JetBrains Mono", // Monospace font family
     },
     display: "swap", // Font display strategy: "swap" (recommended), "fallback", or "optional"
   },
   layout: {
+    // [CONFIG:LAYOUT_CONTENT_WIDTH]
     contentWidth: "45rem",
   },
   footer: {
+    // [CONFIG:FOOTER_ENABLED]
     enabled: true,
     content: `© 2025 {author}. Built with the <a href="https://github.com/davidvkimball/astro-modular" target="_blank">Astro Modular</a> theme.`,
+    // [CONFIG:FOOTER_SHOW_SOCIAL_ICONS]
     showSocialIconsInFooter: true,
   },
+  // [CONFIG:SCROLL_TO_TOP]
   scrollToTop: true,
+  // [CONFIG:DARK_MODE_TOGGLE_BUTTON]
   darkModeToggleButton: "both", // "navigation" | "commandPalette" | "both"
   seo: {
     defaultOgImageAlt: "Astro Modular logo.", // Alt text for the default Open Graph image, public/open-graph.png
   },
   deployment: {
+    // [CONFIG:DEPLOYMENT_PLATFORM]
     platform: "netlify", // "netlify" | "vercel" | "github-pages" - sets redirect configuration for the chosen platform
   },
 
   // Command Palette
   commandPalette: {
+    // [CONFIG:COMMAND_PALETTE_ENABLED]
     enabled: true,
+    // [CONFIG:COMMAND_PALETTE_SHORTCUT]
     shortcut: "ctrl+K",
+    // [CONFIG:COMMAND_PALETTE_PLACEHOLDER]
     placeholder: "Search posts",
     search: {
+      // [CONFIG:COMMAND_PALETTE_SEARCH_POSTS]
       posts: true,
+      // [CONFIG:COMMAND_PALETTE_SEARCH_PAGES]
       pages: false,
+      // [CONFIG:COMMAND_PALETTE_SEARCH_PROJECTS]
       projects: false,
+      // [CONFIG:COMMAND_PALETTE_SEARCH_DOCS]
       docs: false,
     },
     sections: {
+      // [CONFIG:COMMAND_PALETTE_SECTIONS_QUICK_ACTIONS]
       quickActions: true,
+      // [CONFIG:COMMAND_PALETTE_SECTIONS_PAGES]
       pages: true,
+      // [CONFIG:COMMAND_PALETTE_SECTIONS_SOCIAL]
       social: true,
     },
   },
 
   // Profile Picture
   profilePicture: {
+    // [CONFIG:PROFILE_PICTURE_ENABLED]
     enabled: false, 
+    // [CONFIG:PROFILE_PICTURE_IMAGE]
     image: "/profile.jpg", // Path to your profile image (place in public/ directory)
+    // [CONFIG:PROFILE_PICTURE_ALT]
     alt: "Profile picture",
+    // [CONFIG:PROFILE_PICTURE_SIZE]
     size: "md", // "sm" (32px), "md" (48px), or "lg" (64px) - only affects footer placement
+    // [CONFIG:PROFILE_PICTURE_URL]
     url: "/about", // Optional
+    // [CONFIG:PROFILE_PICTURE_PLACEMENT]
     placement: "footer", // "footer" or "header"
+    // [CONFIG:PROFILE_PICTURE_STYLE]
     style: "circle", // "circle", "square", or "none"
   },
 
   // Navigation
   navigation: {
+    // [CONFIG:NAVIGATION_SHOW_NAVIGATION]
     showNavigation: true,
+    // [CONFIG:NAVIGATION_STYLE]
     style: "traditional", // 'minimal' or 'traditional'
+    // [CONFIG:NAVIGATION_SHOW_MOBILE_MENU]
     showMobileMenu: true,
     pages: [
       { title: "Posts", url: "/posts" },
@@ -257,57 +292,86 @@ export const siteConfig: SiteConfig = {
 
   // Optional Content Types - Enable/disable optional content sections (takes priority over homeOptions)
   optionalContentTypes: {
+    // [CONFIG:OPTIONAL_CONTENT_TYPES_PROJECTS]
     projects: true, // Enable projects section
+    // [CONFIG:OPTIONAL_CONTENT_TYPES_DOCS]
     docs: true, // Enable documentation section
   },
 
   // Home Options
   homeOptions: {
     featuredPost: {
+      // [CONFIG:HOME_OPTIONS_FEATURED_POST_ENABLED]
       enabled: true, // Show featured post on homepage
+      // [CONFIG:HOME_OPTIONS_FEATURED_POST_TYPE]
       type: "latest", // "latest" or "featured"
+      // [CONFIG:HOME_OPTIONS_FEATURED_POST_SLUG]
       slug: "getting-started", // Slug of post after '/posts/' to be featured (e.g. "post-title"). Only used when type is "featured"
     },
     recentPosts: {
+      // [CONFIG:HOME_OPTIONS_RECENT_POSTS_ENABLED]
       enabled: true, // Show recent posts on homepage
+      // [CONFIG:HOME_OPTIONS_RECENT_POSTS_COUNT]
       count: 7, // Number of recent posts to show
     },
     projects: {
+      // [CONFIG:HOME_OPTIONS_PROJECTS_ENABLED]
       enabled: true, // Show featured projects on homepage
+      // [CONFIG:HOME_OPTIONS_PROJECTS_COUNT]
       count: 2, // Number of projects to show
     },
     docs: {
+      // [CONFIG:HOME_OPTIONS_DOCS_ENABLED]
       enabled: true, // Show featured docs on homepage
+      // [CONFIG:HOME_OPTIONS_DOCS_COUNT]
       count: 3, // Number of docs to show
     },
     blurb: {
+      // [CONFIG:HOME_OPTIONS_BLURB_PLACEMENT]
       placement: "below", // 'above' (at the top), 'below' (after content), or 'none' (disabled)
     },
   },
 
   // Post Options
   postOptions: {
+    // [CONFIG:POST_OPTIONS_POSTS_PER_PAGE]
     postsPerPage: 6,
+    // [CONFIG:POST_OPTIONS_READING_TIME]
     readingTime: true,
+    // [CONFIG:POST_OPTIONS_WORD_COUNT]
     wordCount: true,
+    // [CONFIG:POST_OPTIONS_TABLE_OF_CONTENTS]
     tableOfContents: true,
+    // [CONFIG:POST_OPTIONS_TAGS]
     tags: true,
     linkedMentions: {
+      // [CONFIG:POST_OPTIONS_LINKED_MENTIONS_ENABLED]
       enabled: true,
+      // [CONFIG:POST_OPTIONS_LINKED_MENTIONS_COMPACT]
       linkedMentionsCompact: false,
     },
     graphView: {
+    // [CONFIG:POST_OPTIONS_GRAPH_VIEW_ENABLED]
     enabled: true,
+      // [CONFIG:POST_OPTIONS_GRAPH_VIEW_SHOW_IN_SIDEBAR]
       showInSidebar: true,
+      // [CONFIG:POST_OPTIONS_GRAPH_VIEW_SHOW_IN_COMMAND_PALETTE]
       showInCommandPalette: true,
+      // [CONFIG:POST_OPTIONS_GRAPH_VIEW_MAX_NODES]
       maxNodes: 100,
+      // [CONFIG:POST_OPTIONS_GRAPH_VIEW_SHOW_ORPHANED_POSTS]
       showOrphanedPosts: true,
     },
+    // [CONFIG:POST_OPTIONS_POST_NAVIGATION]
     postNavigation: true,
+    // [CONFIG:POST_OPTIONS_SHOW_POST_CARD_COVER_IMAGES]
     showPostCardCoverImages: "featured-and-posts", // "all" | "featured" | "home" | "posts" | "featured-and-posts" | "none"
+    // [CONFIG:POST_OPTIONS_POST_CARD_ASPECT_RATIO]
     postCardAspectRatio: "og", // "16:9" | "4:3" | "3:2" | "og" | "square" | "golden" | "custom"
+    // [CONFIG:POST_OPTIONS_CUSTOM_POST_CARD_ASPECT_RATIO]
     customPostCardAspectRatio: "2.5/1", // Only used when postCardAspectRatio is "custom" (e.g., "2.5/1")
     comments: {
+      // [CONFIG:POST_OPTIONS_COMMENTS_ENABLED]
       enabled: false,
       provider: "giscus",
       repo: "davidvkimball/astro-modular",
