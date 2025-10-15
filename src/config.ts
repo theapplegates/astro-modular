@@ -258,7 +258,7 @@ export const siteConfig: SiteConfig = {
   // Optional Content Types - Enable/disable optional content sections (takes priority over homeOptions)
   optionalContentTypes: {
     projects: true, // Enable projects section
-    docs: true,     // Enable documentation section
+    docs: true, // Enable documentation section
   },
 
   // Home Options
@@ -297,7 +297,7 @@ export const siteConfig: SiteConfig = {
       linkedMentionsCompact: false,
     },
     graphView: {
-      enabled: true,
+    enabled: true,
       showInSidebar: true,
       showInCommandPalette: true,
       maxNodes: 100,

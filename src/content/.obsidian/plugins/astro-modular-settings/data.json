@@ -1,6 +1,5 @@
 {
   "runWizardOnStartup": true,
-  "doNotShowWizardAgain": false,
   "currentTemplate": "standard",
   "currentTheme": "oxygen",
   "contentOrganization": "file-based",
@@ -9,7 +8,43 @@
     "tableOfContents": true,
     "readingTime": true,
     "linkedMentions": true,
-    "comments": true
+    "comments": false,
+    "graphView": true,
+    "postNavigation": true,
+    "scrollToTop": true,
+    "darkModeToggleButton": "both",
+    "showSocialIconsInFooter": true,
+    "showPostCardCoverImages": "featured-and-posts",
+    "postCardAspectRatio": "og",
+    "linkedMentionsCompact": false
+  },
+  "typography": {
+    "headingFont": "Inter",
+    "proseFont": "Inter",
+    "monoFont": "JetBrains Mono",
+    "fontSource": "local",
+    "customFonts": {
+      "heading": "",
+      "prose": "",
+      "mono": ""
+    }
+  },
+  "optionalFeatures": {
+    "profilePicture": {
+      "enabled": false,
+      "image": "/profile.jpg",
+      "alt": "Profile picture",
+      "size": "md",
+      "placement": "footer",
+      "style": "circle"
+    },
+    "comments": {
+      "enabled": false,
+      "provider": "giscus"
+    }
+  },
+  "deployment": {
+    "platform": "netlify"
   },
   "pluginConfig": {
     "obsidianSettings": {
