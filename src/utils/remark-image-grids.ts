@@ -19,6 +19,9 @@ export function remarkImageGrids() {
       node.children.forEach((child) => {
         if (child.type === 'image') {
           images.push(child as Image);
+        } else if (child.type === 'link' && child.children && child.children.some((linkChild: any) => linkChild.type === 'image')) {
+          // Skip linked images - they should not be processed as gallery images
+          otherNodes.push(child);
         } else if (child.type !== 'text' || (child as any).value.trim() !== '') {
           // Count non-empty text nodes and other elements as meaningful content
           otherNodes.push(child);

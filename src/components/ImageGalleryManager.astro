@@ -25,8 +25,10 @@ import { siteConfig } from '../config';
     const imageParagraphs: { paragraph: Element; index: number; imageCount: number }[] = [];
     paragraphs.forEach((para, index) => {
       const images = Array.from(para.querySelectorAll('img'));
-      if (images.length > 0) {
-        imageParagraphs.push({ paragraph: para, index: index, imageCount: images.length });
+      // Filter out linked images (images inside <a> tags)
+      const nonLinkedImages = images.filter(img => !img.closest('a'));
+      if (nonLinkedImages.length > 0) {
+        imageParagraphs.push({ paragraph: para, index: index, imageCount: nonLinkedImages.length });
       }
     });
     
@@ -50,8 +52,9 @@ import { siteConfig } from '../config';
           galleryContainer.className = 'image-grid image-grid-4 my-8';
         }
         
-        // Get all images from this paragraph
-        const images = Array.from(paragraph.querySelectorAll('img'));
+        // Get all non-linked images from this paragraph
+        const allImages = Array.from(paragraph.querySelectorAll('img'));
+        const images = allImages.filter(img => !img.closest('a'));
         
         // Check if there's any non-image content (like captions)
         // ONLY for single images - grids don't have captions

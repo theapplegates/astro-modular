@@ -256,6 +256,14 @@ This is a [reference link][1] and this is another [reference link][markdown].
 [1]: https://example.com
 [markdown]: https://daringfireball.net/projects/markdown/
 
+### Linked Images
+
+[![Mountains](/posts/attachments/mountains.png)](https://obsidian.md)
+
+```
+[![Mountains](/posts/attachments/mountains.png)](https://obsidian.md)
+```
+
 ## Mathematical Notation
 
 This theme includes comprehensive LaTeX math support using KaTeX for fast, client-side rendering. All math works seamlessly in both light and dark themes.
