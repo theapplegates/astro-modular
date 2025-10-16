@@ -850,12 +850,14 @@ The `special` collection contains content for specific pages that have special r
 **Files and Their Uses**:
 - **`home.md`** - Homepage blurb content (controlled by `homeOptions.blurb.placement`)
 - **`404.md`** - 404 error page content
+- **`posts.md`** - Posts index page content (meta title, description, H1 heading)
 - **`projects.md`** - Projects index page content (if `homeOptions.projects.enabled: true`)
 - **`docs.md`** - Documentation index page content (if `homeOptions.docs.enabled: true`)
 
 **URL Mapping**:
 - `special/home.md` → `/` (homepage blurb)
 - `special/404.md` → `/404` (404 error page)
+- `special/posts.md` → `/posts` (posts index page)
 - `special/projects.md` → `/projects` (projects index)
 - `special/docs.md` → `/docs` (documentation index)
 
@@ -864,6 +866,78 @@ The `special` collection contains content for specific pages that have special r
 - They use a simplified schema (title, description, hideTOC only)
 - They're processed by the `[...slug].astro` catch-all route
 - They're excluded from the main pages collection to avoid conflicts
+
+#### **Special Pages Detailed Behavior**
+
+**Homepage (`special/home.md`)**:
+- **Purpose**: Controls homepage blurb content
+- **Usage**: Content appears when `homeOptions.blurb.placement` is not "none"
+- **Content**: Markdown content below frontmatter is rendered as the blurb
+- **Fallback**: If file doesn't exist, no blurb is shown
+- **Schema**: `title`, `description`, `hideTOC`
+
+**404 Page (`special/404.md`)**:
+- **Purpose**: Controls 404 error page content
+- **Usage**: Content appears on any "not found" page
+- **Content**: Markdown content below frontmatter is rendered
+- **Fallback**: If file doesn't exist, uses default 404 page
+- **Schema**: `title`, `description`, `hideTOC`
+
+**Posts Index (`special/posts.md`)**:
+- **Purpose**: Controls posts index page meta data and heading
+- **Usage**: `title` field becomes H1 heading and meta title, `description` becomes meta description
+- **Content**: Only frontmatter is used, content below is ignored
+- **Fallback**: If file doesn't exist, uses "All Posts" title and dynamic description
+- **Schema**: `title`, `description` (no content below frontmatter)
+- **Dynamic Behavior**: When tag filtering is active, uses dynamic title/description logic
+
+**Projects Index (`special/projects.md`)**:
+- **Purpose**: Controls projects index page content
+- **Usage**: Content appears when `homeOptions.projects.enabled: true`
+- **Content**: Markdown content below frontmatter is rendered
+- **Fallback**: If file doesn't exist, uses default projects page
+- **Schema**: `title`, `description`, `hideTOC`
+
+**Documentation Index (`special/docs.md`)**:
+- **Purpose**: Controls documentation index page content
+- **Usage**: Content appears when `homeOptions.docs.enabled: true`
+- **Content**: Markdown content below frontmatter is rendered
+- **Fallback**: If file doesn't exist, uses default docs page
+- **Schema**: `title`, `description`, `hideTOC`
+
+#### **Special Pages Implementation Details**
+
+**Content Loading Pattern**:
+```typescript
+// Example from posts/index.astro
+let postsPageContent;
+try {
+  postsPageContent = await getCollection('special', ({ slug }) => slug === 'posts');
+} catch (error) {
+  postsPageContent = [];
+}
+const postsPageData = postsPageContent.length > 0 ? postsPageContent[0] : null;
+```
+
+**Fallback Logic**:
+- **Title**: `postsPageData?.data.title || 'Default Title'`
+- **Description**: `postsPageData?.data.description || 'Dynamic Description'`
+- **Content**: Only used for pages that support content (home, 404, projects, docs)
+
+**Schema Differences**:
+- **Posts**: Only uses frontmatter (`title`, `description`)
+- **Others**: Use frontmatter + content below frontmatter
+- **All**: Support `hideTOC` field for table of contents control
+
+**URL Generation**:
+- **Fixed URLs**: Special pages have predetermined URLs based on filename
+- **No Slug Processing**: URLs are not generated from frontmatter titles
+- **Catch-all Route**: All special pages are handled by `[...slug].astro`
+
+**Error Handling**:
+- **Graceful Fallbacks**: All special pages have fallback behavior if files don't exist
+- **Try-Catch Blocks**: Content loading is wrapped in try-catch for robustness
+- **Empty Collections**: Handles cases where special collection doesn't exist
 
 #### **Custom Collections**
 

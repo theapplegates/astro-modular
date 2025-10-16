@@ -410,14 +410,15 @@ src/content/
 ## Content Organization
 
 ### Special Content Collection
-Special index pages (homepage blurb, 404, projects index, docs index) are handled by the `special` content collection in `src/content/special/`:
+Special index pages are handled by the `special` content collection in `src/content/special/`:
 
 - **`home.md`** - Homepage blurb content
-- **`404.md`** - 404 error page
+- **`404.md`** - 404 error page  
+- **`posts.md`** - Posts index page (title, description, H1)
 - **`projects.md`** - Projects index page content
 - **`docs.md`** - Documentation index page content
 
-These pages have minimal frontmatter and fixed URLs to prevent accidental breakage of core functionality.
+These pages have fixed URLs and minimal frontmatter to prevent accidental breakage of core functionality. Most support content below frontmatter, except `posts.md` which only uses frontmatter fields.
 
 ### Optional Content Types
 You can globally enable/disable optional content sections in `src/config.ts`:

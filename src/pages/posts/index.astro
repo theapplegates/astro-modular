@@ -10,6 +10,17 @@ import Tags from '@/components/Tags.astro';
 import Pagination from '@/components/Pagination.astro';
 import Icon from '@/components/Icon.astro';
 
+// Get special content for posts page
+let postsPageContent;
+try {
+  postsPageContent = await getCollection('special', ({ slug }) => slug === 'posts');
+} catch (error) {
+  // Fallback if special collection doesn't exist or posts.md doesn't exist
+  postsPageContent = [];
+}
+
+const postsPageData = postsPageContent.length > 0 ? postsPageContent[0] : null;
+
 // Get query parameters
 const url = new URL(Astro.request.url);
 const selectedTag = url.searchParams.get('tag');
@@ -44,10 +55,10 @@ const allTags = extractTags(sortedPosts);
 // Generate SEO data
 const pageTitle = selectedTag 
   ? `Posts tagged "${selectedTag}"` 
-  : 'All Posts';
+  : (postsPageData?.data.title || 'All Posts');
 const pageDescription = selectedTag 
   ? `All posts tagged with "${selectedTag}"`
-  : `Browse all ${totalPosts} posts on ${siteConfig.title}`;
+  : (postsPageData?.data.description || `Browse all ${totalPosts} posts on ${siteConfig.title}`);
 
 const seoData = {
   title: `${pageTitle} | ${siteConfig.title}`,
