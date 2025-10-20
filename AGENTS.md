@@ -4172,14 +4172,35 @@ The comments are styled to match your theme automatically. If you see styling is
 
 #### 8. **🚨 FAVICON THEME BEHAVIOR (CRITICAL)**
 - **Favicon should NOT change with manual theme toggle** - it should only change with browser system theme
-- **System theme detection**: Use `window.matchMedia('(prefers-color-scheme: dark)')` to detect browser preference
-- **Favicon logic**: 
-  - `prefers-color-scheme: dark` → use `favicon-dark.png`
-  - `prefers-color-scheme: light` → use `favicon-light.png`
-  - Unknown/unsupported → use default `favicon.ico`
-- **Swup compatibility**: Reinitialize favicon after page transitions based on SYSTEM theme, not user's manual theme choice
-- **NEVER update favicon** when user manually toggles theme - only when system theme changes
-- **Implementation**: Use CSS media queries + JavaScript system theme detection, not manual theme state
+- **SIMPLE WORKING IMPLEMENTATION** (20 lines max, add to BaseLayout.astro script section):
+  ```javascript
+  // Simple favicon function - follows system theme only
+  function setFavicon() {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const faviconUrl = prefersDark ? '/favicon-dark.png' : '/favicon-light.png';
+    
+    // Remove existing favicon
+    const existingFavicon = document.querySelector('link[rel="icon"]');
+    if (existingFavicon) existingFavicon.remove();
+    
+    // Add new favicon
+    const faviconLink = document.createElement('link');
+    faviconLink.rel = 'icon';
+    faviconLink.href = faviconUrl;
+    document.head.appendChild(faviconLink);
+  }
+
+  // Set favicon on load
+  setFavicon();
+
+  // Update favicon when system theme changes
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', setFavicon);
+  ```
+- **DO NOT** modify existing theme logic - add favicon code separately
+- **DO NOT** use complex logic - keep it simple  
+- **DO NOT** tie to localStorage - system theme only
+- **Files**: Use `.png` format (matches existing favicon files)
+- **Behavior**: Favicon reflects OS/browser theme preference, ignores website theme toggle
 
 #### 9. **🎨 COLOR USAGE (CRITICAL)**
 - **NEVER use hardcoded colors** - Always use theme variables from `src/themes/index.ts`
