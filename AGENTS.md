@@ -37,7 +37,9 @@ This document contains essential information for AI agents working with this Ast
 5. [Image Handling](#image-handling)
 6. [Mathematical Notation Support](#mathematical-notation-support)
 7. [Mermaid Diagram Support](#mermaid-diagram-support)
-8. [Build Process](#build-process)
+8. [Interactive Force-Graph Implementation](#interactive-force-graph-implementation)
+9. [Command Palette Theme Switcher](#command-palette-theme-switcher)
+10. [Build Process](#build-process)
    - [RSS and Atom Feeds](#rss-and-atom-feeds)
 9. [Theme Updates](#theme-updates)
 10. [Version Management](#version-management)
@@ -3459,6 +3461,369 @@ The Mermaid implementation maintains full compatibility with Obsidian:
 - **Memory management**: Clear cache when needed for development
 
 This comprehensive Mermaid support maintains the theme's core principles of clarity, performance, and Obsidian compatibility while providing powerful diagram capabilities with optimized performance.
+
+## Interactive Force-Graph Implementation
+
+### Overview
+
+The theme includes a comprehensive interactive Force-Graph implementation using D3.js force simulation, providing a fully interactive, physics-based visualization system for post connections and relationships.
+
+### Implementation Details
+
+#### Dependencies
+- **D3.js**: Core D3 library for force simulation and SVG rendering
+- **Custom theme integration**: Dynamic color adaptation across all 17+ themes
+- **Performance optimizations**: Efficient rendering with optimized force simulation settings
+
+#### Components
+
+**GraphModal.astro** - Global graph view:
+- **Full-screen modal** with interactive D3 force simulation
+- **Node interactions**: Click to navigate (uses Swup for smooth transitions), drag to reposition
+- **Hover effects**: Visual feedback with connected node highlighting
+- **Keyboard shortcuts**: Escape to close, R to reset zoom, C to center
+- **Theme integration**: Automatic color adaptation on theme changes
+- **Performance**: Optimized rendering with cooldown and alpha decay settings
+- **Data source**: Uses `/graph/graph-data.json` for graph data
+
+**LocalGraph.astro** - Sidebar graph view:
+- **Compact sidebar display** (280x280px) with interactive D3 force simulation
+- **Filtered view**: Shows only directly connected posts to current post
+- **Fullscreen mode**: Expand to full-screen modal
+- **Global graph access**: Button to open full global graph modal
+- **Mobile responsive**: Adapts to smaller screens (240x240px)
+- **Theme integration**: Consistent styling across all themes
+- **Conditional display**: Only shows if posts have connections or tags
+
+#### Theme Integration
+
+**Shared Color System** (`src/utils/graph-theme-colors.ts`):
+- **Consistent colors**: Unified color system across both graph components
+- **Dynamic adaptation**: Colors update automatically on theme changes
+- **CSS custom properties**: Reads theme colors from CSS variables
+- **RGB to Hex conversion**: Converts CSS RGB format to hex for graph rendering
+- **Fallback support**: Graceful degradation when theme colors aren't available
+
+**Color Properties**:
+- **Node colors**: `postFill`, `postStroke`, `postText`, `tagFill`, `tagStroke`, `tagText`
+- **Link colors**: `linkStroke`, `highlight`
+- **Background colors**: `background`, `backgroundSecondary` (theme-aware for light/dark mode)
+- **State colors**: Hover and highlight effects using theme highlight colors
+
+**Theme Change Listeners**:
+- **Event-driven updates**: Both graph components listen for `themechange` events
+- **Automatic re-rendering**: Graphs re-render with new colors when themes change
+- **Real-time updates**: No page reload required for theme changes
+- **Consistent behavior**: Both LocalGraph and GraphModal update simultaneously
+
+#### Interactive Features
+
+**Node Interactions**:
+- **Click navigation**: Click posts to navigate (uses Swup for smooth transitions)
+- **Drag positioning**: Drag nodes to reposition them (fixed position after drag)
+- **Hover effects**: Visual feedback with connected node highlighting
+
+**Graph Controls**:
+- **Pan and zoom**: Mouse wheel zoom, drag to pan (on empty space)
+- **Keyboard shortcuts**: 
+  - `Escape`: Close modal
+  - `R`: Reset zoom and center
+  - `C`: Center graph (fit to view)
+- **Touch support**: Mobile-friendly interactions
+
+**Visual States**:
+- **Normal state**: Default theme colors
+- **Hover state**: Highlight colors for visual feedback
+- **Highlighted state**: Connected nodes highlighted on hover
+- **Loading state**: Spinner animation during data loading
+
+#### Performance Optimizations
+
+**Rendering Performance**:
+- **Force simulation**: Uses D3 force simulation with link, charge, center, and collision forces
+- **Alpha targeting**: Dynamic alpha values for smooth animation control
+- **SVG rendering**: Efficient SVG-based node drawing
+- **Event filtering**: Prevents zoom conflicts during node dragging
+
+**Memory Management**:
+- **Event cleanup**: Proper removal of event listeners
+- **Simulation cleanup**: Force simulation cleanup on modal close
+- **Observer cleanup**: MutationObserver cleanup for theme changes
+- **Instance cleanup**: SVG and simulation instance cleanup
+
+#### Data Processing
+
+**Graph Data Structure**:
+```typescript
+{
+  nodes: [
+    {
+      id: string,           // Post slug
+      type: "post",         // Node type (always "post" for current implementation)
+      title: string,        // Post title
+      slug: string,         // Post slug for navigation
+      date: string,         // Post date (ISO format)
+      connections: number   // Number of connections
+    }
+  ],
+  connections: [
+    {
+      source: string,       // Source node ID
+      target: string,       // Target node ID
+      type: string         // Connection type
+    }
+  ]
+}
+```
+
+**Local Graph Filtering**:
+- **Direct connections only**: Shows only posts directly linked to current post
+- **Efficient filtering**: O(n) filtering algorithm for performance
+- **Cached results**: Filtered data cached for fullscreen mode
+- **Fallback handling**: Graceful handling when no connections exist
+
+#### Integration with Existing Systems
+
+**Swup Integration**:
+- **Smooth navigation**: Uses Swup for page transitions when available
+- **Fallback support**: Standard navigation when Swup unavailable
+- **Event handling**: Proper cleanup on page transitions
+
+**Theme System Integration**:
+- **Automatic updates**: Colors update when theme changes
+- **CSS variable reading**: Reads colors from CSS custom properties
+- **MutationObserver**: Watches for theme class changes
+- **Consistent styling**: Matches theme colors across all components
+
+**Command Palette Integration**:
+- **Global graph access**: Button in command palette to open global graph
+- **Keyboard shortcuts**: Consistent with command palette shortcuts
+- **Modal management**: Proper z-index and focus management
+
+### Best Practices for AI Agents
+
+#### Force-Graph Implementation
+- **Always use shared utilities**: Use `getGraphThemeColors()` for consistent colors
+- **Handle cleanup properly**: Always clean up event listeners and observers
+- **Test interactions**: Verify drag, click, hover, and keyboard interactions
+- **Monitor performance**: Check bundle size impact and rendering performance
+
+#### Theme Integration
+- **Use CSS custom properties**: Read colors from CSS variables, not hardcoded values
+- **Test all themes**: Verify graphs work across all 17+ available themes
+- **Handle fallbacks**: Provide fallback colors when CSS variables unavailable
+- **Update on changes**: Use MutationObserver for theme change detection
+
+#### Performance Considerations
+- **Lazy loading**: Load graph data only when needed
+- **Efficient rendering**: Use cooldown and decay settings appropriately
+- **Memory management**: Clean up instances and observers properly
+- **Bundle size**: Monitor impact of force-graph library on bundle size
+
+#### User Experience
+- **Smooth interactions**: Ensure drag, click, and hover feel responsive
+- **Keyboard accessibility**: Provide keyboard shortcuts for all major actions
+- **Mobile support**: Test touch interactions on mobile devices
+- **Loading states**: Show appropriate loading indicators
+
+#### Technical Implementation
+
+**Core Files**:
+- **`src/components/GraphModal.astro`**: Full-screen graph modal with D3 force simulation
+- **`src/components/LocalGraph.astro`**: Sidebar graph component with filtered view
+- **`src/utils/graph-theme-colors.ts`**: Shared color system for consistent theming
+- **`scripts/generate-graph-data.js`**: Build-time script to generate graph data JSON
+
+**Key Functions**:
+- **`getGraphThemeColors()`**: Reads CSS custom properties and converts to hex colors
+- **`renderGraph()`**: Sets up D3 force simulation with theme-aware colors
+- **`handleThemeChange()`**: Re-renders graphs when themes change
+- **`fitToGraph()`**: Centers and scales graph to fit viewport
+
+**Data Processing**:
+- **Graph Data**: Generated at build time in `/graph/graph-data.json`
+- **Node Structure**: Posts with connections, titles, slugs, and dates
+- **Link Structure**: Connections between posts based on internal links
+- **Filtering**: LocalGraph shows only directly connected posts
+
+**Performance Optimizations**:
+- **Force Simulation**: Uses D3's optimized force simulation with alpha decay
+- **Event Handling**: Efficient event listeners with proper cleanup
+- **Memory Management**: Automatic cleanup of simulations and observers
+- **Theme Caching**: Colors cached to prevent repeated CSS variable reads
+
+This comprehensive Force-Graph implementation maintains the theme's core principles of clarity, performance, and Obsidian compatibility while providing powerful interactive graph capabilities.
+
+## Command Palette Theme Switcher
+
+### Overview
+
+The theme includes a comprehensive theme switcher integrated into the command palette, allowing users to change themes instantly without navigating to settings pages.
+
+### Implementation Details
+
+#### Command Palette Integration
+- **Quick Actions Section**: "Change Theme" button in command palette quick actions
+- **Theme Selection Interface**: Built-in theme list with current theme highlighting
+- **Instant Switching**: Real-time theme changes with smooth transitions
+- **Persistence**: Theme selection saved to localStorage
+- **Default Theme Display**: Shows default theme from config at top with "(Default)" label
+- **Custom Theme Logic**: Only shows custom theme when config has `theme: "custom"`
+
+#### Theme Selection Interface
+
+**List Design**:
+- **Vertical List**: Clean vertical list of all available themes
+- **Current Theme**: Clearly highlighted with checkmark icon
+- **Default Theme**: Shows default theme from config with "(Default)" label
+- **Theme Names**: Clear, readable theme names with proper capitalization
+- **Hover Effects**: Visual feedback on theme selection hover
+- **Keyboard Navigation**: Full keyboard support for theme selection
+
+**Theme Display**:
+- **Theme Names**: Properly formatted theme names (e.g., "Rose Pine", "JetBrains Mono")
+- **Selection State**: Visual indication of currently selected theme with checkmark
+- **Default Indication**: Clear labeling of the default theme from configuration
+- **Custom Theme Support**: Only displays custom theme when explicitly configured
+
+#### Theme Switching Logic
+
+**Instant Application**:
+- **CSS Variable Updates**: Updates CSS custom properties for theme colors dynamically
+- **Component Updates**: Triggers theme change events for graph components
+- **Smooth Transitions**: CSS transitions for smooth color changes
+- **Real-time Updates**: All components update immediately without page reload
+
+**Persistence System**:
+- **localStorage**: Saves selected theme to `selectedTheme` key
+- **Initialization**: Loads saved theme on page load, falls back to config default
+- **Config Integration**: Reads default theme from `siteConfig.theme` in config.ts
+- **Cross-session**: Theme persists across browser sessions and server restarts
+- **Custom Theme Support**: Only shows custom theme when `config.ts` has `theme: "custom"`
+- **Priority Order**: 1) User preference, 2) Config default, 3) Fallback to 'oxygen'
+
+#### Available Themes
+
+**17 Built-in Themes**:
+- **Oxygen** (default) - Modern, clean design
+- **Minimal** - Understated with high contrast
+- **Atom** - Dark theme with vibrant accents
+- **Ayu** - Clean, minimal design with warm accents
+- **Catppuccin** - Pastel color palette
+- **Charcoal** - Dark, professional look
+- **Dracula** - Dark theme with purple accents
+- **Everforest** - Soft, warm colors
+- **Flexoki** - Based on Material Design 3
+- **Gruvbox** - Retro groove color scheme
+- **macOS** - Native macOS appearance
+- **Nord** - Arctic-inspired color palette
+- **Obsidian** - Matches Obsidian's default theme
+- **Rose Pine** - All natural pine, faux fir, and winter
+- **Sky** - Light, airy design
+- **Solarized** - Precision colors for machines and people
+- **Things** - Clean, minimal design
+
+**Custom Theme Support**:
+- **Template System**: Use `src/themes/custom/custom.ts` as starting point
+- **Configuration**: Set `theme: "custom"` and `customThemeFile: "filename"` in config
+- **Multiple Themes**: Copy and rename template file, change `customThemeFile`
+- **Real-time Preview**: Changes visible immediately with `pnpm dev`
+
+#### Technical Implementation
+
+**Command Palette Integration** (`src/components/CommandPalette.astro`):
+- **Quick Actions Section**: "Change Theme" button in command palette quick actions
+- **Theme Selection Interface**: Built-in theme list with current theme highlighting
+- **Default Theme Display**: Shows default theme from config at top with "(Default)" label
+- **Custom Theme Logic**: Only shows custom theme when config has `theme: "custom"`
+
+**Theme Application**:
+```typescript
+// Uses global changeTheme function from BaseLayout.astro
+async function applyTheme(themeName: string) {
+  if (window.changeTheme) {
+    await window.changeTheme(themeName);
+  }
+}
+
+// BaseLayout.astro implementation
+async function changeTheme(theme) {
+  localStorage.setItem('selectedTheme', theme);
+  document.documentElement.setAttribute('data-theme', theme);
+  await updateThemeCSSVariables(theme);
+  window.dispatchEvent(new CustomEvent('themechange', { detail: { theme } }));
+}
+```
+
+**CSS Custom Properties System**:
+- **Dynamic Updates**: `updateThemeCSSVariables()` function updates CSS custom properties
+- **RGB Format**: CSS variables stored as `"255 255 255"` format
+- **Theme Definitions**: All 17+ themes defined in BaseLayout.astro
+- **Custom Theme Loading**: Dynamic import of custom theme files when needed
+
+#### Integration with Graph Components
+
+**Automatic Updates**:
+- **Event Listeners**: Both LocalGraph and GraphModal listen for `themechange` events
+- **Real-time Updates**: Colors change instantly without page reload
+- **Consistent Styling**: All graph elements use theme colors from `getGraphThemeColors()`
+- **RGB to Hex Conversion**: Graph utility converts CSS RGB format to hex colors
+
+**Event Handling**:
+- **Theme Change Events**: Custom `themechange` events dispatched from BaseLayout
+- **Component Updates**: Graph components re-render with new colors on theme change
+- **Data Refresh**: Graphs fetch fresh data and re-render when themes change
+- **State Management**: Proper cleanup and re-initialization of graph instances
+
+#### User Experience Features
+
+**Smooth Transitions**:
+- **CSS Transitions**: Smooth color transitions between themes
+- **Loading States**: Appropriate loading indicators during theme changes
+- **Visual Feedback**: Clear indication of theme selection and changes
+- **Error Handling**: Graceful fallbacks if theme loading fails
+
+**Accessibility**:
+- **Keyboard Navigation**: Full keyboard support for theme selection
+- **Screen Reader Support**: Proper ARIA labels and descriptions
+- **Focus Management**: Proper focus handling in modal
+- **High Contrast**: All themes support high contrast modes
+
+**Performance**:
+- **Lazy Loading**: Theme data loaded only when needed
+- **Efficient Updates**: Minimal DOM updates during theme changes
+- **Caching**: Theme data cached for faster subsequent loads
+- **Bundle Optimization**: Only active theme CSS included in bundle
+
+### Best Practices for AI Agents
+
+#### Theme Switcher Implementation
+- **Always use global functions**: Use `window.changeTheme()` from BaseLayout.astro
+- **Handle persistence correctly**: Save to `selectedTheme` localStorage key, not `astro-modular-theme`
+- **Test all themes**: Verify switcher works with all available themes
+- **Handle custom themes**: Only show custom theme when config has `theme: "custom"`
+- **Config integration**: Always read default theme from `siteConfig.theme`
+
+#### Command Palette Integration
+- **Consistent UI**: Match command palette styling and behavior
+- **Default theme display**: Show default theme at top with "(Default)" label
+- **Custom theme logic**: Only include custom theme when config specifies it
+- **Event handling**: Clean up event listeners properly
+
+#### Theme System Integration
+- **CSS Custom Properties**: Use CSS variables for dynamic theming
+- **RGB Format**: CSS variables stored as space-separated RGB values
+- **Dynamic Updates**: Update colors dynamically without page reload
+- **Component Integration**: Ensure all components respond to theme changes
+- **Performance**: Minimize DOM updates during theme changes
+
+#### User Experience
+- **Smooth Transitions**: Provide smooth visual transitions between themes
+- **Visual Feedback**: Clear indication of theme selection and changes
+- **Error Handling**: Graceful fallbacks if theme loading fails
+- **Accessibility**: Ensure theme switcher is accessible to all users
+
+This comprehensive theme switcher implementation maintains the theme's core principles of clarity, performance, and Obsidian compatibility while providing powerful theme management capabilities.
 
 ## Native Obsidian Embed Support
 

@@ -87,8 +87,8 @@ import Icon from './Icon.astro';
                   data-action="toggle-theme"
                   class="w-full flex items-center space-x-3 px-3 py-2 text-left hover:bg-primary-50 dark:hover:bg-primary-800 rounded-lg transition-colors group"
                 >
-                  <Icon name="palette" class="w-4 h-4 text-primary-500 dark:text-primary-400 group-hover:text-highlight-500" />
-                  <span class="text-primary-900 dark:text-primary-50">Toggle Theme</span>
+                  <Icon name="sun-moon" class="w-4 h-4 text-primary-500 dark:text-primary-400 group-hover:text-highlight-500" />
+                  <span class="text-primary-900 dark:text-primary-50">Toggle Light/Dark Mode</span>
                 </button>
               )}
               
@@ -101,6 +101,14 @@ import Icon from './Icon.astro';
                   <span class="text-primary-900 dark:text-primary-50">Graph View</span>
                 </button>
               )}
+              
+              <button 
+                data-action="change-theme"
+                class="w-full flex items-center space-x-3 px-3 py-2 text-left hover:bg-primary-50 dark:hover:bg-primary-800 rounded-lg transition-colors group"
+              >
+                <Icon name="palette" class="w-4 h-4 text-primary-500 dark:text-primary-400 group-hover:text-highlight-500" />
+                <span class="text-primary-900 dark:text-primary-50">Change Theme</span>
+              </button>
             </div>
           ))}
 
@@ -150,6 +158,18 @@ import Icon from './Icon.astro';
         <!-- Search results will be populated here -->
         <div id="command-palette-search-results" class="hidden divide-y divide-primary-200 dark:divide-primary-700 transition-opacity duration-200">
         </div>
+
+        <!-- Theme Selection -->
+        <div id="command-palette-theme-selection" class="hidden divide-y divide-primary-200 dark:divide-primary-700">
+          <div class="p-2">
+            <div class="px-3 py-2 text-xs font-medium text-primary-500 dark:text-primary-400 uppercase tracking-wide">
+              Choose Theme
+            </div>
+            <div id="theme-list" class="space-y-1">
+              <!-- Themes will be populated here -->
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Footer -->
@@ -185,6 +205,8 @@ import Icon from './Icon.astro';
     private noResults: HTMLElement;
     private defaultItems: HTMLElement;
     private searchResults: HTMLElement;
+    private themeSelection: HTMLElement;
+    private themeList: HTMLElement;
     private isOpen: boolean = false;
     private selectedIndex: number = -1;
     private items: CommandPaletteItem[] = []; // Holds all fetched items
@@ -209,11 +231,14 @@ import Icon from './Icon.astro';
       this.noResults = document.getElementById('command-palette-no-results')!;
       this.defaultItems = document.getElementById('command-palette-default')!;
       this.searchResults = document.getElementById('command-palette-search-results')!;
+      this.themeSelection = document.getElementById('command-palette-theme-selection')!;
+      this.themeList = document.getElementById('theme-list')!;
 
       // Initialize the palette and preload data
       this.init();
       this.loadSearchHistory();
       this.preloadData();
+      // Don't call setInitialTheme() - theme management is handled by BaseLayout.astro
     }
 
     private init() {
@@ -243,8 +268,8 @@ import Icon from './Icon.astro';
       this.input.addEventListener('input', (e) => this.handleSearch((e.target as HTMLInputElement).value));
       this.input.addEventListener('keydown', (e) => this.handleKeyDown(e));
 
-      // Add event listener for quick actions (like theme toggle)
-      document.addEventListener('click', (e) => {
+      // Add event listener for quick actions (like theme toggle) - only within command palette
+      this.overlay.addEventListener('click', (e) => {
         const target = e.target as HTMLElement;
         const actionButton = target.closest('[data-action]');
         if (actionButton) {
@@ -545,8 +570,7 @@ import Icon from './Icon.astro';
       // Don't reset selectedIndex - preserve last selection for better UX
       this.showDefault(); // Show default items initially
       document.body.style.overflow = 'hidden'; // Prevent background scrolling
-      // Set initial theme preference
-      this.setInitialTheme();
+      // Don't call setInitialTheme() here - it should only be called once during initialization
       
       // Apply visual highlighting to the preserved selection after a brief delay
       // to ensure the DOM is ready
@@ -585,6 +609,7 @@ import Icon from './Icon.astro';
       this.inlineLoading.classList.add('hidden');
       this.noResults.classList.add('hidden');
       this.searchResults.classList.add('hidden');
+      this.themeSelection.classList.add('hidden');
       this.defaultItems.classList.remove('hidden');
     }
 
@@ -592,6 +617,7 @@ import Icon from './Icon.astro';
       this.defaultItems.classList.add('hidden');
       this.noResults.classList.add('hidden');
       this.searchResults.classList.add('hidden');
+      this.themeSelection.classList.add('hidden');
       this.loading.classList.add('hidden');
       this.inlineLoading.classList.remove('hidden');
     }
@@ -601,6 +627,7 @@ import Icon from './Icon.astro';
       this.loading.classList.add('hidden');
       this.inlineLoading.classList.add('hidden');
       this.searchResults.classList.add('hidden');
+      this.themeSelection.classList.add('hidden');
       this.noResults.classList.remove('hidden');
     }
 
@@ -609,7 +636,17 @@ import Icon from './Icon.astro';
       this.loading.classList.add('hidden');
       this.inlineLoading.classList.add('hidden');
       this.noResults.classList.add('hidden');
+      this.themeSelection.classList.add('hidden');
       this.searchResults.classList.remove('hidden');
+    }
+
+    private showThemeSelection() {
+      this.defaultItems.classList.add('hidden');
+      this.loading.classList.add('hidden');
+      this.inlineLoading.classList.add('hidden');
+      this.noResults.classList.add('hidden');
+      this.searchResults.classList.add('hidden');
+      this.themeSelection.classList.remove('hidden');
     }
 
     private showInlineLoading() {
@@ -969,15 +1006,19 @@ import Icon from './Icon.astro';
     }
 
     private handleKeyDown(e: KeyboardEvent) {
-      // Check if we're showing search results or default items
+      // Check if we're showing search results, default items, or theme selection
       const searchResultsVisible = !this.searchResults.classList.contains('hidden');
       const defaultItemsVisible = !this.defaultItems.classList.contains('hidden');
+      const themeSelectionVisible = !this.themeSelection.classList.contains('hidden');
       
       let items: NodeListOf<Element>;
       
       if (searchResultsVisible) {
         // Get search result items
         items = this.searchResults.querySelectorAll('.command-palette-item');
+      } else if (themeSelectionVisible) {
+        // Get theme selection items
+        items = this.themeList.querySelectorAll('button');
       } else if (defaultItemsVisible) {
         // Get default items (quick actions, pages, social links)
         items = this.defaultItems.querySelectorAll('a, button[data-action]');
@@ -1074,10 +1115,16 @@ import Icon from './Icon.astro';
                 window.location.href = anchor.href;
               }
             }
-          } else if (item.tagName === 'BUTTON' && item.hasAttribute('data-action')) {
-            // Handle action buttons (like theme toggle)
-            const action = item.getAttribute('data-action');
-            this.executeAction(action!);
+          } else if (item.tagName === 'BUTTON') {
+            if (item.hasAttribute('data-action')) {
+              // Handle action buttons (like theme toggle)
+              const action = item.getAttribute('data-action');
+              this.executeAction(action!);
+            } else if (item.hasAttribute('data-theme')) {
+              // Handle theme selection buttons
+              const theme = item.getAttribute('data-theme');
+              this.selectTheme(theme!);
+            }
           }
         }, 50); // Small delay to ensure cleanup is complete
       }
@@ -1091,6 +1138,12 @@ import Icon from './Icon.astro';
             (window as any).toggleTheme();
           }
           this.close(); // Close palette after action
+          break;
+        case 'change-theme':
+          // Show theme selection interface
+          this.populateThemeList();
+          this.showThemeSelection();
+          this.selectedIndex = -1; // Reset selection
           break;
         case 'open-graph':
           // Open graph modal
@@ -1116,19 +1169,111 @@ import Icon from './Icon.astro';
       }
     }
 
+    private populateThemeList() {
+      // Available themes from src/themes/index.ts
+      const allThemes = [
+        'minimal', 'oxygen', 'atom', 'ayu', 'catppuccin', 'charcoal', 'dracula', 
+        'everforest', 'flexoki', 'gruvbox', 'macos', 'nord', 'obsidian', 
+        'rose-pine', 'sky', 'solarized', 'things'
+      ];
+
+      // Get current theme from localStorage, data-theme attribute, or config
+      let currentTheme = localStorage.getItem('selectedTheme');
+      
+      // If no stored theme, check the current data-theme attribute
+      if (!currentTheme) {
+        currentTheme = document.documentElement.getAttribute('data-theme');
+      }
+      
+      // If still no theme, use config default
+      if (!currentTheme) {
+        currentTheme = (window as any).siteConfig?.theme || 'oxygen';
+      }
+
+      // Get default theme from config
+      const defaultTheme = (window as any).siteConfig?.theme || 'oxygen';
+      
+      // Only include 'custom' in the list if config theme is set to 'custom'
+      const configTheme = (window as any).siteConfig?.theme;
+      if (configTheme === 'custom') {
+        allThemes.push('custom');
+      }
+      
+      // Reorder themes to put default theme first
+      const themes = [defaultTheme, ...allThemes.filter(theme => theme !== defaultTheme)];
+
+      this.themeList.innerHTML = '';
+
+      themes.forEach((theme, index) => {
+        const button = document.createElement('button');
+        const isCurrentTheme = theme === currentTheme;
+        const isDefaultTheme = theme === defaultTheme;
+        
+        button.className = `w-full flex items-center justify-between px-3 py-2 text-left hover:bg-primary-50 dark:hover:bg-primary-800 rounded-lg transition-colors group ${isCurrentTheme ? 'bg-primary-50 dark:bg-primary-800' : ''}`;
+        button.dataset.theme = theme;
+        button.dataset.index = index.toString();
+
+        const themeName = theme.charAt(0).toUpperCase() + theme.slice(1).replace('-', ' ');
+        const displayName = isDefaultTheme ? `${themeName} (Default)` : themeName;
+        
+        button.innerHTML = `
+          <span class="text-primary-900 dark:text-primary-50">${displayName}</span>
+          ${isCurrentTheme ? '<svg class="w-4 h-4 text-highlight-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>' : ''}
+        `;
+
+        button.addEventListener('click', () => {
+          this.selectTheme(theme);
+        });
+
+        this.themeList.appendChild(button);
+      });
+    }
+
+    private async selectTheme(theme: string) {
+      // Apply theme change
+      await this.applyTheme(theme);
+      
+      // Update the theme list to reflect the new selection
+      this.populateThemeList();
+      
+      // Close the palette
+      this.close();
+    }
+
+    private async applyTheme(themeName: string) {
+      // Use the global changeTheme function from BaseLayout.astro
+      if ((window as any).changeTheme) {
+        await (window as any).changeTheme(themeName);
+      } else {
+        // Fallback if global function is not available
+        localStorage.setItem('selectedTheme', themeName);
+        document.documentElement.setAttribute('data-theme', themeName);
+        
+        // Trigger theme change event for other components
+        window.dispatchEvent(new CustomEvent('themechange', { 
+          detail: { theme: themeName } 
+        }));
+      }
+    }
+
     // Method to set the initial theme based on user preference or system default
     private setInitialTheme() {
-      const savedTheme = localStorage.getItem('theme');
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
+      // Only set theme if no theme is currently applied
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      if (currentTheme) {
+        // Theme is already applied, don't override it
+        return;
+      }
+      
+      const savedTheme = localStorage.getItem('selectedTheme');
+      
       if (savedTheme) {
         document.documentElement.setAttribute('data-theme', savedTheme);
-      } else if (prefersDark) {
-        document.documentElement.setAttribute('data-theme', 'dark');
-        localStorage.setItem('theme', 'dark');
       } else {
-        document.documentElement.setAttribute('data-theme', 'light');
-        localStorage.setItem('theme', 'light');
+        // Use default theme from config or fallback to oxygen
+        const defaultTheme = (window as any).siteConfig?.theme || 'oxygen';
+        document.documentElement.setAttribute('data-theme', defaultTheme);
+        localStorage.setItem('selectedTheme', defaultTheme);
       }
     }
   }

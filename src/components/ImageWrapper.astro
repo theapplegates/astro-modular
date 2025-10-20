@@ -112,12 +112,7 @@ if (isLocal) {
     
     // Debug logging
     if (isDev && devConfig.images.logMissingImages) {
-      console.log('ImageWrapper Debug:', {
-        originalSrc: src,
-        cleanSrc: cleanSrc,
-        basePath: basePath,
-        normalizedPath: normalizedPath
-      });
+      // Debug logging removed for production
     }
     
     const file = files[normalizedPath];

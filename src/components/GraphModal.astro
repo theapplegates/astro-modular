@@ -31,566 +31,623 @@ import Icon from './Icon.astro';
 </div>
 
 <script>
+  import * as d3 from "d3";
+  import { getGraphThemeColors } from '@/utils/graph-theme-colors';
+  
   // Graph Modal Functionality
   let graphModalInitialized = false;
+  let svg: d3.Selection<SVGSVGElement, undefined, null, undefined> | null = null;
+  let simulation: d3.Simulation<any, any> | null = null;
+  let cleanup: (() => void) | null = null;
+  let hasFittedToGraph = false; // Prevent multiple fitToGraph calls
   
-  function initializeGraphModal() {
-    // Prevent multiple initializations
-    if (graphModalInitialized) {
+  interface GraphNode {
+    id: string;
+    name: string;
+    slug?: string;
+    radius: number;
+    group?: string;
+    x?: number;
+    y?: number;
+    fx?: number | null;
+    fy?: number | null;
+  }
+
+  interface GraphLink {
+    source: string | GraphNode;
+    target: string | GraphNode;
+    value: number;
+  }
+
+  interface GraphData {
+    nodes: GraphNode[];
+    links: GraphLink[];
+  }
+  
+  function createGraphModalHTML() {
+    // Check if modal already exists
+    if (document.getElementById('graph-modal-overlay')) {
       return;
     }
     
+    const modal = document.createElement('div');
+    modal.id = 'graph-modal-overlay';
+    modal.className = 'fixed inset-0 z-50 bg-black/50 backdrop-blur-sm animate-fade-in hidden';
+    modal.innerHTML = `
+      <div class="flex min-h-full items-center justify-center p-4">
+        <div class="relative w-full max-w-7xl h-[90vh] bg-primary-50 dark:bg-primary-800 rounded-xl shadow-2xl border border-primary-200 dark:border-primary-700 animate-scale-in">
+          <button 
+            id="graph-modal-close"
+            class="absolute top-4 right-4 z-10 p-2 text-primary-500 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-200 transition-colors rounded-lg hover:bg-primary-100 dark:hover:bg-primary-700"
+            aria-label="Close"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 6L6 18"/>
+              <path d="M6 6l12 12"/>
+            </svg>
+          </button>
+          <div id="graph-modal-container" class="w-full h-full bg-primary-50 dark:bg-primary-800 rounded-xl overflow-hidden">
+            <div class="flex items-center justify-center h-full text-primary-500 dark:text-primary-400">
+              <div class="text-center">
+                <div class="animate-spin w-8 h-8 mx-auto mb-4 opacity-50">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12a9 9 0 11-6.219-8.56"/>
+                  </svg>
+                </div>
+                <p class="text-sm">Loading graph...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+  }
+  
+  // Global modal functions that can be called from anywhere
+  function openModal() {
+    const overlay = document.getElementById('graph-modal-overlay') as HTMLElement;
+    if (!overlay) {
+      createGraphModalHTML();
+      // Try again after creating the HTML
+      setTimeout(() => {
+        openModal();
+      }, 100);
+      return;
+    }
+    
+    overlay.classList.remove('hidden');
+    overlay.style.display = 'block';
+    overlay.style.visibility = 'visible';
+    overlay.style.opacity = '1';
+    overlay.style.zIndex = '9999';
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100vw';
+    overlay.style.height = '100vh';
+    overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+    document.body.style.overflow = 'hidden';
+    
+    // Reset the fitToGraph flag when opening
+    hasFittedToGraph = false;
+    
+    loadGraphData();
+  }
+
+  function closeModal() {
+    const overlay = document.getElementById('graph-modal-overlay') as HTMLElement;
+    if (!overlay) return;
+    
+    overlay.classList.add('hidden');
+    // Reset all inline styles
+    overlay.style.display = '';
+    overlay.style.visibility = '';
+    overlay.style.opacity = '';
+    overlay.style.zIndex = '';
+    overlay.style.position = '';
+    overlay.style.top = '';
+    overlay.style.left = '';
+    overlay.style.width = '';
+    overlay.style.height = '';
+    overlay.style.backgroundColor = '';
+    document.body.style.overflow = '';
+    
+    // Reset fitToGraph flag
+    hasFittedToGraph = false;
+    
+    // Clean up D3 graph
+    if (cleanup) {
+      cleanup();
+      cleanup = null;
+    }
+  }
+
+  function handleGraphContainerClick(e: Event) {
+    // Prevent clicks on the graph container from bubbling up to the overlay
+    e.stopPropagation();
+  }
+
+  function attachEventListeners() {
+    // Remove existing listeners to prevent duplicates
+    const closeButton = document.getElementById('graph-modal-close') as HTMLButtonElement;
+    const overlay = document.getElementById('graph-modal-overlay') as HTMLElement;
+    const graphContainer = document.getElementById('graph-modal-container') as HTMLElement;
+    
+    if (closeButton) {
+      // Remove existing listeners by removing and re-adding the event listener
+      closeButton.removeEventListener('click', closeModal);
+      closeButton.addEventListener('click', closeModal);
+    }
+    
+    if (overlay) {
+      // Remove existing listeners by removing and re-adding the event listener
+      overlay.removeEventListener('click', handleOverlayClick);
+      overlay.addEventListener('click', handleOverlayClick);
+    }
+    
+    if (graphContainer) {
+      // Prevent clicks on the graph container from bubbling up to the overlay
+      graphContainer.removeEventListener('click', handleGraphContainerClick);
+      graphContainer.addEventListener('click', handleGraphContainerClick);
+    }
+  }
+
+  function handleOverlayClick(e: Event) {
+    const overlay = e.target as HTMLElement;
+    const modalContent = overlay.querySelector('.relative');
+    const graphContainer = overlay.querySelector('#graph-modal-container');
+    
+    // Only close if clicking on the overlay itself, not on the modal content or graph
+    if (e.target === overlay && !modalContent?.contains(e.target as Node) && !graphContainer?.contains(e.target as Node)) {
+      closeModal();
+    }
+  }
+
+  function loadGraphData() {
+    const container = document.getElementById('graph-modal-container') as HTMLElement;
+    if (!container) {
+      return;
+    }
+    
+    // Show loading state immediately
+    container.innerHTML = `
+      <div class="flex items-center justify-center h-full text-primary-500 dark:text-primary-400">
+        <div class="text-center">
+          <div class="animate-spin w-8 h-8 mx-auto mb-4 opacity-50">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12a9 9 0 11-6.219-8.56"/>
+            </svg>
+          </div>
+          <p class="text-sm">Loading graph...</p>
+        </div>
+      </div>
+    `;
+
+    fetch('/graph/graph-data.json')
+      .then(response => response.json())
+      .then((data: any) => {
+        // Transform data to match D3 format
+        const graphData: GraphData = {
+          nodes: data.nodes.map((node: any) => ({
+            id: node.id,
+            name: node.title || node.name,
+            slug: node.slug,
+            radius: Math.max(5, Math.min(15, (node.connections || 0) + 5)),
+            group: node.type
+          })),
+          links: data.connections.map((conn: any) => ({
+            source: conn.source,
+            target: conn.target,
+            value: 1
+          }))
+        };
+        renderGraph(container, graphData);
+      })
+      .catch(error => {
+        console.warn('Could not load graph data:', error);
+        container.innerHTML = `
+          <div class="flex items-center justify-center h-full text-primary-500 dark:text-primary-400">
+            <div class="text-center">
+              <svg class="w-12 h-12 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+              </svg>
+              <p class="text-lg font-medium">Graph data not available</p>
+              <p class="text-sm mt-2">Make sure to run the build process to generate graph data</p>
+            </div>
+          </div>
+        `;
+      });
+  }
+
+  function renderGraph(container: HTMLElement, data: GraphData) {
+    const colors = getGraphThemeColors();
+    const width = container.offsetWidth;
+    const height = container.offsetHeight;
+    const radiusForce = 300;
+    let wasDragged = false;
+    
+    // Clear container
+    container.innerHTML = '';
+    
+    const links = data.links.map((d) => ({ ...d }));
+    const nodes = data.nodes.map((d) => ({ ...d }));
+
+    // Create force simulation
+    simulation = d3
+      .forceSimulation<GraphNode>(nodes)
+      .force(
+        "link",
+        d3.forceLink(links).id((d: any) => d.id).distance(100)
+      )
+      .force("charge", d3.forceManyBody().strength(-radiusForce))
+      .force("center", d3.forceCenter(width / 2, height / 2))
+      .force("collision", d3.forceCollide().radius((d: any) => d.radius + 5));
+
+    // Create SVG
+    let svg = d3
+      .select(container)
+      .append("svg")
+      .attr("width", width)
+      .attr("height", height)
+      .style("background", colors.background);
+
+    const containerGroup = svg.append("g");
+
+    // Create zoom behavior
+    const zoom = d3.zoom<SVGSVGElement, unknown>()
+      .scaleExtent([0.3, 3]) // Reasonable zoom range
+      .wheelDelta((event) => {
+        // Conservative wheel delta
+        return -event.deltaY * 0.001;
+      })
+      .filter((event) => {
+        // Only allow zoom on wheel events, prevent zoom on drag
+        if (event.type === 'wheel') return true;
+        if (event.type === 'mousedown') {
+          // Allow pan on empty space, but not on nodes
+          return !event.target.closest('g[data-id]');
+        }
+        return false; // Block all other events
+      })
+      .on("start", function(event) {
+        // Only show grabbing cursor for pan operations (not zoom/scroll)
+        if (event.sourceEvent && event.sourceEvent.type === 'mousedown') {
+          if (svg) svg.style('cursor', 'grabbing');
+        }
+      })
+      .on("end", function(event) {
+        // Always restore cursor when zoom behavior ends
+        if (svg) svg.style('cursor', 'grab');
+      })
+      .on("zoom", (event) => {
+        // Direct transform - no throttling or delays
+        containerGroup.attr("transform", event.transform);
+      });
+
+    svg.call(zoom as any);
+    if (svg) svg.style('cursor', 'grab');
+
+      // Create links
+      const link = containerGroup
+        .selectAll("line")
+        .data(links)
+        .enter()
+        .append("line")
+        .attr("stroke", colors.linkStroke)
+        .attr("stroke-width", 2)
+        .attr("stroke-opacity", 0.6);
+
+      // Create node groups
+      const nodeGroup = containerGroup
+        .selectAll("g")
+        .data(nodes)
+        .enter()
+        .append("g")
+        .attr("data-id", (d) => d.id)
+        .call(
+          d3
+            .drag<SVGGElement, GraphNode>()
+            .on("start", function (event) {
+              wasDragged = false;
+              // Prevent zoom during drag
+              if (svg) svg.style('cursor', 'grabbing');
+              if (!event.active) simulation!.alphaTarget(0.3).restart();
+              event.subject.fx = event.subject.x;
+              event.subject.fy = event.subject.y;
+            })
+            .on("drag", function (event, d) {
+              wasDragged = true;
+              d.fx = event.x;
+              d.fy = event.y;
+            })
+            .on("end", function (event) {
+              // Restore cursor after drag
+              if (svg) svg.style('cursor', 'grab');
+              if (!event.active) simulation!.alphaTarget(0);
+              event.subject.fx = null;
+              event.subject.fy = null;
+            }) as any,
+        )
+        .on("click", (event, d) => {
+          if (!wasDragged && d.slug) {
+            // Close modal first
+            closeModal();
+            
+            // Use Swup for navigation if available
+            if ((window as any).swup) {
+              // Ensure local graph is reset before navigation
+              if ((window as any).resetLocalGraph) {
+                (window as any).resetLocalGraph();
+              }
+              (window as any).swup.navigate(`/posts/${d.slug}`);
+            } else {
+              window.location.href = `/posts/${d.slug}`;
+            }
+          }
+        });
+        
+      // Build neighbor map for hover effects
+      const neighbors = new Map<string, Set<string>>();
+      for (const link of links) {
+        const src = typeof link.source === "object" ? link.source.id : link.source;
+        const tgt = typeof link.target === "object" ? link.target.id : link.target;
+        if (!neighbors.has(src)) neighbors.set(src, new Set());
+        if (!neighbors.has(tgt)) neighbors.set(tgt, new Set());
+
+        neighbors.get(src)!.add(tgt);
+        neighbors.get(tgt)!.add(src);
+      }
+
+      // Add hover effects
+      nodeGroup
+        .on("mouseover", function (event, d) {
+          const connected = neighbors.get(d.id) ?? new Set();
+          connected.add(d.id);
+
+          link
+            .transition()
+            .duration(150)
+            .attr("stroke", (l: any) =>
+              (typeof l.source === 'object' ? l.source.id : l.source) === d.id || 
+              (typeof l.target === 'object' ? l.target.id : l.target) === d.id
+                ? colors.tagFill
+                : colors.linkStroke,
+            )
+            .attr("stroke-opacity", (l: any) =>
+              (typeof l.source === 'object' ? l.source.id : l.source) === d.id || 
+              (typeof l.target === 'object' ? l.target.id : l.target) === d.id ? 0.8 : 0.1,
+            );
+
+          nodeGroup
+            .selectAll<SVGCircleElement, GraphNode>("circle")
+            .attr("fill-opacity", (n) => (connected.has(n.id) ? 1 : 0.3))
+            .attr("fill", (n) => {
+              if (n.id === d.id) return colors.tagFill;
+              return colors.linkStroke;
+            });
+        })
+        .on("mouseout", function () {
+          link
+            .transition()
+            .duration(150)
+            .attr("stroke", colors.linkStroke)
+            .attr("stroke-opacity", 0.6);
+
+          nodeGroup
+            .selectAll<SVGCircleElement, GraphNode>("circle")
+            .attr("fill", colors.linkStroke)
+            .attr("fill-opacity", 1);
+        });
+
+      // Create circles
+      const node = nodeGroup
+        .append("circle")
+        .attr("r", (d) => d.radius)
+        .attr("fill", colors.linkStroke)
+        .attr("cursor", "pointer");
+
+      // Create labels
+      const labels = nodeGroup
+        .append("text")
+        .text((d) => d.name)
+        .attr("text-anchor", "middle")
+        .attr("dy", "0.35em")
+        .attr("font-size", "12px")
+        .attr("font-weight", "500")
+        .attr("fill", colors.postText)
+        .attr("pointer-events", "none")
+        .style("user-select", "none");
+
+      // Update positions on simulation tick
+      simulation.on("tick", () => {
+        link
+          .attr("x1", (d: any) => d.source.x)
+          .attr("y1", (d: any) => d.source.y)
+          .attr("x2", (d: any) => d.target.x)
+          .attr("y2", (d: any) => d.target.y);
+
+        nodeGroup.attr("transform", (d: any) => `translate(${d.x},${d.y})`);
+      });
+
+      simulation.alpha(1).restart();
+
+      // Don't auto-fit to graph - let user control the view
+      // Only fit if explicitly requested via keyboard shortcut
+
+      // Set up cleanup function
+      cleanup = () => {
+        if (simulation) {
+          simulation.stop();
+          simulation = null;
+        }
+        if (svg) {
+          svg.remove();
+        }
+      };
+
+      // Add keyboard shortcuts
+      const handleKeyDown = (e: KeyboardEvent) => {
+        const overlay = document.getElementById('graph-modal-overlay') as HTMLElement;
+        if (overlay && !overlay.classList.contains('hidden')) {
+          switch (e.key) {
+            case 'r':
+              if (svg) {
+                svg.transition().duration(300).call(
+                  zoom.transform as any,
+                  d3.zoomIdentity.scale(1).translate(0, 0)
+                );
+              }
+              break;
+            case 'c':
+              if (svg) {
+                // Get the SVG dimensions
+                const svgNode = svg.node();
+                if (!svgNode) return;
+                const svgRect = svgNode.getBoundingClientRect();
+                const width = svgRect.width;
+                const height = svgRect.height;
+                
+                // Get all nodes to calculate bounds
+                const nodes = svg.selectAll('g[data-id]').nodes();
+                if (nodes.length === 0) return;
+                
+                // Calculate bounding box of all nodes
+                let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+                nodes.forEach((node) => {
+                  if (node && node instanceof Element) {
+                    const transform = node.getAttribute('transform');
+                    if (transform) {
+                      const match = transform.match(/translate\(([^,]+),\s*([^)]+)\)/);
+                      if (match) {
+                        const x = parseFloat(match[1]);
+                        const y = parseFloat(match[2]);
+                        minX = Math.min(minX, x);
+                        maxX = Math.max(maxX, x);
+                        minY = Math.min(minY, y);
+                        maxY = Math.max(maxY, y);
+                      }
+                    }
+                  }
+                });
+                
+                // Add padding
+                const padding = 50;
+                const boundsWidth = maxX - minX + padding * 2;
+                const boundsHeight = maxY - minY + padding * 2;
+                
+                // Calculate scale to fit viewport
+                const scaleX = width / boundsWidth;
+                const scaleY = height / boundsHeight;
+                const scale = Math.min(scaleX, scaleY); // Allow zoom out (scale < 1)
+                
+                // Constrain scale to reasonable bounds (0.1 to 3)
+                const constrainedScale = Math.max(0.1, Math.min(3, scale));
+                
+                // Calculate translation to center
+                const graphCenterX = (minX + maxX) / 2;
+                const graphCenterY = (minY + maxY) / 2;
+                const centerX = (width / 2) / constrainedScale - graphCenterX;
+                const centerY = (height / 2) / constrainedScale - graphCenterY;
+                
+                svg.transition().duration(300).call(
+                  zoom.transform as any,
+                  d3.zoomIdentity.scale(constrainedScale).translate(centerX, centerY)
+                );
+              }
+              break;
+          }
+        }
+      };
+      
+      document.addEventListener('keydown', handleKeyDown);
+      
+      // Update cleanup function
+      const originalCleanup = cleanup;
+      cleanup = () => {
+        document.removeEventListener('keydown', handleKeyDown);
+        if (originalCleanup) originalCleanup();
+      };
+    }
+
+      function fitToGraph(svgElement: any, nodes: GraphNode[], width: number, height: number, zoomBehavior: any) {
+        if (!svgElement) {
+          return;
+        }
+        
+        // Instead of fitting nodes, zoom OUT to show the entire graph area
+        // Use a small scale to zoom OUT and show everything
+        const scale = 0.3; // Zoom OUT to 30% (much smaller)
+        
+        // Center the graph in the viewport
+        const x = (width / 2) - (width / 2 * scale);
+        const y = (height / 2) - (height / 2 * scale);
+
+        // Use the existing zoom behavior instead of creating a new one
+        svgElement
+          .transition()
+          .duration(750)
+          .call(
+            zoomBehavior.transform as any,
+            d3.zoomIdentity.scale(scale).translate(x, y),
+          );
+      }
+
+    function getGraphBounds(nodes: GraphNode[]) {
+      let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+      for (const n of nodes) {
+        if (n.x !== undefined && n.y !== undefined) {
+          x0 = Math.min(x0, n.x);
+          y0 = Math.min(y0, n.y);
+          x1 = Math.max(x1, n.x);
+          y1 = Math.max(y1, n.y);
+        }
+      }
+      return { x0, y0, x1, y1 };
+    }
+
+  function initializeGraphModal() {
     const overlay = document.getElementById('graph-modal-overlay') as HTMLElement;
     const closeButton = document.getElementById('graph-modal-close') as HTMLButtonElement;
     const container = document.getElementById('graph-modal-container') as HTMLElement;
     
     if (!overlay || !closeButton || !container) {
+      // Create the modal HTML if it doesn't exist
+      createGraphModalHTML();
+      // Try again after creating the HTML
+      setTimeout(() => {
+        initializeGraphModal();
+      }, 100);
+      return;
+    }
+    
+    // Always ensure the modal functions are available, even if already initialized
+    if (graphModalInitialized) {
+      // Make sure the functions are still available
+      (window as any).openGraphModal = openModal;
+      (window as any).closeGraphModal = closeModal;
+      // Re-attach event listeners to ensure they work
+      attachEventListeners();
       return;
     }
     
     graphModalInitialized = true;
 
-    // Close modal function
-    function closeModal() {
-      overlay.classList.add('hidden');
-      // Reset all inline styles
-      overlay.style.display = '';
-      overlay.style.visibility = '';
-      overlay.style.opacity = '';
-      overlay.style.zIndex = '';
-      overlay.style.position = '';
-      overlay.style.top = '';
-      overlay.style.left = '';
-      overlay.style.width = '';
-      overlay.style.height = '';
-      overlay.style.backgroundColor = '';
-      document.body.style.overflow = '';
-    }
+    // Attach event listeners
+    attachEventListeners();
 
-    // Open modal function
-    function openModal() {
-      overlay.classList.remove('hidden');
-      overlay.style.display = 'block';
-      overlay.style.visibility = 'visible';
-      overlay.style.opacity = '1';
-      overlay.style.zIndex = '9999';
-      overlay.style.position = 'fixed';
-      overlay.style.top = '0';
-      overlay.style.left = '0';
-      overlay.style.width = '100vw';
-      overlay.style.height = '100vh';
-      overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-      document.body.style.overflow = 'hidden';
-      loadGraphData();
-    }
-
-    // Load graph data and render
-    function loadGraphData() {
-      // Show loading state immediately
-      container.innerHTML = `
-        <div class="flex items-center justify-center h-full text-primary-500 dark:text-primary-400">
-          <div class="text-center">
-            <div class="animate-spin w-8 h-8 mx-auto mb-4 opacity-50">
-              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 12a9 9 0 11-6.219-8.56"/>
-              </svg>
-            </div>
-            <p class="text-sm">Loading graph...</p>
-          </div>
-        </div>
-      `;
-
-      fetch('/graph/graph-data.json')
-        .then(response => response.json())
-        .then((data: any) => {
-          renderGraph(container, data);
-        })
-        .catch(error => {
-          console.warn('Could not load graph data:', error);
-          container.innerHTML = `
-            <div class="flex items-center justify-center h-full text-primary-500 dark:text-primary-400">
-              <div class="text-center">
-                <Icon name="git-fork" class="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p class="text-lg font-medium">Graph data not available</p>
-                <p class="text-sm mt-2">Make sure to run the build process to generate graph data</p>
-              </div>
-            </div>
-          `;
-        });
-    }
-
-    // Get theme colors from CSS custom properties
-    function getThemeColors() {
-      const root = document.documentElement;
-      const computedStyle = getComputedStyle(root);
-      
-      // Get the actual CSS custom properties that the theme system generates
-      const highlight400 = computedStyle.getPropertyValue('--color-highlight-400').trim();
-      const highlight600 = computedStyle.getPropertyValue('--color-highlight-600').trim();
-      const primary200 = computedStyle.getPropertyValue('--color-primary-200').trim();
-      const primary400 = computedStyle.getPropertyValue('--color-primary-400').trim();
-      const primary500 = computedStyle.getPropertyValue('--color-primary-500').trim();
-      const primary600 = computedStyle.getPropertyValue('--color-primary-600').trim();
-      const primary700 = computedStyle.getPropertyValue('--color-primary-700').trim();
-      const primary800 = computedStyle.getPropertyValue('--color-primary-800').trim();
-      const primary900 = computedStyle.getPropertyValue('--color-primary-900').trim();
-      
-      // Check current theme state dynamically
-      const isDarkMode = document.documentElement.classList.contains('dark');
-      
-      return {
-        // Tag colors (use theme highlight colors for nodes, but same text as posts)
-        tagFill: highlight400 || (isDarkMode ? '#38bdf8' : '#0284c7'),
-        tagStroke: highlight600 || (isDarkMode ? '#0284c7' : '#0369a1'),
-        tagText: primary800 || (isDarkMode ? '#f1f5f9' : '#1e293b'), // Same as post text
-        
-        // Post colors (light in dark mode, dark in light mode)
-        postFill: isDarkMode ? '#e2e8f0' : '#64748b',
-        postStroke: isDarkMode ? '#cbd5e1' : '#475569',
-        postText: isDarkMode ? '#f1f5f9' : '#1e293b',
-        
-        // Link colors (light in dark mode, dark in light mode)
-        linkStroke: isDarkMode ? '#94a3b8' : '#64748b',
-        tagLinkStroke: isDarkMode ? '#94a3b8' : '#64748b' // Same as regular links
-      };
-    }
-
-    // Enhanced force-directed graph implementation for modal
-    function renderGraph(container: HTMLElement, data: any) {
-      const width = container.offsetWidth;
-      const height = container.offsetHeight;
-      
-      // Clear container
-      container.innerHTML = '';
-      
-      // Create SVG with proper viewBox for scaling
-      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-      svg.setAttribute('width', '100%');
-      svg.setAttribute('height', '100%');
-      svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
-      svg.style.background = 'transparent';
-      svg.style.cursor = 'grab';
-      
-      // Create groups for different elements
-      const linksGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-      linksGroup.setAttribute('class', 'graph-links');
-      svg.appendChild(linksGroup);
-      
-      const nodesGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-      nodesGroup.setAttribute('class', 'graph-nodes');
-      svg.appendChild(nodesGroup);
-      
-      // Process nodes and links
-      const nodes = data.nodes.map((node: any) => ({
-        ...node,
-        x: Math.random() * (width - 100) + 50,
-        y: Math.random() * (height - 100) + 50,
-        vx: 0,
-        vy: 0,
-        fx: null,
-        fy: null,
-        isDragging: false
-      }));
-      
-      const links = data.connections.map((conn: any) => ({
-        source: nodes.find((n: any) => n.id === conn.source),
-        target: nodes.find((n: any) => n.id === conn.target),
-        type: conn.type
-      })).filter((link: any) => link.source && link.target);
-      
-      // Drag state
-      let isDragging = false;
-      let selectedNode: any = null;
-      let dragStart = { x: 0, y: 0 };
-      let dragOffset = { x: 0, y: 0 };
-      
-      // Enhanced force simulation
-      function tick() {
-        // Update link positions
-        links.forEach((link: any) => {
-          if (link.source && link.target) {
-            const line = link.element;
-            if (line) {
-              line.setAttribute('x1', link.source.x);
-              line.setAttribute('y1', link.source.y);
-              line.setAttribute('x2', link.target.x);
-              line.setAttribute('y2', link.target.y);
-            }
-          }
-        });
-        
-        // Update node positions
-        nodes.forEach((node: any) => {
-          const circle = node.element;
-          const text = node.textElement;
-          if (circle) {
-            circle.setAttribute('cx', node.x);
-            circle.setAttribute('cy', node.y);
-          }
-          if (text) {
-            const radius = Math.max(8, Math.min(20, (node.connections || 0) + 8));
-            const textOffset = radius + 14;
-            text.setAttribute('x', node.x);
-            text.setAttribute('y', node.y + textOffset);
-          }
-        });
-      }
-      
-      // Update visual positions
-      function updateVisualPositions() {
-        // Update link positions
-        links.forEach((link: any) => {
-          if (link.element && link.source && link.target) {
-            link.element.setAttribute('x1', link.source.x);
-            link.element.setAttribute('y1', link.source.y);
-            link.element.setAttribute('x2', link.target.x);
-            link.element.setAttribute('y2', link.target.y);
-          }
-        });
-        
-        // Update node positions
-        nodes.forEach((node: any) => {
-          if (node.element) {
-            node.element.setAttribute('cx', node.x);
-            node.element.setAttribute('cy', node.y);
-          }
-          if (node.textElement) {
-            const radius = Math.max(6, Math.min(16, (node.connections || 0) + 6));
-            const textOffset = radius + 12;
-            node.textElement.setAttribute('x', node.x);
-            node.textElement.setAttribute('y', node.y + textOffset);
-          }
-        });
-      }
-      
-      // Setup drag interactions
-      function setupDrag() {
-        let isPanning = false;
-        let isNodeDragging = false;
-        let panStart = { x: 0, y: 0 };
-        let nodeDragStart = { x: 0, y: 0 };
-        let nodeDragOffset = { x: 0, y: 0 };
-        
-        // Pan the entire graph - only when clicking on empty space (not on nodes)
-        svg.addEventListener('mousedown', (e: MouseEvent) => {
-          // Check if we're clicking on empty space (not on a circle or text)
-          const target = e.target as Element;
-          if (target === svg || target.tagName === 'g' || target.tagName === 'line') {
-            isPanning = true;
-            panStart.x = e.clientX;
-            panStart.y = e.clientY;
-            svg.style.cursor = 'grabbing';
-            e.preventDefault();
-          }
-        });
-        
-        // Individual node dragging
-        nodesGroup.addEventListener('mousedown', (e: MouseEvent) => {
-          const circle = (e.target as Element)?.closest('circle');
-          if (circle) {
-            const nodeId = circle.getAttribute('data-node-id');
-            const node = nodes.find((n: any) => n.id === nodeId);
-            
-            if (node) {
-              isNodeDragging = true;
-              node.isDragging = true;
-              node.fx = node.x;
-              node.fy = node.y;
-              selectedNode = node;
-              nodeDragStart.x = e.clientX;
-              nodeDragStart.y = e.clientY;
-              nodeDragOffset.x = node.x - e.clientX;
-              nodeDragOffset.y = node.y - e.clientY;
-            }
-          }
-        });
-        
-        document.addEventListener('mousemove', (e: MouseEvent) => {
-          if (isPanning) {
-            const dx = e.clientX - panStart.x;
-            const dy = e.clientY - panStart.y;
-            
-            // Move all nodes
-            nodes.forEach((node: any) => {
-              if (!node.isDragging) {
-                node.x += dx;
-                node.y += dy;
-              }
-            });
-            
-            panStart.x = e.clientX;
-            panStart.y = e.clientY;
-            
-            // Update visual positions immediately
-            updateVisualPositions();
-          } else if (isNodeDragging && selectedNode) {
-            const newX = e.clientX + nodeDragOffset.x;
-            const newY = e.clientY + nodeDragOffset.y;
-            
-            selectedNode.fx = Math.max(40, Math.min(width - 40, newX));
-            selectedNode.fy = Math.max(40, Math.min(height - 40, newY));
-            
-            // Update visual positions immediately
-            updateVisualPositions();
-          }
-        });
-        
-        document.addEventListener('mouseup', () => {
-          if (isPanning) {
-            isPanning = false;
-            svg.style.cursor = 'grab';
-          }
-          if (isNodeDragging && selectedNode) {
-            isNodeDragging = false;
-            selectedNode.isDragging = false;
-            selectedNode.fx = null;
-            selectedNode.fy = null;
-            selectedNode = null;
-          }
-        });
-      }
-      
-      // Render links
-      const colors = getThemeColors();
-      links.forEach((link: any) => {
-        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        line.setAttribute('x1', link.source.x);
-        line.setAttribute('y1', link.source.y);
-        line.setAttribute('x2', link.target.x);
-        line.setAttribute('y2', link.target.y);
-        
-        // Use actual theme colors
-        line.setAttribute('stroke', colors.linkStroke);
-        line.setAttribute('stroke-width', '2');
-        line.setAttribute('opacity', '0.6');
-        line.setAttribute('data-link-type', link.type);
-        linksGroup.appendChild(line);
-        link.element = line;
-      });
-      
-      // Render nodes
-      nodes.forEach((node: any) => {
-        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        const radius = Math.max(8, Math.min(20, (node.connections || 0) + 8));
-        circle.setAttribute('cx', node.x);
-        circle.setAttribute('cy', node.y);
-        circle.setAttribute('r', radius.toString());
-        
-        // Use actual theme colors
-        circle.setAttribute('fill', colors.postFill);
-        circle.setAttribute('stroke', colors.postStroke);
-        
-        circle.setAttribute('stroke-width', '1.5');
-        circle.setAttribute('cursor', 'pointer');
-        circle.setAttribute('data-node-id', node.id);
-        circle.setAttribute('data-node-type', node.type);
-        // circle.style.transition = 'all 0.2s ease'; // DISABLED - causes lag during drag
-        
-        // Add hover effects
-        circle.addEventListener('mouseenter', () => {
-          if (!circle.classList.contains('dragging')) {
-            circle.setAttribute('r', (radius + 3).toString());
-            circle.setAttribute('stroke-width', '3');
-            circle.style.cursor = 'pointer';
-          }
-        });
-        
-        circle.addEventListener('mouseleave', () => {
-          if (!circle.classList.contains('dragging')) {
-            circle.setAttribute('r', radius.toString());
-            circle.setAttribute('stroke-width', '1.5');
-          }
-        });
-        
-        // Add click handler
-        circle.addEventListener('click', () => {
-          if (node.type === 'post') {
-            // Close modal first
-            closeModal();
-            // Use Swup for navigation if available
-            if ((window as any).swup) {
-              (window as any).swup.navigate(`/posts/${node.slug}`);
-            } else {
-              window.location.href = `/posts/${node.slug}`;
-            }
-          }
-        });
-        
-        nodesGroup.appendChild(circle);
-        node.element = circle;
-        
-        // Add labels with better text handling
-        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        text.setAttribute('x', node.x);
-        const textOffset = radius + 14;
-        text.setAttribute('y', node.y + textOffset);
-        text.setAttribute('text-anchor', 'middle');
-        text.setAttribute('font-size', '11');
-        text.setAttribute('font-weight', '500');
-        text.setAttribute('data-node-type', node.type);
-        text.setAttribute('font-family', 'system-ui, sans-serif');
-        text.setAttribute('pointer-events', 'none');
-        
-        // Better text content - show full titles with smart truncation
-        let textContent = '';
-        if (node.type === 'tag') {
-          textContent = '#' + node.name;
-        } else {
-          textContent = node.title || node.id;
-          // Smart truncation - try to break at word boundaries
-          if (textContent.length > 30) {
-            const words = textContent.split(' ');
-            let truncated = '';
-            for (const word of words) {
-              if ((truncated + word).length > 30) break;
-              truncated += (truncated ? ' ' : '') + word;
-            }
-            textContent = truncated + (truncated.length < textContent.length ? '...' : '');
-          }
-        }
-        text.textContent = textContent;
-        
-        // Set initial colors using actual theme colors
-        text.setAttribute('fill', colors.postText);
-        
-        nodesGroup.appendChild(text);
-        node.textElement = text;
-      });
-      
-      // Enhanced force simulation
-      function forceSimulation() {
-        const iterations = 200;
-        const alpha = 1;
-        const alphaDecay = alpha / iterations;
-        let currentAlpha = alpha;
-        
-        // Create simulation object for external control
-        const simulation = {
-          alpha: (newAlpha?: number) => {
-            if (newAlpha !== undefined) {
-              currentAlpha = newAlpha;
-            }
-            return currentAlpha;
-          },
-          restart: () => {
-            currentAlpha = 0.3;
-            runSimulation();
-          }
-        };
-        
-        function runSimulation() {
-        
-        for (let i = 0; i < iterations; i++) {
-          // Apply forces
-          nodes.forEach((node: any) => {
-            if (node.isDragging) return; // Skip physics for dragging nodes
-            
-            // Repulsion force
-            nodes.forEach((other: any) => {
-              if (node !== other) {
-                const dx = node.x - other.x;
-                const dy = node.y - other.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                if (distance > 0) {
-                  const force = (currentAlpha * 150) / (distance * distance);
-                  const fx = (dx / distance) * force;
-                  const fy = (dy / distance) * force;
-                  node.vx += fx;
-                  node.vy += fy;
-                }
-              }
-            });
-            
-            // Attraction force for links
-            links.forEach((link: any) => {
-              if (link.source === node) {
-                const dx = link.target.x - node.x;
-                const dy = link.target.y - node.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                if (distance > 0) {
-                  const force = currentAlpha * 0.1 * distance;
-                  const fx = (dx / distance) * force;
-                  const fy = (dy / distance) * force;
-                  node.vx += fx;
-                  node.vy += fy;
-                }
-              }
-            });
-            
-            // Apply velocity with damping
-            node.vx *= 0.9;
-            node.vy *= 0.9;
-            node.x += node.vx;
-            node.y += node.vy;
-            
-            // Keep nodes in bounds
-            node.x = Math.max(40, Math.min(width - 40, node.x));
-            node.y = Math.max(40, Math.min(height - 40, node.y));
-          });
-          
-          currentAlpha -= alphaDecay;
-          tick();
+    function getGraphBounds(nodes: GraphNode[]) {
+      let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+      for (const n of nodes) {
+        if (!isNaN(n.x!) && !isNaN(n.y!)) {
+          x0 = Math.min(x0, n.x!);
+          y0 = Math.min(y0, n.y!);
+          x1 = Math.max(x1, n.x!);
+          y1 = Math.max(y1, n.y!);
         }
       }
-        
-        // Make simulation globally accessible
-        (window as any).graphSimulation = simulation;
-        
-        // Run initial simulation
-        runSimulation();
-        
-        return simulation;
-      }
-
-      // Setup zoom
-      function setupZoom() {
-        svg.addEventListener('wheel', (e: WheelEvent) => {
-          // Allow zoom with or without Ctrl key
-          if (e.ctrlKey || e.metaKey) {
-            e.preventDefault();
-            
-            const scale = e.deltaY > 0 ? 0.9 : 1.1;
-            const rect = svg.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            
-            // Apply zoom to all nodes
-            nodes.forEach((node: any) => {
-              if (!node.isDragging) {
-                const dx = node.x - x;
-                const dy = node.y - y;
-                node.x = x + dx * scale;
-                node.y = y + dy * scale;
-              }
-            });
-            
-            // Update visual positions immediately
-            updateVisualPositions();
-          }
-        });
-      }
-      
-      // Setup interactions
-      setupDrag();
-      setupZoom();
-      
-      // Start simulation
-      forceSimulation();
-      
-      container.appendChild(svg);
+      return { x0, y0, x1, y1 };
     }
-
-    // Event listeners
-    closeButton.addEventListener('click', closeModal);
-    overlay.addEventListener('click', (e) => {
-      // Close if clicking on the overlay or the padding area around the modal
-      const modalContent = overlay.querySelector('.relative');
-      if (e.target === overlay || !modalContent.contains(e.target as Node)) {
-        closeModal();
-      }
-    });
-
-    // Tags toggle functionality with persistent state
 
     // Escape key to close
     document.addEventListener('keydown', (e) => {
@@ -599,58 +656,9 @@ import Icon from './Icon.astro';
       }
     });
 
-    // Theme change listener to update all colors
-    function updateAllColors() {
-      const colors = getThemeColors();
-      
-      // Update text colors
-      const textElements = document.querySelectorAll('#graph-modal-container text');
-      textElements.forEach((text: any) => {
-        const nodeType = text.getAttribute('data-node-type');
-        if (nodeType === 'tag') {
-          text.setAttribute('fill', colors.tagText);
-        } else {
-          text.setAttribute('fill', colors.postText);
-        }
-      });
-      
-      // Update circle colors
-      const circleElements = document.querySelectorAll('#graph-modal-container circle');
-      circleElements.forEach((circle: any) => {
-        const nodeType = circle.getAttribute('data-node-type');
-        if (nodeType === 'tag') {
-          circle.setAttribute('fill', colors.tagFill);
-          circle.setAttribute('stroke', colors.tagStroke);
-        } else {
-          circle.setAttribute('fill', colors.postFill);
-          circle.setAttribute('stroke', colors.postStroke);
-        }
-      });
-      
-      // Update link colors
-      const lineElements = document.querySelectorAll('#graph-modal-container line');
-      lineElements.forEach((line: any) => {
-        const linkType = line.getAttribute('data-link-type');
-        if (linkType === 'tag') {
-          line.setAttribute('stroke', colors.tagLinkStroke);
-        } else {
-          line.setAttribute('stroke', colors.linkStroke);
-        }
-      });
-    }
-
-    // Listen for theme changes
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-          updateAllColors();
-        }
-      });
-    });
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-
     // Make functions globally accessible
     (window as any).openGraphModal = openModal;
+    (window as any).closeGraphModal = closeModal;
     (window as any).initializeGraphModal = initializeGraphModal;
   }
 
@@ -664,51 +672,35 @@ import Icon from './Icon.astro';
   // Swup integration - reinitialize after page transitions
   if ((window as any).swup) {
     (window as any).swup.hooks.on('page:view', () => {
-      // Reinitialize the graph modal after page transitions
+      // Always try to reinitialize to ensure it's available
       initializeGraphModal();
     });
     
     (window as any).swup.hooks.on('visit:end', () => {
       // Ensure the global function is available after page transitions
-      // The openModal function will be set by initializeGraphModal
+      if (!(window as any).openGraphModal) {
+        initializeGraphModal();
+      }
     });
   }
+
+  // Listen for theme changes to update graph colors
+  window.addEventListener('themechange', () => {
+    // Re-render the graph with new colors if it's currently open
+    const overlay = document.getElementById('graph-modal-overlay');
+    if (overlay && !overlay.classList.contains('hidden') && svg) {
+      // Get fresh data and re-render
+      fetch('/graph/graph-data.json')
+        .then(response => response.json())
+        .then(data => {
+          const container = document.getElementById('graph-modal-content');
+          if (container) {
+            renderGraph(container, data);
+          }
+        })
+        .catch(error => {
+          console.error('GraphModal: Error fetching graph data for theme update:', error);
+        });
+    }
+  });
 </script>
-
-<style>
-  /* Graph styling */
-  .graph-links line {
-    transition: opacity 0.2s ease;
-  }
-  
-  .graph-nodes circle {
-    transition: all 0.2s ease;
-  }
-  
-  .graph-nodes circle:hover {
-    filter: brightness(1.1);
-  }
-  
-  .graph-nodes text {
-    pointer-events: none;
-    user-select: none;
-  }
-  
-  /* Graph text theme-aware colors */
-  .graph-post-text {
-    @apply fill-slate-800 dark:fill-slate-50;
-  }
-  .graph-tag-text {
-    @apply fill-violet-600 dark:fill-violet-300;
-  }
-
-  /* Loading animation */
-  .animate-spin {
-    animation: spin 1s linear infinite;
-  }
-  
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-</style>

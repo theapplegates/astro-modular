@@ -1,9 +1,5 @@
 
 import { siteConfig, getFontFamily } from './src/config.ts';
-import { themes } from './src/themes/index.ts';
-
-// Get the selected theme
-const selectedTheme = themes[siteConfig.theme] || themes.minimal;
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -17,9 +13,33 @@ export default {
         'prose': getFontFamily(siteConfig.fonts.families.body).split(', ')
       },
       colors: {
-        // Dynamic theme colors based on config
-        primary: selectedTheme.primary,
-        highlight: selectedTheme.highlight
+        // Dynamic theme colors using CSS custom properties
+        primary: {
+          50: 'rgb(var(--color-primary-50) / <alpha-value>)',
+          100: 'rgb(var(--color-primary-100) / <alpha-value>)',
+          200: 'rgb(var(--color-primary-200) / <alpha-value>)',
+          300: 'rgb(var(--color-primary-300) / <alpha-value>)',
+          400: 'rgb(var(--color-primary-400) / <alpha-value>)',
+          500: 'rgb(var(--color-primary-500) / <alpha-value>)',
+          600: 'rgb(var(--color-primary-600) / <alpha-value>)',
+          700: 'rgb(var(--color-primary-700) / <alpha-value>)',
+          800: 'rgb(var(--color-primary-800) / <alpha-value>)',
+          900: 'rgb(var(--color-primary-900) / <alpha-value>)',
+          950: 'rgb(var(--color-primary-950) / <alpha-value>)',
+        },
+        highlight: {
+          50: 'rgb(var(--color-highlight-50) / <alpha-value>)',
+          100: 'rgb(var(--color-highlight-100) / <alpha-value>)',
+          200: 'rgb(var(--color-highlight-200) / <alpha-value>)',
+          300: 'rgb(var(--color-highlight-300) / <alpha-value>)',
+          400: 'rgb(var(--color-highlight-400) / <alpha-value>)',
+          500: 'rgb(var(--color-highlight-500) / <alpha-value>)',
+          600: 'rgb(var(--color-highlight-600) / <alpha-value>)',
+          700: 'rgb(var(--color-highlight-700) / <alpha-value>)',
+          800: 'rgb(var(--color-highlight-800) / <alpha-value>)',
+          900: 'rgb(var(--color-highlight-900) / <alpha-value>)',
+          950: 'rgb(var(--color-highlight-950) / <alpha-value>)',
+        }
       },
       typography: {
         DEFAULT: {
