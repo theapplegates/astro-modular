@@ -467,7 +467,7 @@ async function checkCriticalFiles(upstreamBranch) {
     'scripts/get-deployment-platform.js',
     'scripts/sync-images.js',
     'scripts/process-aliases.js',
-    'scripts/generate-redirects.js',
+    'scripts/generate-deployment-config.js',
     'scripts/check-missing-images.js',
     'scripts/setup-dev.mjs'
   ];

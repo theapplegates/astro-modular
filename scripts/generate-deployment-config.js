@@ -286,6 +286,28 @@ function generateVercelConfig(redirects) {
             value: "public, max-age=31536000, immutable"
           }
         ]
+      },
+      {
+        source: "/(.*\\.pdf)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=3600"
+          },
+          {
+            key: "X-Frame-Options",
+            value: "SAMEORIGIN"
+          }
+        ]
+      },
+      {
+        source: "/(.*)",
+        headers: [
+          {
+            key: "Content-Security-Policy",
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://giscus.app https://platform.twitter.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self' https://giscus.app; frame-src 'self' https://www.youtube.com https://giscus.app https://platform.twitter.com; object-src 'none'; base-uri 'self';"
+          }
+        ]
       }
     ]
   };
@@ -322,6 +344,32 @@ function generateNetlifyConfig(redirects) {
   return redirectLines.join('\n');
 }
 
+// Clean up platform-specific files that don't match the selected platform
+async function cleanupOtherPlatformFiles(currentPlatform) {
+  const projectRoot = path.join(__dirname, '..');
+  
+  // Clean up GitHub Pages files if not using GitHub Pages
+  if (currentPlatform !== 'github-pages') {
+    const githubPagesFiles = [
+      path.join(projectRoot, 'public', '_redirects'),
+      path.join(projectRoot, 'public', '_headers')
+    ];
+    
+    for (const file of githubPagesFiles) {
+      try {
+        await fs.access(file);
+        await fs.unlink(file);
+        log.info(`🧹 Removed ${path.basename(file)} (GitHub Pages not selected)`);
+      } catch (error) {
+        // File doesn't exist, nothing to clean up
+      }
+    }
+  }
+  
+  // Note: We don't remove vercel.json or netlify.toml as they may contain
+  // custom configuration (serverless functions, environment variables, etc.)
+}
+
 // Platform-specific file writers
 async function writeVercelConfig(redirects) {
   const projectRoot = path.join(__dirname, '..');
@@ -334,8 +382,26 @@ async function writeVercelConfig(redirects) {
   }
   
   try {
-    const config = generateVercelConfig(redirects);
-    await fs.writeFile(vercelJsonPath, config, 'utf-8');
+    // Read existing vercel.json to preserve custom settings
+    let existingConfig = {};
+    try {
+      const existingContent = await fs.readFile(vercelJsonPath, 'utf-8');
+      existingConfig = JSON.parse(existingContent);
+    } catch (error) {
+      // File doesn't exist or is invalid JSON, create new one
+    }
+    
+    // Generate new redirects and headers
+    const newConfig = JSON.parse(generateVercelConfig(redirects));
+    
+    // Merge configs - new redirects/headers override existing ones
+    const mergedConfig = {
+      ...existingConfig,
+      redirects: newConfig.redirects,
+      headers: newConfig.headers
+    };
+    
+    await fs.writeFile(vercelJsonPath, JSON.stringify(mergedConfig, null, 2), 'utf-8');
     log.info(`📝 Updated vercel.json with ${redirects.length} redirects`);
   } catch (error) {
     log.error(`❌ Error updating vercel.json:`, error.message);
@@ -344,21 +410,39 @@ async function writeVercelConfig(redirects) {
 
 async function writeGitHubPagesConfig(redirects) {
   const projectRoot = path.join(__dirname, '..');
-  const redirectsPath = path.join(projectRoot, 'public', 'redirects.txt');
+  const redirectsPath = path.join(projectRoot, 'public', '_redirects');
+  const headersPath = path.join(projectRoot, 'public', '_headers');
   
   if (DRY_RUN) {
-    log.info('📝 [DRY RUN] Would generate public/redirects.txt:');
+    log.info('📝 [DRY RUN] Would generate public/_redirects:');
     console.log(generateGitHubPagesConfig(redirects));
     return;
   }
   
   try {
+    // Write redirects file
     const config = generateGitHubPagesConfig(redirects);
     await fs.writeFile(redirectsPath, config, 'utf-8');
-    log.info(`📝 Updated public/redirects.txt with ${redirects.length} redirects`);
-    log.info('📝 Note: Rename redirects.txt to _redirects for GitHub Pages deployment');
+    log.info(`📝 Updated public/_redirects with ${redirects.length} redirects`);
+    
+    // Write headers file (for paid GitHub Pages plans)
+    const headersContent = `# GitHub Pages Custom Headers
+# Note: Custom headers require GitHub Pages on a paid plan or GitHub Enterprise
+# For free GitHub Pages, these headers won't be applied
+
+# PDF files - allow iframe embedding
+/*.pdf
+  X-Frame-Options: SAMEORIGIN
+  Cache-Control: public, max-age=3600
+
+# All pages - Content Security Policy for Twitter widgets
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://giscus.app https://platform.twitter.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self' https://giscus.app; frame-src 'self' https://www.youtube.com https://giscus.app https://platform.twitter.com; object-src 'none'; base-uri 'self';
+`;
+    await fs.writeFile(headersPath, headersContent, 'utf-8');
+    log.info(`📝 Created public/_headers for GitHub Pages (requires paid plan)`);
   } catch (error) {
-    log.error(`❌ Error updating public/redirects.txt:`, error.message);
+    log.error(`❌ Error updating GitHub Pages config:`, error.message);
   }
 }
 
@@ -511,6 +595,9 @@ async function generateRedirects() {
       log.info('🎉 All platform configurations are valid!');
       return;
     }
+    
+    // Clean up files from other platforms before generating new config
+    await cleanupOtherPlatformFiles(DEPLOYMENT_PLATFORM);
     
     // Write platform-specific config
     switch (DEPLOYMENT_PLATFORM) {

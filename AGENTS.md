@@ -317,7 +317,7 @@ pnpm run build            # Build for production
 pnpm run check-images     # Check for missing images
 pnpm run sync-images      # Sync images from content to public
 pnpm run process-aliases  # Process content aliases
-pnpm run generate-redirects # Generate redirects
+pnpm run generate-deployment-config # Generate deployment configs
 ```
 
 
@@ -1425,6 +1425,52 @@ pnpm run build  # Works for all platforms - no environment variables needed!
 - **Vercel**: Generates `vercel.json` with redirects and cache headers for assets
 - **GitHub Pages**: Creates `public/redirects.txt` in the format required by GitHub Pages
 
+#### Platform Headers for PDF Embeds and Twitter Widgets
+
+To make PDF embeds and Twitter widgets work correctly, specific HTTP headers must be configured on each deployment platform:
+
+**Required Headers:**
+1. **X-Frame-Options: SAMEORIGIN** - Allows PDFs to be embedded in iframes on your own site
+2. **Content-Security-Policy** - Allows Twitter widgets script and iframes to load
+
+**Netlify (Default)**
+Headers are configured in `netlify.toml`. The following headers are automatically applied:
+- PDF files: `X-Frame-Options: SAMEORIGIN`
+- All pages: CSP with Twitter (`https://platform.twitter.com`) and other required domains
+
+**Vercel**
+Headers are generated automatically in `vercel.json` when you run the build command. The `scripts/generate-deployment-config.js` script:
+- PDF iframe permissions (`X-Frame-Options: SAMEORIGIN`)
+- Twitter CSP rules in the Content-Security-Policy header
+- **Preserves existing custom settings** (serverless functions, environment variables, etc.)
+
+To generate/update the config:
+```bash
+pnpm run build
+```
+
+**Important:** The script merges new redirects/headers with existing `vercel.json` settings, so custom configurations won't be lost.
+
+**GitHub Pages**
+Headers are generated automatically in `public/_headers` when you run the build command. The script creates:
+- `public/_redirects` - Redirect rules for GitHub Pages
+- `public/_headers` - Custom headers (requires paid GitHub Pages plan)
+
+**Important:** These files are auto-generated during build and are ignored by git (see `.gitignore`). They are:
+- Only created when `platform: "github-pages"` is selected
+- Automatically cleaned up when switching to other platforms
+- Build artifacts (similar to `dist/`) that should not be committed
+
+**Note:** Custom headers require GitHub Pages on a paid plan or GitHub Enterprise. Free GitHub Pages users won't have these headers applied.
+
+**For free GitHub Pages users:**
+- PDF embeds may show security warnings in some browsers
+- Twitter widgets should still work as the script is included directly in the page
+
+**Common Issues:**
+- **PDF shows "Firefox Can't Open This Page"**: The server is blocking iframe embeds. Check that `X-Frame-Options: SAMEORIGIN` is set for PDF files.
+- **Twitter widgets not loading**: Check browser console for CSP errors. Ensure `https://platform.twitter.com` is in both `script-src` and `frame-src` directives.
+
 #### Migration from Environment Variables
 The old environment variable approach is still supported for backward compatibility:
 ```bash
@@ -1787,13 +1833,13 @@ The `scripts/get-version.js` utility provides several functions:
 **Development Server:**
 ```bash
 > astro-modular@0.1.0 dev C:\Users\david\Development\astro-modular
-> cross-env ASTRO_CONTENT_COLLECTION_CACHE=false node scripts/setup-dev.mjs && node scripts/sync-images.js && node scripts/process-aliases.js && node scripts/generate-redirects.js && astro dev --host localhost --port 5000
+> cross-env ASTRO_CONTENT_COLLECTION_CACHE=false node scripts/setup-dev.mjs && node scripts/sync-images.js && node scripts/process-aliases.js && node scripts/generate-deployment-config.js && astro dev --host localhost --port 5000
 ```
 
 **Build Process:**
 ```bash
 > astro-modular@0.1.0 build C:\Users\david\Development\astro-modular
-> node scripts/sync-images.js && node scripts/process-aliases.js && node scripts/generate-redirects.js && astro build
+> node scripts/sync-images.js && node scripts/process-aliases.js && node scripts/generate-deployment-config.js && astro build
 ```
 
 **Version Check:**
