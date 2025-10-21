@@ -1213,15 +1213,11 @@ svg:has(text:contains("mermaid version")) {
 
 /* Video embeds */
 .video-embed {
-  @apply my-8;
-  @apply relative;
+  @apply my-8 rounded-xl overflow-hidden;
 }
 
 .video-embed .video-player {
-  @apply w-full;
-  @apply max-h-[70vh];
-  @apply rounded-xl;
-  display: block;
+  @apply w-full rounded-xl;
 }
 
 /* Twitter embeds */
@@ -1251,23 +1247,22 @@ svg:has(text:contains("mermaid version")) {
 
 /* PDF embeds */
 .pdf-embed {
-  @apply my-8 rounded-lg;
+  @apply my-8 rounded-lg overflow-hidden;
   @apply bg-primary-100 dark:bg-primary-800;
   @apply border border-primary-200 dark:border-primary-600;
-  @apply overflow-hidden;
 }
 
 .pdf-embed .pdf-viewer {
-  @apply w-full max-w-3xl mx-auto h-[800px];
-  @apply rounded-lg;
-  @apply border border-primary-200 dark:border-primary-600;
+  @apply w-full;
+  @apply border-0;
+  height: 80vh;
   display: block;
 }
 
 .pdf-embed .pdf-info {
   @apply p-4;
-  @apply flex items-center justify-between gap-4;
   @apply bg-primary-50 dark:bg-primary-900;
+  @apply flex items-center justify-between gap-4;
 }
 
 .pdf-embed .pdf-filename {
@@ -1287,10 +1282,6 @@ svg:has(text:contains("mermaid version")) {
   text-decoration: none !important;
 }
 
-.pdf-embed .pdf-download-link:hover {
-  color: white !important;
-}
-
 /* SVG embeds */
 .svg-embed {
   @apply my-6;
@@ -1305,7 +1296,7 @@ svg:has(text:contains("mermaid version")) {
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .pdf-embed .pdf-viewer {
-    @apply h-[400px];
+    height: 43vh;
   }
   
   .pdf-embed .pdf-info {
@@ -1316,16 +1307,9 @@ svg:has(text:contains("mermaid version")) {
     @apply w-full text-center;
   }
   
-  .audio-embed {
-    @apply my-4;
-  }
-  
+  .audio-embed,
   .video-embed,
   .youtube-embed {
     @apply my-6;
-  }
-  
-  .video-embed .video-player {
-    @apply max-h-[50vh];
   }
 }

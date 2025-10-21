@@ -76,33 +76,6 @@ function createHtmlNode(html: string): any {
   };
 }
 
-// Helper to get audio MIME type
-function getAudioMimeType(extension: string): string {
-  const mimeTypes: Record<string, string> = {
-    '.mp3': 'audio/mpeg',
-    '.wav': 'audio/wav',
-    '.ogg': 'audio/ogg',
-    '.m4a': 'audio/mp4',
-    '.3gp': 'audio/3gpp',
-    '.flac': 'audio/flac',
-    '.aac': 'audio/aac',
-  };
-  return mimeTypes[extension] || 'audio/mpeg';
-}
-
-// Helper to get video MIME type
-function getVideoMimeType(extension: string): string {
-  const mimeTypes: Record<string, string> = {
-    '.mp4': 'video/mp4',
-    '.webm': 'video/webm',
-    '.ogv': 'video/ogg',
-    '.mov': 'video/quicktime',
-    '.mkv': 'video/x-matroska',
-    '.avi': 'video/x-msvideo',
-  };
-  return mimeTypes[extension] || 'video/mp4';
-}
-
 export const remarkObsidianEmbeds: Plugin<[], Root> = () => {
   return (tree, file: any) => {
     // Visit image nodes (covers ![[file]] syntax)
@@ -144,12 +117,8 @@ export const remarkObsidianEmbeds: Plugin<[], Root> = () => {
 
       // Handle audio files
       if (AUDIO_EXTENSIONS.includes(extension)) {
-        const mimeType = getAudioMimeType(extension);
         const html = `<div class="audio-embed">
-  <audio class="audio-player" controls preload="metadata">
-    <source src="${resolvedUrl}" type="${mimeType}">
-    Your browser does not support the audio element.
-  </audio>
+  <audio class="audio-player" controls src="${resolvedUrl}"></audio>
 </div>`;
         parent.children[index] = createHtmlNode(html);
         return;
@@ -157,12 +126,8 @@ export const remarkObsidianEmbeds: Plugin<[], Root> = () => {
 
       // Handle video files
       if (VIDEO_EXTENSIONS.includes(extension)) {
-        const mimeType = getVideoMimeType(extension);
         const html = `<div class="video-embed">
-  <video class="video-player" controls preload="metadata">
-    <source src="${resolvedUrl}" type="${mimeType}">
-    Your browser does not support the video element.
-  </video>
+  <video class="video-player" controls src="${resolvedUrl}"></video>
 </div>`;
         parent.children[index] = createHtmlNode(html);
         return;
@@ -170,9 +135,9 @@ export const remarkObsidianEmbeds: Plugin<[], Root> = () => {
 
       // Handle PDF files
       if (PDF_EXTENSIONS.includes(extension)) {
-        const filename = url.split('/').pop() || 'document';
+        const filename = url.split('/').pop() || 'document.pdf';
         const html = `<div class="pdf-embed">
-  <embed src="${resolvedUrl}" type="application/pdf" class="pdf-viewer" />
+  <iframe class="pdf-viewer" src="${resolvedUrl}"></iframe>
   <div class="pdf-info">
     <span class="pdf-filename">${filename}</span>
     <a href="${resolvedUrl}" download class="pdf-download-link" target="_blank" rel="noopener noreferrer">Download PDF</a>
