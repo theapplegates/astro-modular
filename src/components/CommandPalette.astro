@@ -1202,8 +1202,16 @@ import Icon from './Icon.astro';
         allThemes.push('custom');
       }
       
+      // Get available themes from config
+      const configAvailableThemes = (window as any).siteConfig?.availableThemes || 'all';
+      
+      // Filter themes based on config
+      const filteredThemes = configAvailableThemes === 'all' 
+        ? allThemes 
+        : allThemes.filter(theme => configAvailableThemes.includes(theme));
+      
       // Reorder themes to put default theme first
-      const themes = [defaultTheme, ...allThemes.filter(theme => theme !== defaultTheme)];
+      const themes = [defaultTheme, ...filteredThemes.filter(theme => theme !== defaultTheme)];
 
       this.themeList.innerHTML = '';
 

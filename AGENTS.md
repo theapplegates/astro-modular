@@ -1890,6 +1890,7 @@ export const siteConfig = {
 #### Theme & Layout Options
 ```typescript
 theme: "oxygen",  // Available: Oxygen, Minimal, Atom, Ayu, Catppuccin, Charcoal, Dracula, Everforest, Flexoki, Gruvbox, macOS, Nord, Obsidian, Rosé Pine, Sky, Solarized, Things
+availableThemes: "all",  // "all" or array like ["oxygen", "minimal", "nord"] to limit user choices
 layout: {
   contentWidth: "45rem",
 },
@@ -2622,6 +2623,24 @@ Before deploying any changes to config.ts:
 - Use the command palette (`Ctrl+K`) for instant theme switching
 - Theme changes are visible in real-time with `pnpm dev`
 - All themes are optimized for performance and accessibility
+
+#### Controlling Available Themes
+- **`availableThemes` configuration**: Control which themes users can select
+- **Show all themes**: Set `availableThemes: "all"` (default behavior)
+- **Limit theme choices**: Set `availableThemes: ["oxygen", "minimal", "nord", "dracula"]` to restrict options
+- **Example configuration**:
+  ```typescript
+  // Show only a curated selection of themes
+  availableThemes: ["oxygen", "minimal", "nord", "catppuccin", "rose-pine"]
+  
+  // Show all themes (default)
+  availableThemes: "all"
+  ```
+- **Use cases**:
+  - Maintain brand consistency by limiting theme choices
+  - Reduce complexity for users by offering fewer options
+  - Showcase only professionally-tested themes
+  - Create themed collections (e.g., warm vs cool color palettes)
 
 #### Custom Themes
 - **Template system**: Use `src/themes/custom/custom.ts` as a starting point

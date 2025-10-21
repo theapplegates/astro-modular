@@ -21,6 +21,7 @@ export interface SiteConfig {
   // Global Settings
   theme: "minimal" | "oxygen" | "atom" | "ayu" | "catppuccin" | "charcoal" | "dracula" | "everforest" | "flexoki" | "gruvbox" | "macos" | "nord" | "obsidian" | "rose-pine" | "sky" | "solarized" | "things" | "custom";
   customThemeFile?: string; // Filename in src/themes/custom/ (e.g., "my-cool-theme" for my-cool-theme.ts)
+  availableThemes: "all" | Array<"minimal" | "oxygen" | "atom" | "ayu" | "catppuccin" | "charcoal" | "dracula" | "everforest" | "flexoki" | "gruvbox" | "macos" | "nord" | "obsidian" | "rose-pine" | "sky" | "solarized" | "things" | "custom">; // Control which themes users can select
   fonts: {
     source: "local" | "cdn";
     families: {
@@ -190,6 +191,8 @@ export const siteConfig: SiteConfig = {
   theme: "oxygen", // Available themes: "minimal" | "oxygen" | "atom" | "ayu" | "catppuccin" | "charcoal" | "dracula" | "everforest" | "flexoki" | "gruvbox" | "macos" | "nord" | "obsidian" | "rose-pine" | "sky" | "solarized" | "things" | "custom"
   // [CONFIG:CUSTOM_THEME_FILE]
   customThemeFile: "custom", // Only used if theme is set to "custom" above. Filename in src/themes/custom/ (without .ts extension)
+  // [CONFIG:AVAILABLE_THEMES]
+  availableThemes: "all", // "all" to show all themes, or array of theme names like ["oxygen", "minimal", "nord", "dracula"] to limit choices
   fonts: {
     // [CONFIG:FONT_SOURCE]
     source: "local", // "local" for self-hosted @fontsource fonts, "cdn" for Google Fonts CDN
