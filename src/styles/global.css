@@ -1258,8 +1258,9 @@ svg:has(text:contains("mermaid version")) {
 }
 
 .pdf-embed .pdf-viewer {
-  @apply w-full h-[600px];
-  @apply border-0 border-b border-primary-200 dark:border-primary-600;
+  @apply w-full max-w-3xl mx-auto h-[800px];
+  @apply rounded-lg;
+  @apply border border-primary-200 dark:border-primary-600;
   display: block;
 }
 
