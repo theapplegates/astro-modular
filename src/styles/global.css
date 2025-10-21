@@ -1204,31 +1204,24 @@ svg:has(text:contains("mermaid version")) {
 
 /* Audio embeds */
 .audio-embed {
-  @apply my-6 rounded-lg overflow-hidden;
-  @apply bg-primary-100 dark:bg-primary-800;
-  @apply border border-primary-200 dark:border-primary-600;
+  @apply my-6;
 }
 
-.audio-embed audio {
-  @apply w-full;
-  @apply bg-transparent;
-}
-
-.audio-filename {
-  @apply px-4 py-2 text-sm;
-  @apply text-primary-600 dark:text-primary-400;
+.audio-embed .audio-player {
+  @apply w-full rounded-lg;
 }
 
 /* Video embeds */
 .video-embed {
-  @apply my-8 rounded-xl overflow-hidden;
-  @apply aspect-video;
-  @apply flex items-center justify-center;
-  @apply bg-black;
+  @apply my-8;
+  @apply relative;
 }
 
-.video-embed video {
-  @apply w-full h-full object-contain;
+.video-embed .video-player {
+  @apply w-full;
+  @apply max-h-[70vh];
+  @apply rounded-xl;
+  display: block;
 }
 
 /* Twitter embeds */
@@ -1258,27 +1251,68 @@ svg:has(text:contains("mermaid version")) {
 
 /* PDF embeds */
 .pdf-embed {
-  @apply my-8;
-}
-
-.pdf-embed iframe {
-  @apply w-full h-[600px] rounded-lg;
+  @apply my-8 rounded-lg;
+  @apply bg-primary-100 dark:bg-primary-800;
   @apply border border-primary-200 dark:border-primary-600;
+  @apply overflow-hidden;
 }
 
-/* PDF download button - use existing button classes with higher specificity */
-.prose .pdf-download-link {
-  @apply btn btn-primary mt-3;
+.pdf-embed .pdf-viewer {
+  @apply w-full h-[600px];
+  @apply border-0 border-b border-primary-200 dark:border-primary-600;
+  display: block;
 }
 
-.prose .pdf-download-link:hover {
+.pdf-embed .pdf-info {
+  @apply p-4;
+  @apply flex items-center justify-between gap-4;
+  @apply bg-primary-50 dark:bg-primary-900;
+}
+
+.pdf-embed .pdf-filename {
+  @apply text-sm font-medium;
+  @apply text-primary-700 dark:text-primary-300;
+  @apply truncate flex-1;
+}
+
+.pdf-embed .pdf-download-link {
+  @apply px-4 py-2 rounded-md;
+  @apply bg-highlight-600 dark:bg-highlight-500;
+  @apply text-sm font-medium;
+  @apply hover:bg-highlight-700 dark:hover:bg-highlight-600;
+  @apply transition-colors duration-200;
+  @apply whitespace-nowrap;
   color: white !important;
+  text-decoration: none !important;
+}
+
+.pdf-embed .pdf-download-link:hover {
+  color: white !important;
+}
+
+/* SVG embeds */
+.svg-embed {
+  @apply my-6;
+  @apply flex justify-center;
+}
+
+.svg-embed .svg-image {
+  @apply max-w-full h-auto;
+  @apply rounded-lg;
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-  .pdf-embed iframe {
+  .pdf-embed .pdf-viewer {
     @apply h-[400px];
+  }
+  
+  .pdf-embed .pdf-info {
+    @apply flex-col items-start gap-2;
+  }
+  
+  .pdf-embed .pdf-download-link {
+    @apply w-full text-center;
   }
   
   .audio-embed {
@@ -1288,5 +1322,9 @@ svg:has(text:contains("mermaid version")) {
   .video-embed,
   .youtube-embed {
     @apply my-6;
+  }
+  
+  .video-embed .video-player {
+    @apply max-h-[50vh];
   }
 }

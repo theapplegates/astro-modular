@@ -2,14 +2,17 @@ import { visit } from 'unist-util-visit';
 import type { Plugin } from 'unified';
 import type { Root, Image, Link } from 'mdast';
 
-// Audio file extensions
+// Audio file extensions (matches astro-loader-obsidian)
 const AUDIO_EXTENSIONS = ['.mp3', '.wav', '.ogg', '.m4a', '.3gp', '.flac', '.aac'];
 
-// Video file extensions
+// Video file extensions (matches astro-loader-obsidian)
 const VIDEO_EXTENSIONS = ['.mp4', '.webm', '.ogv', '.mov', '.mkv', '.avi'];
 
 // PDF file extensions
 const PDF_EXTENSIONS = ['.pdf'];
+
+// SVG file extensions
+const SVG_EXTENSIONS = ['.svg'];
 
 // YouTube URL patterns
 const YOUTUBE_PATTERNS = [
@@ -74,7 +77,7 @@ function createHtmlNode(html: string): any {
 }
 
 export const remarkObsidianEmbeds: Plugin<[], Root> = () => {
-  return (tree) => {
+  return (tree, file: any) => {
     // Visit image nodes (covers ![[file]] syntax)
     visit(tree, 'image', (node: Image, index, parent) => {
       if (!node.url || !parent || typeof index !== 'number') return;
@@ -83,16 +86,41 @@ export const remarkObsidianEmbeds: Plugin<[], Root> = () => {
       const alt = node.alt || '';
       const extension = getFileExtension(url);
 
+      // Detect collection and slug from file path (same logic as remarkFolderImages)
+      let resolvedUrl = url;
+      if (url.startsWith('attachments/') && file.path) {
+        const isFolderPost = file.path.includes('/posts/') && file.path.endsWith('/index.md');
+        const isFolderPage = file.path.includes('/pages/') && file.path.endsWith('/index.md');
+        const isFolderProject = file.path.includes('/projects/') && file.path.endsWith('/index.md');
+        const isFolderDoc = file.path.includes('/docs/') && file.path.endsWith('/index.md');
+        
+        if (isFolderPost || isFolderPage || isFolderProject || isFolderDoc) {
+          const pathParts = file.path.split('/');
+          let collection = 'posts';
+          let contentIndex = pathParts.indexOf('posts');
+          
+          if (isFolderPage) {
+            collection = 'pages';
+            contentIndex = pathParts.indexOf('pages');
+          } else if (isFolderProject) {
+            collection = 'projects';
+            contentIndex = pathParts.indexOf('projects');
+          } else if (isFolderDoc) {
+            collection = 'docs';
+            contentIndex = pathParts.indexOf('docs');
+          }
+          
+          const contentSlug = pathParts[contentIndex + 1];
+          resolvedUrl = `/${collection}/${contentSlug}/${url}`;
+        }
+      }
+
       // Handle audio files
       if (AUDIO_EXTENSIONS.includes(extension)) {
-        const filename = url.split('/').pop() || 'audio';
-        const html = `
-<div class="audio-embed">
-  <audio controls preload="metadata">
-    <source src="${url}" type="audio/${extension.substring(1)}">
+        const html = `<div class="audio-embed">
+  <audio class="audio-player" controls preload="metadata" src="${resolvedUrl}">
     Your browser does not support the audio element.
   </audio>
-  <p class="audio-filename">${filename}</p>
 </div>`;
         parent.children[index] = createHtmlNode(html);
         return;
@@ -100,10 +128,8 @@ export const remarkObsidianEmbeds: Plugin<[], Root> = () => {
 
       // Handle video files
       if (VIDEO_EXTENSIONS.includes(extension)) {
-        const html = `
-<div class="video-embed">
-  <video controls preload="metadata">
-    <source src="${url}" type="video/${extension.substring(1)}">
+        const html = `<div class="video-embed">
+  <video class="video-player" controls preload="metadata" src="${resolvedUrl}">
     Your browser does not support the video element.
   </video>
 </div>`;
@@ -114,16 +140,21 @@ export const remarkObsidianEmbeds: Plugin<[], Root> = () => {
       // Handle PDF files
       if (PDF_EXTENSIONS.includes(extension)) {
         const filename = url.split('/').pop() || 'document';
-        const html = `
-<div class="pdf-embed">
-  <iframe 
-    src="${url}" 
-    class="w-full h-[600px] rounded-lg border border-primary-200 dark:border-primary-600"
-    title="PDF Document"
-  ></iframe>
-  <a href="${url}" download class="pdf-download-link">
-    Download PDF
-  </a>
+        const html = `<div class="pdf-embed">
+  <embed src="${resolvedUrl}" type="application/pdf" class="w-full max-w-3xl mx-auto h-[800px] rounded-lg border border-primary-200 dark:border-primary-600" />
+  <div class="pdf-info">
+    <span class="pdf-filename">${filename}</span>
+    <a href="${resolvedUrl}" download class="pdf-download-link" target="_blank" rel="noopener noreferrer">Download PDF</a>
+  </div>
+</div>`;
+        parent.children[index] = createHtmlNode(html);
+        return;
+      }
+
+      // Handle SVG files (embedded as responsive images)
+      if (SVG_EXTENSIONS.includes(extension)) {
+        const html = `<div class="svg-embed">
+  <img src="${resolvedUrl}" alt="${alt}" class="svg-image" />
 </div>`;
         parent.children[index] = createHtmlNode(html);
         return;
@@ -134,7 +165,7 @@ export const remarkObsidianEmbeds: Plugin<[], Root> = () => {
         // Check for Twitter/X
         const twitterPostId = extractTwitterPostId(url);
         if (twitterPostId) {
-          const html = `<blockquote class="twitter-tweet" data-theme="preferred_color_scheme" data-conversation="none"><p lang="en" dir="ltr">Why doesn&#39;t everyone use Astro? Writing blog posts in markdown is beautiful.</p>&mdash; David V. Kimball (@davidvkimball) <a href="https://twitter.com/davidvkimball/status/${twitterPostId}?ref_src=twsrc%5Etfw">June 12, 2025</a></blockquote>`;
+          const html = `<blockquote class="twitter-tweet" data-twitter-embed data-theme="preferred_color_scheme" data-conversation="none"><a href="https://twitter.com/user/status/${twitterPostId}"></a></blockquote>`;
           parent.children[index] = createHtmlNode(html);
           return;
         }

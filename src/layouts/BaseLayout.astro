@@ -1354,12 +1354,11 @@ const { seoData, bodyClass = '' } = Astro.props;
     // Twitter widget initialization
     function initializeTwitterWidgets() {
       if (typeof window.twttr !== 'undefined' && window.twttr.widgets) {
-        // Find all Twitter embeds on the page
-        const twitterEmbeds = document.querySelectorAll('[data-twitter-embed]');
-        if (twitterEmbeds.length > 0) {
-          // Load Twitter widgets for new content
-          window.twttr.widgets.load();
-        }
+        // Load Twitter widgets for all tweets on page
+        window.twttr.widgets.load();
+      } else {
+        // If Twitter script hasn't loaded yet, wait for it
+        setTimeout(initializeTwitterWidgets, 500);
       }
     }
 
