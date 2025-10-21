@@ -6,6 +6,7 @@ import type { SEOData } from '@/types';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
 import CommandPalette from '@/components/CommandPalette.astro';
+import ThemeSelector from '@/components/ThemeSelector.astro';
 import GraphModal from '@/components/GraphModal.astro';
 import ScrollToTop from '@/components/ScrollToTop.astro';
 import Lightbox from '@/components/Lightbox.astro';
@@ -776,6 +777,9 @@ const { seoData, bodyClass = '' } = Astro.props;
 
   <!-- Command Palette -->
   {siteConfig.commandPalette.enabled && <CommandPalette />}
+  
+  <!-- Theme Selector (for when command palette is disabled but theme button is needed) -->
+  <ThemeSelector />
   
 
   <!-- Scroll to Top -->

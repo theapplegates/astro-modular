@@ -39,7 +39,7 @@ export interface SiteConfig {
     showSocialIconsInFooter: boolean;
   };
   scrollToTop: boolean;
-    darkModeToggleButton: "navigation" | "commandPalette" | "both";
+  featureButton: "mode" | "graph" | "theme" | "none";
   seo: {
     defaultOgImageAlt: string;
   };
@@ -62,6 +62,12 @@ export interface SiteConfig {
       quickActions: boolean;
       pages: boolean;
       social: boolean;
+    };
+    quickActions: {
+      enabled: boolean;
+      toggleMode: boolean;
+      graphView: boolean;
+      changeTheme: boolean;
     };
   };
   
@@ -123,7 +129,6 @@ export interface SiteConfig {
     graphView: {
       enabled: boolean;
       showInSidebar: boolean;
-      showInCommandPalette: boolean;
       maxNodes: number;
       showOrphanedPosts: boolean;
     };
@@ -183,6 +188,7 @@ export const siteConfig: SiteConfig = {
   // Global Settings
   // [CONFIG:THEME]
   theme: "oxygen", // Available themes: "minimal" | "oxygen" | "atom" | "ayu" | "catppuccin" | "charcoal" | "dracula" | "everforest" | "flexoki" | "gruvbox" | "macos" | "nord" | "obsidian" | "rose-pine" | "sky" | "solarized" | "things" | "custom"
+  // [CONFIG:CUSTOM_THEME_FILE]
   customThemeFile: "custom", // Only used if theme is set to "custom" above. Filename in src/themes/custom/ (without .ts extension)
   fonts: {
     // [CONFIG:FONT_SOURCE]
@@ -195,6 +201,7 @@ export const siteConfig: SiteConfig = {
       // [CONFIG:FONT_MONO]
       mono: "JetBrains Mono", // Monospace font family
     },
+    // [CONFIG:FONT_DISPLAY]
     display: "swap", // Font display strategy: "swap" (recommended), "fallback", or "optional"
   },
   layout: {
@@ -204,15 +211,17 @@ export const siteConfig: SiteConfig = {
   footer: {
     // [CONFIG:FOOTER_ENABLED]
     enabled: true,
+    // [CONFIG:FOOTER_CONTENT]
     content: `© 2025 {author}. Built with the <a href="https://github.com/davidvkimball/astro-modular" target="_blank">Astro Modular</a> theme.`,
     // [CONFIG:FOOTER_SHOW_SOCIAL_ICONS]
     showSocialIconsInFooter: true,
   },
   // [CONFIG:SCROLL_TO_TOP]
   scrollToTop: true,
-  // [CONFIG:DARK_MODE_TOGGLE_BUTTON]
-  darkModeToggleButton: "both", // "navigation" | "commandPalette" | "both"
+  // [CONFIG:FEATURE_BUTTON]
+  featureButton: "mode", // "mode" | "graph" | "theme" | "none"
   seo: {
+    // [CONFIG:SEO_DEFAULT_OG_IMAGE_ALT]
     defaultOgImageAlt: "Astro Modular logo.", // Alt text for the default Open Graph image, public/open-graph.png
   },
   deployment: {
@@ -245,6 +254,16 @@ export const siteConfig: SiteConfig = {
       pages: true,
       // [CONFIG:COMMAND_PALETTE_SECTIONS_SOCIAL]
       social: true,
+    },
+    quickActions: {
+      // [CONFIG:COMMAND_PALETTE_QUICK_ACTIONS_ENABLED]
+      enabled: true,
+      // [CONFIG:COMMAND_PALETTE_QUICK_ACTIONS_TOGGLE_MODE]
+      toggleMode: true,
+      // [CONFIG:COMMAND_PALETTE_QUICK_ACTIONS_GRAPH_VIEW]
+      graphView: true,
+      // [CONFIG:COMMAND_PALETTE_QUICK_ACTIONS_CHANGE_THEME]
+      changeTheme: true,
     },
   },
 
@@ -358,12 +377,10 @@ export const siteConfig: SiteConfig = {
       linkedMentionsCompact: false,
     },
     graphView: {
-    // [CONFIG:POST_OPTIONS_GRAPH_VIEW_ENABLED]
-    enabled: true,
+      // [CONFIG:POST_OPTIONS_GRAPH_VIEW_ENABLED]
+      enabled: true,
       // [CONFIG:POST_OPTIONS_GRAPH_VIEW_SHOW_IN_SIDEBAR]
       showInSidebar: true,
-      // [CONFIG:POST_OPTIONS_GRAPH_VIEW_SHOW_IN_COMMAND_PALETTE]
-      showInCommandPalette: true,
       // [CONFIG:POST_OPTIONS_GRAPH_VIEW_MAX_NODES]
       maxNodes: 100,
       // [CONFIG:POST_OPTIONS_GRAPH_VIEW_SHOW_ORPHANED_POSTS]

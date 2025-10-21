@@ -75,14 +75,15 @@ import Icon from './Icon.astro';
         <!-- Default items (shown when no search) -->
         <div id="command-palette-default" class="divide-y divide-primary-200 dark:divide-primary-700">
           <!-- Quick Actions -->
-          {siteConfig.commandPalette.sections.quickActions && (
-            (siteConfig.darkModeToggleButton === "commandPalette" || siteConfig.darkModeToggleButton === "both" || 
-             (siteConfig.postOptions.graphView.enabled && siteConfig.postOptions.graphView.showInCommandPalette)) && (
+          {siteConfig.commandPalette.sections.quickActions && siteConfig.commandPalette.quickActions.enabled && 
+           (siteConfig.commandPalette.quickActions.toggleMode || 
+            siteConfig.commandPalette.quickActions.graphView || 
+            siteConfig.commandPalette.quickActions.changeTheme) && (
             <div class="p-2">
               <div class="px-3 py-2 text-xs font-medium text-primary-500 dark:text-primary-400 uppercase tracking-wide">
                 Quick Actions
               </div>
-              {(siteConfig.darkModeToggleButton === "commandPalette" || siteConfig.darkModeToggleButton === "both") && (
+              {siteConfig.commandPalette.quickActions.toggleMode && (
                 <button 
                   data-action="toggle-theme"
                   class="w-full flex items-center space-x-3 px-3 py-2 text-left hover:bg-primary-50 dark:hover:bg-primary-800 rounded-lg transition-colors group"
@@ -92,7 +93,7 @@ import Icon from './Icon.astro';
                 </button>
               )}
               
-              {siteConfig.postOptions.graphView.enabled && siteConfig.postOptions.graphView.showInCommandPalette && (
+              {siteConfig.commandPalette.quickActions.graphView && siteConfig.postOptions.graphView.enabled && (
                 <button 
                   data-action="open-graph"
                   class="w-full flex items-center space-x-3 px-3 py-2 text-left hover:bg-primary-50 dark:hover:bg-primary-800 rounded-lg transition-colors group"
@@ -102,15 +103,17 @@ import Icon from './Icon.astro';
                 </button>
               )}
               
-              <button 
-                data-action="change-theme"
-                class="w-full flex items-center space-x-3 px-3 py-2 text-left hover:bg-primary-50 dark:hover:bg-primary-800 rounded-lg transition-colors group"
-              >
-                <Icon name="palette" class="w-4 h-4 text-primary-500 dark:text-primary-400 group-hover:text-highlight-500" />
-                <span class="text-primary-900 dark:text-primary-50">Change Theme</span>
-              </button>
+              {siteConfig.commandPalette.quickActions.changeTheme && (
+                <button 
+                  data-action="change-theme"
+                  class="w-full flex items-center space-x-3 px-3 py-2 text-left hover:bg-primary-50 dark:hover:bg-primary-800 rounded-lg transition-colors group"
+                >
+                  <Icon name="palette" class="w-4 h-4 text-primary-500 dark:text-primary-400 group-hover:text-highlight-500" />
+                  <span class="text-primary-900 dark:text-primary-50">Change Theme</span>
+                </button>
+              )}
             </div>
-          ))}
+          )}
 
           <!-- Pages -->
           {siteConfig.commandPalette.sections.pages && siteConfig.navigation.pages.length > 0 && (
@@ -1282,7 +1285,9 @@ import Icon from './Icon.astro';
   function initCommandPalette() {
     // Check if the command palette overlay element exists before initializing
     if (document.getElementById('command-palette-overlay')) {
-      new CommandPalette();
+      const instance = new CommandPalette();
+      // Make instance globally accessible for other components
+      (window as any).commandPaletteInstance = instance;
     }
   }
 

@@ -55,7 +55,7 @@ const paletteIcon = allSectionsDisabled ? 'search' : 'command';
         <!-- Smart Navigation (single system with style variants) -->
         {siteConfig.navigation.showNavigation && (  
     <nav class={`hidden md:flex items-center ${  
-      siteConfig.navigation.style === 'minimal' ? `space-x-5 ${!siteConfig.darkModeToggleButton && !siteConfig.commandPalette.enabled ? '' : 'mr-4'}` : 'space-x-5' }`} aria-label="Main navigation">
+      siteConfig.navigation.style === 'minimal' ? `space-x-5 ${siteConfig.featureButton === 'none' && !siteConfig.commandPalette.enabled ? '' : 'mr-4'}` : 'space-x-5' }`} aria-label="Main navigation">
             {siteConfig.navigation.pages.map(page => (
               <a 
                 href={page.url}
@@ -79,8 +79,26 @@ const paletteIcon = allSectionsDisabled ? 'search' : 'command';
 
       <!-- Action buttons -->
       <div class="flex items-center space-x-4">
-        <!-- Theme Toggle -->
-        {(siteConfig.darkModeToggleButton === "navigation" || siteConfig.darkModeToggleButton === "both") && <ThemeToggle />}
+        <!-- Feature Button -->
+        {siteConfig.featureButton === "mode" && <ThemeToggle />}
+        {siteConfig.featureButton === "graph" && siteConfig.postOptions.graphView.enabled && (
+          <button
+            id="header-graph-button"
+            class="p-2 text-primary-500 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-800 rounded-lg transition-colors duration-200"
+            aria-label="Open graph view"
+          >
+            <Icon name="git-fork" class="w-5 h-5" />
+          </button>
+        )}
+        {siteConfig.featureButton === "theme" && (
+          <button
+            id="header-theme-button"
+            class="p-2 text-primary-500 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-800 rounded-lg transition-colors duration-200"
+            aria-label="Change theme"
+          >
+            <Icon name="palette" class="w-5 h-5" />
+          </button>
+        )}
         <!-- Command palette trigger -->
         {siteConfig.commandPalette.enabled && (
           hasShortcut ? (
@@ -227,6 +245,55 @@ const paletteIcon = allSectionsDisabled ? 'search' : 'command';
     });
 
     // Theme toggle and command palette shortcuts are handled in BaseLayout
+
+    // Header feature button handlers
+    const headerGraphButton = document.getElementById('header-graph-button');
+    if (headerGraphButton) {
+      headerGraphButton.addEventListener('click', () => {
+        if ((window as any).openGraphModal) {
+          (window as any).openGraphModal();
+        } else {
+          // Try to initialize GraphModal if it's not available
+          if ((window as any).initializeGraphModal) {
+            (window as any).initializeGraphModal();
+            // Try again after initialization
+            setTimeout(() => {
+              if ((window as any).openGraphModal) {
+                (window as any).openGraphModal();
+              }
+            }, 100);
+          }
+        }
+      });
+    }
+
+    const headerThemeButton = document.getElementById('header-theme-button');
+    if (headerThemeButton) {
+      headerThemeButton.addEventListener('click', () => {
+        // Check if command palette is enabled
+        const commandPaletteEnabled = (window as any).siteConfig?.commandPalette?.enabled;
+        
+        if (commandPaletteEnabled) {
+          // Use command palette for theme selection
+          const event = new CustomEvent('openCommandPalette');
+          window.dispatchEvent(event);
+          
+          // After a brief delay, trigger theme selection
+          setTimeout(() => {
+            const commandPalette = (window as any).commandPaletteInstance;
+            if (commandPalette && commandPalette.executeAction) {
+              commandPalette.executeAction('change-theme');
+            }
+          }, 100);
+        } else {
+          // Use standalone theme selector
+          const themeSelector = (window as any).themeSelectorInstance;
+          if (themeSelector && themeSelector.open) {
+            themeSelector.open();
+          }
+        }
+      });
+    }
 
     // Header shadow on scroll
     const header = document.getElementById('main-header');
