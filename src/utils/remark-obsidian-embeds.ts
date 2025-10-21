@@ -86,34 +86,43 @@ export const remarkObsidianEmbeds: Plugin<[], Root> = () => {
       const alt = node.alt || '';
       const extension = getFileExtension(url);
 
-      // Detect collection and slug from file path (same logic as remarkFolderImages)
-      let resolvedUrl = url;
-      if (url.startsWith('attachments/') && file.path) {
-        const isFolderPost = file.path.includes('/posts/') && file.path.endsWith('/index.md');
-        const isFolderPage = file.path.includes('/pages/') && file.path.endsWith('/index.md');
-        const isFolderProject = file.path.includes('/projects/') && file.path.endsWith('/index.md');
-        const isFolderDoc = file.path.includes('/docs/') && file.path.endsWith('/index.md');
-        
-        if (isFolderPost || isFolderPage || isFolderProject || isFolderDoc) {
-          const pathParts = file.path.split('/');
-          let collection = 'posts';
-          let contentIndex = pathParts.indexOf('posts');
+        // Detect collection and slug from file path (same logic as remarkFolderImages)
+        let resolvedUrl = url;
+        if (url.startsWith('attachments/') && file.path) {
+          const isFolderPost = file.path.includes('/posts/') && file.path.endsWith('/index.md');
+          const isFolderPage = file.path.includes('/pages/') && file.path.endsWith('/index.md');
+          const isFolderProject = file.path.includes('/projects/') && file.path.endsWith('/index.md');
+          const isFolderDoc = file.path.includes('/docs/') && file.path.endsWith('/index.md');
           
-          if (isFolderPage) {
-            collection = 'pages';
-            contentIndex = pathParts.indexOf('pages');
-          } else if (isFolderProject) {
-            collection = 'projects';
-            contentIndex = pathParts.indexOf('projects');
-          } else if (isFolderDoc) {
-            collection = 'docs';
-            contentIndex = pathParts.indexOf('docs');
+          if (isFolderPost || isFolderPage || isFolderProject || isFolderDoc) {
+            // Folder-based content: /collection/slug/attachments/file
+            const pathParts = file.path.split('/');
+            let collection = 'posts';
+            let contentIndex = pathParts.indexOf('posts');
+            
+            if (isFolderPage) {
+              collection = 'pages';
+              contentIndex = pathParts.indexOf('pages');
+            } else if (isFolderProject) {
+              collection = 'projects';
+              contentIndex = pathParts.indexOf('projects');
+            } else if (isFolderDoc) {
+              collection = 'docs';
+              contentIndex = pathParts.indexOf('docs');
+            }
+            
+            const contentSlug = pathParts[contentIndex + 1];
+            resolvedUrl = `/${collection}/${contentSlug}/${url}`;
+          } else {
+            // File-based content: /collection/attachments/file (shared attachments folder)
+            let collection = 'posts';
+            if (file.path.includes('/pages/')) collection = 'pages';
+            else if (file.path.includes('/projects/')) collection = 'projects';
+            else if (file.path.includes('/docs/')) collection = 'docs';
+            
+            resolvedUrl = `/${collection}/${url}`;
           }
-          
-          const contentSlug = pathParts[contentIndex + 1];
-          resolvedUrl = `/${collection}/${contentSlug}/${url}`;
         }
-      }
 
       // Handle audio files
       if (AUDIO_EXTENSIONS.includes(extension)) {
