@@ -666,9 +666,11 @@ const { seoData, bodyClass = '' } = Astro.props;
       const reactionsEnabled = containerElement.dataset.reactionsEnabled || '1';
       const metadata = containerElement.dataset.metadata || '0';
       const inputPosition = containerElement.dataset.inputPosition || 'bottom';
-      const theme = containerElement.dataset.theme || 'preferred_color_scheme';
       const lang = containerElement.dataset.lang || 'en';
       const loading = containerElement.dataset.loading || 'lazy';
+      
+      // Use the theme from config (should be 'preferred_color_scheme' for dynamic switching)
+      const theme = containerElement.dataset.theme || 'preferred_color_scheme';
       
       script.setAttribute('data-repo', repo);
       script.setAttribute('data-repo-id', repoId);
@@ -706,11 +708,15 @@ const { seoData, bodyClass = '' } = Astro.props;
           }
         }, 1000); // Delay to allow Giscus to fully load
         
-        // Simple iframe load detection (no auto-scroll)
+        // Simple iframe load detection and theme initialization
         const checkForGiscusIframe = () => {
           const giscusIframe = document.querySelector('iframe[src*="giscus"]');
           if (giscusIframe) {
             giscusIframe.addEventListener('load', () => {
+              // Initialize theme after iframe loads
+              setTimeout(() => {
+                handleGiscusThemeChange();
+              }, 500);
             });
           } else {
             // If iframe not ready yet, check again in a bit
@@ -1437,11 +1443,15 @@ const { seoData, bodyClass = '' } = Astro.props;
         initializeTwitterWidgets();
         // Also initialize theme again after widgets load (as backup)
         setTimeout(initializeTwitterTheme, 1000);
+        // Initialize Giscus theme after widgets load
+        setTimeout(initializeGiscusTheme, 1500);
       });
     } else {
       initializeTwitterWidgets();
       // Also initialize theme again after widgets load (as backup)
       setTimeout(initializeTwitterTheme, 1000);
+      // Initialize Giscus theme after widgets load
+      setTimeout(initializeGiscusTheme, 1500);
     }
 
     // Mermaid theme change handling
@@ -1474,10 +1484,51 @@ const { seoData, bodyClass = '' } = Astro.props;
       });
     }
 
+    // Giscus theme change handling - use postMessage API for dynamic theme switching
+    function handleGiscusThemeChange() {
+      // Only change theme if comments are enabled and Giscus iframe exists
+      if (window.commentsEnabled) {
+        const giscusIframe = document.querySelector('iframe.giscus-frame');
+        if (giscusIframe) {
+          // Get current theme from document
+          const isDark = document.documentElement.classList.contains('dark');
+          const newTheme = isDark ? 'dark' : 'light';
+          
+          // Send message to Giscus iframe to change theme
+          giscusIframe.contentWindow.postMessage(
+            { giscus: { setConfig: { theme: newTheme } } },
+            'https://giscus.app'
+          );
+        }
+      }
+    }
+
     // Initialize Twitter theme on page load
     function initializeTwitterTheme() {
       const isDark = document.documentElement.classList.contains('dark');
       handleTwitterThemeChange(isDark);
+    }
+
+    // Initialize Giscus theme on page load
+    function initializeGiscusTheme() {
+      // Wait for Giscus iframe to load, then set initial theme
+      const checkForGiscusIframe = () => {
+        const giscusIframe = document.querySelector('iframe.giscus-frame');
+        if (giscusIframe) {
+          // Small delay to ensure iframe is fully loaded
+          setTimeout(() => {
+            handleGiscusThemeChange();
+          }, 500);
+        } else {
+          // If iframe not ready yet, check again in a bit
+          setTimeout(checkForGiscusIframe, 500);
+        }
+      };
+      
+      // Only check if comments are enabled
+      if (window.commentsEnabled) {
+        checkForGiscusIframe();
+      }
     }
 
     // Listen for theme changes
@@ -1493,6 +1544,7 @@ const { seoData, bodyClass = '' } = Astro.props;
             if (isDark !== wasDark) {
               handleMermaidThemeChange();
               handleTwitterThemeChange(isDark);
+              handleGiscusThemeChange();
             }
           }
         });
