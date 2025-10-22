@@ -129,7 +129,7 @@
     "postCardAspectRatio": "og",
     "customPostCardAspectRatio": "2.5/1",
     "comments": {
-      "enabled": true,
+      "enabled": false,
       "provider": "giscus",
       "repo": "davidvkimball/astro-modular",
       "repoId": "R_kgDOPllfKw",
@@ -151,7 +151,7 @@
     "readingTime": true,
     "linkedMentions": true,
     "linkedMentionsCompact": false,
-    "comments": true,
+    "comments": false,
     "graphView": true,
     "postNavigation": true,
     "scrollToTop": true,
@@ -191,7 +191,7 @@
       "style": "circle"
     },
     "comments": {
-      "enabled": true,
+      "enabled": false,
       "provider": "giscus",
       "repo": "davidvkimball/astro-modular",
       "repoId": "R_kgDOPllfKw",
