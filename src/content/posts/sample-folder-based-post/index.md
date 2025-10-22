@@ -9,6 +9,7 @@ image: "[[cover.png]]"
 imageAlt: A beautiful multi-tiered waterfall cascading into a turquoise lake surrounded by lush green forest.
 imageOG: false
 hideCoverImage: false
+hideTOC: true
 targetKeyword: ""
 draft: false
 ---

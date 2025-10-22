@@ -83,7 +83,8 @@ const { Content, headings, wordCount, remarkPluginFrontmatter } = await processP
 const readingTime = calculateReadingTime(post.body);
 
 // Generate table of contents if enabled
-const shouldShowTOC = siteConfig.postOptions.tableOfContents && headings.length > 0;
+const hideTOC = post.data.hideTOC === true;
+const shouldShowTOC = !hideTOC && siteConfig.postOptions.tableOfContents && headings.length > 0;
 const toc = shouldShowTOC ? generateTOC(headings) : [];
 
 // Get adjacent posts for navigation

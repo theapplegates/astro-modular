@@ -296,7 +296,7 @@ import Icon from './Icon.astro';
 
     // Create zoom behavior
     const zoom = d3.zoom<SVGSVGElement, unknown>()
-      .scaleExtent([0.3, 3]) // Reasonable zoom range
+      .scaleExtent([0.1, 8]) // Extended zoom range for more flexibility
       .wheelDelta((event) => {
         // Conservative wheel delta
         return -event.deltaY * 0.001;
@@ -311,22 +311,34 @@ import Icon from './Icon.astro';
         return false; // Block all other events
       })
       .on("start", function(event) {
-        // Only show grabbing cursor for pan operations (not zoom/scroll)
+        // Use default cursor for pan operations
         if (event.sourceEvent && event.sourceEvent.type === 'mousedown') {
-          if (svg) svg.style('cursor', 'grabbing');
+          if (svg) svg.style('cursor', 'default');
         }
       })
       .on("end", function(event) {
-        // Always restore cursor when zoom behavior ends
-        if (svg) svg.style('cursor', 'grab');
+        // Always restore default cursor when zoom behavior ends
+        if (svg) svg.style('cursor', 'default');
       })
       .on("zoom", (event) => {
         // Direct transform - no throttling or delays
         containerGroup.attr("transform", event.transform);
+        
+        // Hide/show labels based on zoom level
+        const scale = event.transform.k;
+        const labelThreshold = 0.6; // Hide labels when zoomed out beyond this threshold
+        
+        if (scale < labelThreshold) {
+          // Hide all labels when zoomed out
+          labels.style("opacity", 0);
+        } else {
+          // Show all labels when zoomed in
+          labels.style("opacity", 1);
+        }
       });
 
     svg.call(zoom as any);
-    if (svg) svg.style('cursor', 'grab');
+    if (svg) svg.style('cursor', 'default');
 
       // Create links
       const link = containerGroup
@@ -350,8 +362,8 @@ import Icon from './Icon.astro';
             .drag<SVGGElement, GraphNode>()
             .on("start", function (event) {
               wasDragged = false;
-              // Prevent zoom during drag
-              if (svg) svg.style('cursor', 'grabbing');
+              // Use default cursor during drag
+              if (svg) svg.style('cursor', 'default');
               if (!event.active) simulation!.alphaTarget(0.3).restart();
               event.subject.fx = event.subject.x;
               event.subject.fy = event.subject.y;
@@ -362,8 +374,8 @@ import Icon from './Icon.astro';
               d.fy = event.y;
             })
             .on("end", function (event) {
-              // Restore cursor after drag
-              if (svg) svg.style('cursor', 'grab');
+              // Restore default cursor after drag
+              if (svg) svg.style('cursor', 'default');
               if (!event.active) simulation!.alphaTarget(0);
               event.subject.fx = null;
               event.subject.fy = null;
@@ -405,6 +417,12 @@ import Icon from './Icon.astro';
           const connected = neighbors.get(d.id) ?? new Set();
           connected.add(d.id);
 
+          // Bring the hovered node group to the front
+          const element = this as SVGGElement;
+          if (element.parentNode) {
+            element.parentNode.appendChild(element);
+          }
+
           link
             .transition()
             .duration(150)
@@ -426,6 +444,55 @@ import Icon from './Icon.astro';
               if (n.id === d.id) return colors.tagFill;
               return colors.linkStroke;
             });
+
+          // Handle label visibility and sizing based on zoom level
+          const currentTransform = d3.zoomTransform(svg.node() as Element);
+          const scale = currentTransform.k;
+          const labelThreshold = 0.6;
+          
+          if (scale < labelThreshold) {
+            // When zoomed out, only show the hovered node's label at large size
+            labels
+              .transition()
+              .duration(150)
+              .style("opacity", (n) => (n.id === d.id ? 1 : 0))
+              .attr("font-size", (n) => n.id === d.id ? `${18 / scale}px` : "12px")
+              .attr("dy", (n) => n.id === d.id ? `${n.radius + 30}px` : `${n.radius + 12}px`);
+          } else {
+            // When zoomed in, check if we need to enlarge hovered text
+            const minHoverSize = 18; // Minimum size for hovered text
+            const currentTextSize = 12 * scale; // Current effective text size
+            
+            labels
+              .transition()
+              .duration(150)
+              .style("opacity", (n) => {
+                if (n.id === d.id && currentTextSize < minHoverSize) {
+                  // Hovered node with enlarged text gets full opacity
+                  return 1;
+                } else if (connected.has(n.id)) {
+                  // Connected nodes get slightly faded when text is small
+                  return currentTextSize < minHoverSize ? 0.6 : 1;
+                } else {
+                  // Non-connected nodes get very faded
+                  return 0.1;
+                }
+              })
+              .attr("font-size", (n) => {
+                if (n.id === d.id && currentTextSize < minHoverSize) {
+                  // Hovered node needs larger text
+                  return `${minHoverSize / scale}px`;
+                }
+                return "12px";
+              })
+              .attr("dy", (n) => {
+                if (n.id === d.id && currentTextSize < minHoverSize) {
+                  // Hovered node with enlarged text needs more spacing
+                  return `${n.radius + 30}px`;
+                }
+                return `${n.radius + 12}px`;
+              });
+          }
         })
         .on("mouseout", function () {
           link
@@ -438,6 +505,32 @@ import Icon from './Icon.astro';
             .selectAll<SVGCircleElement, GraphNode>("circle")
             .attr("fill", colors.linkStroke)
             .attr("fill-opacity", 1);
+
+          // Restore label visibility and sizing based on zoom level
+          const currentTransform = d3.zoomTransform(svg.node() as Element);
+          const scale = currentTransform.k;
+          const labelThreshold = 0.6;
+          
+          if (scale < labelThreshold) {
+            // When zoomed out, hide all labels and reset font properties
+            labels
+              .transition()
+              .duration(150)
+              .style("opacity", 0)
+              .attr("font-size", "12px")
+              .attr("dy", (d) => `${d.radius + 12}px`);
+          } else {
+            // When zoomed in, show all labels with appropriate opacity based on text size
+            const minHoverSize = 18; // Same threshold as hover logic
+            const currentTextSize = 12 * scale; // Current effective text size
+            
+            labels
+              .transition()
+              .duration(150)
+              .style("opacity", currentTextSize < minHoverSize ? 0.6 : 1) // Faded when text is small
+              .attr("font-size", "12px")
+              .attr("dy", (d) => `${d.radius + 12}px`);
+          }
         });
 
       // Create circles
@@ -452,12 +545,13 @@ import Icon from './Icon.astro';
         .append("text")
         .text((d) => d.name)
         .attr("text-anchor", "middle")
-        .attr("dy", "0.35em")
+        .attr("dy", (d) => d.radius + 8) // Position below the node
         .attr("font-size", "12px")
         .attr("font-weight", "500")
         .attr("fill", colors.postText)
         .attr("pointer-events", "none")
-        .style("user-select", "none");
+        .style("user-select", "none")
+        .style("opacity", 0.6); // Start with slightly faded labels
 
       // Update positions on simulation tick
       simulation.on("tick", () => {

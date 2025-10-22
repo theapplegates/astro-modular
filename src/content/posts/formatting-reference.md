@@ -13,6 +13,7 @@ image: "[[attachments/mountains.png]]"
 imageAlt: Mountains and water.
 imageOG: false
 hideCoverImage: false
+hideTOC: false
 targetKeyword:
 draft: false
 ---

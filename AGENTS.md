@@ -567,7 +567,8 @@ The theme includes intelligent category handling that adapts based on your conte
 - **Uses global setting**: Controlled by `siteConfig.postOptions.tableOfContents` in `config.ts`
 - **Can be overridden**: Use `hideTOC: true` in post frontmatter to hide TOC
 - **Global control**: All posts respect the global setting unless individually overridden
-- **Example**: If `tableOfContents: false` in config, all posts hide TOC unless `hideTOC: false` in frontmatter
+- **Example**: If `tableOfContents: true` in config, all posts show TOC unless `hideTOC: true` in frontmatter
+- **Override behavior**: Posts can only opt-out when global setting is enabled, cannot opt-in when global setting is disabled
 
 #### Pages, Projects, Documentation (PageLayout, ProjectLayout, DocumentationLayout)
 - **Independent TOC logic**: NOT affected by global `postOptions.tableOfContents` setting
@@ -576,7 +577,7 @@ The theme includes intelligent category handling that adapts based on your conte
 - **Per-content control**: Each content type has its own TOC behavior independent of posts
 
 #### Why This Matters
-- **Posts**: Global setting controls all posts, individual posts can override
+- **Posts**: Global setting controls all posts, individual posts can override with `hideTOC: true`
 - **Other content types**: Each has independent TOC behavior, not affected by posts setting
 - **AI Agents**: Don't assume all content types use the same TOC logic - posts are different
 - **Configuration**: Only `postOptions.tableOfContents` affects posts, not other content types
@@ -2155,6 +2156,7 @@ image: ""
 imageAlt: ""
 imageOG: false
 hideCoverImage: false
+hideTOC: false
 targetKeyword: ""
 draft: true
 ---

@@ -13,6 +13,7 @@ image: "[[attachments/sunset.jpg]]"
 imageAlt: Sunset skyline.
 imageOG: true
 hideCoverImage: false
+hideTOC: false
 targetKeyword: astro blog setup
 draft: false
 ---
@@ -65,10 +66,16 @@ Select theme and layout options in the config:
 ```typescript
 // Global Settings
 theme: "oxygen",
-customThemeFile: "custom",
-typography: {
-  headingFont: "Inter",
-  proseFont: "Inter",
+customThemeFile: "custom", 
+  availableThemes: "all", 
+  fonts: {
+    source: "local",
+    families: {
+      body: "Inter",
+      heading: "Inter",
+      mono: "JetBrains Mono", 
+    },
+    display: "swap",
 },
 layout: {
   contentWidth: "45rem",
@@ -79,7 +86,7 @@ footer: {
   showSocialIconsInFooter: true,
 },
 scrollToTop: true,
-darkModeToggleButton: "both",
+featureButton: "mode",
 seo: {
   defaultOgImageAlt: "Astro Modular logo.",
 },
@@ -458,6 +465,7 @@ imageAlt: ""
 imageOG: false
 hideCoverImage: false
 targetKeyword: ""
+hideTOC: false
 draft: true
 ---
 

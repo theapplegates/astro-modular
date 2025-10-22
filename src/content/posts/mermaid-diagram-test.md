@@ -10,6 +10,7 @@ image:
 imageAlt:
 imageOG: false
 hideCoverImage: false
+hideTOC: false
 targetKeyword:
 aliases:
   - mermaid-test

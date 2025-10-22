@@ -33,7 +33,7 @@ const shouldShowGraph = hasConnections || hasTags;
       <button 
         id="local-graph-modal-btn"
         class="p-1 text-primary-500 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-200 transition-colors pointer-events-auto"
-        title="Open global graph"
+        title="Global Graph"
       >
         <Icon name="git-fork" class="w-4 h-4" />
       </button>
@@ -41,7 +41,7 @@ const shouldShowGraph = hasConnections || hasTags;
       <button 
         id="local-graph-fullscreen-btn"
         class="p-1 text-primary-500 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-200 transition-colors pointer-events-auto"
-        title="Open in fullscreen"
+        title="Expand"
       >
         <Icon name="arrow-up-right" class="w-4 h-4" />
       </button>
@@ -173,23 +173,35 @@ const shouldShowGraph = hasConnections || hasTags;
 
     // Add zoom behavior for panning
     const zoom = d3.zoom()
-      .scaleExtent([0.5, 3])
+      .scaleExtent([0.2, 6]) // Extended zoom range for more flexibility
       .on("start", function(event) {
-        // Only show grabbing cursor for pan operations (not zoom/scroll)
+        // Use default cursor for pan operations
         if (event.sourceEvent && event.sourceEvent.type === 'mousedown') {
-          if (svg) svg.style('cursor', 'grabbing');
+          if (svg) svg.style('cursor', 'default');
         }
       })
       .on("end", function(event) {
-        // Always restore cursor when zoom behavior ends
-        if (svg) svg.style('cursor', 'grab');
+        // Always restore default cursor when zoom behavior ends
+        if (svg) svg.style('cursor', 'default');
       })
       .on("zoom", (event) => {
         containerGroup.attr("transform", event.transform);
+        
+        // Hide/show labels based on zoom level
+        const scale = event.transform.k;
+        const labelThreshold = 0.8; // Higher threshold for local graph due to smaller size
+        
+        if (scale < labelThreshold) {
+          // Hide all labels when zoomed out
+          labels.style("opacity", 0);
+        } else {
+          // Show all labels when zoomed in
+          labels.style("opacity", 1);
+        }
       });
 
     svg.call(zoom as any);
-    if (svg) svg.style('cursor', 'grab');
+    if (svg) svg.style('cursor', 'default');
 
     // Create links
     const link = containerGroup
@@ -213,8 +225,8 @@ const shouldShowGraph = hasConnections || hasTags;
           .drag<SVGGElement, GraphNode>()
           .on("start", function (event) {
             wasDragged = false;
-            // Show grabbing cursor when starting to drag node
-            if (svg) svg.style('cursor', 'grabbing');
+            // Use default cursor when starting to drag node
+            if (svg) svg.style('cursor', 'default');
             if (!event.active) simulation!.alphaTarget(0.3).restart();
             event.subject.fx = event.subject.x;
             event.subject.fy = event.subject.y;
@@ -225,8 +237,8 @@ const shouldShowGraph = hasConnections || hasTags;
             d.fy = event.y;
           })
           .on("end", function (event) {
-            // Restore grab cursor when done dragging node
-            if (svg) svg.style('cursor', 'grab');
+            // Restore default cursor when done dragging node
+            if (svg) svg.style('cursor', 'default');
             if (!event.active) simulation!.alphaTarget(0);
             event.subject.fx = null;
             event.subject.fy = null;
@@ -274,6 +286,12 @@ const shouldShowGraph = hasConnections || hasTags;
         const connected = neighbors.get(d.id) ?? new Set();
         connected.add(d.id);
 
+        // Bring the hovered node group to the front
+        const element = this as SVGGElement;
+        if (element.parentNode) {
+          element.parentNode.appendChild(element);
+        }
+
         link
           .transition()
           .duration(150)
@@ -295,6 +313,55 @@ const shouldShowGraph = hasConnections || hasTags;
             if (n.id === d.id) return colors.tagFill;
             return colors.linkStroke;
           });
+
+        // Handle label visibility and sizing based on zoom level
+        const currentTransform = svg ? d3.zoomTransform(svg.node() as Element) : d3.zoomIdentity;
+        const scale = currentTransform.k;
+        const labelThreshold = 0.8;
+        
+        if (scale < labelThreshold) {
+          // When zoomed out, only show the hovered node's label at large size
+          labels
+            .transition()
+            .duration(150)
+            .style("opacity", (n) => (n.id === d.id ? 1 : 0))
+            .style("font-size", (n) => n.id === d.id ? `${12 / scale}px` : "8px")
+            .attr("dy", (n) => n.id === d.id ? `${n.radius + 24}px` : `${n.radius + 12}px`);
+        } else {
+          // When zoomed in, check if we need to enlarge hovered text
+          const minHoverSize = 12; // Minimum size for hovered text (smaller for local graph)
+          const currentTextSize = 8 * scale; // Current effective text size
+          
+          labels
+            .transition()
+            .duration(150)
+            .style("opacity", (n) => {
+              if (n.id === d.id && currentTextSize < minHoverSize) {
+                // Hovered node with enlarged text gets full opacity
+                return 1;
+              } else if (connected.has(n.id)) {
+                // Connected nodes get slightly faded when text is small
+                return currentTextSize < minHoverSize ? 0.6 : 1;
+              } else {
+                // Non-connected nodes get very faded
+                return 0.1;
+              }
+            })
+            .style("font-size", (n) => {
+              if (n.id === d.id && currentTextSize < minHoverSize) {
+                // Hovered node needs larger text
+                return `${minHoverSize / scale}px`;
+              }
+              return "8px";
+            })
+            .attr("dy", (n) => {
+              if (n.id === d.id && currentTextSize < minHoverSize) {
+                // Hovered node with enlarged text needs more spacing
+                return `${n.radius + 24}px`;
+              }
+              return `${n.radius + 12}px`;
+            });
+        }
       })
       .on("mouseout", function () {
         link
@@ -307,6 +374,32 @@ const shouldShowGraph = hasConnections || hasTags;
           .selectAll<SVGCircleElement, GraphNode>("circle")
           .attr("fill", colors.linkStroke)
           .attr("fill-opacity", 1);
+
+        // Restore label visibility and sizing based on zoom level
+        const currentTransform = svg ? d3.zoomTransform(svg.node() as Element) : d3.zoomIdentity;
+        const scale = currentTransform.k;
+        const labelThreshold = 0.8;
+        
+        if (scale < labelThreshold) {
+          // When zoomed out, hide all labels and reset font properties
+          labels
+            .transition()
+            .duration(150)
+            .style("opacity", 0)
+            .style("font-size", "8px")
+            .attr("dy", (d) => `${d.radius + 12}px`);
+        } else {
+          // When zoomed in, show all labels with appropriate opacity based on text size
+          const minHoverSize = 12; // Same threshold as hover logic
+          const currentTextSize = 8 * scale; // Current effective text size
+          
+          labels
+            .transition()
+            .duration(150)
+            .style("opacity", currentTextSize < minHoverSize ? 0.6 : 1) // Faded when text is small
+            .style("font-size", "8px")
+            .attr("dy", (d) => `${d.radius + 12}px`);
+        }
       });
 
     // Create circles
@@ -329,7 +422,7 @@ const shouldShowGraph = hasConnections || hasTags;
       .style("font-size", "8px")
       .style("fill", colors.postText)
       .style("pointer-events", "none")
-      .style("opacity", 1);
+      .style("opacity", 0.6); // Start with slightly faded labels
 
     // Run simulation
     for (let i = 0; i < 200; ++i) simulation.tick();

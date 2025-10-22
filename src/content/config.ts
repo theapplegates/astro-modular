@@ -24,6 +24,7 @@ const postsCollection = defineCollection({
     imageOG: z.boolean().optional(),
     imageAlt: z.string().nullable().optional(),
     hideCoverImage: z.boolean().optional(),
+    hideTOC: z.boolean().optional(),
     targetKeyword: z.string().nullable().optional(),
     author: z.string().nullable().optional(),
     noIndex: z.boolean().optional(),

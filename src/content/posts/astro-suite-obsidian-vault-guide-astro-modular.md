@@ -12,6 +12,7 @@ image: attachments/astro-composer-suite-for-obsidian.png
 imageAlt: Astro and Obsidian logos stacked vertically with a "+" (plus) sign between them.
 imageOG: true
 hideCoverImage: true
+hideTOC: false
 targetKeyword: astro suite obsidian vault
 draft: false
 aliases:
