@@ -1,1 +1,0 @@
-e http://localhost:5003 --only-categories\=performance --output\=json --chrome-flags\=--headless
