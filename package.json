@@ -15,8 +15,6 @@
     "generate-deployment-config:validate": "node scripts/generate-deployment-config.js --validate",
     "generate-graph-data": "node scripts/generate-graph-data.js",
     "check-images": "node scripts/check-missing-images.js",
-    "update-theme": "node scripts/update-theme.js",
-    "update-theme:content": "node scripts/update-theme.js --update-content",
     "version": "node scripts/get-version.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

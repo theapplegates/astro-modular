@@ -41,13 +41,12 @@ This document contains essential information for AI agents working with this Ast
 9. [Command Palette Theme Switcher](#command-palette-theme-switcher)
 10. [Build Process](#build-process)
    - [RSS and Atom Feeds](#rss-and-atom-feeds)
-9. [Theme Updates](#theme-updates)
-10. [Version Management](#version-management)
-11. [Configuration & Customization](#configuration--customization)
+11. [Version Management](#version-management)
+12. [Configuration & Customization](#configuration--customization)
    - [Typography Configuration](#typography-configuration)
-12. [Troubleshooting](#troubleshooting)
-13. [Best Practices](#best-practices)
-14. [Common AI Agent Mistakes](#common-ai-agent-mistakes)
+13. [Troubleshooting](#troubleshooting)
+14. [Best Practices](#best-practices)
+15. [Common AI Agent Mistakes](#common-ai-agent-mistakes)
 
 ## Project Vision & Philosophy
 
@@ -1483,210 +1482,6 @@ DEPLOYMENT_PLATFORM=vercel pnpm run build
 pnpm run build
 ```
 
-## Theme Updates
-
-### Update Theme Command
-
-The theme includes a built-in update command that helps users keep their Astro Modular theme installation up to date with the latest features and fixes. The update process is designed to be **safe and conservative**, protecting your content while updating theme files.
-
-#### Quick Start
-
-**Safe Update (Recommended):**
-```bash
-pnpm run update-theme
-```
-
-**Content Update (Use with caution):**
-```bash
-pnpm run update-theme:content
-# or
-pnpm run update-theme --update-content
-```
-
-#### What the Update Command Does
-
-The `update-theme` command will:
-
-1. **Check your git repository** - Ensures you're in a valid git repository
-2. **Check for uncommitted changes** - Warns you if you have uncommitted changes
-3. **Setup upstream remote** - Adds the upstream repository if not already configured
-4. **Create a backup** - Saves your current commit hash for reference
-5. **Fetch latest changes** - Downloads the latest changes from the upstream repository
-6. **Check for updates** - Compares your local version with the latest upstream version
-7. **Check critical files** - Ensures all required scripts and files are present
-8. **Ensure content directories** - Creates missing content directories (projects, docs)
-9. **Update theme files** - Updates components, layouts, styles, and scripts
-10. **Smart merge configurations** - Preserves your settings while adding new options
-11. **Handle content files** - Skips content by default (opt-in only with `--update-content`)
-12. **Update Obsidian configuration** - Updates plugins and core configs (with user confirmation)
-13. **Update dependencies** - Runs `pnpm install` to update any changed dependencies
-14. **Rebuild project** - Runs `pnpm run build` to ensure everything works
-
-#### Content Protection (Critical)
-
-**By default, your content files are NEVER updated:**
-- Posts (`src/content/posts/`)
-- Pages (`src/content/pages/`)
-- Projects (`src/content/projects/`)
-- Documentation (`src/content/docs/`)
-- Public assets (`public/`)
-
-**This prevents accidental loss of your blog posts and customizations.**
-
-To update content files, you must explicitly use the `--update-content` flag, which will:
-- Show clear warnings about content overwrites
-- Require explicit confirmation before proceeding
-- Only update content when you explicitly choose to do so
-
-#### Obsidian Plugin Updates
-
-The update process handles Obsidian plugins intelligently:
-
-**Always Updated:**
-- Plugin core files (`main.js`, `manifest.json`, `styles.css`)
-- Obsidian core configuration files
-- New plugins (when introduced)
-
-**Never Updated:**
-- User preference files (`data.json`)
-- User appearance settings
-- Custom snippets and themes
-- User-specific configurations
-
-**New Plugin Strategy:**
-- New plugins are detected automatically
-- You're asked if you want to install them
-- Existing plugins are updated to latest versions
-- Your plugin settings and preferences are preserved
-
-**Plugin Update Process:**
-1. Update core plugin files (main.js, manifest.json, styles.css)
-2. Preserve user data files (data.json)
-3. Detect new plugins from upstream
-4. Ask for confirmation before installing new plugins
-5. Maintain your existing plugin configurations
-
-#### Prerequisites
-
-- Your project must be a git repository
-- You should have committed or stashed any local changes before running the update
-- You need internet access to fetch updates from the upstream repository
-
-#### First-Time Setup
-
-If this is your first time using the update command, it will automatically:
-
-- Add the upstream repository as a remote named `upstream`
-- Configure it to point to the official Astro Modular theme repository
-
-#### Handling Merge Conflicts
-
-If you've made custom changes to theme files and there are conflicts during the merge:
-
-1. The update command will stop and show you which files have conflicts
-2. You'll need to manually resolve the conflicts in your code editor
-3. After resolving conflicts, run:
-   ```bash
-   git add .
-   git commit
-   ```
-4. Then run the update command again:
-   ```bash
-   pnpm run update-theme
-   ```
-
-#### Command Options
-
-```bash
-# Show help information
-pnpm run update-theme --help
-
-# Show version information
-pnpm run update-theme --version
-```
-
-#### Best Practices for AI Agents
-
-**Before Updating:**
-1. **Commit your changes** - Always commit or stash your local changes before updating
-2. **Test your site** - Make sure your current site is working properly
-3. **Backup important files** - If you've made custom modifications, back them up
-
-**After Updating:**
-1. **Test your site** - Run `pnpm run dev` to make sure everything still works
-2. **Check for conflicts** - Review any files that had conflicts during the merge
-3. **Update documentation** - Update any custom documentation if needed
-
-**Custom Modifications:**
-- **Keep a changelog** - Document what you've changed and why
-- **Use feature branches** - Consider keeping custom changes in separate branches
-- **Test thoroughly** - Always test after updates to ensure your customizations still work
-
-#### Troubleshooting Theme Updates
-
-**"Not in a git repository"**
-If you get this error, you need to initialize git in your project:
-
-```bash
-git init
-git add .
-git commit -m "Initial commit"
-```
-
-**"Merge failed - there may be conflicts"**
-This means there are conflicts between your changes and the upstream changes. You'll need to:
-
-1. Open the conflicted files in your editor
-2. Look for conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`)
-3. Resolve the conflicts by choosing which changes to keep
-4. Remove the conflict markers
-5. Add and commit the resolved files
-
-**"Failed to fetch from upstream"**
-This usually means there's a network issue or the upstream repository is unavailable. Check:
-
-- Your internet connection
-- The upstream repository URL is correct
-- You have access to the repository
-
-**"Dependency update failed"**
-If dependency updates fail, try running manually:
-
-```bash
-pnpm install
-```
-
-#### Advanced Usage
-
-**Checking for Updates Without Updating**
-To see if updates are available without actually updating:
-
-```bash
-git fetch upstream
-git log HEAD..upstream/main --oneline
-```
-
-**Updating from a Specific Branch**
-If you want to update from a specific branch (e.g., a beta version):
-
-```bash
-git fetch upstream
-git merge upstream/beta-branch
-```
-
-**Rolling Back Updates**
-If an update causes issues, you can roll back to the previous version:
-
-```bash
-# Find the commit hash before the update
-git log --oneline
-
-# Reset to that commit (replace COMMIT_HASH with the actual hash)
-git reset --hard COMMIT_HASH
-
-# Rebuild the project
-pnpm run build
-```
 
 ## Version Management
 
@@ -1776,58 +1571,15 @@ The `scripts/get-version.js` utility provides several functions:
    - GitHub automatically creates the source code zip
    - No additional files needed
 
-**For Users (Updating Theme):**
-
-1. **Check for Updates:**
-   ```bash
-   pnpm run update-theme --version
-   # Shows current version and available updates
-   ```
-
-2. **Update Theme:**
-   ```bash
-   # Safe update (recommended)
-   pnpm run update-theme
-   
-   # With content updates (use with caution)
-   pnpm run update-theme:content
-   ```
-
-3. **Version Updates Automatically:**
-   - Update script fetches latest release from GitHub
-   - Downloads source code zip from release
-   - Updates theme files while preserving content
-   - Updates version information automatically
-   - Creates single commit with changes
-
-#### Version Update Process
-
-**When users run `pnpm run update-theme`:**
-
-1. **Fetch Latest Release** - Gets release info from GitHub API
-2. **Download Source Code** - Downloads zip from release assets
-3. **Extract Theme Files** - Extracts to temporary directory
-4. **Update Theme Files** - Copies theme files to project
-5. **Update Version** - Updates VERSION file and package.json
-6. **Create Commit** - Single commit with all changes
-7. **Cleanup** - Removes temporary files
-
-**Version Sync:**
-- Release tag: `v0.2.0` → Version: `0.2.0` (removes 'v' prefix)
-- Both VERSION file and package.json are updated
-- All commands show new version immediately
-
 #### Template vs Fork Detection
 
 **Template Users:**
 - See `astro-modular@0.1.0` in all commands
-- No update functionality available
 - Version stays at template version
 
 **Fork Users:**
 - See `astro-modular@0.1.0` in all commands
-- Full update functionality available
-- Version updates with theme updates
+- Version can be updated manually via git
 
 #### Version Display Examples
 

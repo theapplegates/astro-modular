@@ -57,7 +57,6 @@ A flexible blog theme designed for Obsidian users.
 - [x] **LaTeX & Math Rendering** 
 - [x] **Profile Picture** 
 - [x] **Comments**
-- [x] **Pull Latest Updates**
 
 ## Quick Start
 
@@ -93,13 +92,6 @@ A flexible blog theme designed for Obsidian users.
    ```bash
    pnpm build
    ```
-
-5. **Update theme (optional):**
-   ```bash
-   pnpm run update-theme
-   ```
-   
-   The update command helps you keep your theme up to date with the latest features and fixes while protecting your content.
 
 ### Configuration
 
