@@ -44,7 +44,7 @@ const { seoData, bodyClass = '' } = Astro.props;
 ---
 
 <!DOCTYPE html>
-<html lang={siteConfig.language} class="scrollbar-hide">
+<html lang={siteConfig.language} class="scrollbar-hide" data-theme-config={siteConfig.theme} data-custom-theme-file={siteConfig.customThemeFile} data-available-themes={JSON.stringify(siteConfig.availableThemes)}>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -157,8 +157,15 @@ const { seoData, bodyClass = '' } = Astro.props;
     }
   </style>
 
-  <!-- Theme initialization script -->
+  <!-- Theme configuration and initialization -->
   <script is:inline>
+    // Set the default theme from config - read from data attributes
+    window.siteConfig = {
+      theme: document.documentElement.getAttribute('data-theme-config') || 'oxygen',
+      customThemeFile: document.documentElement.getAttribute('data-custom-theme-file') || 'custom',
+      availableThemes: JSON.parse(document.documentElement.getAttribute('data-available-themes') || '"all"')
+    };
+
     // Initialize theme before page renders to prevent flash
     async function initTheme() {
       // Handle dark/light mode
@@ -170,24 +177,38 @@ const { seoData, bodyClass = '' } = Astro.props;
       document.documentElement.classList.add(mode);
 
       // Handle theme selection (color scheme)
-      const storedTheme = localStorage.getItem('selectedTheme');
-      const defaultTheme = window.siteConfig?.theme || 'oxygen'; // Read from config
-      const theme = storedTheme || defaultTheme;
+      const configTheme = window.siteConfig?.theme || 'oxygen';
+      const availableThemes = window.siteConfig?.availableThemes || 'all';
+      
+      let theme = configTheme; // Always default to config theme
+      
+      // Check if theme selector is actually available in the UI
+      // This will be determined by checking if there are multiple themes available
+      const hasThemeSelector = availableThemes === 'all' || (Array.isArray(availableThemes) && availableThemes.length > 1);
+      
+      // Only respect user preference if theme selector is available
+      if (hasThemeSelector) {
+        const storedTheme = localStorage.getItem('selectedTheme');
+        if (storedTheme) {
+          // Validate that stored theme is in available themes list
+          if (availableThemes === 'all' || (Array.isArray(availableThemes) && availableThemes.includes(storedTheme))) {
+            theme = storedTheme;
+          }
+        }
+      }
 
       document.documentElement.setAttribute('data-theme', theme);
       
       // Update CSS custom properties for the initial theme
-      await updateThemeCSSVariables(theme);
+      try {
+        await updateThemeCSSVariables(theme);
+      } catch (error) {
+        console.error('Error updating theme CSS variables:', error);
+      }
     }
 
-    // Initialize immediately
+    // Initialize immediately after config is set
     initTheme().catch(console.error);
-
-    // Make siteConfig available globally for theme functions
-    window.siteConfig = {
-      theme: siteConfig.theme,
-      customThemeFile: siteConfig.customThemeFile
-    };
 
     // Set favicon based on system theme
     function setFavicon() {
@@ -259,6 +280,26 @@ const { seoData, bodyClass = '' } = Astro.props;
 
     // Global function to change theme (color scheme)
     async function changeTheme(theme) {
+      // Get config values from data attributes if window.siteConfig is not available
+      const availableThemes = window.siteConfig?.availableThemes ?? 
+        JSON.parse(document.documentElement.getAttribute('data-available-themes') || '"all"');
+      
+      // Check if theme selector is actually available in the UI
+      const hasThemeSelector = availableThemes === 'all' || (Array.isArray(availableThemes) && availableThemes.length > 1);
+      
+      
+      // Only allow theme changes if theme selector is available
+      if (!hasThemeSelector) {
+        console.warn('Theme changes are disabled - theme selector is not available');
+        return;
+      }
+      
+      // Validate theme is in available themes list
+      if (availableThemes !== 'all' && (!Array.isArray(availableThemes) || !availableThemes.includes(theme))) {
+        console.warn('Theme not available:', theme, 'Available themes:', availableThemes);
+        return;
+      }
+      
       localStorage.setItem('selectedTheme', theme);
       document.documentElement.setAttribute('data-theme', theme);
       
@@ -273,6 +314,7 @@ const { seoData, bodyClass = '' } = Astro.props;
     
     // Function to update CSS custom properties based on theme
     async function updateThemeCSSVariables(themeName) {
+      
       // Load all themes dynamically
       const themes = {
         minimal: {
