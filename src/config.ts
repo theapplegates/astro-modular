@@ -34,6 +34,10 @@ export interface SiteConfig {
   layout: {
     contentWidth: string;
   };
+  tableOfContents: {
+    enabled: boolean;
+    depth: number;
+  };
   footer: {
     enabled: boolean;
     content: string;
@@ -121,7 +125,6 @@ export interface SiteConfig {
     postsPerPage: number;
     readingTime: boolean;
     wordCount: boolean;
-    tableOfContents: boolean;
     tags: boolean;
     linkedMentions: {
       enabled: boolean;
@@ -210,6 +213,12 @@ export const siteConfig: SiteConfig = {
   layout: {
     // [CONFIG:LAYOUT_CONTENT_WIDTH]
     contentWidth: "45rem",
+  },
+  tableOfContents: {
+    // [CONFIG:TABLE_OF_CONTENTS_ENABLED]
+    enabled: true,
+    // [CONFIG:TABLE_OF_CONTENTS_DEPTH]
+    depth: 4, // Maximum heading depth to include in ToC (2-6, where 2=H2, 3=H3, etc.)
   },
   footer: {
     // [CONFIG:FOOTER_ENABLED]
@@ -369,8 +378,6 @@ export const siteConfig: SiteConfig = {
     readingTime: true,
     // [CONFIG:POST_OPTIONS_WORD_COUNT]
     wordCount: true,
-    // [CONFIG:POST_OPTIONS_TABLE_OF_CONTENTS]
-    tableOfContents: true,
     // [CONFIG:POST_OPTIONS_TAGS]
     tags: true,
     linkedMentions: {
@@ -463,6 +470,14 @@ export function getHeadingFont(): string {
 
 export function getProseFont(): string {
   return siteConfig.fonts.families.body;
+}
+
+export function getTableOfContentsDepth(): number {
+  return siteConfig.tableOfContents.depth;
+}
+
+export function getTableOfContentsEnabled(): boolean {
+  return siteConfig.tableOfContents.enabled;
 }
 
 export function getFontFamily(fontName: string): string {
@@ -596,6 +611,9 @@ function validateSiteConfig(config: SiteConfig): { isValid: boolean; errors: str
   // Numeric validations
   if (config.postOptions.postsPerPage < 1 || config.postOptions.postsPerPage > 50) {
     errors.push('postOptions.postsPerPage must be between 1 and 50');
+  }
+  if (config.tableOfContents.depth < 2 || config.tableOfContents.depth > 6) {
+    errors.push('tableOfContents.depth must be between 2 and 6');
   }
   if (config.homeOptions.recentPosts.count < 1) {
     errors.push('homeOptions.recentPosts.count must be at least 1');

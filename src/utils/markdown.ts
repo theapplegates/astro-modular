@@ -133,8 +133,10 @@ export function getReadingTime(remarkData: any, content?: string): ReadingTime |
 }
 
 // Generate table of contents from headings
-export function generateTOC(headings: Heading[]): Heading[] {
-  return headings.filter(heading => heading.depth >= 2 && heading.depth <= 4);
+export async function generateTOC(headings: Heading[]): Promise<Heading[]> {
+  const { getTableOfContentsDepth } = await import('@/config');
+  const maxDepth = getTableOfContentsDepth();
+  return headings.filter(heading => heading.depth >= 2 && heading.depth <= maxDepth);
 }
 
 // Process post data for display
@@ -142,7 +144,7 @@ export async function processPost(post: Post) {
   const { Content, headings, remarkPluginFrontmatter } = await post.render();
   const { excerpt, wordCount, hasMore } = processMarkdown(post.body);
   const readingTime = getReadingTime(remarkPluginFrontmatter, post.body); // Pass post.body as fallback
-  const toc = generateTOC(headings);
+  const toc = await generateTOC(headings);
 
   return {
     ...post,

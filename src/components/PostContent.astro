@@ -152,7 +152,7 @@ const processedImage = (() => {
     <div class="lg:col-span-4 xl:col-span-3">
       <div class="sticky top-24 space-y-6">
         <!-- Table of Contents -->
-        {siteConfig.postOptions.tableOfContents && toc && toc.length > 0 && (
+        {siteConfig.tableOfContents.enabled && toc && toc.length > 0 && (
           <TableOfContents headings={toc} />
         )}
         

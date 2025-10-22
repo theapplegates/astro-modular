@@ -22,13 +22,14 @@ const { Content, headings } = await page.render();
 // Generate SEO data
 const seoData = generatePageSEO(page, Astro.url.href);
 
-// Generate table of contents from headings
-const toc = headings.filter(h => h.depth >= 2 && h.depth <= 4);
+// Generate table of contents from headings using configurable depth
+const maxDepth = siteConfig.tableOfContents.depth;
+const toc = headings.filter(h => h.depth >= 2 && h.depth <= maxDepth);
 
-// Check if TOC should be shown - use hideTOC frontmatter, then showTOC frontmatter (default true for pages)
+// Check if TOC should be shown - global setting, then hideTOC frontmatter, then showTOC frontmatter (default true for pages)
 const hideTOC = page.data.hideTOC === true;
 const showTOC = page.data.showTOC !== undefined ? page.data.showTOC : true;
-const shouldShowTOC = !hideTOC && showTOC && toc.length > 0;
+const shouldShowTOC = siteConfig.tableOfContents.enabled && !hideTOC && showTOC && toc.length > 0;
 
 // Generate structured data
 const structuredData = {

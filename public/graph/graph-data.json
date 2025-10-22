@@ -39,6 +39,14 @@
       "slug": "sample-folder-based-post",
       "date": "2025-09-09T00:00:00.000Z",
       "connections": 0
+    },
+    {
+      "id": "toc-depth-test",
+      "type": "post",
+      "title": "ToC Depth Test",
+      "slug": "toc-depth-test",
+      "date": "2025-01-15T00:00:00.000Z",
+      "connections": 0
     }
   ],
   "connections": [
@@ -84,10 +92,10 @@
     }
   ],
   "metadata": {
-    "generated": "2025-10-22T06:08:38.309Z",
-    "totalPosts": 5,
+    "generated": "2025-10-22T16:11:06.385Z",
+    "totalPosts": 6,
     "totalConnections": 8,
     "maxNodesApplied": false,
-    "originalNodeCount": 5
+    "originalNodeCount": 6
   }
 }

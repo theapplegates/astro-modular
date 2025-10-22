@@ -84,11 +84,33 @@ const readingTime = calculateReadingTime(post.body);
 
 // Generate table of contents if enabled
 const hideTOC = post.data.hideTOC === true;
-const shouldShowTOC = !hideTOC && siteConfig.postOptions.tableOfContents && headings.length > 0;
-const toc = shouldShowTOC ? generateTOC(headings) : [];
+const shouldShowTOC = !hideTOC && siteConfig.tableOfContents.enabled && headings.length > 0;
+const toc = shouldShowTOC ? await generateTOC(headings) : [];
 
 // Get adjacent posts for navigation
 const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.slug);
+
+// Check if current post has connections for LocalGraph
+let hasLocalGraphConnections = false;
+if (siteConfig.postOptions.graphView.enabled && siteConfig.postOptions.graphView.showInSidebar) {
+  try {
+    // Read the graph data file to check for connections
+    const graphDataPath = new URL('/graph/graph-data.json', Astro.site);
+    const graphDataResponse = await fetch(graphDataPath);
+    
+    if (graphDataResponse.ok) {
+      const graphData = await graphDataResponse.json();
+      
+      // Check if current post has any connections
+      hasLocalGraphConnections = graphData.connections.some((conn: any) => 
+        conn.source === post.slug || conn.target === post.slug
+      );
+    }
+  } catch (error) {
+    // If we can't read the graph data at build time, don't show the graph
+    hasLocalGraphConnections = false;
+  }
+}
 ---
 
 <BaseLayout seoData={seoData}>
@@ -285,8 +307,8 @@ const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.s
 
       <!-- Desktop Sidebar - floats to the right of the content container -->
       <div class="hidden xl:block absolute top-0 left-full ml-1 w-64">
-        <div class="top-24 space-y-4" id="sidebar">
-          {siteConfig.postOptions.graphView.enabled && siteConfig.postOptions.graphView.showInSidebar && (
+        <div class={`top-24 ${hasLocalGraphConnections || shouldShowTOC ? 'space-y-4' : ''}`} id="sidebar">
+          {hasLocalGraphConnections && (
             <div id="local-graph-sidebar">
               <LocalGraph currentSlug={post.slug} />
             </div>

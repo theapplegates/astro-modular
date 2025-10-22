@@ -19,5 +19,6 @@
   "property-over-file-name",
   "disable-tabs",
   "astro-composer",
-  "iconic"
+  "iconic",
+  "astro-modular-settings"
 ]

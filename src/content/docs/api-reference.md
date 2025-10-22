@@ -116,6 +116,10 @@ interface SiteConfig {
   author: string;
   language: string;
   theme: ThemeName;
+  tableOfContents: {
+    enabled: boolean;
+    depth: number;
+  };
   features: FeatureConfig;
   navigation: NavigationConfig;
   // ... other options
@@ -127,7 +131,6 @@ interface SiteConfig {
 interface FeatureConfig {
   readingTime: boolean;
   wordCount: boolean;
-  tableOfContents: boolean;
   tags: boolean;
   linkedMentions: boolean;
   showCoverImages: CoverImageOption;

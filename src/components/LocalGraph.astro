@@ -9,6 +9,10 @@ export interface Props {
   currentSlug?: string;
 }
 
+export interface LocalGraphData {
+  shouldRender: boolean;
+}
+
 const { currentSlug } = Astro.props;
 
 // Get all posts for graph data
@@ -16,12 +20,8 @@ const allPosts = await getCollection('posts');
 const isDev = import.meta.env.DEV;
 const visiblePosts = allPosts.filter(p => shouldShowPost(p, isDev));
 
-// Check if we have enough content to show a graph
-const hasConnections = visiblePosts.length > 1; // Need at least 2 posts for connections
-const hasTags = visiblePosts.some(post => post.data.tags && post.data.tags.length > 0);
-
-// Only show if we have connections or tags
-const shouldShowGraph = hasConnections || hasTags;
+// Since this component is only rendered when there are connections, always show the graph
+const shouldShowGraph = true;
 ---
 
 {shouldShowGraph && (
@@ -518,50 +518,19 @@ const shouldShowGraph = hasConnections || hasTags;
         (window as any).localGraphData = data; // Store full data
         (window as any).localGraphFilteredData = filteredData; // Store filtered data
           
-            if (filteredData.nodes.length <= 1) {
-          // Fallback: show all nodes if no connections found
-          const fallbackData = {
-            nodes: data.nodes.map((node: any) => ({
-              id: node.id,
-              name: node.title || node.name,
-              slug: node.slug,
-              radius: Math.max(3, Math.min(8, (node.connections || 0) + 3)),
-              group: node.type
-            })),
-            links: data.connections.map((conn: any) => ({
-              source: conn.source,
-              target: conn.target,
-              value: 1
-            }))
-          };
-          
-          if (fallbackData.nodes.length > 0) {
-            renderLocalGraph(container, fallbackData);
-            return;
-          }
-          
-              container.innerHTML = `
-                <div class="flex items-center justify-center h-full text-primary-500 dark:text-primary-400">
-                  <div class="text-center">
-                <p class="text-xs">No graph data available</p>
-                  </div>
-                </div>
-              `;
-              return;
-            }
-          
+          // Since we only render the container if there are connections, we can directly render
           container.innerHTML = '';
-        renderLocalGraph(container, filteredData);
+          renderLocalGraph(container, filteredData);
         })
         .catch(error => {
-        console.warn('Could not load local graph data:', error);
+          console.warn('Could not load local graph data:', error);
           container.innerHTML = `
             <div class="flex items-center justify-center h-full text-primary-500 dark:text-primary-400">
               <div class="text-center">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 mx-auto mb-2 opacity-50">
                   <path d="M15 3h4a2 2 0 0 1 2 2v4"/>
                   <path d="M10 21H6a2 2 0 0 1-2-2v-4"/>
-                <path d="M21 15v4a2 2 0 0 1-2 2h-4"/>
+                  <path d="M21 15v4a2 2 0 0 1-2 2h-4"/>
                   <path d="M3 9V5a2 2 0 0 1 2-2h4"/>
                   <path d="M9 9h6v6H9z"/>
                 </svg>
@@ -569,7 +538,7 @@ const shouldShowGraph = hasConnections || hasTags;
               </div>
             </div>
           `;
-      });
+        });
   }
 
   function setupLocalGraphButtons() {
@@ -707,21 +676,21 @@ const shouldShowGraph = hasConnections || hasTags;
       if (cachedFilteredData && cachedFilteredData.nodes.length > 1) {
         renderLocalGraph(container as HTMLElement, cachedFilteredData);
       } else {
-              container.innerHTML = `
-                <div class="flex items-center justify-center h-full text-primary-500 dark:text-primary-400">
-                  <div class="text-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-4 opacity-50">
-                      <path d="M15 3h4a2 2 0 0 1 2 2v4"/>
-                      <path d="M10 21H6a2 2 0 0 1-2-2v-4"/>
-                      <path d="M21 15v4a2 2 0 0 1-2 2h-4"/>
-                      <path d="M3 9V5a2 2 0 0 1 2-2h4"/>
-                      <path d="M9 9h6v6H9z"/>
-                    </svg>
-                    <p class="text-lg font-medium">No connections found</p>
-                    <p class="text-sm mt-2">This post doesn't have any connections to other posts</p>
-                  </div>
-                </div>
-              `;
+        container.innerHTML = `
+          <div class="flex items-center justify-center h-full text-primary-500 dark:text-primary-400">
+            <div class="text-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-4 opacity-50">
+                <path d="M15 3h4a2 2 0 0 1 2 2v4"/>
+                <path d="M10 21H6a2 2 0 0 1-2-2v-4"/>
+                <path d="M21 15v4a2 2 0 0 1-2 2h-4"/>
+                <path d="M3 9V5a2 2 0 0 1 2-2h4"/>
+                <path d="M9 9h6v6H9z"/>
+              </svg>
+              <p class="text-lg font-medium">No connections found</p>
+              <p class="text-sm mt-2">This post doesn't have any connections to other posts</p>
+            </div>
+          </div>
+        `;
       }
     }
 

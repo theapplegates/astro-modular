@@ -1,6 +1,7 @@
 ---
 import type { Heading } from '@/types';
 import Icon from './Icon.astro';
+import { getTableOfContentsDepth } from '@/config';
 
 export interface Props {
   headings: Heading[];
@@ -8,8 +9,9 @@ export interface Props {
 
 const { headings } = Astro.props;
 
-// Filter and structure headings
-const filteredHeadings = headings.filter(h => h.depth >= 2 && h.depth <= 4);
+// Filter and structure headings using configurable depth
+const maxDepth = getTableOfContentsDepth();
+const filteredHeadings = headings.filter(h => h.depth >= 2 && h.depth <= maxDepth);
 ---
 
 {filteredHeadings.length > 0 && (
@@ -132,7 +134,7 @@ const filteredHeadings = headings.filter(h => h.depth >= 2 && h.depth <= 4);
   }
 
   // Make function globally available
-  window.initializeTableOfContents = initializeTableOfContents;
+  (window as any).initializeTableOfContents = initializeTableOfContents;
 
   // Initialize on DOMContentLoaded
   document.addEventListener('DOMContentLoaded', initializeTableOfContents);
@@ -149,6 +151,14 @@ const filteredHeadings = headings.filter(h => h.depth >= 2 && h.depth <= 4);
   
   .toc-level-4 {
     @apply ml-8;
+  }
+  
+  .toc-level-5 {
+    @apply ml-12;
+  }
+  
+  .toc-level-6 {
+    @apply ml-16;
   }
   
   .toc-link.active {
