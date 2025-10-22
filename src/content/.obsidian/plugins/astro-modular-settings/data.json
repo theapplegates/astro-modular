@@ -129,7 +129,7 @@
     "postCardAspectRatio": "og",
     "customPostCardAspectRatio": "2.5/1",
     "comments": {
-      "enabled": false,
+      "enabled": true,
       "provider": "giscus",
       "repo": "davidvkimball/astro-modular",
       "repoId": "R_kgDOPllfKw",
@@ -142,7 +142,8 @@
       "inputPosition": "bottom",
       "theme": "preferred_color_scheme",
       "lang": "en",
-      "loading": "lazy"
+      "loading": "lazy",
+      "rawScript": "<script src=\"https://giscus.app/client.js\"\n        data-repo=\"davidvkimball/astro-modular\"\n        data-repo-id=\"R_kgDOPllfKw\"\n        data-category=\"General\"\n        data-category-id=\"DIC_kwDOPllfK84CvUpx\"\n        data-mapping=\"pathname\"\n        data-strict=\"0\"\n        data-reactions-enabled=\"1\"\n        data-emit-metadata=\"0\"\n        data-input-position=\"bottom\"\n        data-theme=\"preferred_color_scheme\"\n        data-lang=\"en\"\n        data-loading=\"lazy\"\n        crossorigin=\"anonymous\"\n        async>\n</script>"
     }
   },
   "features": {
@@ -150,7 +151,7 @@
     "readingTime": true,
     "linkedMentions": true,
     "linkedMentionsCompact": false,
-    "comments": false,
+    "comments": true,
     "graphView": true,
     "postNavigation": true,
     "scrollToTop": true,
@@ -190,7 +191,7 @@
       "style": "circle"
     },
     "comments": {
-      "enabled": false,
+      "enabled": true,
       "provider": "giscus",
       "repo": "davidvkimball/astro-modular",
       "repoId": "R_kgDOPllfKw",

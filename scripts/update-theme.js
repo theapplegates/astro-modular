@@ -20,7 +20,7 @@ import { pipeline as pipelineAsync } from 'stream/promises';
 // Configuration
 const UPSTREAM_REPO = 'https://github.com/davidvkimball/astro-modular.git';
 const GITHUB_API_BASE = 'https://api.github.com/repos/davidvkimball/astro-modular';
-const THEME_VERSION_FILE = 'THEME_VERSION';
+const THEME_BACKUP_FILE = '.theme-update-backup';
 const BACKUP_DIR = '.theme-backup';
 
 // File categorization for smart updates
@@ -721,11 +721,65 @@ function createBackup() {
   try {
     const currentCommit = execSync('git rev-parse HEAD', { encoding: 'utf8' }).trim();
     if (currentCommit) {
-      writeFileSync(THEME_VERSION_FILE, currentCommit);
+      writeFileSync(THEME_BACKUP_FILE, currentCommit);
       logSuccess(`Backup created (commit: ${currentCommit.substring(0, 7)})`);
+      logInfo(`Backup saved to: ${THEME_BACKUP_FILE}`);
     }
   } catch (error) {
     logWarning('Could not create backup file');
+  }
+}
+
+/**
+ * Rollback to the backup commit
+ */
+function rollbackToBackup() {
+  try {
+    if (!existsSync(THEME_BACKUP_FILE)) {
+      logError('No backup file found. Cannot rollback.');
+      logInfo('The backup file should be: ' + THEME_BACKUP_FILE);
+      logInfo('Make sure you have run the update command at least once.');
+      return false;
+    }
+    
+    const backupCommit = readFileSync(THEME_BACKUP_FILE, 'utf8').trim();
+    
+    if (!backupCommit) {
+      logError('Backup file is empty. Cannot rollback.');
+      return false;
+    }
+    
+    logInfo(`Rolling back to commit: ${backupCommit.substring(0, 7)}`);
+    
+    // Show what commit we're rolling back to
+    try {
+      const commitInfo = execSync(`git show ${backupCommit} --oneline -s`, { encoding: 'utf8' }).trim();
+      logInfo(`Rolling back to: ${commitInfo}`);
+    } catch (error) {
+      logWarning('Could not show commit information');
+    }
+    
+    // Reset to the backup commit
+    execSync(`git reset --hard ${backupCommit}`, { stdio: 'inherit' });
+    
+    // Clean up the backup file
+    try {
+      execSync(`rm "${THEME_BACKUP_FILE}"`, { stdio: 'pipe' });
+    } catch (error) {
+      // Windows PowerShell remove
+      execSync(`powershell -command "Remove-Item -Path '${THEME_BACKUP_FILE}' -Force"`, { stdio: 'pipe' });
+    }
+    
+    logSuccess('Rollback completed successfully');
+    logInfo('The backup file has been cleaned up');
+    logInfo('Run "pnpm run build" to rebuild the project');
+    
+    return true;
+  } catch (error) {
+    logError(`Rollback failed: ${error.message}`);
+    logInfo('You may need to manually reset to the backup commit:');
+    logInfo(`  git reset --hard $(cat ${THEME_BACKUP_FILE})`);
+    return false;
   }
 }
 
@@ -1587,6 +1641,7 @@ if (args.includes('--help') || args.includes('-h')) {
   log('  --help, -h           Show this help message');
   log('  --version            Show version information');
   log('  --update-content     Enable content file updates (DANGEROUS)');
+  log('  --rollback           Rollback to the previous version (uses backup)');
   log('');
   log('This command will:', 'blue');
   log('  1. Check and restore critical files');
@@ -1596,6 +1651,13 @@ if (args.includes('--help') || args.includes('-h')) {
   log('  5. Skip content files by default (use --update-content to enable)');
   log('  6. Ask before updating Obsidian configuration');
   log('  7. Update dependencies and rebuild');
+  log('  8. Create a backup file (.theme-update-backup) for rollback');
+  log('');
+  log('Rollback Functionality:', 'yellow');
+  log('  If something goes wrong after an update, you can rollback:');
+  log('    pnpm run update-theme --rollback');
+  log('  This will restore your theme to the state before the last update.');
+  log('  The backup file (.theme-update-backup) is automatically cleaned up after rollback.');
   log('');
   log('Content Protection:', 'yellow');
   log('  By default, your content files (posts, pages, projects, docs) are NEVER updated.');
@@ -1612,6 +1674,26 @@ if (args.includes('--version')) {
     log(`Astro Modular Theme Updater v${packageJson.version || '1.0.0'}`);
   } catch (error) {
     log('Astro Modular Theme Updater v1.0.0');
+  }
+  process.exit(0);
+}
+
+// Check for rollback flag
+if (args.includes('--rollback')) {
+  log('🔄 Astro Modular Theme Rollback', 'bright');
+  log('===============================', 'bright');
+  log('Rolling back to the previous version...', 'blue');
+  
+  if (rollbackToBackup()) {
+    log('\n🎉 Rollback completed successfully!', 'green');
+    log('===================================', 'green');
+    logInfo('Your theme has been restored to the state before the last update');
+    logInfo('Run "pnpm run dev" to start the development server');
+  } else {
+    log('\n❌ Rollback failed!', 'red');
+    log('==================', 'red');
+    logError('Please check the error messages above and try manual rollback if needed');
+    process.exit(1);
   }
   process.exit(0);
 }

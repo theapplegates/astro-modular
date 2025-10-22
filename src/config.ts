@@ -406,19 +406,32 @@ export const siteConfig: SiteConfig = {
     customPostCardAspectRatio: "2.5/1", // Only used when postCardAspectRatio is "custom" (e.g., "2.5/1")
     comments: {
       // [CONFIG:POST_OPTIONS_COMMENTS_ENABLED]
-      enabled: false,
+      enabled: true,
+      // [CONFIG:POST_OPTIONS_COMMENTS_PROVIDER]
       provider: "giscus",
+      // [CONFIG:POST_OPTIONS_COMMENTS_REPO]
       repo: "davidvkimball/astro-modular",
+      // [CONFIG:POST_OPTIONS_COMMENTS_REPO_ID]
       repoId: "R_kgDOPllfKw",
+      // [CONFIG:POST_OPTIONS_COMMENTS_CATEGORY]
       category: "General",
+      // [CONFIG:POST_OPTIONS_COMMENTS_CATEGORY_ID]
       categoryId: "DIC_kwDOPllfK84CvUpx",
+      // [CONFIG:POST_OPTIONS_COMMENTS_MAPPING]
       mapping: "pathname",
+      // [CONFIG:POST_OPTIONS_COMMENTS_STRICT]
       strict: "0",
+      // [CONFIG:POST_OPTIONS_COMMENTS_REACTIONS]
       reactions: "1",
+      // [CONFIG:POST_OPTIONS_COMMENTS_METADATA]
       metadata: "0",
+      // [CONFIG:POST_OPTIONS_COMMENTS_INPUT_POSITION]
       inputPosition: "bottom",
+      // [CONFIG:POST_OPTIONS_COMMENTS_THEME]
       theme: "preferred_color_scheme",
+      // [CONFIG:POST_OPTIONS_COMMENTS_LANG]
       lang: "en",
+      // [CONFIG:POST_OPTIONS_COMMENTS_LOADING]
       loading: "lazy",
     },
   },
