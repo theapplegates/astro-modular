@@ -194,6 +194,24 @@
   force = true
 
 [[redirects]]
+  from = "/docs/api-reference"
+  to = "/docs/api"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/docs/astro-modular-configuration"
+  to = "/docs/configuration"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/docs/sourcetree-and-git"
+  to = "/docs/sourcetree-and-git-setup"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/*"
   to = "/404"
   status = 404

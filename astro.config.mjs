@@ -36,7 +36,10 @@ export default defineConfig({
   '/privacy': '/privacy-policy',
   '/posts/astro-suite-vault-modular-guide': '/posts/astro-suite-obsidian-vault-guide-astro-modular',
   '/posts/mermaid-test': '/posts/mermaid-diagram-test',
-  '/projects/obsidian-astro-composer': '/projects/astro-composer'
+  '/projects/obsidian-astro-composer': '/projects/astro-composer',
+  '/docs/api-reference': '/docs/api',
+  '/docs/astro-modular-configuration': '/docs/configuration',
+  '/docs/sourcetree-and-git': '/docs/sourcetree-and-git-setup'
 },
   image: {
     service: {

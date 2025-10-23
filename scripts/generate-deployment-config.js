@@ -26,7 +26,9 @@ const __dirname = path.dirname(__filename);
 // Define content directories to process
 const CONTENT_DIRS = [
   'src/content/pages',
-  'src/content/posts'
+  'src/content/posts',
+  'src/content/projects',
+  'src/content/docs'
 ];
 
 // Function to parse frontmatter from markdown content
@@ -125,19 +127,35 @@ function getContentUrl(filePath, isPost = false) {
   
   if (isPost) {
     // For posts: extract path after 'src/content/posts/' and remove '.md'
-    const postPath = normalizedPath.replace(/^.*src\/content\/posts\//, '').replace(/\.md$/, '');
+    let postPath = normalizedPath.replace(/^.*src\/content\/posts\//, '').replace(/\.md$/, '');
+    // Handle folder-based content: remove '/index' suffix
+    if (postPath.endsWith('/index')) {
+      postPath = postPath.replace('/index', '');
+    }
     return `/posts/${postPath}`;
   } else if (normalizedPath.includes('src/content/projects/')) {
     // For projects: extract path after 'src/content/projects/' and remove '.md'
-    const projectPath = normalizedPath.replace(/^.*src\/content\/projects\//, '').replace(/\.md$/, '');
+    let projectPath = normalizedPath.replace(/^.*src\/content\/projects\//, '').replace(/\.md$/, '');
+    // Handle folder-based content: remove '/index' suffix
+    if (projectPath.endsWith('/index')) {
+      projectPath = projectPath.replace('/index', '');
+    }
     return `/projects/${projectPath}`;
   } else if (normalizedPath.includes('src/content/docs/')) {
     // For docs: extract path after 'src/content/docs/' and remove '.md'
-    const docPath = normalizedPath.replace(/^.*src\/content\/docs\//, '').replace(/\.md$/, '');
+    let docPath = normalizedPath.replace(/^.*src\/content\/docs\//, '').replace(/\.md$/, '');
+    // Handle folder-based content: remove '/index' suffix
+    if (docPath.endsWith('/index')) {
+      docPath = docPath.replace('/index', '');
+    }
     return `/docs/${docPath}`;
   } else {
     // For pages: extract path after 'src/content/pages/' and remove '.md'
-    const pagePath = normalizedPath.replace(/^.*src\/content\/pages\//, '').replace(/\.md$/, '');
+    let pagePath = normalizedPath.replace(/^.*src\/content\/pages\//, '').replace(/\.md$/, '');
+    // Handle folder-based content: remove '/index' suffix
+    if (pagePath.endsWith('/index')) {
+      pagePath = pagePath.replace('/index', '');
+    }
     if (pagePath === 'index') {
       return '/';
     }
@@ -204,18 +222,33 @@ async function processMarkdownFile(filePath, isPost = false) {
 // Function to process all markdown files in a directory
 async function processDirectory(dirPath, isPost = false) {
   try {
-    const files = await fs.readdir(dirPath);
-    const markdownFiles = files.filter(file => file.endsWith('.md'));
-    
+    const files = await fs.readdir(dirPath, { withFileTypes: true });
     let allRedirects = [];
     let processedFiles = 0;
     
-    for (const file of markdownFiles) {
-      const filePath = path.join(dirPath, file);
-      const redirects = await processMarkdownFile(filePath, isPost);
-      allRedirects = allRedirects.concat(redirects);
-      if (redirects.length > 0) {
-        processedFiles++;
+    for (const file of files) {
+      if (file.isDirectory()) {
+        // Handle folder-based content (e.g., folder-name/index.md)
+        const folderPath = path.join(dirPath, file.name);
+        try {
+          const indexPath = path.join(folderPath, 'index.md');
+          await fs.access(indexPath);
+          const redirects = await processMarkdownFile(indexPath, isPost);
+          allRedirects = allRedirects.concat(redirects);
+          if (redirects.length > 0) {
+            processedFiles++;
+          }
+        } catch (error) {
+          // index.md doesn't exist in this folder, skip
+        }
+      } else if (file.isFile() && file.name.endsWith('.md')) {
+        // Handle single-file content
+        const filePath = path.join(dirPath, file.name);
+        const redirects = await processMarkdownFile(filePath, isPost);
+        allRedirects = allRedirects.concat(redirects);
+        if (redirects.length > 0) {
+          processedFiles++;
+        }
       }
     }
     

@@ -18,7 +18,9 @@ const __dirname = path.dirname(__filename);
 // Define content directories to process
 const CONTENT_DIRS = [
   'src/content/pages',
-  'src/content/posts'
+  'src/content/posts',
+  'src/content/projects',
+  'src/content/docs'
 ];
 
 // Function to parse frontmatter from markdown content
@@ -166,21 +168,36 @@ async function processMarkdownFile(filePath) {
   }
 }
 
-// Function to process all markdown files in a directory
+// Function to process all markdown files in a directory (including folder-based content)
 async function processDirectory(dirPath) {
   try {
-    const files = await fs.readdir(dirPath);
-    const markdownFiles = files.filter(file => file.endsWith('.md'));
-    
+    const files = await fs.readdir(dirPath, { withFileTypes: true });
     let processedCount = 0;
     let totalAliases = 0;
     
-    for (const file of markdownFiles) {
-      const filePath = path.join(dirPath, file);
-      const result = await processMarkdownFile(filePath);
-      if (result.processed) {
-        processedCount++;
-        totalAliases += result.aliases;
+    for (const file of files) {
+      if (file.isDirectory()) {
+        // Handle folder-based content (e.g., folder-name/index.md)
+        const folderPath = path.join(dirPath, file.name);
+        try {
+          const indexPath = path.join(folderPath, 'index.md');
+          await fs.access(indexPath);
+          const result = await processMarkdownFile(indexPath);
+          if (result.processed) {
+            processedCount++;
+            totalAliases += result.aliases;
+          }
+        } catch (error) {
+          // index.md doesn't exist in this folder, skip
+        }
+      } else if (file.isFile() && file.name.endsWith('.md')) {
+        // Handle single-file content
+        const filePath = path.join(dirPath, file.name);
+        const result = await processMarkdownFile(filePath);
+        if (result.processed) {
+          processedCount++;
+          totalAliases += result.aliases;
+        }
       }
     }
     
@@ -217,6 +234,8 @@ async function processAllAliases() {
   if (totalProcessed > 0) {
     log.info(`📁 Processing pages directory...`);
     log.info(`📁 Processing posts directory...`);
+    log.info(`📁 Processing projects directory...`);
+    log.info(`📁 Processing docs directory...`);
     log.info(`   Processed ${totalProcessed} files with ${totalAliases} aliases`);
   }
   

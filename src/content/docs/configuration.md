@@ -14,7 +14,6 @@ featured: true
 aliases:
   - astro-modular-configuration
 ---
-
 This comprehensive guide covers everything needed to set up and customize your modular Astro blog, designed for Obsidian users who want to publish content with minimal friction.
 
 ## Prerequisites & Setup
