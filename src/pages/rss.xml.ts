@@ -48,7 +48,7 @@ export async function GET(context: any) {
         author: siteConfig.author,
         // Include image if available and marked for OG
         enclosure: post.data.image && post.data.imageOG ? {
-          url: post.data.image.startsWith('http') 
+          url: typeof post.data.image === 'string' && post.data.image.startsWith('http') 
             ? post.data.image 
             : `${siteUrl}posts/attachments/${post.data.image.replace(/^.*\//, '').replace(/^\[\[|\]\]$/g, '')}`,
           type: getMimeTypeFromPath(post.data.image),
@@ -56,7 +56,7 @@ export async function GET(context: any) {
         } : undefined,
         customData: [
           post.data.targetKeyword && `<keyword>${post.data.targetKeyword}</keyword>`,
-          post.data.image && `<image>${post.data.image.startsWith('http') 
+          post.data.image && `<image>${typeof post.data.image === 'string' && post.data.image.startsWith('http') 
             ? post.data.image 
             : `${siteUrl}posts/attachments/${post.data.image.replace(/^.*\//, '').replace(/^\[\[|\]\]$/g, '')}`}</image>`,
         ].filter(Boolean).join(''),

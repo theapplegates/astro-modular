@@ -1,6 +1,4 @@
 [
-  "new-tab-default-page",
-  "homepage",
   "insert-unsplash-image",
   "obsidian-minimal-settings",
   "obsidian-paste-image-rename",
@@ -17,7 +15,8 @@
   "seo",
   "alias-file-name-history",
   "property-over-file-name",
-  "disable-tabs",
+  "iconic",
   "astro-composer",
-  "iconic"
+  "new-tab-default-page",
+  "homepage"
 ]

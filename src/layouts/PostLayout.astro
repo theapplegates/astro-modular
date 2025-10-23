@@ -32,7 +32,7 @@ const seoData = generatePostSEO(post, Astro.site ? Astro.site.toString() : '');
 // Dynamic image import for local images
 let localImage: any = null;
 let hasImageError = false;
-if (post.data.image && !post.data.image.startsWith('http')) {
+if (post.data.image && typeof post.data.image === 'string' && !post.data.image.startsWith('http')) {
   try {
     const imagePath = optimizePostImagePath(post.data.image, post.slug, post.id);
     const images = import.meta.glob('/public/**');
@@ -151,7 +151,7 @@ if (siteConfig.postOptions.graphView.enabled && siteConfig.postOptions.graphView
         {/* Cover image - shown if global config allows and not hidden by frontmatter */}
         {siteConfig.postOptions.showPostCardCoverImages !== 'none' && post.data.image && post.data.hideCoverImage !== true && (
           <div class="h-40 sm:h-48 md:h-56 lg:h-64 overflow-hidden rounded-t-lg bg-primary-100 dark:bg-primary-800">
-            {post.data.image.startsWith('http') ? (
+            {typeof post.data.image === 'string' && post.data.image.startsWith('http') ? (
               <img 
                 src={post.data.image}
                 alt={post.data.imageAlt || `Featured image for post: ${post.data.title}`}

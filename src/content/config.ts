@@ -2,7 +2,6 @@ import { defineCollection, z } from 'astro:content';
 
 // Define schema for blog posts
 const postsCollection = defineCollection({
-  type: 'content',
   schema: z.object({
     title: z.string().default('Untitled Post'),
     description: z.string().nullable().optional().default('No description provided'),
@@ -33,7 +32,6 @@ const postsCollection = defineCollection({
 
 // Define schema for static pages
 const pagesCollection = defineCollection({
-  type: 'content',
   schema: z.object({
     title: z.string().default('Untitled Page'),
     description: z.string().nullable().optional().default('No description provided'),
@@ -60,7 +58,6 @@ const pagesCollection = defineCollection({
 
 // Define schema for projects
 const projectsCollection = defineCollection({
-  type: 'content',
   schema: z.object({
     title: z.string().default('Untitled Project'),
     description: z.string().nullable().optional().default('No description provided'),
@@ -92,7 +89,6 @@ const projectsCollection = defineCollection({
 
 // Define schema for docs
 const docsCollection = defineCollection({
-  type: 'content',
   schema: z.object({
     title: z.string().default('Untitled Documentation'),
     description: z.string().nullable().optional().default('No description provided'),
@@ -124,7 +120,6 @@ const docsCollection = defineCollection({
 
 // Define schema for special home pages (homepage blurb, 404, projects index, docs index)
 const specialCollection = defineCollection({
-  type: 'content',
   schema: z.object({
     title: z.string().default('Untitled Page'),
     description: z.string().nullable().optional().default('No description provided'),

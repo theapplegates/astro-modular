@@ -56,7 +56,7 @@ const structuredData = {
     <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
     
     <!-- Preload page image if exists -->
-    {page.data.image && !page.data.image.startsWith('http') && (
+    {page.data.image && typeof page.data.image === 'string' && !page.data.image.startsWith('http') && (
       <link 
         rel="preload" 
         as="image" 

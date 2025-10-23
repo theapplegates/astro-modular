@@ -69,7 +69,7 @@ const structuredData = {
     <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
     
     <!-- Preload documentation image if exists -->
-    {documentation.data.image && documentation.data.hideCoverImage !== true && !documentation.data.image.startsWith('http') && (
+    {documentation.data.image && documentation.data.hideCoverImage !== true && typeof documentation.data.image === 'string' && !documentation.data.image.startsWith('http') && (
       <link 
         rel="preload" 
         as="image" 

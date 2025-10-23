@@ -84,7 +84,7 @@ const pagination = {
     <!-- Preload only the first post's image to avoid unused preload warnings -->
     {paginatedPosts.length > 0 && (() => {
       const firstPost = paginatedPosts[0];
-      if (!firstPost.data.image || firstPost.data.image.startsWith('http')) return null;
+      if (!firstPost.data.image || typeof firstPost.data.image === 'string' && firstPost.data.image.startsWith('http')) return null;
       
       const showCoverImages = siteConfig.postOptions.showPostCardCoverImages;
       const shouldShowCoverImage = ['all', 'posts', 'featured-and-posts'].includes(showCoverImages);

@@ -116,7 +116,7 @@ const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProject
       <link 
         rel="preload" 
         as="image" 
-        href={project.data.image && project.data.image.startsWith('http') ? project.data.image : (project.data.image ? optimizeContentImagePath(project.data.image, 'projects', project.slug, project.id) : '')}
+        href={project.data.image && typeof project.data.image === 'string' && project.data.image.startsWith('http') ? project.data.image : (project.data.image ? optimizeContentImagePath(project.data.image, 'projects', project.slug, project.id) : '')}
         fetchpriority="high"
       />
     )}
@@ -138,7 +138,7 @@ const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProject
               src={project.data.image}
               basePath={(() => {
                 // 1. External URLs - no basePath needed
-                if (project.data.image.startsWith('http')) {
+                if (typeof project.data.image === 'string' && project.data.image.startsWith('http')) {
                   return '';
                 }
                 
