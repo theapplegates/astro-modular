@@ -1,7 +1,7 @@
 ---
 title: Installing Obsidian
 description: Simple guide to install Obsidian for your Astro Modular blog
-category: Setup
+category: Optional Software
 order: 1
 version: 1.0.0
 lastModified: 2025-09-17
@@ -10,11 +10,8 @@ imageAlt:
 hideCoverImage: false
 hideTOC: false
 draft: false
-featured: false
+featured: true
 ---
-
-## Installing Obsidian
-
 This guide shows you how to install Obsidian for use with your Astro Modular blog.
 
 ## Download Obsidian

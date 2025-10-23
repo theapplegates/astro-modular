@@ -213,15 +213,23 @@ html.show-scrollbars {
   /* Remove custom colors to use browser default */
 }
 
-/* Force scrollbars to appear in Firefox */
+/* Force scrollbars to appear in Firefox - but don't interfere with sticky positioning */
 .show-scrollbars {
-  overflow: auto !important;
+  /* Use min-height instead of overflow to force scrollbars without breaking sticky positioning */
+  min-height: 100vh;
+  /* Don't set overflow as it can interfere with sticky positioning */
+  /* overflow: auto !important; */
 }
 
-/* Ensure body and html have scrollbars when needed */
-body.show-scrollbars,
+/* Ensure body and html have scrollbars when needed - but don't interfere with sticky positioning */
+body.show-scrollbars {
+  /* Don't set overflow on body element as it can interfere with sticky positioning */
+  /* overflow: auto !important; */
+}
+
 html.show-scrollbars {
-  overflow: auto !important;
+  /* Don't set overflow on html element as it can interfere with sticky positioning */
+  /* overflow: auto !important; */
 }
 
 /* Selection Colors */
@@ -904,7 +912,7 @@ html.is-ready .transition-swup-fade {
 
 /* Smooth transitions for main content */
 main {
-  min-height: 100vh;
+  min-height: calc(100vh - 4rem); /* Account for header height */
   position: relative;
 }
 
@@ -937,9 +945,14 @@ body {
 /* Lock scroll during transitions to prevent unwanted movement */
 /* Avoid global scroll locking during transitions; let Swup handle scroll */
 
-/* Keep header and footer stable during transitions */
-header, footer, nav {
+/* Keep footer and nav stable during transitions */
+footer, nav {
   transform: translateZ(0);
+}
+
+/* Header needs special handling to maintain sticky positioning */
+header {
+  /* Don't apply transform to header as it interferes with sticky positioning */
 }
 
 /* Ensure smooth transitions for interactive elements only */
