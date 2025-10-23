@@ -16,7 +16,8 @@
   "alias-file-name-history",
   "property-over-file-name",
   "iconic",
-  "astro-composer",
   "new-tab-default-page",
-  "homepage"
+  "homepage",
+  "astro-composer",
+  "astro-modular-settings"
 ]

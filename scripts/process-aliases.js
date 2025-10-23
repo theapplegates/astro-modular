@@ -75,22 +75,43 @@ function parseFrontmatter(content) {
           // Single line array
           const arrayContent = value.substring(1, value.endsWith(']') ? value.length - 1 : value.length);
           if (arrayContent.trim()) {
-            currentValue = arrayContent.split(',').map(item => item.trim().replace(/^["']|["']$/g, ''));
+            currentValue = arrayContent.split(',').map(item => {
+              const trimmed = item.trim();
+              if (trimmed.startsWith('"[[') && trimmed.endsWith(']]"')) {
+                // Keep quotes for Obsidian bracket syntax
+                return trimmed;
+              } else {
+                // Remove quotes for regular values
+                return trimmed.replace(/^["']|["']$/g, '');
+              }
+            });
           }
           inArray = false;
         }
       } else if (value) {
-        // Single value
-        currentValue = [value.replace(/^["']|["']$/g, '')];
+        // Single value - preserve quotes for Obsidian bracket syntax
+        if (value.startsWith('"[[') && value.endsWith(']]"')) {
+          // Keep quotes for Obsidian bracket syntax
+          currentValue = [value];
+        } else {
+          // Remove quotes for regular values
+          currentValue = [value.replace(/^["']|["']$/g, '')];
+        }
       } else {
         // Empty value, might be start of array
         currentValue = [];
         inArray = true;
       }
     } else if (inArray && trimmed.startsWith('-')) {
-      // Array item
-      const item = trimmed.substring(1).trim().replace(/^["']|["']$/g, '');
-      currentValue.push(item);
+      // Array item - preserve quotes for Obsidian bracket syntax
+      const item = trimmed.substring(1).trim();
+      if (item.startsWith('"[[') && item.endsWith(']]"')) {
+        // Keep quotes for Obsidian bracket syntax
+        currentValue.push(item);
+      } else {
+        // Remove quotes for regular values
+        currentValue.push(item.replace(/^["']|["']$/g, ''));
+      }
     } else if (inArray && trimmed === ']') {
       // End of array
       inArray = false;
@@ -120,10 +141,20 @@ function frontmatterToString(frontmatter) {
     if (Array.isArray(value)) {
       lines.push(`${key}:`);
       for (const item of value) {
-        lines.push(`  - ${item}`);
+        // Preserve quotes for Obsidian bracket syntax in arrays
+        if (typeof item === 'string' && item.startsWith('"[[') && item.endsWith(']]"')) {
+          lines.push(`  - ${item}`);
+        } else {
+          lines.push(`  - ${item}`);
+        }
       }
     } else {
-      lines.push(`${key}: ${value}`);
+      // Preserve quotes for Obsidian bracket syntax in single values
+      if (typeof value === 'string' && value.startsWith('"[[') && value.endsWith(']]"')) {
+        lines.push(`${key}: ${value}`);
+      } else {
+        lines.push(`${key}: ${value}`);
+      }
     }
   }
   

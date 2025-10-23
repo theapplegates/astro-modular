@@ -12,6 +12,24 @@ function getDefaultOGImage(): OpenGraphImage {
   };
 }
 
+// Helper function to extract image path from Obsidian bracket syntax
+function extractImagePath(image: string): string {
+  if (!image || typeof image !== 'string') return '';
+  
+  // Handle Obsidian bracket syntax: [[path/to/image.jpg]] (unquoted)
+  if (image.startsWith('[[') && image.endsWith(']]')) {
+    return image.slice(2, -2); // Remove [[ and ]]
+  }
+  
+  // Handle quoted Obsidian bracket syntax: "[[path/to/image.jpg]]"
+  if (image.startsWith('"[[') && image.endsWith(']]"')) {
+    return image.slice(3, -3); // Remove "[[ and ]]"
+  }
+  
+  // Return as-is for regular paths
+  return image;
+}
+
 // Generate SEO data for posts
 export function generatePostSEO(post: Post, url: string): SEOData {
   const { title, description, image, imageOG, tags, date } = post.data;
@@ -19,15 +37,18 @@ export function generatePostSEO(post: Post, url: string): SEOData {
   let ogImage: OpenGraphImage | undefined;
 
   if (image && imageOG) {
+    // Extract image path from Obsidian bracket syntax if needed
+    const imagePath = extractImagePath(image);
+    
     // Handle both local and external image paths
     let imageUrl: string;
-    if (image.startsWith('http')) {
+    if (imagePath.startsWith('http')) {
       // External URL
-      imageUrl = image;
+      imageUrl = imagePath;
     } else {
       // Use optimizePostImagePath for proper path resolution
-      const imagePath = optimizePostImagePath(image, post.slug);
-      imageUrl = `${siteConfig.site}${imagePath}`;
+      const optimizedPath = optimizePostImagePath(imagePath, post.slug);
+      imageUrl = `${siteConfig.site}${optimizedPath}`;
     }
     ogImage = {
       url: imageUrl,
@@ -64,8 +85,11 @@ export function generatePageSEO(page: Page, url: string): SEOData {
   let ogImage: OpenGraphImage | undefined;
 
   if (image && imageOG) {
+    // Extract image path from Obsidian bracket syntax if needed
+    const imagePath = extractImagePath(image);
+    
     ogImage = {
-      url: `${siteConfig.site}${image.startsWith('/') ? '' : '/'}${image}`,
+      url: `${siteConfig.site}${imagePath.startsWith('/') ? '' : '/'}${imagePath}`,
       alt: page.data.imageAlt || `Featured image for page: ${title}`,
       width: 1200,
       height: 630
@@ -96,15 +120,18 @@ export function generateProjectSEO(project: Project, url: string): SEOData {
   let ogImage: OpenGraphImage | undefined;
 
   if (image && imageOG) {
+    // Extract image path from Obsidian bracket syntax if needed
+    const imagePath = extractImagePath(image);
+    
     // Handle both local and external image paths
     let imageUrl: string;
-    if (image.startsWith('http')) {
+    if (imagePath.startsWith('http')) {
       // External URL
-      imageUrl = image;
+      imageUrl = imagePath;
     } else {
       // Use optimizeImagePath for proper path resolution
-      const imagePath = optimizeContentImagePath(image, 'projects', project.slug, project.id);
-      imageUrl = `${siteConfig.site}${imagePath}`;
+      const optimizedPath = optimizeContentImagePath(imagePath, 'projects', project.slug, project.id);
+      imageUrl = `${siteConfig.site}${optimizedPath}`;
     }
     ogImage = {
       url: imageUrl,
@@ -141,14 +168,17 @@ export function generateDocumentationSEO(documentation: Docs, url: string): SEOD
   let ogImage: OpenGraphImage | undefined;
 
   if (image && imageOG) {
+    // Extract image path from Obsidian bracket syntax if needed
+    const imagePath = extractImagePath(image);
+    
     let imageUrl: string;
-    if (image.startsWith('http')) {
+    if (imagePath.startsWith('http')) {
       // External URL
-      imageUrl = image;
+      imageUrl = imagePath;
     } else {
       // Use optimizeImagePath for proper path resolution
-      const imagePath = optimizeContentImagePath(image, 'docs', documentation.slug, documentation.id);
-      imageUrl = `${siteConfig.site}${imagePath}`;
+      const optimizedPath = optimizeContentImagePath(imagePath, 'docs', documentation.slug, documentation.id);
+      imageUrl = `${siteConfig.site}${optimizedPath}`;
     }
     ogImage = {
       url: imageUrl,

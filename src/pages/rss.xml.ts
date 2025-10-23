@@ -4,6 +4,24 @@ import { getCollection } from 'astro:content';
 import { siteConfig } from '../config';
 import { shouldShowPost, sortPostsByDate } from '../utils/markdown';
 
+// Helper function to extract image path from Obsidian bracket syntax
+function extractImagePath(image: string): string {
+  if (!image || typeof image !== 'string') return '';
+  
+  // Handle Obsidian bracket syntax: [[path/to/image.jpg]] (unquoted)
+  if (image.startsWith('[[') && image.endsWith(']]')) {
+    return image.slice(2, -2); // Remove [[ and ]]
+  }
+  
+  // Handle quoted Obsidian bracket syntax: "[[path/to/image.jpg]]"
+  if (image.startsWith('"[[') && image.endsWith(']]"')) {
+    return image.slice(3, -3); // Remove "[[ and ]]"
+  }
+  
+  // Return as-is for regular paths
+  return image;
+}
+
 function getMimeTypeFromPath(path: string): string {
   const ext = path.split('.').pop()?.toLowerCase();
   switch (ext) {
@@ -48,17 +66,23 @@ export async function GET(context: any) {
         author: siteConfig.author,
         // Include image if available and marked for OG
         enclosure: post.data.image && post.data.imageOG ? {
-          url: typeof post.data.image === 'string' && post.data.image.startsWith('http') 
-            ? post.data.image 
-            : `${siteUrl}posts/attachments/${post.data.image.replace(/^.*\//, '').replace(/^\[\[|\]\]$/g, '')}`,
-          type: getMimeTypeFromPath(post.data.image),
+          url: (() => {
+            const imagePath = extractImagePath(post.data.image);
+            return typeof imagePath === 'string' && imagePath.startsWith('http') 
+              ? imagePath 
+              : `${siteUrl}posts/attachments/${imagePath.replace(/^.*\//, '')}`;
+          })(),
+          type: getMimeTypeFromPath(extractImagePath(post.data.image)),
           length: 0 // Length is optional
         } : undefined,
         customData: [
           post.data.targetKeyword && `<keyword>${post.data.targetKeyword}</keyword>`,
-          post.data.image && `<image>${typeof post.data.image === 'string' && post.data.image.startsWith('http') 
-            ? post.data.image 
-            : `${siteUrl}posts/attachments/${post.data.image.replace(/^.*\//, '').replace(/^\[\[|\]\]$/g, '')}`}</image>`,
+          post.data.image && `<image>${(() => {
+            const imagePath = extractImagePath(post.data.image);
+            return typeof imagePath === 'string' && imagePath.startsWith('http') 
+              ? imagePath 
+              : `${siteUrl}posts/attachments/${imagePath.replace(/^.*\//, '')}`;
+          })()}</image>`,
         ].filter(Boolean).join(''),
       };
     }),

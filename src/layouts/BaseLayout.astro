@@ -169,6 +169,114 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
       availableThemes: JSON.parse(document.documentElement.getAttribute('data-available-themes') || '"all"')
     };
 
+    // Check if theme switching is available in the UI
+    function isThemeSwitchingAvailable() {
+      const availableThemes = window.siteConfig?.availableThemes || 'all';
+      const hasMultipleThemes = availableThemes === 'all' || (Array.isArray(availableThemes) && availableThemes.length > 1);
+      
+      // Check if theme switching is available via command palette
+      const commandPaletteEnabled = window.siteConfig?.commandPalette?.enabled || false;
+      const commandPaletteThemeEnabled = window.siteConfig?.commandPalette?.quickActions?.changeTheme || false;
+      
+      // Check if theme switching is available via feature button
+      const featureButton = window.siteConfig?.featureButton || 'none';
+      const featureButtonThemeEnabled = featureButton === 'theme';
+      
+      // Theme switching is available if:
+      // 1. There are multiple themes available AND
+      // 2. Either command palette theme switching OR feature button theme switching is enabled
+      return hasMultipleThemes && (commandPaletteThemeEnabled || featureButtonThemeEnabled);
+    }
+
+    // Validate if a theme is in the available themes list
+    function isThemeAvailable(theme) {
+      const availableThemes = window.siteConfig?.availableThemes || 'all';
+      return availableThemes === 'all' || (Array.isArray(availableThemes) && availableThemes.includes(theme));
+    }
+
+    // Reset theme to default and clear user preferences
+    function resetThemeToDefault() {
+      const configTheme = window.siteConfig?.theme || 'oxygen';
+      
+      // Clear all theme preferences
+      localStorage.removeItem('themePreference');
+      localStorage.removeItem('selectedTheme');
+      
+      // Set theme to config default
+      document.documentElement.setAttribute('data-theme', configTheme);
+      
+      // Update CSS custom properties
+      updateThemeCSSVariables(configTheme).catch(console.error);
+      
+      return configTheme;
+    }
+
+    // Get theme without clearing preferences (for initialization)
+    function getThemeWithoutClearing() {
+      const configTheme = window.siteConfig?.theme || 'oxygen';
+      
+      // Check if theme switching is available in the UI
+      const themeSwitchingAvailable = isThemeSwitchingAvailable();
+      
+      // If theme switching is NOT available, ALWAYS use default theme and clear preferences
+      if (!themeSwitchingAvailable) {
+        // Clear any stored theme preferences since theme switching is not available
+        localStorage.removeItem('themePreference');
+        localStorage.removeItem('selectedTheme');
+        return configTheme;
+      }
+      
+      // Theme switching IS available, so respect user preferences
+      const themePreference = localStorage.getItem('themePreference');
+      const hasUserPreference = themePreference !== null;
+      
+      if (hasUserPreference) {
+        // User has made a theme choice before
+        if (themePreference === 'default') {
+          // User explicitly chose to follow the site's default theme
+          return configTheme;
+        } else if (themePreference && themePreference.startsWith('specific:')) {
+          // User chose a specific theme
+          const specificTheme = themePreference.replace('specific:', '');
+          
+          // Validate theme is still available
+          if (isThemeAvailable(specificTheme)) {
+            return specificTheme;
+          } else {
+            // Theme is no longer available, fall back to default
+            return configTheme;
+          }
+        }
+      } else {
+        // User has never made a theme choice
+        // Check for legacy selectedTheme key
+        const storedTheme = localStorage.getItem('selectedTheme');
+        if (storedTheme) {
+          // Migrate legacy preference
+          if (storedTheme === configTheme) {
+            // Legacy theme was the default, clear preference to follow default
+            localStorage.removeItem('selectedTheme');
+            return configTheme;
+          } else {
+            // Legacy theme was custom, migrate to new system
+            if (isThemeAvailable(storedTheme)) {
+              localStorage.setItem('themePreference', `specific:${storedTheme}`);
+              localStorage.removeItem('selectedTheme');
+              return storedTheme;
+            } else {
+              // Theme is no longer available, fall back to default
+              return configTheme;
+            }
+          }
+        } else {
+          // No user preference at all, always follow config default
+          return configTheme;
+        }
+      }
+      
+      return configTheme;
+    }
+
     // Initialize theme before page renders to prevent flash
     async function initTheme() {
       // Handle dark/light mode
@@ -180,25 +288,7 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
       document.documentElement.classList.add(mode);
 
       // Handle theme selection (color scheme)
-      const configTheme = window.siteConfig?.theme || 'oxygen';
-      const availableThemes = window.siteConfig?.availableThemes || 'all';
-      
-      let theme = configTheme; // Always default to config theme
-      
-      // Check if theme selector is actually available in the UI
-      // This will be determined by checking if there are multiple themes available
-      const hasThemeSelector = availableThemes === 'all' || (Array.isArray(availableThemes) && availableThemes.length > 1);
-      
-      // Only respect user preference if theme selector is available
-      if (hasThemeSelector) {
-        const storedTheme = localStorage.getItem('selectedTheme');
-        if (storedTheme) {
-          // Validate that stored theme is in available themes list
-          if (availableThemes === 'all' || (Array.isArray(availableThemes) && availableThemes.includes(storedTheme))) {
-            theme = storedTheme;
-          }
-        }
-      }
+      const theme = getThemeWithoutClearing();
 
       document.documentElement.setAttribute('data-theme', theme);
       
@@ -283,27 +373,29 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
 
     // Global function to change theme (color scheme)
     async function changeTheme(theme) {
-      // Get config values from data attributes if window.siteConfig is not available
-      const availableThemes = window.siteConfig?.availableThemes ?? 
-        JSON.parse(document.documentElement.getAttribute('data-available-themes') || '"all"');
-      
-      // Check if theme selector is actually available in the UI
-      const hasThemeSelector = availableThemes === 'all' || (Array.isArray(availableThemes) && availableThemes.length > 1);
-      
-      
-      // Only allow theme changes if theme selector is available
-      if (!hasThemeSelector) {
-        console.warn('Theme changes are disabled - theme selector is not available');
-        return;
+      // Check if theme switching is available in the UI
+      if (!isThemeSwitchingAvailable()) {
+        return; // Silent no-op if theme switching is not available
       }
       
       // Validate theme is in available themes list
-      if (availableThemes !== 'all' && (!Array.isArray(availableThemes) || !availableThemes.includes(theme))) {
-        console.warn('Theme not available:', theme, 'Available themes:', availableThemes);
-        return;
+      if (!isThemeAvailable(theme)) {
+        return; // Silent no-op if theme is not available
       }
       
-      localStorage.setItem('selectedTheme', theme);
+      // Store theme preference based on selection
+      const configTheme = window.siteConfig?.theme || 'oxygen';
+      if (theme === configTheme) {
+        // User selected the default theme - clear preference to follow default
+        localStorage.removeItem('themePreference');
+        localStorage.removeItem('selectedTheme');
+      } else {
+        // User selected a specific theme - store as 'specific:theme-name'
+        localStorage.setItem('themePreference', `specific:${theme}`);
+        // Also maintain backward compatibility with selectedTheme for now
+        localStorage.setItem('selectedTheme', theme);
+      }
+      
       document.documentElement.setAttribute('data-theme', theme);
       
       // Update CSS custom properties for the selected theme
@@ -607,6 +699,10 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
     // Make functions globally accessible
     window.toggleTheme = toggleTheme;
     window.changeTheme = changeTheme;
+    window.isThemeSwitchingAvailable = isThemeSwitchingAvailable;
+    window.isThemeAvailable = isThemeAvailable;
+    window.resetThemeToDefault = resetThemeToDefault;
+    window.getThemeWithoutClearing = getThemeWithoutClearing;
 
     // Global function to restore scroll functionality
     function restoreScroll() {
@@ -1662,4 +1758,5 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
   <!-- Additional body scripts -->
   <slot name="scripts" />
 </body>
+</html>
 </html>

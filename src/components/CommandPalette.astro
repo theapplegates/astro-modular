@@ -1143,6 +1143,12 @@ import Icon from './Icon.astro';
           this.close(); // Close palette after action
           break;
         case 'change-theme':
+          // Check if theme switching is available before showing theme selection
+          if ((window as any).isThemeSwitchingAvailable && !(window as any).isThemeSwitchingAvailable()) {
+            console.warn('Theme switching is not available');
+            this.close();
+            return;
+          }
           // Show theme selection interface
           this.populateThemeList();
           this.showThemeSelection();
@@ -1173,6 +1179,12 @@ import Icon from './Icon.astro';
     }
 
     private populateThemeList() {
+      // Check if theme switching is available before showing theme list
+      if ((window as any).isThemeSwitchingAvailable && !(window as any).isThemeSwitchingAvailable()) {
+        this.themeList.innerHTML = '<div class="p-4 text-center text-primary-500 dark:text-primary-400">Theme switching is not available</div>';
+        return;
+      }
+
       // Available themes from src/themes/index.ts
       const allThemes = [
         'minimal', 'oxygen', 'atom', 'ayu', 'catppuccin', 'charcoal', 'dracula', 
@@ -1180,17 +1192,29 @@ import Icon from './Icon.astro';
         'rose-pine', 'sky', 'solarized', 'things'
       ];
 
-      // Get current theme from localStorage, data-theme attribute, or config
-      let currentTheme = localStorage.getItem('selectedTheme');
+      // Get current theme using the new preference system
+      let currentTheme = (window as any).siteConfig?.theme || 'oxygen'; // Default to config theme
       
-      // If no stored theme, check the current data-theme attribute
-      if (!currentTheme) {
-        currentTheme = document.documentElement.getAttribute('data-theme');
-      }
+      const themePreference = localStorage.getItem('themePreference');
       
-      // If still no theme, use config default
-      if (!currentTheme) {
+      if (themePreference === 'default') {
+        // User explicitly chose to follow the site's default theme
         currentTheme = (window as any).siteConfig?.theme || 'oxygen';
+      } else if (themePreference && themePreference.startsWith('specific:')) {
+        // User chose a specific theme
+        currentTheme = themePreference.replace('specific:', '');
+      } else {
+        // Legacy support: check old selectedTheme key
+        const storedTheme = localStorage.getItem('selectedTheme');
+        if (storedTheme) {
+          currentTheme = storedTheme;
+        } else {
+          // Fallback to current data-theme attribute
+          const dataTheme = document.documentElement.getAttribute('data-theme');
+          if (dataTheme) {
+            currentTheme = dataTheme;
+          }
+        }
       }
 
       // Get default theme from config
@@ -1205,10 +1229,16 @@ import Icon from './Icon.astro';
       // Get available themes from config
       const configAvailableThemes = (window as any).siteConfig?.availableThemes || 'all';
       
-      // Filter themes based on config
-      const filteredThemes = configAvailableThemes === 'all' 
-        ? allThemes 
-        : allThemes.filter(theme => configAvailableThemes.includes(theme));
+      // Filter themes based on config - use the global validation function if available
+      let filteredThemes;
+      if ((window as any).isThemeAvailable) {
+        filteredThemes = allThemes.filter(theme => (window as any).isThemeAvailable(theme));
+      } else {
+        // Fallback to manual filtering
+        filteredThemes = configAvailableThemes === 'all' 
+          ? allThemes 
+          : allThemes.filter(theme => configAvailableThemes.includes(theme));
+      }
       
       // Reorder themes to put default theme first
       const themes = [defaultTheme, ...filteredThemes.filter(theme => theme !== defaultTheme)];
@@ -1252,11 +1282,35 @@ import Icon from './Icon.astro';
     }
 
     private async applyTheme(themeName: string) {
+      // Check if theme switching is available before applying
+      if ((window as any).isThemeSwitchingAvailable && !(window as any).isThemeSwitchingAvailable()) {
+        console.warn('Theme switching is not available - theme change blocked');
+        return;
+      }
+      
+      // Validate theme is available before applying
+      if ((window as any).isThemeAvailable && !(window as any).isThemeAvailable(themeName)) {
+        console.warn('Theme is not available:', themeName);
+        return;
+      }
+      
       // Use the global changeTheme function from BaseLayout.astro
       if ((window as any).changeTheme) {
         await (window as any).changeTheme(themeName);
       } else {
         // Fallback if global function is not available
+        const configTheme = (window as any).siteConfig?.theme || 'oxygen';
+        
+        // Store theme preference based on selection
+        if (themeName === configTheme) {
+          // User selected the default theme - store as 'default' preference
+          localStorage.setItem('themePreference', 'default');
+        } else {
+          // User selected a specific theme - store as 'specific:theme-name'
+          localStorage.setItem('themePreference', `specific:${themeName}`);
+        }
+        
+        // Also maintain backward compatibility with selectedTheme for now
         localStorage.setItem('selectedTheme', themeName);
         document.documentElement.setAttribute('data-theme', themeName);
         
