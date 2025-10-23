@@ -1,6 +1,6 @@
 {
   "runWizardOnStartup": true,
-  "currentTemplate": "standard",
+  "currentTemplate": "custom",
   "currentTheme": "oxygen",
   "customThemeFile": "custom",
   "contentOrganization": "file-based",
@@ -131,6 +131,7 @@
     "comments": {
       "enabled": false,
       "provider": "giscus",
+      "rawScript": "",
       "repo": "davidvkimball/astro-modular",
       "repoId": "R_kgDOPllfKw",
       "category": "General",
@@ -142,8 +143,7 @@
       "inputPosition": "bottom",
       "theme": "preferred_color_scheme",
       "lang": "en",
-      "loading": "lazy",
-      "rawScript": "<script src=\"https://giscus.app/client.js\"\n        data-repo=\"davidvkimball/astro-modular\"\n        data-repo-id=\"R_kgDOPllfKw\"\n        data-category=\"General\"\n        data-category-id=\"DIC_kwDOPllfK84CvUpx\"\n        data-mapping=\"pathname\"\n        data-strict=\"0\"\n        data-reactions-enabled=\"1\"\n        data-emit-metadata=\"0\"\n        data-input-position=\"bottom\"\n        data-theme=\"preferred_color_scheme\"\n        data-lang=\"en\"\n        data-loading=\"lazy\"\n        crossorigin=\"anonymous\"\n        async>\n</script>"
+      "loading": "lazy"
     }
   },
   "features": {
@@ -154,6 +154,7 @@
     "comments": false,
     "graphView": true,
     "postNavigation": true,
+    "hideScrollBar": false,
     "scrollToTop": true,
     "featureButton": "mode",
     "showSocialIconsInFooter": true,
@@ -165,8 +166,7 @@
       "toggleMode": true,
       "graphView": true,
       "changeTheme": true
-    },
-    "hideScrollBar": false
+    }
   },
   "typography": {
     "headingFont": "Inter",
@@ -187,13 +187,14 @@
       "image": "/profile.jpg",
       "alt": "Profile picture",
       "size": "md",
-      "url": "",
+      "url": "/about",
       "placement": "footer",
       "style": "circle"
     },
     "comments": {
       "enabled": false,
       "provider": "giscus",
+      "rawScript": "",
       "repo": "davidvkimball/astro-modular",
       "repoId": "R_kgDOPllfKw",
       "category": "General",
@@ -205,8 +206,7 @@
       "inputPosition": "bottom",
       "theme": "preferred_color_scheme",
       "lang": "en",
-      "loading": "lazy",
-      "rawScript": "<script src=\"https://giscus.app/client.js\"\n        data-repo=\"davidvkimball/astro-modular\"\n        data-repo-id=\"R_kgDOPllfKw\"\n        data-category=\"General\"\n        data-category-id=\"DIC_kwDOPllfK84CvUpx\"\n        data-mapping=\"pathname\"\n        data-strict=\"0\"\n        data-reactions-enabled=\"1\"\n        data-emit-metadata=\"0\"\n        data-input-position=\"bottom\"\n        data-theme=\"preferred_color_scheme\"\n        data-lang=\"en\"\n        data-loading=\"lazy\"\n        crossorigin=\"anonymous\"\n        async>\n</script>"
+      "loading": "lazy"
     }
   },
   "deployment": {
