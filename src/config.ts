@@ -43,6 +43,8 @@ export interface SiteConfig {
     content: string;
     showSocialIconsInFooter: boolean;
   };
+  // [CONFIG:HIDE_SCROLL_BAR]
+  hideScrollBar: boolean;
   scrollToTop: boolean;
   featureButton: "mode" | "graph" | "theme" | "none";
   seo: {
@@ -228,6 +230,8 @@ export const siteConfig: SiteConfig = {
     // [CONFIG:FOOTER_SHOW_SOCIAL_ICONS]
     showSocialIconsInFooter: true,
   },
+  //[CONFIG:HIDE_SCROLL_BAR]
+  hideScrollBar: false,
   // [CONFIG:SCROLL_TO_TOP]
   scrollToTop: true,
   // [CONFIG:FEATURE_BUTTON]

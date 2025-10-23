@@ -41,10 +41,13 @@ export interface Props {
 }
 
 const { seoData, bodyClass = '' } = Astro.props;
+
+// Determine scrollbar class based on configuration
+const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
 ---
 
 <!DOCTYPE html>
-<html lang={siteConfig.language} class="scrollbar-hide" data-theme-config={siteConfig.theme} data-custom-theme-file={siteConfig.customThemeFile} data-available-themes={JSON.stringify(siteConfig.availableThemes)}>
+<html lang={siteConfig.language} class={`scrollbar-hide ${scrollbarClass}`} data-theme-config={siteConfig.theme} data-custom-theme-file={siteConfig.customThemeFile} data-available-themes={JSON.stringify(siteConfig.availableThemes)}>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -804,7 +807,7 @@ const { seoData, bodyClass = '' } = Astro.props;
   
 </head>
 
-<body class={`min-h-screen bg-white dark:bg-primary-950 text-primary-900 dark:text-primary-50 text-selection-highlight transition-colors duration-200 flex flex-col ${bodyClass}`}>
+<body class={`min-h-screen bg-white dark:bg-primary-950 text-primary-900 dark:text-primary-50 text-selection-highlight transition-colors duration-200 flex flex-col ${scrollbarClass} ${bodyClass}`}>
   <!-- Skip to main content -->
   <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 btn-primary px-4 py-2 rounded-md z-50">
     Skip to main content

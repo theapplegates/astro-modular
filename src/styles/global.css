@@ -168,7 +168,14 @@ body {
   font-display: var(--font-display, swap);
 }
 
-/* Scrollbar Hiding */
+/* Scrollbar Configuration */
+:root {
+  --scrollbar-display: none;
+  --scrollbar-width: none;
+  --scrollbar-ms-overflow: none;
+}
+
+/* Hide scrollbars by default */
 ::-webkit-scrollbar {
   display: none;
 }
@@ -176,6 +183,45 @@ body {
 * {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Show minimal modern scrollbars when hideScrollBar is false */
+.show-scrollbars {
+  --scrollbar-display: block !important;
+  --scrollbar-width: auto !important;
+  --scrollbar-ms-overflow: auto !important;
+}
+
+/* Use completely native scrollbars - no custom styling */
+.show-scrollbars ::-webkit-scrollbar,
+body.show-scrollbars ::-webkit-scrollbar {
+  display: block !important;
+  /* Remove all custom width, colors, and styling - use browser defaults */
+}
+
+/* Override the global scrollbar hiding for show-scrollbars */
+.show-scrollbars * {
+  -ms-overflow-style: auto !important;
+  scrollbar-width: auto !important;
+}
+
+/* Firefox-specific scrollbar styling */
+.show-scrollbars,
+body.show-scrollbars,
+html.show-scrollbars {
+  scrollbar-width: auto !important;
+  /* Remove custom colors to use browser default */
+}
+
+/* Force scrollbars to appear in Firefox */
+.show-scrollbars {
+  overflow: auto !important;
+}
+
+/* Ensure body and html have scrollbars when needed */
+body.show-scrollbars,
+html.show-scrollbars {
+  overflow: auto !important;
 }
 
 /* Selection Colors */

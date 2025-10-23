@@ -165,7 +165,8 @@
       "toggleMode": true,
       "graphView": true,
       "changeTheme": true
-    }
+    },
+    "hideScrollBar": false
   },
   "typography": {
     "headingFont": "Inter",
@@ -204,7 +205,8 @@
       "inputPosition": "bottom",
       "theme": "preferred_color_scheme",
       "lang": "en",
-      "loading": "lazy"
+      "loading": "lazy",
+      "rawScript": "<script src=\"https://giscus.app/client.js\"\n        data-repo=\"davidvkimball/astro-modular\"\n        data-repo-id=\"R_kgDOPllfKw\"\n        data-category=\"General\"\n        data-category-id=\"DIC_kwDOPllfK84CvUpx\"\n        data-mapping=\"pathname\"\n        data-strict=\"0\"\n        data-reactions-enabled=\"1\"\n        data-emit-metadata=\"0\"\n        data-input-position=\"bottom\"\n        data-theme=\"preferred_color_scheme\"\n        data-lang=\"en\"\n        data-loading=\"lazy\"\n        crossorigin=\"anonymous\"\n        async>\n</script>"
     }
   },
   "deployment": {
