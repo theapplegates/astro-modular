@@ -127,7 +127,7 @@ seoData.noIndex = (docsPageContent?.data as any)?.noIndex || false;
                 {docsByCategory[category].map((doc, index) => (
                   <DocumentationCard 
                     documentation={doc} 
-                    eager={index === 0}
+                    eager={index < 6}
                     context="docs"
                   />
                 ))}

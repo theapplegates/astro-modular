@@ -6,7 +6,7 @@ order: 2
 version: 1.0.0
 lastModified: 2024-01-15
 image: "[[sourcetree.png]]"
-imageAlt:
+imageAlt: SourceTree logo with a blue background.
 hideCoverImage: false
 hideTOC: false
 draft: false

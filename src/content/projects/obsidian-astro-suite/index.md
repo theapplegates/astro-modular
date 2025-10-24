@@ -11,7 +11,7 @@ repositoryUrl:
 projectUrl: https://github.com/davidvkimball/obsidian-astro-suite
 status: in-progress
 image: "[[glacier.png]]"
-imageAlt:
+imageAlt: Blue glaciers and mountains.
 hideCoverImage: false
 hideTOC: false
 draft: false

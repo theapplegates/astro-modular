@@ -1,5 +1,5 @@
 ---
-title: Astro Suite Obsidian Vault Guide (Astro Modular)
+title: Obsidian Vault Guide
 date: 2025-09-10
 description: How to use the included Astro Suite Obsidian vault.
 tags:
@@ -17,6 +17,7 @@ targetKeyword: astro suite obsidian vault
 draft: false
 aliases:
   - astro-suite-vault-modular-guide
+  - astro-suite-obsidian-vault-guide-astro-modular
 ---
 ![Astro and Obsidian logos stacked vertically with a "+" (plus) sign between them.](/posts/attachments/astro-composer-suite-for-obsidian.png)
 

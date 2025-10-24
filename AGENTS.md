@@ -19,12 +19,13 @@ This document contains essential information for AI agents working with this Ast
 
 **⚠️ READ THESE FIRST - These are the #1 issues that keep coming up:**
 
-1. **🚨 SWUP BREAKS JAVASCRIPT** - Interactive elements stop working after page transitions. [See detailed solution](#-critical-javascript-re-initialization-after-page-transitions)
-2. **🚨 MATH RENDERING DUPLICATION** - Math appears twice due to wrong CSS. [See solution](#1--math-rendering-duplication-most-critical)
-3. **🚨 PRODUCTION LOGGING** - Never use raw `console.log()` in production code
-4. **🚨 IMAGE SYSTEM CONFUSION** - Post cards vs post content images are separate systems
-5. **🚨 URL MAPPING SYSTEM CONFUSION** - URL mapping is for rendering only, doesn't affect linked mentions/graph view
-6. **🚨 FOLDER-BASED CONTENT ASSUMPTIONS** - ALL content types support folder-based organization, not just posts
+1. **🚨 NEVER EDIT MARKDOWN CONTENT** - NEVER edit markdown files in `src/content/` without explicit user permission
+2. **🚨 SWUP BREAKS JAVASCRIPT** - Interactive elements stop working after page transitions. [See detailed solution](#-critical-javascript-re-initialization-after-page-transitions)
+3. **🚨 MATH RENDERING DUPLICATION** - Math appears twice due to wrong CSS. [See solution](#1--math-rendering-duplication-most-critical)
+4. **🚨 PRODUCTION LOGGING** - Never use raw `console.log()` in production code
+5. **🚨 IMAGE SYSTEM CONFUSION** - Post cards vs post content images are separate systems
+6. **🚨 URL MAPPING SYSTEM CONFUSION** - URL mapping is for rendering only, doesn't affect linked mentions/graph view
+7. **🚨 FOLDER-BASED CONTENT ASSUMPTIONS** - ALL content types support folder-based organization, not just posts
 
 **These issues are documented in detail in the [Common AI Agent Mistakes](#common-ai-agent-mistakes) section.**
 
@@ -3927,7 +3928,16 @@ The comments are styled to match your theme automatically. If you see styling is
 
 ### Critical Distinctions to Remember
 
-#### 1. **🚨 MATH RENDERING DUPLICATION (MOST CRITICAL)**
+#### 1. **🚨 NEVER EDIT MARKDOWN CONTENT (MOST CRITICAL)**
+- **NEVER edit markdown files** in `src/content/` without explicit user permission
+- **NEVER modify post content, frontmatter, or any user content** without being asked
+- **ALWAYS ask for explicit permission** before touching any content files
+- **Content files are sacred** - they belong to the user, not the AI agent
+- **Only edit configuration, component, and utility files** unless specifically requested
+- **This includes**: posts, pages, projects, docs, and any other content in `src/content/`
+- **The user's content is their intellectual property** - respect it absolutely
+
+#### 2. **🚨 MATH RENDERING DUPLICATION (CRITICAL)**
 - **NEVER hide MathML output** - MathML is the properly formatted version
 - **ALWAYS hide HTML output** - HTML output is the broken, plain text version
 - **The correct CSS is:**
@@ -3942,7 +3952,7 @@ The comments are styled to match your theme automatically. If you see styling is
   ```
 - **This mistake causes "E=mc2E=mc2" duplication where math appears twice**
 
-#### 2. **🚨 SWUP PAGE TRANSITIONS BREAK JAVASCRIPT (CRITICAL)**
+#### 3. **🚨 SWUP PAGE TRANSITIONS BREAK JAVASCRIPT (CRITICAL)**
 - **NEVER assume JavaScript works after page transitions** - Swup replaces DOM content without triggering `DOMContentLoaded`
 - **ALWAYS re-initialize JavaScript after Swup transitions** - Use Swup hooks in `BaseLayout.astro`
 - **The correct approach:**
@@ -3977,24 +3987,24 @@ The comments are styled to match your theme automatically. If you see styling is
   - "It works on first load but not after navigation"
 - **This is the #1 most common issue** - affects ToC collapse, command palette, theme toggles, etc.
 
-#### 3. **🚨 PRODUCTION LOGGING (CRITICAL)**
+#### 4. **🚨 PRODUCTION LOGGING (CRITICAL)**
 - **NEVER use raw `console.log()`** in production code
 - **Use the project's logger utility** (`src/utils/logger.ts`) for any logging needs
 - **Keep console output clean** for professional deployments
 
-#### 3. **Image System Confusion (Most Common)**
+#### 5. **Image System Confusion (Most Common)**
 - **Post cards** show images based on `showPostCardCoverImages` config, NOT `hideCoverImage` frontmatter
 - **Post content** shows images based on `hideCoverImage` frontmatter, NOT config
 - These are completely separate systems - don't mix them up!
 
-#### 3. **Linking Behavior Confusion (Important)**
+#### 6. **Linking Behavior Confusion (Important)**
 - **Wikilinks (`[[...]]`) only work with posts** - this is intentional and matches Obsidian's primary use case
 - **Standard markdown links (`[text](url)`) work with all content types** - use these for pages, projects, docs
 - **Don't try to extend wikilinks to other collections** - use standard links instead: `[Page Title](page-slug)`, `[Project](projects/project-slug)`, `[Doc](docs/doc-slug)`
 - **Linked mentions only track posts** - pages, projects, and docs are not included in linked mentions
 - **File renamed for clarity**: `wikilinks.ts` → `internallinks.ts` to distinguish between the two behaviors
 
-#### 4. **🚨 URL MAPPING SYSTEM CONFUSION (CRITICAL)**
+#### 7. **🚨 URL MAPPING SYSTEM CONFUSION (CRITICAL)**
 - **URL mapping is for RENDERING ONLY** - it doesn't affect linked mentions or graph view filtering
 - **Linked mentions and graph view remain posts-only** - URL mapping doesn't change this behavior
 - **Two separate systems**:
@@ -4003,7 +4013,7 @@ The comments are styled to match your theme automatically. If you see styling is
 - **Don't confuse the systems** - URL mapping makes links work, but doesn't change feature scope
 - **Test both systems independently** - URL mapping and linked mentions are separate concerns
 
-#### 5. **🚨 FOLDER-BASED CONTENT ASSUMPTIONS (CRITICAL)**
+#### 8. **🚨 FOLDER-BASED CONTENT ASSUMPTIONS (CRITICAL)**
 - **ALL content types support folder-based organization** - not just posts
 - **Pages, projects, and docs work identically to posts** for folder-based content
 - **Don't assume folder-based is posts-only** - all collections handle `folder-name/index.md` structure
@@ -4011,12 +4021,12 @@ The comments are styled to match your theme automatically. If you see styling is
 - **Asset syncing works for all content types** - images, PDFs, etc. are copied to public directory
 - **URL generation is consistent** - folder name becomes slug for all content types
 
-#### 6. **H1 Title Handling**
+#### 9. **H1 Title Handling**
 - **Both Posts and Pages**: NO H1 in markdown content - title comes from frontmatter, content starts with H2
 - **H1 is hardcoded** in both PostLayout and PageLayout using frontmatter title
 - **NEVER add H1** to any markdown content - both posts and pages have hardcoded H1s from frontmatter
 
-#### 7. **Custom Collections Approach**
+#### 10. **Custom Collections Approach**
 - **Use subfolders within pages collection** - avoid creating custom collections at content level
 - **No Astro warnings** - subfolders within pages don't trigger auto-generation warnings
 - **Same URL structure** - `/services/web-development` works the same way
@@ -4025,7 +4035,7 @@ The comments are styled to match your theme automatically. If you see styling is
   - `pages/services/web-development.md` → `/services/web-development`
   - `pages/services/web-development/index.md` → `/services/web-development`
 
-#### 8. **🚨 FAVICON THEME BEHAVIOR (CRITICAL)**
+#### 11. **🚨 FAVICON THEME BEHAVIOR (CRITICAL)**
 - **Favicon should NOT change with manual theme toggle** - it should only change with browser system theme
 - **SIMPLE WORKING IMPLEMENTATION** (20 lines max, add to BaseLayout.astro script section):
   ```javascript
@@ -4057,25 +4067,25 @@ The comments are styled to match your theme automatically. If you see styling is
 - **Files**: Use `.png` format (matches existing favicon files)
 - **Behavior**: Favicon reflects OS/browser theme preference, ignores website theme toggle
 
-#### 9. **🎨 COLOR USAGE (CRITICAL)**
+#### 12. **🎨 COLOR USAGE (CRITICAL)**
 - **NEVER use hardcoded colors** - Always use theme variables from `src/themes/index.ts`
 - **Use Tailwind classes** that reference theme variables (`primary-*`, `highlight-*`)
 - **Include dark mode variants** for all color definitions (`dark:bg-primary-800`)
 - **Check existing code** for hardcoded colors and replace them
 - **Reference theme files** to understand available color scales
 
-#### 10. **Package Manager**
+#### 13. **Package Manager**
 - Always use `pnpm` instead of `npm` for all commands
 - Scripts: `pnpm run <script-name>`, not `npm run <script-name>`
 
-#### 11. **Deployment Platform Configuration**
+#### 14. **Deployment Platform Configuration**
 - **Set platform once in config** - Use `deployment.platform` in `src/config.ts`, not environment variables
 - **No environment variables needed** - The build process automatically detects the platform from config
 - **Platform options**: "netlify", "vercel", "github-pages" (all lowercase with hyphens)
 - **Backward compatibility**: Environment variables still work but are not recommended
 - **Configuration files**: Automatically generated based on platform choice
 
-#### 12. **Homepage Configuration Structure**
+#### 15. **Homepage Configuration Structure**
 - **Use `homeOptions`** - All homepage content is now under `homeOptions`, not `features` or `homeBlurb`
 - **Featured Post**: Use `homeOptions.featuredPost` with `type: "latest"` or `type: "featured"`
 - **Slug Flexibility**: Slug can be present even when `type: "latest"` - it will be ignored until switched to "featured"
@@ -4084,7 +4094,7 @@ The comments are styled to match your theme automatically. If you see styling is
 - **Blurb**: Use `homeOptions.blurb` with `placement: "above" | "below" | "none"`
 - **Old References**: `showLatestPost`, `recentPostsCount`, and `homeBlurb` are deprecated
 
-#### 11. **Development vs Production Behavior**
+#### 16. **Development vs Production Behavior**
 - **Development**: Missing images show placeholders, warnings are logged
 - **Production**: Missing images cause build failures
 - Always run `pnpm run check-images` before deploying

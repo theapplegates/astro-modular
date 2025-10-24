@@ -126,8 +126,9 @@ export const remarkObsidianEmbeds: Plugin<[], Root> = () => {
 
       // Handle audio files
       if (AUDIO_EXTENSIONS.includes(extension)) {
+        const title = alt || url.split('/').pop() || 'Audio file';
         const html = `<div class="audio-embed">
-  <audio class="audio-player" controls src="${resolvedUrl}"></audio>
+  <audio class="audio-player" controls src="${resolvedUrl}" title="${title}"></audio>
 </div>`;
         parent.children[index] = createHtmlNode(html);
         return;
@@ -135,8 +136,9 @@ export const remarkObsidianEmbeds: Plugin<[], Root> = () => {
 
       // Handle video files
       if (VIDEO_EXTENSIONS.includes(extension)) {
+        const title = alt || url.split('/').pop() || 'Video file';
         const html = `<div class="video-embed">
-  <video class="video-player" controls src="${resolvedUrl}"></video>
+  <video class="video-player" controls src="${resolvedUrl}" title="${title}"></video>
 </div>`;
         parent.children[index] = createHtmlNode(html);
         return;
@@ -145,8 +147,9 @@ export const remarkObsidianEmbeds: Plugin<[], Root> = () => {
       // Handle PDF files
       if (PDF_EXTENSIONS.includes(extension)) {
         const filename = url.split('/').pop() || 'document.pdf';
+        const title = alt || filename; // Use alt text if available, fallback to filename
         const html = `<div class="pdf-embed">
-  <iframe class="pdf-viewer" src="${resolvedUrl}"></iframe>
+  <iframe class="pdf-viewer" src="${resolvedUrl}" title="${title}"></iframe>
   <div class="pdf-info">
     <span class="pdf-filename">${filename}</span>
     <a href="${resolvedUrl}" download class="pdf-download-link" target="_blank" rel="noopener noreferrer">Download PDF</a>
@@ -170,7 +173,8 @@ export const remarkObsidianEmbeds: Plugin<[], Root> = () => {
         // Check for Twitter/X
         const twitterPostId = extractTwitterPostId(url);
         if (twitterPostId) {
-          const html = `<blockquote class="twitter-tweet" data-twitter-embed data-theme="preferred_color_scheme" data-conversation="none"><a href="https://twitter.com/user/status/${twitterPostId}"></a></blockquote>`;
+          const title = alt || 'Twitter post';
+          const html = `<blockquote class="twitter-tweet" data-twitter-embed data-theme="preferred_color_scheme" data-conversation="none" title="${title}"><a href="https://twitter.com/user/status/${twitterPostId}"></a></blockquote>`;
           parent.children[index] = createHtmlNode(html);
           return;
         }

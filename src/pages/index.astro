@@ -236,7 +236,7 @@ const structuredData = {
 
               <div class="space-y-4">
                 {previewPosts.map((post, index) => (
-                  <PostCard post={post} eager={index === 0} context="recent" />
+                  <PostCard post={post} eager={featuredPost ? index === 0 : index < 2} context="recent" />
                 ))}
               </div>
 
@@ -272,7 +272,7 @@ const structuredData = {
 
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {featuredProjects.map((project, index) => (
-                  <ProjectCard project={project} eager={index === 0} context="home" showCategories={projectsHaveCategories} />
+                  <ProjectCard project={project} eager={false} context="home" showCategories={projectsHaveCategories} />
                 ))}
               </div>
 

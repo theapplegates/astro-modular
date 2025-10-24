@@ -98,7 +98,7 @@ seoData.noIndex = (projectsPageContent?.data as any)?.noIndex || false;
             {visibleProjects.map((project, index) => (
               <ProjectCard 
                 project={project} 
-                eager={index === 0}
+                eager={index < 4}
                 context="projects"
                 showCategories={projectsHaveCategories}
               />

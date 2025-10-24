@@ -6,7 +6,7 @@ order: 1
 version: 1.0.0
 lastModified: 2025-09-17
 image: "[[attachments/obsidian-cover.png]]"
-imageAlt:
+imageAlt: Obsidian logo with a black background.
 hideCoverImage: false
 hideTOC: false
 draft: false

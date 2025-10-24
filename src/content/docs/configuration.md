@@ -6,7 +6,7 @@ order: 1
 version: 1.0.0
 lastModified: 2025-10-23
 image: "[[attachments/astro-modular-configuration.png]]"
-imageAlt: Astro Modular setup guide
+imageAlt: Astro Modular preview, showing different theme and layout options.
 hideCoverImage: false
 hideTOC: false
 draft: false
@@ -613,7 +613,7 @@ The vault provides:
 - **Optional CSS snippets** to customize your experience
 - **Custom hotkeys** for accelerating post creation and publishing
 
-Read [the guide](posts/astro-suite-obsidian-vault-guide-astro-modular.md) for more detailed information.
+Read [the guide](../posts/obsidian-vault-guide.md) for more detailed information.
 
 To remove Obsidian, simply delete the `.obsidian` folder.
 

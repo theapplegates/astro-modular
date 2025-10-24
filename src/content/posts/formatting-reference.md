@@ -152,25 +152,25 @@ On mobile devices, all layouts switch to a single column for better readability.
 
 ### Video Files
 
-![[attachments/video.mp4]]
+![[attachments/video.mp4|Eye drop video]]
 
 Video files are embedded as HTML5 video players with controls and responsive design.
 
 ### YouTube Videos
 
-![](https://www.youtube.com/watch?v=ZhizarvwLnU)
+![Astro Suite for Obsidian](https://www.youtube.com/watch?v=ZhizarvwLnU)
 
 YouTube videos are automatically embedded with responsive design and optimized settings.
 
 ### Audio Files
 
-![[attachments/sound.wav]]
+![[attachments/sound.wav|sound.wav]]
 
 Audio files are embedded as HTML5 audio players with controls and filename display.
 
 ### PDF Documents
 
-![[attachments/document.pdf]]
+![[attachments/document.pdf|document.pdf]]
 
 PDFs are embedded as inline viewers with download links. 
 
@@ -178,7 +178,7 @@ Use `![[attachments/document.pdf#page=3]]` to select a specific PDF page to disp
 
 ### Twitter/X Posts
 
-![](https://x.com/davidvkimball/status/1933196479801536736)
+![Why doesn't everyone use Astro? Writing blog posts in markdown is beautiful.](https://x.com/davidvkimball/status/1933196479801536736)
 
 Twitter posts are embedded with theme-aware styling that matches your site's light/dark mode.
 
@@ -241,7 +241,7 @@ Here's an [external link](https://obsidian.md).
 
 You can create internal links using double brackets (wikilinks) or with standard markdown. 
 
-For example: [[getting-started|Getting Started]] or [Astro Suite Obsidian Vault Guide (Astro Modular)](posts/astro-suite-obsidian-vault-guide-astro-modular.md).
+For example: [[getting-started|Getting Started]] or [Astro Suite Obsidian Vault Guide (Astro Modular)](obsidian-vault-guide.md).
 
 ```markdown
 For example: [[getting-started|Getting Started]] or [Astro Suite Vault (Modular) Guide](astro-suite-vault-modular-guide).
@@ -249,7 +249,7 @@ For example: [[getting-started|Getting Started]] or [Astro Suite Vault (Modular)
 
 Here's an internal link with an anchor: [[sample-folder-based-post/index#Benefits of Folder-Based Approach|Benefits of Folder-Based Approach]]
 
-Here's a relative link: [Mermaid Diagram Test](/posts/mermaid-diagram-test) 
+Here's a relative link: [Mermaid Diagram Test](mermaid-diagrams.md) 
 ### Reference Links
 
 This is a [reference link][1] and this is another [reference link][markdown].

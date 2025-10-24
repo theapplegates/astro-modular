@@ -163,7 +163,7 @@ const pagination = {
               <!-- Posts list -->
               <div class="space-y-4 mb-12">
                 {paginatedPosts.map((post, index) => (
-                  <PostCard post={post} eager={index === 0} context="posts" />
+                  <PostCard post={post} eager={index < 2} context="posts" />
                 ))}
               </div>
 

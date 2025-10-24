@@ -1,5 +1,5 @@
 ---
-title: Mermaid Diagram Test
+title: Mermaid Diagrams
 description: Testing various Mermaid diagram types to ensure proper rendering and theme integration.
 date: 2025-09-07
 tags:
@@ -14,6 +14,7 @@ hideTOC: false
 targetKeyword:
 aliases:
   - mermaid-test
+  - mermaid-diagram-test
 ---
 This post tests the Mermaid diagram integration with various diagram types to ensure proper rendering and theme compatibility.
 

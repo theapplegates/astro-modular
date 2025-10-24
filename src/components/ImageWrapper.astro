@@ -51,16 +51,15 @@ if (cleanSrc.startsWith('[[') && cleanSrc.endsWith(']]')) {
 }
 
 // Determine image type using cleaned src
-// For folder-based content, if basePath indicates a synced folder, treat as public
+// For folder-based content, if basePath indicates a synced folder, treat as local for optimization
 const isSyncedFolder = basePath && basePath.includes('/') && !basePath.endsWith('/attachments/');
 const isLocal = !(
   cleanSrc.startsWith("/") ||
   cleanSrc.startsWith("http") ||
   cleanSrc.startsWith("https") ||
-  cleanSrc.startsWith("data:") ||
-  isSyncedFolder
-);
-const isPublic = cleanSrc.startsWith("/") || isSyncedFolder;
+  cleanSrc.startsWith("data:")
+) || isSyncedFolder; // Treat synced folders as local for Astro Image optimization
+const isPublic = cleanSrc.startsWith("/") && !isSyncedFolder;
 
 // Dynamic import for local images
 let img: any = null;

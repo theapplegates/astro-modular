@@ -12,6 +12,7 @@ import remarkReadingTime from 'remark-reading-time';
 import remarkToc from 'remark-toc';
 import rehypeKatex from 'rehype-katex';
 import rehypeMark from './src/utils/rehype-mark.ts';
+import rehypeOptimizeImages from './src/utils/rehype-optimize-images.ts';
 import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import { siteConfig } from './src/config.ts';
@@ -26,7 +27,7 @@ export default defineConfig({
     platform: DEPLOYMENT_PLATFORM
   },
   devToolbar: {
-    enabled: false
+    enabled: true
   },
   redirects: {
   '/about-me': '/about',
@@ -34,8 +35,9 @@ export default defineConfig({
   '/contact-me': '/contact',
   '/contact-us': '/contact',
   '/privacy': '/privacy-policy',
-  '/posts/astro-suite-vault-modular-guide': '/posts/astro-suite-obsidian-vault-guide-astro-modular',
   '/posts/mermaid-test': '/posts/mermaid-diagram-test',
+  '/posts/astro-suite-vault-modular-guide': '/posts/obsidian-vault-guide',
+  '/posts/astro-suite-obsidian-vault-guide-astro-modular': '/posts/obsidian-vault-guide',
   '/projects/obsidian-astro-composer': '/projects/astro-composer',
   '/docs/api-reference': '/docs/api',
   '/docs/astro-modular-configuration': '/docs/configuration',
@@ -98,6 +100,7 @@ export default defineConfig({
     rehypePlugins: [
       rehypeKatex,
       rehypeMark,
+      rehypeOptimizeImages,
       [rehypeSlug, {
         test: (node) => node.tagName !== 'h1'
       }],
