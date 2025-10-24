@@ -513,3 +513,24 @@ export function getTheme(themeName: ThemeName) {
 export function getThemeNames(): ThemeName[] {
   return Object.keys(themes) as ThemeName[];
 }
+
+// Check if a theme name is a custom theme (not in built-in themes)
+export function isCustomTheme(themeName: string): boolean {
+  const builtInThemes = [
+    'minimal', 'oxygen', 'atom', 'ayu', 'catppuccin', 'charcoal', 'dracula', 
+    'everforest', 'flexoki', 'gruvbox', 'macos', 'nord', 'obsidian', 
+    'rose-pine', 'sky', 'solarized', 'things', 'custom'
+  ];
+  return !builtInThemes.includes(themeName);
+}
+
+// Load a custom theme by filename (for dynamic loading)
+export async function loadCustomTheme(themeName: string) {
+  try {
+    const customTheme = await import(`./custom/${themeName}`);
+    return customTheme.customTheme;
+  } catch (error) {
+    console.warn(`Custom theme "${themeName}" not found in themes/custom/`);
+    return null;
+  }
+}

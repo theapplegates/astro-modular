@@ -1,7 +1,7 @@
 
 ---
 import { ViewTransitions } from 'astro:transitions';
-import { siteConfig, getFontFamily, getGoogleFontsUrl, shouldLoadLocalFonts, shouldLoadCdnFonts, getFontDisplay } from '@/config';
+import { siteConfig, getFontFamily, getGoogleFontsUrl, shouldLoadLocalFonts, shouldLoadCdnFonts, getFontDisplay, getThemeDisplayName } from '@/config';
 import type { SEOData } from '@/types';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
@@ -166,13 +166,13 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
     window.siteConfig = {
       theme: document.documentElement.getAttribute('data-theme-config') || 'oxygen',
       customThemeFile: document.documentElement.getAttribute('data-custom-theme-file') || 'custom',
-      availableThemes: JSON.parse(document.documentElement.getAttribute('data-available-themes') || '"all"')
+      availableThemes: JSON.parse(document.documentElement.getAttribute('data-available-themes') || '"default"')
     };
 
     // Check if theme switching is available in the UI
     function isThemeSwitchingAvailable() {
-      const availableThemes = window.siteConfig?.availableThemes || 'all';
-      const hasMultipleThemes = availableThemes === 'all' || (Array.isArray(availableThemes) && availableThemes.length > 1);
+      const availableThemes = window.siteConfig?.availableThemes || 'default';
+      const hasMultipleThemes = availableThemes === 'default' || (Array.isArray(availableThemes) && availableThemes.length > 1);
       
       // Check if theme switching is available via command palette
       const commandPaletteEnabled = window.siteConfig?.commandPalette?.enabled || false;
@@ -190,8 +190,16 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
 
     // Validate if a theme is in the available themes list
     function isThemeAvailable(theme) {
-      const availableThemes = window.siteConfig?.availableThemes || 'all';
-      return availableThemes === 'all' || (Array.isArray(availableThemes) && availableThemes.includes(theme));
+      const availableThemes = window.siteConfig?.availableThemes || 'default';
+      const selectedTheme = window.siteConfig?.theme;
+      
+      // Always allow the selected theme, even if not in availableThemes
+      if (theme === selectedTheme) {
+        return true;
+      }
+      
+      // Check if theme is in availableThemes
+      return availableThemes === 'default' || (Array.isArray(availableThemes) && availableThemes.includes(theme));
     }
 
     // Reset theme to default and clear user preferences
@@ -619,38 +627,59 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
         }
       };
       
-      // Handle custom theme
-      if (themeName === 'custom') {
-        // Try to load custom theme from config
-        const configTheme = window.siteConfig?.theme;
-        const customThemeFile = window.siteConfig?.customThemeFile;
+      // Handle custom themes (both "custom" and custom theme filenames)
+      const builtInThemes = [
+        'minimal', 'oxygen', 'atom', 'ayu', 'catppuccin', 'charcoal', 'dracula', 
+        'everforest', 'flexoki', 'gruvbox', 'macos', 'nord', 'obsidian', 
+        'rose-pine', 'sky', 'solarized', 'things', 'custom'
+      ];
+      
+      if (themeName === 'custom' || !builtInThemes.includes(themeName)) {
+        let customThemeFile;
         
-        if (configTheme === 'custom' && customThemeFile) {
-          // Try to load the actual custom theme
-          try {
-            // Import the custom theme dynamically
-            const customThemeModule = await import(`/src/themes/custom/${customThemeFile}.ts`);
-            if (customThemeModule && customThemeModule.customTheme) {
-              themes.custom = customThemeModule.customTheme;
-            } else {
-              // Fallback if custom theme doesn't export properly
-              themes.custom = {
-                primary: {
-                  50: '#ffffff', 100: '#f8f8f8', 200: '#e8e8e8', 300: '#d0d0d0',
-                  400: '#a0a0a0', 500: '#808080', 600: '#606060', 700: '#404040',
-                  800: '#202020', 900: '#101010', 950: '#000000'
-                },
-                highlight: {
-                  50: '#f0f8ff', 100: '#e0f2fe', 200: '#bae6fd', 300: '#7dd3fc',
-                  400: '#38bdf8', 500: '#0ea5e9', 600: '#0284c7', 700: '#0369a1',
-                  800: '#075985', 900: '#0c4a6e', 950: '#082f49'
-                }
-              };
+        if (themeName === 'custom') {
+          // Use the configured custom theme file
+          customThemeFile = window.siteConfig?.customThemeFile || 'custom';
+        } else {
+          // Use the theme name as the custom theme file
+          customThemeFile = themeName;
+        }
+        
+        // Try to load the custom theme
+        try {
+          // Import the custom theme dynamically
+          const customThemeModule = await import(`/src/themes/custom/${customThemeFile}.ts`);
+          
+          // Look for the theme export - try different possible export names
+          let themeData = null;
+          if (customThemeModule.customTheme) {
+            themeData = customThemeModule.customTheme;
+          } else if (customThemeModule[`${customThemeFile}Theme`]) {
+            // Try filename + "Theme" (e.g., minimalismTheme)
+            themeData = customThemeModule[`${customThemeFile}Theme`];
+          } else if (customThemeModule.default) {
+            // Try default export
+            themeData = customThemeModule.default;
+          } else {
+            // Look for any export that looks like a theme object
+            const exports = Object.keys(customThemeModule);
+            const themeExport = exports.find(key => 
+              customThemeModule[key] && 
+              typeof customThemeModule[key] === 'object' && 
+              customThemeModule[key].primary && 
+              customThemeModule[key].highlight
+            );
+            if (themeExport) {
+              themeData = customThemeModule[themeExport];
             }
-          } catch (error) {
-            console.warn('Could not load custom theme, using fallback:', error);
-            // Fallback custom theme
-            themes.custom = {
+          }
+          
+          if (themeData) {
+            themes[themeName] = themeData;
+          } else {
+            // Fallback if custom theme doesn't export properly
+            console.warn(`Custom theme "${customThemeFile}" doesn't export theme data properly. Available exports:`, Object.keys(customThemeModule));
+            themes[themeName] = {
               primary: {
                 50: '#ffffff', 100: '#f8f8f8', 200: '#e8e8e8', 300: '#d0d0d0',
                 400: '#a0a0a0', 500: '#808080', 600: '#606060', 700: '#404040',
@@ -663,6 +692,21 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
               }
             };
           }
+        } catch (error) {
+          console.warn(`Could not load custom theme "${customThemeFile}", using fallback:`, error);
+          // Fallback custom theme
+          themes[themeName] = {
+            primary: {
+              50: '#ffffff', 100: '#f8f8f8', 200: '#e8e8e8', 300: '#d0d0d0',
+              400: '#a0a0a0', 500: '#808080', 600: '#606060', 700: '#404040',
+              800: '#202020', 900: '#101010', 950: '#000000'
+            },
+            highlight: {
+              50: '#f0f8ff', 100: '#e0f2fe', 200: '#bae6fd', 300: '#7dd3fc',
+              400: '#38bdf8', 500: '#0ea5e9', 600: '#0284c7', 700: '#0369a1',
+              800: '#075985', 900: '#0c4a6e', 950: '#082f49'
+            }
+          };
         }
       }
       
@@ -697,12 +741,33 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
     }
 
     // Make functions globally accessible
+    // Theme display name utility (mirrors the server-side function)
+    function getThemeDisplayName(themeName) {
+      // Special cases for proper formatting
+      const specialCases = {
+        'rose-pine': 'Rosé Pine',
+        'macos': 'macOS'
+      };
+      
+      // Return special case if it exists
+      if (specialCases[themeName]) {
+        return specialCases[themeName];
+      }
+      
+      // General formatting: capitalize first letter and replace hyphens with spaces
+      return themeName
+        .split('-')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+    }
+
     window.toggleTheme = toggleTheme;
     window.changeTheme = changeTheme;
     window.isThemeSwitchingAvailable = isThemeSwitchingAvailable;
     window.isThemeAvailable = isThemeAvailable;
     window.resetThemeToDefault = resetThemeToDefault;
     window.getThemeWithoutClearing = getThemeWithoutClearing;
+    window.getThemeDisplayName = getThemeDisplayName;
 
     // Global function to restore scroll functionality
     function restoreScroll() {

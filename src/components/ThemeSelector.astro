@@ -1,7 +1,13 @@
 ---
-import { siteConfig } from '../config';
+import { siteConfig, getThemeDisplayName } from '../config';
 import Icon from './Icon.astro';
 ---
+
+<!-- Make theme display name utility available to client-side JavaScript -->
+<script define:vars={{ getThemeDisplayName }}>
+  // Make theme display name utility available globally
+  window.getThemeDisplayName = getThemeDisplayName;
+</script>
 
 <!-- Theme Selector Modal Overlay -->
 <div 
@@ -236,12 +242,33 @@ import Icon from './Icon.astro';
       }
       
       // Get available themes from config
-      const configAvailableThemes = (window as any).siteConfig?.availableThemes || 'all';
+      const configAvailableThemes = (window as any).siteConfig?.availableThemes || 'default';
       
       // Filter themes based on config
-      const filteredThemes = configAvailableThemes === 'all' 
-        ? allThemes 
-        : allThemes.filter(theme => configAvailableThemes.includes(theme));
+      let filteredThemes;
+      if (configAvailableThemes === 'default') {
+        // Show all built-in themes
+        filteredThemes = allThemes;
+      } else if (Array.isArray(configAvailableThemes)) {
+        // Filter based on availableThemes array
+        filteredThemes = configAvailableThemes.filter(theme => {
+          // Include if it's a built-in theme
+          if (allThemes.includes(theme)) {
+            return true;
+          }
+          // For custom themes, we'll include them and let the theme loading handle validation
+          return true;
+        });
+      } else {
+        // Fallback to all themes
+        filteredThemes = allThemes;
+      }
+      
+      // Always include the selected theme, even if not in availableThemes
+      const selectedTheme = (window as any).siteConfig?.theme;
+      if (selectedTheme && !filteredThemes.includes(selectedTheme)) {
+        filteredThemes.unshift(selectedTheme); // Add to beginning so it appears first
+      }
       
       // Reorder themes to put default theme first
       const themes = [defaultTheme, ...filteredThemes.filter(theme => theme !== defaultTheme)];
@@ -257,7 +284,7 @@ import Icon from './Icon.astro';
         button.dataset.theme = theme;
         button.dataset.index = index.toString();
 
-        const themeName = theme.charAt(0).toUpperCase() + theme.slice(1).replace('-', ' ');
+        const themeName = (window as any).getThemeDisplayName ? (window as any).getThemeDisplayName(theme) : theme.charAt(0).toUpperCase() + theme.slice(1).replace('-', ' ');
         const displayName = isDefaultTheme ? `${themeName} (Default)` : themeName;
         
         button.innerHTML = `

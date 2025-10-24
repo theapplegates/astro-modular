@@ -21,7 +21,7 @@ export interface SiteConfig {
   // Global Settings
   theme: "minimal" | "oxygen" | "atom" | "ayu" | "catppuccin" | "charcoal" | "dracula" | "everforest" | "flexoki" | "gruvbox" | "macos" | "nord" | "obsidian" | "rose-pine" | "sky" | "solarized" | "things" | "custom";
   customThemeFile?: string; // Filename in src/themes/custom/ (e.g., "my-cool-theme" for my-cool-theme.ts)
-  availableThemes: "all" | Array<"minimal" | "oxygen" | "atom" | "ayu" | "catppuccin" | "charcoal" | "dracula" | "everforest" | "flexoki" | "gruvbox" | "macos" | "nord" | "obsidian" | "rose-pine" | "sky" | "solarized" | "things" | "custom">; // Control which themes users can select
+  availableThemes: "default" | Array<string>; // Control which themes users can select - "default" shows all built-in themes, array can include custom theme filenames
   fonts: {
     source: "local" | "cdn";
     families: {
@@ -197,7 +197,7 @@ export const siteConfig: SiteConfig = {
   // [CONFIG:CUSTOM_THEME_FILE]
   customThemeFile: "custom", // Only used if theme is set to "custom" above. Filename in src/themes/custom/ (without .ts extension)
   // [CONFIG:AVAILABLE_THEMES]
-  availableThemes: "all", // "all" to show all themes, or array of theme names like ["oxygen", "minimal", "nord", "dracula"] to limit choices
+  availableThemes: "default", // "default" to show all built-in themes, or array of theme names like ["oxygen", "minimal", "obsidianite"] to limit choices (can include custom theme filenames)
   fonts: {
     // [CONFIG:FONT_SOURCE]
     source: "local", // "local" for self-hosted @fontsource fonts, "cdn" for Google Fonts CDN
@@ -567,6 +567,26 @@ export function getFontDisplay(): "swap" | "fallback" | "optional" {
   return siteConfig.fonts.display;
 }
 
+// Theme display name utility for UI formatting
+export function getThemeDisplayName(themeName: string): string {
+  // Special cases for proper formatting
+  const specialCases: Record<string, string> = {
+    'rose-pine': 'Rosé Pine',
+    'macos': 'macOS'
+  };
+  
+  // Return special case if it exists
+  if (specialCases[themeName]) {
+    return specialCases[themeName];
+  }
+  
+  // General formatting: capitalize first letter and replace hyphens with spaces
+  return themeName
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
 export function getFontFamilies() {
   return siteConfig.fonts.families;
 }
@@ -606,6 +626,18 @@ function validateSiteConfig(config: SiteConfig): { isValid: boolean; errors: str
     if (!config.customThemeFile || config.customThemeFile.trim() === '') {
       errors.push('Custom theme file is required when theme is set to "custom". Set customThemeFile to the filename (without .ts extension) in src/themes/custom/');
     }
+  }
+
+  // Available themes validation
+  if (config.availableThemes !== 'default' && !Array.isArray(config.availableThemes)) {
+    errors.push('availableThemes must be either "default" or an array of theme names.');
+  }
+  if (Array.isArray(config.availableThemes)) {
+    if (config.availableThemes.length === 0) {
+      errors.push('availableThemes array cannot be empty. Use "default" to show all built-in themes or specify theme names in the array.');
+    }
+    // Note: We can't validate custom theme files exist at build time since they're dynamic
+    // The runtime will handle missing custom theme files gracefully
   }
 
   // Font configuration validation

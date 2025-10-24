@@ -4,6 +4,13 @@
   "currentTheme": "oxygen",
   "customThemeFile": "custom",
   "contentOrganization": "file-based",
+  "themeColors": {
+    "mode": "simple",
+    "simpleColors": {
+      "accent": "#5865f2",
+      "background": "#1e1e1e"
+    }
+  },
   "siteInfo": {
     "site": "https://astro-modular.netlify.app",
     "title": "Astro Modular",
@@ -148,7 +155,7 @@
   },
   "features": {
     "commandPalette": true,
-    "tableOfContents": false,
+    "tableOfContents": true,
     "readingTime": true,
     "linkedMentions": true,
     "linkedMentionsCompact": false,
@@ -232,5 +239,6 @@
     "projects": true,
     "docs": true
   },
-  "availableThemes": "all"
+  "availableThemes": "default",
+  "customThemes": ""
 }
