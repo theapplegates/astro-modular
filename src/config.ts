@@ -585,145 +585,145 @@ function validateSiteConfig(config: SiteConfig): { isValid: boolean; errors: str
 
   // Required fields
   if (!config.site || !config.site.startsWith('http')) {
-    errors.push('site must be a valid URL starting with http or https');
+    errors.push('Site URL is missing or invalid. Please set a complete URL like "https://yourdomain.com" in the site field.');
   }
   if (!config.title || config.title.trim() === '') {
-    errors.push('title is required and cannot be empty');
+    errors.push('Site title is required and cannot be empty. Set a descriptive title for your blog.');
   }
   if (!config.description || config.description.trim() === '') {
-    errors.push('description is required and cannot be empty');
+    errors.push('Site description is required and cannot be empty. Set a brief description of your blog.');
   }
   if (!config.author || config.author.trim() === '') {
-    errors.push('author is required and cannot be empty');
+    errors.push('Author name is required and cannot be empty. Set your name or the blog author.');
   }
 
   // Theme validation
   const validThemes = ['minimal', 'oxygen', 'atom', 'ayu', 'catppuccin', 'charcoal', 'dracula', 'everforest', 'flexoki', 'gruvbox', 'macos', 'nord', 'obsidian', 'rose-pine', 'sky', 'solarized', 'things', 'custom'];
   if (!validThemes.includes(config.theme)) {
-    errors.push(`theme must be one of: ${validThemes.join(', ')}`);
+    errors.push(`Invalid theme selected: "${config.theme}". Choose from: Minimal, Oxygen, Atom, Ayu, Catppuccin, Charcoal, Dracula, Everforest, Flexoki, Gruvbox, macOS, Nord, Obsidian, Rose Pine, Sky, Solarized, or Things. For custom themes, use "custom" and set customThemeFile.`);
   }
   if (config.theme === 'custom') {
     if (!config.customThemeFile || config.customThemeFile.trim() === '') {
-      errors.push('customThemeFile is required when theme is "custom"');
+      errors.push('Custom theme file is required when theme is set to "custom". Set customThemeFile to the filename (without .ts extension) in src/themes/custom/');
     }
   }
 
   // Font configuration validation
   if (!['local', 'cdn'].includes(config.fonts.source)) {
-    errors.push('fonts.source must be either "local" or "cdn"');
+    errors.push(`Font source must be either "local" (self-hosted fonts) or "cdn" (Google Fonts). Current value "${config.fonts.source}" is invalid.`);
   }
   if (!config.fonts.families.body || config.fonts.families.body.trim() === '') {
-    errors.push('fonts.families.body is required');
+    errors.push('Body font family is required. Set fonts.families.body to a valid font name like "Inter", "Roboto", or "Open Sans".');
   }
   if (!config.fonts.families.heading || config.fonts.families.heading.trim() === '') {
-    errors.push('fonts.families.heading is required');
+    errors.push('Heading font family is required. Set fonts.families.heading to a valid font name like "Inter", "Roboto", or "Playfair Display".');
   }
   if (!config.fonts.families.mono || config.fonts.families.mono.trim() === '') {
-    errors.push('fonts.families.mono is required');
+    errors.push('Monospace font family is required. Set fonts.families.mono to a valid font name like "JetBrains Mono", "Fira Code", or "Source Code Pro".');
   }
   if (!['swap', 'fallback', 'optional'].includes(config.fonts.display)) {
-    errors.push('fonts.display must be one of: swap, fallback, optional');
+    errors.push('Font display strategy must be one of: "swap", "fallback", or "optional". Current value is invalid.');
   }
 
   // Numeric validations
   if (config.postOptions.postsPerPage < 1 || config.postOptions.postsPerPage > 50) {
-    errors.push('postOptions.postsPerPage must be between 1 and 50');
+    errors.push(`Posts per page must be between 1 and 50. Current value is ${config.postOptions.postsPerPage}. Adjust postOptions.postsPerPage.`);
   }
   if (config.tableOfContents.depth < 2 || config.tableOfContents.depth > 6) {
-    errors.push('tableOfContents.depth must be between 2 and 6');
+    errors.push(`Table of contents depth must be between 2 and 6 (where 2=H2, 3=H3, etc.). Current value is ${config.tableOfContents.depth}. Adjust tableOfContents.depth.`);
   }
   if (config.homeOptions.recentPosts.count < 1) {
-    errors.push('homeOptions.recentPosts.count must be at least 1');
+    errors.push('Recent posts count must be at least 1. Adjust homeOptions.recentPosts.count.');
   }
   if (config.homeOptions.projects.count < 1) {
-    errors.push('homeOptions.projects.count must be at least 1');
+    errors.push('Projects count must be at least 1. Adjust homeOptions.projects.count.');
   }
   if (config.homeOptions.docs.count < 1) {
-    errors.push('homeOptions.docs.count must be at least 1');
+    errors.push('Documentation count must be at least 1. Adjust homeOptions.docs.count.');
   }
 
   // Content width validation
   if (!config.layout.contentWidth || !config.layout.contentWidth.match(/^\d+(\.\d+)?(rem|px|em)$/)) {
-    errors.push('layout.contentWidth must be a valid CSS length value');
+    errors.push(`Content width must be a valid CSS length value like "45rem", "800px", or "90em". Current value "${config.layout.contentWidth}" is invalid.`);
   }
 
   // Navigation style validation
   if (!['minimal', 'traditional'].includes(config.navigation.style)) {
-    errors.push('navigation.style must be either "minimal" or "traditional"');
+    errors.push(`Navigation style must be either "minimal" or "traditional". Current value "${config.navigation.style}" is invalid.`);
   }
 
   // Cover image options validation
   const validCoverImageOptions = ['all', 'featured', 'home', 'posts', 'featured-and-posts', 'none'];
   if (!validCoverImageOptions.includes(config.postOptions.showPostCardCoverImages)) {
-    errors.push(`postOptions.showPostCardCoverImages must be one of: ${validCoverImageOptions.join(', ')}`);
+    errors.push(`Show post card cover images must be one of: "all", "featured", "home", "posts", "featured-and-posts", or "none". Current value "${config.postOptions.showPostCardCoverImages}" is invalid.`);
   }
 
   // Aspect ratio validation
   const validAspectRatios = ['16:9', '4:3', '3:2', 'og', 'square', 'golden', 'custom'];
   if (!validAspectRatios.includes(config.postOptions.postCardAspectRatio)) {
-    errors.push(`postOptions.postCardAspectRatio must be one of: ${validAspectRatios.join(', ')}`);
+    errors.push(`Post card aspect ratio must be one of: "16:9", "4:3", "3:2", "og", "square", "golden", or "custom". Current value "${config.postOptions.postCardAspectRatio}" is invalid.`);
   }
 
   // Custom aspect ratio validation
   if (config.postOptions.postCardAspectRatio === 'custom') {
     if (!config.postOptions.customPostCardAspectRatio || !config.postOptions.customPostCardAspectRatio.match(/^\d+(\.\d+)?\s*\/\s*\d+(\.\d+)?$/)) {
-      errors.push('postOptions.customPostCardAspectRatio must be provided and in format "width / height" (e.g., "2.5 / 1") when postCardAspectRatio is "custom"');
+      errors.push(`Custom aspect ratio must be provided in format "width / height" (e.g., "2.5 / 1") when postCardAspectRatio is "custom". Current value "${config.postOptions.customPostCardAspectRatio}" is invalid.`);
     }
   }
 
   // Home options validation
   if (!['above', 'below', 'none'].includes(config.homeOptions.blurb.placement)) {
-    errors.push('homeOptions.blurb.placement must be either "above", "below", or "none"');
+    errors.push(`Home blurb placement must be "above", "below", or "none". Current value "${config.homeOptions.blurb.placement}" is invalid.`);
   }
   
   // Featured post validation
   if (!['latest', 'featured'].includes(config.homeOptions.featuredPost.type)) {
-    errors.push('homeOptions.featuredPost.type must be either "latest" or "featured"');
+    errors.push(`Featured post type must be either "latest" or "featured". Current value "${config.homeOptions.featuredPost.type}" is invalid.`);
   }
   
   // Only validate slug when type is "featured" - slug is optional when type is "latest"
   if (config.homeOptions.featuredPost.type === 'featured' && (!config.homeOptions.featuredPost.slug || config.homeOptions.featuredPost.slug.trim() === '')) {
-    errors.push('homeOptions.featuredPost.slug is required when type is "featured"');
+    errors.push('Featured post slug is required when type is "featured". Set homeOptions.featuredPost.slug to the post slug (the part after /posts/ in the URL).');
   }
 
   // Language validation
   if (!config.language || !config.language.match(/^[a-z]{2}(-[A-Z]{2})?$/)) {
-    errors.push('language must be a valid language code (e.g., "en", "en-US")');
+    errors.push('Language must be a valid language code like "en" or "en-US". Current value is invalid.');
   }
 
   // Footer validation
   if (typeof config.footer.enabled !== 'boolean') {
-    errors.push('footer.enabled must be a boolean value');
+    errors.push('Footer enabled setting must be a boolean value (true or false).');
   }
   if (config.footer.enabled && (!config.footer.content || config.footer.content.trim() === '')) {
-    errors.push('footer.content is required when footer.enabled is true');
+    errors.push('Footer content is required when footer is enabled. Set footer.content to your footer text.');
   }
   if (typeof config.footer.showSocialIconsInFooter !== 'boolean') {
-    errors.push('footer.showSocialIconsInFooter must be a boolean value');
+    errors.push('Footer social icons setting must be a boolean value (true or false).');
   }
 
   // Profile picture validation
   if (config.profilePicture.enabled) {
     if (!config.profilePicture.image || config.profilePicture.image.trim() === '') {
-      errors.push('profilePicture.image is required when profilePicture.enabled is true');
+      errors.push('Profile picture image path is required when profilePicture.enabled is true. Set profilePicture.image to the path of your image (e.g., "/profile.jpg" in the public/ directory).');
     }
     if (!config.profilePicture.alt || config.profilePicture.alt.trim() === '') {
-      errors.push('profilePicture.alt is required when profilePicture.enabled is true');
+      errors.push('Profile picture alt text is required when profilePicture.enabled is true. Set profilePicture.alt to describe your profile picture for accessibility.');
     }
     if (!['sm', 'md', 'lg'].includes(config.profilePicture.size)) {
-      errors.push('profilePicture.size must be one of: sm, md, lg');
+      errors.push(`Profile picture size must be "sm" (32px), "md" (48px), or "lg" (64px). Current value "${config.profilePicture.size}" is invalid.`);
     }
     if (!['footer', 'header'].includes(config.profilePicture.placement)) {
-      errors.push('profilePicture.placement must be either "footer" or "header"');
+      errors.push(`Profile picture placement must be "footer" or "header". Current value "${config.profilePicture.placement}" is invalid.`);
     }
     if (!['circle', 'square', 'none'].includes(config.profilePicture.style)) {
-      errors.push('profilePicture.style must be one of: circle, square, none');
+      errors.push(`Profile picture style must be "circle", "square", or "none". Current value "${config.profilePicture.style}" is invalid.`);
     }
         if (config.profilePicture.url && !config.profilePicture.url.startsWith('/') && !config.profilePicture.url.startsWith('http')) {
-          errors.push('profilePicture.url must be a valid URL starting with / or http');
+          errors.push(`Profile picture URL must be a valid path starting with "/" or "http". Current value "${config.profilePicture.url}" is invalid.`);
         }
         if (config.profilePicture.url && config.profilePicture.url.trim() === '') {
-          errors.push('profilePicture.url cannot be empty if provided');
+          errors.push('Profile picture URL cannot be empty if provided.');
         }
   }
 

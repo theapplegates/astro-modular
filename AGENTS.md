@@ -9,7 +9,7 @@ This document contains essential information for AI agents working with this Ast
 **The most up-to-date and accurate information is found in these blog posts:**
 
 1. **[Getting Started Guide](src/content/posts/getting-started.md)** - Complete setup, configuration, and workflow information
-2. **[Astro Suite Vault Guide](src/content/posts/astro-suite-vault-modular-guide.md)** - Obsidian vault configuration and usage
+2. **[Astro Suite Vault Guide](src/content/posts/obsidian-vault-guide.md)** - Obsidian vault configuration and usage
 
 **These blog posts should be treated as the authoritative source of truth.** Use the information in this AGENTS.md file as supplementary technical documentation, but always reference the blog posts for the most current and accurate user-facing information.
 
@@ -91,7 +91,7 @@ Every feature can be toggled on or off through a single configuration file. Enab
 
 #### 3. **Content Management Excellence**
 - **Markdown-first** with enhanced processing and reading time estimation
-- **Folder-based posts** - Organize content and assets in dedicated folders (like Fuwari)
+- **Folder-based posts** - Organize content and assets in dedicated folders
 - **Draft support** - Show drafts in development, hide in production
 - **Image optimization** with WebP format priority and responsive layouts
 - **Table of contents** auto-generation from headings

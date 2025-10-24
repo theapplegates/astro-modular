@@ -81,6 +81,9 @@ import Icon from './Icon.astro';
     private images: Array<{ src: string; alt: string; caption?: string }> = [];
     private currentIndex: number = 0;
     public isOpen: boolean = false;
+    private currentScale: number = 1;
+    private initialDistance: number = 0;
+    private isPinching: boolean = false;
 
     constructor() {
       this.overlay = document.getElementById('lightbox-overlay')!;
@@ -145,16 +148,20 @@ import Icon from './Icon.astro';
       // Touch events for mobile
       this.overlay.addEventListener('touchstart', (e) => {
         if (!this.isOpen) return;
-        startX = e.touches[0].clientX;
-        startY = e.touches[0].clientY;
-        currentX = startX;
-        isDragging = true;
-        dragOffset = 0;
-        this.image.style.transition = 'none';
+        
+        // Only handle single-finger swipe (pinch is handled separately)
+        if (e.touches.length === 1) {
+          startX = e.touches[0].clientX;
+          startY = e.touches[0].clientY;
+          currentX = startX;
+          isDragging = true;
+          dragOffset = 0;
+          this.image.style.transition = 'none';
+        }
       });
       
       this.overlay.addEventListener('touchmove', (e) => {
-        if (!this.isOpen || !isDragging) return;
+        if (!this.isOpen || !isDragging || this.isPinching) return;
         currentX = e.touches[0].clientX;
         dragOffset = currentX - startX;
         
@@ -165,7 +172,7 @@ import Icon from './Icon.astro';
       });
       
       this.overlay.addEventListener('touchend', (e) => {
-        if (!this.isOpen || !isDragging) return;
+        if (!this.isOpen || !isDragging || this.isPinching) return;
         
         const endX = e.changedTouches[0].clientX;
         const endY = e.changedTouches[0].clientY;
@@ -242,7 +249,76 @@ import Icon from './Icon.astro';
         e.preventDefault();
       }, { passive: false });
 
+      // Add pinch-to-zoom support
+      this.setupPinchZoom();
+
       this.init();
+    }
+
+    private setupPinchZoom() {
+      let touches: Touch[] = [];
+      
+      this.overlay.addEventListener('touchstart', (e) => {
+        if (!this.isOpen) return;
+        
+        if (e.touches.length === 2) {
+          // Two fingers detected - start pinch gesture
+          this.isPinching = true;
+          touches = Array.from(e.touches);
+          
+          const touch1 = touches[0];
+          const touch2 = touches[1];
+          this.initialDistance = Math.hypot(
+            touch2.clientX - touch1.clientX,
+            touch2.clientY - touch1.clientY
+          );
+          
+          // Disable transition for smooth pinching
+          this.image.style.transition = 'none';
+          e.preventDefault();
+        }
+      });
+      
+      this.overlay.addEventListener('touchmove', (e) => {
+        if (!this.isOpen || !this.isPinching) return;
+        
+        if (e.touches.length === 2) {
+          e.preventDefault();
+          
+          const touch1 = e.touches[0];
+          const touch2 = e.touches[1];
+          const currentDistance = Math.hypot(
+            touch2.clientX - touch1.clientX,
+            touch2.clientY - touch1.clientY
+          );
+          
+          // Calculate scale based on distance change
+          const scaleChange = currentDistance / this.initialDistance;
+          this.currentScale = Math.max(0.5, Math.min(3, this.currentScale * scaleChange));
+          
+          // Update initial distance for next iteration
+          this.initialDistance = currentDistance;
+          
+          // Apply scale transform
+          this.image.style.transform = `scale(${this.currentScale})`;
+        }
+      });
+      
+      this.overlay.addEventListener('touchend', (e) => {
+        if (this.isPinching && e.touches.length < 2) {
+          // Pinch gesture ended
+          this.isPinching = false;
+          
+          // Re-enable transition
+          this.image.style.transition = 'transform 0.3s ease-out';
+          
+          // If zoomed out too much, reset to default
+          if (this.currentScale < 0.8) {
+            this.currentScale = 1;
+            this.image.style.transform = 'scale(1)';
+          }
+        }
+      });
     }
 
     private init() {
@@ -290,6 +366,8 @@ import Icon from './Icon.astro';
     private open(index: number) {
       
       this.currentIndex = index;
+      this.currentScale = 1; // Reset zoom level
+      this.image.style.transform = 'scale(1)'; // Reset visual transform
       this.isOpen = true;
       
       // Move overlay to body to avoid parent container positioning issues
