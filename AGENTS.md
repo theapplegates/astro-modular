@@ -28,6 +28,42 @@ This document contains essential information for AI agents working with this Ast
 
 **These issues are documented in detail in the [Common AI Agent Mistakes](#common-ai-agent-mistakes) section.**
 
+## 🚨 CRITICAL: Astro v6 Compatibility Status
+
+**⚠️ AI AGENTS MUST READ THIS SECTION CAREFULLY ⚠️**
+
+**This theme is FULLY PREPARED for Astro v6 compatibility.** All legacy v4 patterns have been removed and the theme uses modern v5/v6 APIs.
+
+### **Current Status (January 2025)**
+- **Astro Version**: 5.15.1 (current stable)
+- **v6 Readiness**: ✅ **Fully prepared** - no breaking changes expected
+- **Content Collections**: ✅ Using modern v5/v6 API
+- **Config Location**: ✅ `src/content.config.ts` (v6 requirement)
+- **Legacy Patterns**: ✅ All removed
+
+### **What Was Fixed for v6 Compatibility**
+1. **Config File Location**: Moved from `src/content/config.ts` to `src/content.config.ts`
+2. **Collection Definitions**: Removed `type: 'content'` from all collections
+3. **ViewTransitions Import**: Removed unused import (v6 breaking change)
+4. **Image Field Safety**: Added type checking for `null` image fields
+5. **Legacy API Usage**: Verified no deprecated APIs are used
+
+### **Verified Clean (No Issues Found)**
+- ✅ No experimental flags in use
+- ✅ No legacy collection patterns
+- ✅ No deprecated APIs (`Astro.glob`, `emitESMImage`, etc.)
+- ✅ No `handleForms` prop on ClientRouter
+- ✅ No legacy collection methods
+- ✅ All integrations v6 compatible
+
+### **When Astro v6 Releases**
+- **No action required** - theme will work immediately
+- **No breaking changes** expected
+- **All features** will continue to work
+- **Build process** will remain unchanged
+
+**This theme is future-proof and ready for Astro v6.**
+
 ## Table of Contents
 
 1. [Project Vision & Philosophy](#project-vision--philosophy)

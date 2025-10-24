@@ -137,3 +137,4 @@ export const collections = {
   docs: docsCollection,
   special: specialCollection,
 };
+
