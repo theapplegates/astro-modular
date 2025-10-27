@@ -17,10 +17,10 @@
       "connections": 6
     },
     {
-      "id": "mermaid-diagram-test",
+      "id": "mermaid-diagrams",
       "type": "post",
-      "title": "Mermaid Diagram Test",
-      "slug": "mermaid-diagram-test",
+      "title": "Mermaid Diagrams",
+      "slug": "mermaid-diagrams",
       "date": "2025-09-07T00:00:00.000Z",
       "connections": 0
     },
@@ -64,7 +64,7 @@
     },
     {
       "source": "formatting-reference",
-      "target": "mermaid-diagram-test",
+      "target": "mermaid-diagrams",
       "type": "link"
     },
     {
@@ -99,7 +99,7 @@
     }
   ],
   "metadata": {
-    "generated": "2025-10-24T17:43:33.345Z",
+    "generated": "2025-10-27T20:33:10.901Z",
     "totalPosts": 5,
     "totalConnections": 11,
     "maxNodesApplied": false,

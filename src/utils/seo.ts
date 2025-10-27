@@ -115,11 +115,11 @@ export function generatePageSEO(page: Page, url: string): SEOData {
 
 // Generate SEO data for projects
 export function generateProjectSEO(project: Project, url: string): SEOData {
-  const { title, description, image, imageOG, technologies, date } = project.data;
+  const { title, description, image, date } = project.data;
 
   let ogImage: OpenGraphImage | undefined;
 
-  if (image && imageOG) {
+  if (image) {
     // Extract image path from Obsidian bracket syntax if needed
     const imagePath = extractImagePath(image);
     
@@ -156,7 +156,7 @@ export function generateProjectSEO(project: Project, url: string): SEOData {
     ogType: 'article',  
     publishedTime: date.toISOString(),  
     modifiedTime: date.toISOString(),  
-    tags: technologies,  
+    tags: project.data.categories,    
     noIndex: project.data.noIndex || false  
   };
 }

@@ -59,14 +59,14 @@ export interface Project {
 
 export interface ProjectData {
   title: string;
-  description: string;
+  description: string | null;
   date: Date;
-  categories?: string[];
-  repositoryUrl?: string;
-  projectUrl?: string;
+  categories?: string[] | null;
+  repositoryUrl?: string | null;
+  projectUrl?: string | null;
   status?: string | null;
-  image?: string;
-  imageAlt?: string;
+  image?: string | null;
+  imageAlt?: string | null;
   hideCoverImage?: boolean;
   hideTOC?: boolean;
   draft?: boolean;

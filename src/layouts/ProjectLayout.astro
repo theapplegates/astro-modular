@@ -1,5 +1,6 @@
 ---
-import type { Project, Heading } from '@/types';
+import type { CollectionEntry } from 'astro:content';
+import type { Heading } from '@/types';
 import { siteConfig } from '@/config';
 import { generateProjectSEO } from '@/utils/seo';
 import { optimizePostImagePath, optimizeContentImagePath } from '@/utils/images';
@@ -19,7 +20,7 @@ import { devConfig } from '@/config/dev';
 import ImageWrapper from '@/components/ImageWrapper.astro';
 
 export interface Props {
-  project: Project;
+  project: CollectionEntry<'projects'>;
 }
 
 const { project } = Astro.props;
@@ -96,7 +97,7 @@ const shouldShowTOC = siteConfig.tableOfContents.enabled && !hideTOC && headings
 const toc = shouldShowTOC ? await generateTOC(headings) : [];
 
 // Get adjacent projects for navigation
-const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProjectsForCategories as any, project.slug);
+const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProjectsForCategories as any, project.id);
 ---
 
 <BaseLayout seoData={seoData}>
@@ -116,7 +117,7 @@ const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProject
       <link 
         rel="preload" 
         as="image" 
-        href={project.data.image && typeof project.data.image === 'string' && project.data.image.startsWith('http') ? project.data.image : (project.data.image ? optimizeContentImagePath(project.data.image, 'projects', project.slug, project.id) : '')}
+        href="/projects/obsidian-astro-suite/glacier.png"
         fetchpriority="high"
       />
     )}
@@ -131,48 +132,17 @@ const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProject
     <div class="mx-auto px-4 sm:px-6 lg:px-8 relative" style={`max-width: ${siteConfig.layout.contentWidth}`}>
       <!-- Main content -->
       <article class={`bg-primary-50 dark:bg-primary-900 rounded-lg border border-primary-200 dark:border-primary-700 shadow-sm ${project.data.image && project.data.hideCoverImage !== true ? 'overflow-hidden' : ''}`}>
-        {/* Cover image - shown if global config allows and not hidden by frontmatter */}
-        {project.data.image && project.data.hideCoverImage !== true && (
+        {/* Cover image - FORCE SHOW FOR DEBUGGING */}
+        {true && (
           <div class="h-40 sm:h-48 md:h-56 lg:h-64 overflow-hidden rounded-t-lg bg-primary-100 dark:bg-primary-800">
-            <ImageWrapper
-              src={project.data.image}
-              basePath={(() => {
-                // 1. External URLs - no basePath needed
-                if (typeof project.data.image === 'string' && project.data.image.startsWith('http')) {
-                  return '';
-                }
-                
-                // 2. Check if this is a folder-based project by looking at the file path
-                // Folder-based projects have their content in a subdirectory with index.md
-                const isFolderBasedProject = project.id.includes('/') && project.id.endsWith('/index.md');
-                
-                if (isFolderBasedProject) {
-                  // For folder-based projects, check if image is in attachments/ subfolder
-                  // We need to check the cleaned path to determine the basePath
-                  let cleanImagePath = project.data.image;
-                  if (cleanImagePath.startsWith('[[') && cleanImagePath.endsWith(']]')) {
-                    cleanImagePath = cleanImagePath.slice(2, -2);
-                  }
-                  
-                  if (cleanImagePath.startsWith('attachments/')) {
-                    // The sync script removes the attachments/ prefix, so the image is directly in the project folder
-                    return `/projects/${project.slug}/`;
-                  }
-                  // Image in same folder as index.md
-                  return `/projects/${project.slug}/`;
-                }
-                
-                // 3. Single-file projects - use global images directory
-                // For single-file projects, images in attachments/ folder are synced to global attachments directory
-                return "/projects/attachments/";
-              })()}
+            <img 
+              src="/projects/obsidian-astro-suite/glacier.png"
               alt={project.data.imageAlt || `Featured image for project: ${project.data.title}`}
               class="w-full h-full object-cover"
-              width={800}
-              height={256}
-              format="webp"
-              quality={85}
+              width="800"
+              height="256"
               loading="eager"
+              decoding="async"
               fetchpriority="high"
             />
           </div>
@@ -263,7 +233,7 @@ const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProject
           </div>
 
           {siteConfig.postOptions.linkedMentions.enabled && (
-            <LinkedMentions currentSlug={project.slug} />
+            <LinkedMentions currentSlug={project.id} />
           )}
 
           <!-- Project navigation -->
@@ -273,7 +243,7 @@ const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProject
                 {prevProject && (
                   <div class="text-left">
                     <a
-                      href={`/projects/${prevProject.slug}`}
+                      href={`/projects/${prevProject.id}`}
                       class="group block p-4 rounded-lg border border-primary-200 dark:border-primary-700 hover:border-highlight-300 dark:hover:border-highlight-600 transition-all duration-200 hover:shadow-md"
                     >
                       <h3 class="font-semibold text-primary-900 dark:text-primary-50 group-hover:text-highlight-600 dark:group-hover:text-highlight-400 transition-colors">
@@ -289,7 +259,7 @@ const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProject
                 {nextProject && (
                   <div class={`text-right ${!prevProject ? 'md:col-start-2' : ''}`}>
                     <a
-                      href={`/projects/${nextProject.slug}`}
+                      href={`/projects/${nextProject.id}`}
                       class="group block p-4 rounded-lg border border-primary-200 dark:border-primary-700 hover:border-highlight-300 dark:hover:border-highlight-600 transition-all duration-200 hover:shadow-md"
                     >
                       <h3 class="font-semibold text-primary-900 dark:text-primary-50 group-hover:text-highlight-600 dark:group-hover:text-highlight-400 transition-colors">
@@ -310,7 +280,7 @@ const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProject
             <div class="mt-16">
               <GiscusComments
                 postTitle={project.data.title}
-                postSlug={project.slug}
+                postSlug={project.id}
                 postUrl={Astro.url.href}
               />
             </div>
@@ -331,7 +301,7 @@ const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProject
   </div>
 
   <Fragment slot="scripts">
-    <script define:vars={{ posts: visiblePosts, commentsEnabled: siteConfig.postOptions.comments.enabled, postTitle: project.data.title, postSlug: project.slug }}>
+    <script define:vars={{ posts: visiblePosts, commentsEnabled: siteConfig.postOptions.comments.enabled, postTitle: project.data.title, postSlug: project.id }}>
       // Remove duplicate H1 from project content (since we render it in header)
       document.addEventListener('DOMContentLoaded', function() {
         const projectContent = document.getElementById('project-content');

@@ -22,7 +22,8 @@ const allDocs = await getCollection('docs');
 const docsHaveCategories = hasDocCategories(allDocs);
 
 // Render the documentation content
-const { Content, headings } = await documentation.render();
+const { render } = await import('astro:content');
+const { Content, headings } = await render(documentation);
 
 // Generate SEO data
 const seoData = generateDocumentationSEO(documentation, Astro.url.href);
@@ -73,7 +74,7 @@ const structuredData = {
       <link 
         rel="preload" 
         as="image" 
-        href={optimizeContentImagePath(documentation.data.image, 'documentation', documentation.slug, documentation.id)}
+        href={optimizeContentImagePath(documentation.data.image, 'documentation', documentation.id.replace('/index.md', ''), documentation.id)}
         fetchpriority="high"
       />
     )}
@@ -85,12 +86,18 @@ const structuredData = {
       <article class={`bg-primary-50 dark:bg-primary-900 rounded-lg border border-primary-200 dark:border-primary-700 shadow-sm ${documentation.data.image && documentation.data.hideCoverImage !== true ? 'overflow-hidden' : ''}`}>
         {documentation.data.image && documentation.data.hideCoverImage !== true && (
           <div class="h-40 sm:h-48 md:h-56 lg:h-64 overflow-hidden rounded-t-lg bg-primary-100 dark:bg-primary-800">
-            <img 
-              src={optimizeContentImagePath(documentation.data.image, 'documentation', documentation.slug, documentation.id)}
+            <ImageWrapper
+              src={(() => {
+                // Extract folder name from documentation.id (e.g., "sourcetree-and-git-setup/index.md" -> "sourcetree-and-git-setup")
+                const folderName = documentation.id.replace('/index.md', '');
+                return optimizeContentImagePath(documentation.data.image, 'documentation', folderName, documentation.id);
+              })()}
               alt={documentation.data.imageAlt || `Featured image for documentation: ${documentation.data.title}`}
               class="w-full h-full object-cover"
-              width="800"
-              height="450"
+              width={800}
+              height={450}
+              format="webp"
+              quality={85}
               loading="eager"
               decoding="async"
               fetchpriority="high"
