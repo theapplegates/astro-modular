@@ -23,7 +23,7 @@ aliases:
 
 ## Overview
 
-All plugins, key bindings, and the theme can be customized to your liking, but this is what's on by default. Optimized for use with the [Modular Astro theme](https://github.com/davidvkimball/astro-modular). 
+All plugins, key bindings, and the theme can be customized to your liking, but this is what's on by default. 
 
 ## Philosophy 
 
@@ -64,11 +64,12 @@ Here's a guide for some important hotkeys set especially for this theme:
 - Toggle reading view: `CTRL + E`
 - Toggle Zen mode: `CTRL + SHIFT + Z`
 - Insert image: `CTRL + '`
+- Insert image into property: `CTRL + SHIFT + '`
 - Insert callout: `CTRL + SHIFT + C`
 - Rename current note: `CTRL + R` 
 - Open SEO audit: `CTRL + SHIFT + A`
 - Start Terminal: `CTRL + SHIFT + D`
-- Open config file: `CTRL + SHIFT + ,`
+- Open Astro config file: `CTRL + SHIFT + ,`
 - Git: Commit and Sync `CTRL + SHIFT + S`
 
 If you're on Mac, `CTRL` = `CMD`.
@@ -92,6 +93,7 @@ Community plugins enabled:
 - Homepage
 - Image Inserter
 - Minimal Theme Settings
+- Paste image into property
 - Paste image rename
 - Property Over Filename
 - ProZen
@@ -102,7 +104,7 @@ Community plugins enabled:
 
 ### Astro Composer and Alias Filename History
 
-Handy for easily creating new notes as Astro blog posts. Just create a new note with `CTRL + N`, type in a title in Title case or with special characters, and the note or folder name generated is a kebab-case version of the title without special characters. This is ideal for automating post slugs. 
+Handy for easily creating new notes as Astro blog posts, pages, projects, or docs. Just create a new note with `CTRL + N`, type in a title in Title case or with special characters, and the note or folder name generated is a kebab-case version of the title without special characters. This is ideal for automating content page slugs. 
 
 You can also define and set default properties that can be generated automatically or manually set for any open note as well. The "Standardize properties" command can help set or reorganize any missing properties or tags, especially if you update your properties template down the road.
 
@@ -130,13 +132,13 @@ Should you desire to hide any of the panels, you can use `CTRL + ALT Z` for the 
 
 In Style Settings, the only options that have been modified are hiding the Properties heading and the "Add Property" button. If you prefer, you disable this plugin and use the `hide-properties-heading-and-add-properties-button.css` CSS snippet.
 
-### Paste Image Rename 
+### Paste Image Rename and Paste Image Into Property
 
-Quickly drag and drop image files or paste directly from your clipboard and give them kebab-case, SEO-friendly names. 
+Quickly drag and drop image files or paste directly from your clipboard and give them kebab-case, SEO-friendly names. Both work directly in note content or within properties.
 
 ### Image Inserter
 
-Pull in images from Unsplash or other sources easily with just a few keystrokes. Just use `CTRL + '` to insert an image - and immediately set a SEO-friendly filename for it via the Paste Image Rename plugin.
+Pull in images from Unsplash or other sources easily with just a few keystrokes. Just use `CTRL + '` to insert an image - and immediately set a SEO-friendly filename for it via the Paste Image Rename plugin. Insert into the designated property with `CTRL + SHIFT + '`
 
 ### Title-Only Tab
 
@@ -144,7 +146,7 @@ Pulls from the `title` property instead of using the filename for any tab.
 
 ### Property Over Filename
 
-When linking or searching notes, you can use the `title` property as its primary identifier, which is more helpful semantically for linking between and searching for posts and pages, since note filenames are post/page slugs in kebab case instead of titles. 
+When linking or searching notes, you can use the `title` property as its primary identifier, which is more helpful visually and semantically for linking between and searching for content, since note filenames are post/page slugs in kebab case instead of titles. 
 
 When you link to another note, its `title` is automatically set as the hyperlinked text, but you can easily change it to something else after it's been inserted.
 
@@ -173,7 +175,7 @@ Commander helps us place a button for each of these actions on the file explorer
 
 ### BRAT (Temporary)
 
-Only used temporarily to load Alias Filename History, Astro Composer, Disable Tabs, and Property Over Filename plugins before they're available in the Obsidian plugin directory. Future versions of this vault will remove BRAT in favor of the official releases.
+Only used temporarily to load Alias Filename History, Astro Composer, Disable Tabs, SEO, and Property Over Filename plugins before they're available in the Obsidian plugin directory. Future versions of this vault will remove BRAT in favor of the official releases.
 
 ### Git
 
