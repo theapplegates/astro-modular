@@ -208,6 +208,104 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
       return availableThemes === 'default' || (Array.isArray(availableThemes) && availableThemes.includes(theme));
     }
 
+    // Initialize Twitter theme immediately (before Twitter script loads)
+    function initializeTwitterThemeImmediately() {
+      console.log('=== TWITTER THEME INIT START ===');
+      
+      // Wait for theme to be applied, then initialize Twitter theme
+      const checkThemeAndInit = () => {
+        console.log('Twitter theme init - documentElement classes:', document.documentElement.classList.toString());
+        console.log('Twitter theme init - has dark class:', document.documentElement.classList.contains('dark'));
+        
+        const isDark = document.documentElement.classList.contains('dark');
+        const newTheme = isDark ? 'dark' : 'light';
+        
+        console.log('Twitter theme init - setting theme to:', newTheme);
+        
+        // Update the meta tag immediately
+        const themeMeta = document.querySelector('meta[name="twitter:widgets:theme"]');
+        if (themeMeta) {
+          console.log('Twitter theme init - updating meta tag to:', newTheme);
+          themeMeta.setAttribute('content', newTheme);
+        } else {
+          console.log('Twitter theme init - meta tag not found!');
+        }
+        
+        // Update data-theme attributes on any existing blockquotes
+        const twitterEmbeds = document.querySelectorAll('.twitter-tweet');
+        console.log('Twitter theme init - found', twitterEmbeds.length, 'twitter embeds');
+        twitterEmbeds.forEach(embed => {
+          embed.setAttribute('data-theme', newTheme);
+        });
+        console.log('=== TWITTER THEME INIT END ===');
+      };
+
+      // Try immediately
+      checkThemeAndInit();
+      
+      // Also try after theme is applied (when deferred script runs)
+      setTimeout(checkThemeAndInit, 500);
+      setTimeout(checkThemeAndInit, 1000);
+    }
+
+    // Initialize Twitter theme immediately
+    initializeTwitterThemeImmediately();
+
+    // Twitter theme change handling - force iframe update
+    function handleTwitterThemeChange(isDark) {
+      const newTheme = isDark ? 'dark' : 'light';
+      
+      console.log('=== TWITTER THEME CHANGE ===');
+      console.log('Twitter theme change - isDark:', isDark, 'newTheme:', newTheme);
+      
+      // Update the meta tag
+      const themeMeta = document.querySelector('meta[name="twitter:widgets:theme"]');
+      if (themeMeta) {
+        console.log('Twitter theme change - updating meta tag to:', newTheme);
+        themeMeta.setAttribute('content', newTheme);
+      }
+      
+      // Force update all Twitter iframes by updating their src URLs
+      const twitterIframes = document.querySelectorAll('iframe[src*="platform.twitter.com/embed/Tweet.html"]');
+      console.log('Twitter theme change - found', twitterIframes.length, 'twitter iframes');
+      twitterIframes.forEach(iframe => {
+        const currentSrc = iframe.src;
+        // Replace theme parameter in URL
+        const updatedSrc = currentSrc.replace(/theme=[^&]+/, `theme=${newTheme}`);
+        if (updatedSrc !== currentSrc) {
+          console.log('Twitter theme change - updating iframe src from', currentSrc, 'to', updatedSrc);
+          iframe.src = updatedSrc;
+        }
+      });
+    }
+
+    // Listen for theme changes
+    window.addEventListener('themechange', (event) => {
+      console.log('=== THEME CHANGE EVENT ===');
+      console.log('Theme change event - detail:', event.detail);
+      
+      let isDark = false;
+      
+      // Check if it's a dark/light mode change
+      if (event.detail.mode !== undefined) {
+        isDark = event.detail.mode === 'dark';
+        console.log('Theme change event - mode:', event.detail.mode, 'isDark:', isDark);
+      } 
+      // Check if it's a color scheme change
+      else if (event.detail.theme !== undefined) {
+        // For color scheme changes, we need to check the current DOM state
+        isDark = document.documentElement.classList.contains('dark');
+        console.log('Theme change event - theme:', event.detail.theme, 'isDark (from DOM):', isDark);
+      }
+      // Fallback: check DOM state directly
+      else {
+        isDark = document.documentElement.classList.contains('dark');
+        console.log('Theme change event - no detail, isDark (from DOM):', isDark);
+      }
+      
+      handleTwitterThemeChange(isDark);
+    });
+
     // Reset theme to default and clear user preferences
     function resetThemeToDefault() {
       const configTheme = window.siteConfig?.theme || 'oxygen';
@@ -966,9 +1064,6 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
   <!-- Additional head content -->
   <slot name="head" />
 
-  <!-- Twitter Widgets Theme Configuration -->
-  <meta name="twitter:widgets:theme" content="preferred_color_scheme">
-  <meta name="twitter:widgets:border-color" content="rgb(var(--color-primary-200))">
 
   <!-- Twitter Widgets Script -->
   <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
@@ -1018,6 +1113,8 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
 
   <!-- Global scripts - Defer non-critical JavaScript -->
   <script define:vars={{ commentsEnabled: siteConfig.postOptions.comments.enabled }} defer>
+    console.log('=== DEFERRED SCRIPT START ===');
+    
     // Logger removed - no console output in production
 
     // Define isDev in client-side JavaScript (always false in production)
@@ -1599,20 +1696,31 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
 
     // Initialize Twitter theme immediately on page load (before widgets render)
     function initializeTwitterThemeImmediately() {
+      console.log('=== TWITTER THEME INIT START ===');
+      console.log('Twitter theme init - documentElement classes:', document.documentElement.classList.toString());
+      console.log('Twitter theme init - has dark class:', document.documentElement.classList.contains('dark'));
+      
       const isDark = document.documentElement.classList.contains('dark');
       const newTheme = isDark ? 'dark' : 'light';
-
+      
+      console.log('Twitter theme init - setting theme to:', newTheme);
+      
       // Update the meta tag immediately
       const themeMeta = document.querySelector('meta[name="twitter:widgets:theme"]');
       if (themeMeta) {
+        console.log('Twitter theme init - updating meta tag to:', newTheme);
         themeMeta.setAttribute('content', newTheme);
+      } else {
+        console.log('Twitter theme init - meta tag not found!');
       }
-
+      
       // Update data-theme attributes on any existing blockquotes
       const twitterEmbeds = document.querySelectorAll('.twitter-tweet');
+      console.log('Twitter theme init - found', twitterEmbeds.length, 'twitter embeds');
       twitterEmbeds.forEach(embed => {
         embed.setAttribute('data-theme', newTheme);
       });
+      console.log('=== TWITTER THEME INIT END ===');
     }
 
     // Initialize Twitter theme immediately (before widgets load)
