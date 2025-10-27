@@ -27,6 +27,7 @@ This document contains essential information for AI agents working with this Ast
 6. **🚨 IMAGE SYSTEM CONFUSION** - Post cards vs post content images are separate systems
 7. **🚨 URL MAPPING SYSTEM CONFUSION** - URL mapping is for rendering only, doesn't affect linked mentions/graph view
 8. **🚨 FOLDER-BASED CONTENT ASSUMPTIONS** - ALL content types support folder-based organization, not just posts
+9. **🚨 FOLDER-BASED POST ID DETECTION** - Astro v6 folder-based posts have IDs like 'folder-name', NOT 'folder-name/index'
 
 **These issues are documented in detail in the [Common AI Agent Mistakes](#common-ai-agent-mistakes) section.**
 
@@ -4109,12 +4110,35 @@ The comments are styled to match your theme automatically. If you see styling is
 - **Asset syncing works for all content types** - images, PDFs, etc. are copied to public directory
 - **URL generation is consistent** - folder name becomes slug for all content types
 
-#### 10. **H1 Title Handling**
+#### 10. **🚨 FOLDER-BASED POST ID DETECTION (CRITICAL - ASTRO v6)**
+- **NEVER use `post.id.includes('/') && post.id.endsWith('/index')`** - This is WRONG for Astro v6
+- **Astro v6 folder-based posts have IDs like `'folder-name'`** - NOT `'folder-name/index'`
+- **CORRECT detection logic:**
+  ```javascript
+  // ❌ WRONG - This will NEVER match folder-based posts in Astro v6
+  const isFolderBasedPost = post.id.includes('/') && post.id.endsWith('/index');
+  
+  // ✅ CORRECT - Check if post has folder structure by other means
+  // Option 1: Check if post has co-located images (not in attachments/)
+  const isFolderBasedPost = post.data.image && !post.data.image.includes('attachments/');
+  
+  // Option 2: Use a known list of folder-based posts
+  const folderBasedPostIds = ['sample-folder-based-post', 'another-folder-post'];
+  const isFolderBasedPost = folderBasedPostIds.includes(post.id);
+  
+  // Option 3: Check file system (server-side only)
+  const isFolderBasedPost = await checkIfPostHasFolderStructure(post.id);
+  ```
+- **Why this matters**: Wrong detection causes folder-based posts to use `/posts/attachments/` instead of `/posts/folder-name/` for images
+- **Common symptoms**: Folder-based post images don't display on post cards
+- **This mistake breaks folder-based post functionality completely**
+
+#### 11. **H1 Title Handling**
 - **Both Posts and Pages**: NO H1 in markdown content - title comes from frontmatter, content starts with H2
 - **H1 is hardcoded** in both PostLayout and PageLayout using frontmatter title
 - **NEVER add H1** to any markdown content - both posts and pages have hardcoded H1s from frontmatter
 
-#### 11. **Custom Collections Approach**
+#### 12. **Custom Collections Approach**
 - **Use subfolders within pages collection** - avoid creating custom collections at content level
 - **No Astro warnings** - subfolders within pages don't trigger auto-generation warnings
 - **Same URL structure** - `/services/web-development` works the same way
@@ -4123,7 +4147,7 @@ The comments are styled to match your theme automatically. If you see styling is
   - `pages/services/web-development.md` → `/services/web-development`
   - `pages/services/web-development/index.md` → `/services/web-development`
 
-#### 11. **🚨 FAVICON THEME BEHAVIOR (CRITICAL)**
+#### 13. **🚨 FAVICON THEME BEHAVIOR (CRITICAL)**
 - **Favicon should NOT change with manual theme toggle** - it should only change with browser system theme
 - **SIMPLE WORKING IMPLEMENTATION** (20 lines max, add to BaseLayout.astro script section):
   ```javascript
@@ -4155,25 +4179,25 @@ The comments are styled to match your theme automatically. If you see styling is
 - **Files**: Use `.png` format (matches existing favicon files)
 - **Behavior**: Favicon reflects OS/browser theme preference, ignores website theme toggle
 
-#### 12. **🎨 COLOR USAGE (CRITICAL)**
+#### 14. **🎨 COLOR USAGE (CRITICAL)**
 - **NEVER use hardcoded colors** - Always use theme variables from `src/themes/index.ts`
 - **Use Tailwind classes** that reference theme variables (`primary-*`, `highlight-*`)
 - **Include dark mode variants** for all color definitions (`dark:bg-primary-800`)
 - **Check existing code** for hardcoded colors and replace them
 - **Reference theme files** to understand available color scales
 
-#### 13. **Package Manager**
+#### 15. **Package Manager**
 - Always use `pnpm` instead of `npm` for all commands
 - Scripts: `pnpm run <script-name>`, not `npm run <script-name>`
 
-#### 14. **Deployment Platform Configuration**
+#### 16. **Deployment Platform Configuration**
 - **Set platform once in config** - Use `deployment.platform` in `src/config.ts`, not environment variables
 - **No environment variables needed** - The build process automatically detects the platform from config
 - **Platform options**: "netlify", "vercel", "github-pages" (all lowercase with hyphens)
 - **Backward compatibility**: Environment variables still work but are not recommended
 - **Configuration files**: Automatically generated based on platform choice
 
-#### 15. **Homepage Configuration Structure**
+#### 17. **Homepage Configuration Structure**
 - **Use `homeOptions`** - All homepage content is now under `homeOptions`, not `features` or `homeBlurb`
 - **Featured Post**: Use `homeOptions.featuredPost` with `type: "latest"` or `type: "featured"`
 - **Slug Flexibility**: Slug can be present even when `type: "latest"` - it will be ignored until switched to "featured"
@@ -4182,7 +4206,7 @@ The comments are styled to match your theme automatically. If you see styling is
 - **Blurb**: Use `homeOptions.blurb` with `placement: "above" | "below" | "none"`
 - **Old References**: `showLatestPost`, `recentPostsCount`, and `homeBlurb` are deprecated
 
-#### 16. **Development vs Production Behavior**
+#### 18. **Development vs Production Behavior**
 - **Development**: Missing images show placeholders, warnings are logged
 - **Production**: Missing images cause build failures
 - Always run `pnpm run check-images` before deploying

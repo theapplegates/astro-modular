@@ -210,34 +210,22 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
 
     // Initialize Twitter theme immediately (before Twitter script loads)
     function initializeTwitterThemeImmediately() {
-      console.log('=== TWITTER THEME INIT START ===');
-      
       // Wait for theme to be applied, then initialize Twitter theme
       const checkThemeAndInit = () => {
-        console.log('Twitter theme init - documentElement classes:', document.documentElement.classList.toString());
-        console.log('Twitter theme init - has dark class:', document.documentElement.classList.contains('dark'));
-        
         const isDark = document.documentElement.classList.contains('dark');
         const newTheme = isDark ? 'dark' : 'light';
-        
-        console.log('Twitter theme init - setting theme to:', newTheme);
         
         // Update the meta tag immediately
         const themeMeta = document.querySelector('meta[name="twitter:widgets:theme"]');
         if (themeMeta) {
-          console.log('Twitter theme init - updating meta tag to:', newTheme);
           themeMeta.setAttribute('content', newTheme);
-        } else {
-          console.log('Twitter theme init - meta tag not found!');
         }
         
         // Update data-theme attributes on any existing blockquotes
         const twitterEmbeds = document.querySelectorAll('.twitter-tweet');
-        console.log('Twitter theme init - found', twitterEmbeds.length, 'twitter embeds');
         twitterEmbeds.forEach(embed => {
           embed.setAttribute('data-theme', newTheme);
         });
-        console.log('=== TWITTER THEME INIT END ===');
       };
 
       // Try immediately
@@ -255,56 +243,56 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
     function handleTwitterThemeChange(isDark) {
       const newTheme = isDark ? 'dark' : 'light';
       
-      console.log('=== TWITTER THEME CHANGE ===');
-      console.log('Twitter theme change - isDark:', isDark, 'newTheme:', newTheme);
-      
       // Update the meta tag
       const themeMeta = document.querySelector('meta[name="twitter:widgets:theme"]');
       if (themeMeta) {
-        console.log('Twitter theme change - updating meta tag to:', newTheme);
         themeMeta.setAttribute('content', newTheme);
       }
       
       // Force update all Twitter iframes by updating their src URLs
       const twitterIframes = document.querySelectorAll('iframe[src*="platform.twitter.com/embed/Tweet.html"]');
-      console.log('Twitter theme change - found', twitterIframes.length, 'twitter iframes');
       twitterIframes.forEach(iframe => {
         const currentSrc = iframe.src;
         // Replace theme parameter in URL
         const updatedSrc = currentSrc.replace(/theme=[^&]+/, `theme=${newTheme}`);
         if (updatedSrc !== currentSrc) {
-          console.log('Twitter theme change - updating iframe src from', currentSrc, 'to', updatedSrc);
           iframe.src = updatedSrc;
         }
       });
     }
 
-    // Listen for theme changes
-    window.addEventListener('themechange', (event) => {
-      console.log('=== THEME CHANGE EVENT ===');
-      console.log('Theme change event - detail:', event.detail);
+    // Giscus theme change handling
+    function handleGiscusThemeChange(isDark) {
+      // Giscus theme changes are handled by the Giscus client script
+      // This is just a placeholder to prevent the error
+      console.log('Giscus theme change - isDark:', isDark);
+    }
+
+    // Listen for theme changes using MutationObserver (elegant approach from master)
+    if (typeof window !== 'undefined') {
+      // Watch for class changes on documentElement (theme toggle)
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+            const isDark = document.documentElement.classList.contains('dark');
+            const wasDark = mutation.oldValue && mutation.oldValue.includes('dark');
+            
+            // Only re-render if theme actually changed
+            if (isDark !== wasDark) {
+              handleMermaidThemeChange();
+              handleTwitterThemeChange(isDark);
+              handleGiscusThemeChange(isDark);
+            }
+          }
+        });
+      });
       
-      let isDark = false;
-      
-      // Check if it's a dark/light mode change
-      if (event.detail.mode !== undefined) {
-        isDark = event.detail.mode === 'dark';
-        console.log('Theme change event - mode:', event.detail.mode, 'isDark:', isDark);
-      } 
-      // Check if it's a color scheme change
-      else if (event.detail.theme !== undefined) {
-        // For color scheme changes, we need to check the current DOM state
-        isDark = document.documentElement.classList.contains('dark');
-        console.log('Theme change event - theme:', event.detail.theme, 'isDark (from DOM):', isDark);
-      }
-      // Fallback: check DOM state directly
-      else {
-        isDark = document.documentElement.classList.contains('dark');
-        console.log('Theme change event - no detail, isDark (from DOM):', isDark);
-      }
-      
-      handleTwitterThemeChange(isDark);
-    });
+      observer.observe(document.documentElement, {
+        attributes: true,
+        attributeOldValue: true,
+        attributeFilter: ['class']
+      });
+    }
 
     // Reset theme to default and clear user preferences
     function resetThemeToDefault() {
@@ -1330,7 +1318,6 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
           setFavicon();
           // Initialize table wrappers after content replacement
           setTimeout(() => {
-</parameter>
             if (document.querySelector('#giscus-comments')) {
               window.initializeGiscusComments();
             }
@@ -1361,7 +1348,6 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
           document.documentElement.setAttribute('data-theme', theme);
           updateThemeCSSVariables(theme).catch(console.error);
           setTimeout(() => {
-</parameter>
             if (document.querySelector('#giscus-comments')) {
               window.initializeGiscusComments();
             }
@@ -1751,27 +1737,6 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
       }
     }
 
-    // Twitter theme change handling - force iframe update
-    function handleTwitterThemeChange(isDark) {
-      const newTheme = isDark ? 'dark' : 'light';
-
-      // Update the meta tag
-      const themeMeta = document.querySelector('meta[name="twitter:widgets:theme"]');
-      if (themeMeta) {
-        themeMeta.setAttribute('content', newTheme);
-      }
-
-      // Force update all Twitter iframes by updating their src URLs
-      const twitterIframes = document.querySelectorAll('iframe[src*="platform.twitter.com/embed/Tweet.html"]');
-      twitterIframes.forEach(iframe => {
-        const currentSrc = iframe.src;
-        // Replace theme parameter in URL
-        const updatedSrc = currentSrc.replace(/theme=[^&]+/, `theme=${newTheme}`);
-        if (updatedSrc !== currentSrc) {
-          iframe.src = updatedSrc;
-        }
-      });
-    }
 
     // Giscus theme change handling - use postMessage API for dynamic theme switching
     function handleGiscusThemeChange() {

@@ -20,7 +20,9 @@ const allPosts = await getCollection('posts');
 const isDev = import.meta.env.DEV;
 const visiblePosts = allPosts.filter(p => shouldShowPost(p, isDev));
 
-// Since this component is only rendered when there are connections, always show the graph
+// Check if we should show the graph based on connections
+// This component should only be rendered when there are connections (checked in PostLayout)
+// But we'll add an additional client-side check as a safety measure
 const shouldShowGraph = true;
 ---
 
@@ -457,7 +459,8 @@ const shouldShowGraph = true;
 
   function initializeLocalGraph() {
     const container = document.getElementById('local-graph-content');
-    if (!container) return;
+    const outerContainer = document.getElementById('local-graph-container');
+    if (!container || !outerContainer) return;
 
     if (localGraphInitialized) {
       return;
@@ -518,7 +521,15 @@ const shouldShowGraph = true;
         (window as any).localGraphData = data; // Store full data
         (window as any).localGraphFilteredData = filteredData; // Store filtered data
           
-          // Since we only render the container if there are connections, we can directly render
+          // Check if there are actually connections to show
+          if (filteredData.nodes.length <= 1) {
+            // Hide the entire graph container if no connections
+            outerContainer.style.display = 'none';
+            return;
+          }
+          
+          // Show the graph since we have connections
+          outerContainer.style.display = 'block';
           container.innerHTML = '';
           renderLocalGraph(container, filteredData);
         })

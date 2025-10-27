@@ -84,12 +84,17 @@ if (siteConfig.postOptions.graphView.enabled && siteConfig.postOptions.graphView
       const graphData = await graphDataResponse.json();
 
       // Check if current post has any connections
-      hasLocalGraphConnections = graphData.connections.some((conn: any) =>
+      const matchingConnections = graphData.connections.filter((conn: any) =>
         conn.source === post.id || conn.target === post.id
       );
+      
+      hasLocalGraphConnections = matchingConnections.length > 0;
+    } else {
+      console.log('Failed to fetch graph data:', graphDataResponse.status);
     }
   } catch (error) {
     // If we can't read the graph data at build time, don't show the graph
+    console.log('Error reading graph data:', error);
     hasLocalGraphConnections = false;
   }
 }

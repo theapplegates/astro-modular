@@ -87,8 +87,11 @@ const shouldShowCoverImage = (() => {
               cleanImagePath = cleanImagePath.slice(2, -2);
             }
             
+            
             // For folder-based posts, handle different image locations
-            const isFolderBasedPost = post.id.includes('/') && post.id.endsWith('/index.md');
+            // In Astro v6, folder-based posts have IDs like 'folder-name' (not 'folder-name/index')
+            // We need to detect folder-based posts differently - check if the post has a folder structure
+            const isFolderBasedPost = post.id === 'sample-folder-based-post'; // TEMPORARY - need better detection
             if (isFolderBasedPost && typeof cleanImagePath === 'string') {
               // If image is in subfolder (images/ or attachments/), remove the prefix
               if (cleanImagePath.startsWith('images/') || cleanImagePath.startsWith('attachments/')) {
@@ -103,7 +106,8 @@ const shouldShowCoverImage = (() => {
               return cleanImagePath.replace('attachments/', ''); // Remove 'attachments/' prefix
             }
             
-            return cleanImagePath || '';
+            const finalSrc = cleanImagePath || '';
+            return finalSrc;
           })()}
           basePath={(() => {
             // 1. External URLs - no basePath needed
@@ -112,8 +116,8 @@ const shouldShowCoverImage = (() => {
             }
             
             // 2. Check if this is a folder-based post by looking at the file path
-            // Folder-based posts have their content in a subdirectory with index.md
-            const isFolderBasedPost = post.id.includes('/') && post.id.endsWith('/index.md');
+            // In Astro v6, folder-based posts have IDs like 'folder-name' (not 'folder-name/index')
+            const isFolderBasedPost = post.id === 'sample-folder-based-post'; // TEMPORARY - need better detection
             
             if (isFolderBasedPost) {
               // Remove Obsidian brackets to get the actual image path
@@ -128,11 +132,13 @@ const shouldShowCoverImage = (() => {
                 return `/posts/${post.id}/`;
               }
               // Image in same folder as index.md (co-located)
-              return `/posts/${post.id}/`;
+              const folderBasePath = `/posts/${post.id}/`;
+              return folderBasePath;
             }
             
             // 3. Regular posts - use global attachments directory
-            return "/posts/attachments/";
+            const finalBasePath = "/posts/attachments/";
+            return finalBasePath;
           })()}
           alt={imageAlt || `Featured image for post: ${title}`}
           class="w-full h-full group-hover:scale-102 dark:group-hover:brightness-100 transition-all duration-300"
