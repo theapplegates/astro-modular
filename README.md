@@ -110,6 +110,10 @@ For detailed guides, see the included blog posts:
 
 **For AI Agents & Developers:** See [AGENTS.md](AGENTS.md) for comprehensive technical documentation.
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=davidvkimball/astro-modular&type=date&legend=top-left)](https://www.star-history.com/#davidvkimball/astro-modular&type=date&legend=top-left)
+
 ## Contributing
 
 This is an open-source project. Feel free to submit feature requests, report bugs, or contribute improvements.
