@@ -30,7 +30,7 @@ A flexible blog theme designed for Obsidian users.
 
 ## Why Astro Modular?
 
-- **Obsidian As A CMS**: Works with Obsidian out of the box, write and publish instantly
+- **Obsidian As A CMS**: Works with Obsidian out of the box (built upon [Obsidian Astro Suite](https://github.com/davidvkimball/obsidian-astro-suite)), write and publish instantly
 - **Highly Customizable**: Every feature can be enabled/disabled independently
 - **Performance-Focused**: Assets are highly optimized for lightning-fast loading
 - **SEO-Ready**: Automatic sitemap, RSS feed, and Open Graph image generation
