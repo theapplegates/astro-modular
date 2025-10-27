@@ -1,104 +1,21 @@
 // Type definitions for the blog theme
+import type { CollectionEntry } from "astro:content";
 
-export interface Post {
-  id: string;
-  slug: string;
-  body: string;
-  collection: string;
-  data: PostData;
-  render(): Promise<{ Content: any; headings: Heading[]; remarkPluginFrontmatter: any }>;
-}
+export type Post = CollectionEntry<"posts">;
 
-export interface PostData {
-  title: string;
-  date: Date;
-  description: string | null;
-  image?: string | null | undefined;
-  imageAlt?: string | null | undefined;
-  imageOG?: boolean;
-  hideCoverImage?: boolean;
-  hideTOC?: boolean;
-  tags?: string[] | null | undefined;
-  draft?: boolean;
-  targetKeyword?: string | null | undefined;
-  author?: string | null | undefined;
-  noIndex?: boolean;
-}
+export type PostData = CollectionEntry<"posts">["data"];
 
-export interface Page {
-  id: string;
-  slug: string;
-  body: string;
-  collection: string;
-  data: PageData;
-  render(): Promise<{ Content: any; headings: Heading[]; remarkPluginFrontmatter: any }>;
-}
+export type Page = CollectionEntry<"pages">;
 
-export interface PageData {
-  title: string;
-  description: string;
-  image?: string;
-  imageAlt?: string;
-  imageOG?: boolean;
-  hideCoverImage?: boolean;
-  hideTOC?: boolean;
-  draft?: boolean;
-  showTOC?: boolean;
-  noIndex?: boolean;
-  lastModified?: Date;
-}
+export type PageData = CollectionEntry<"pages">["data"];
 
-export interface Project {
-  id: string;
-  slug: string;
-  body: string;
-  collection: string;
-  data: ProjectData;
-  render(): Promise<{ Content: any; headings: Heading[]; remarkPluginFrontmatter: any }>;
-}
+export type Project = CollectionEntry<"projects">;
 
-export interface ProjectData {
-  title: string;
-  description: string | null;
-  date: Date;
-  categories?: string[] | null;
-  repositoryUrl?: string | null;
-  projectUrl?: string | null;
-  status?: string | null;
-  image?: string | null;
-  imageAlt?: string | null;
-  hideCoverImage?: boolean;
-  hideTOC?: boolean;
-  draft?: boolean;
-  noIndex?: boolean;
-  featured?: boolean;
-}
+export type ProjectData = CollectionEntry<"projects">["data"];
 
-export interface Docs {
-  id: string;
-  slug: string;
-  body: string;
-  collection: string;
-  data: DocsData;
-  render(): Promise<{ Content: any; headings: Heading[]; remarkPluginFrontmatter: any }>;
-}
+export type Docs = CollectionEntry<"docs">;
 
-export interface DocsData {
-  title: string;
-  description: string;
-  category?: string | null;
-  order: number;
-  lastModified?: Date;
-  version?: string;
-  image?: string;
-  imageAlt?: string;
-  hideCoverImage?: boolean;
-  hideTOC?: boolean;
-  draft?: boolean;
-  noIndex?: boolean;
-  showTOC?: boolean;
-  featured?: boolean;
-}
+export type DocsData = CollectionEntry<"docs">["data"];
 
 export interface Heading {
   depth: number;
@@ -131,7 +48,7 @@ export interface CommandPaletteItem {
   title: string;
   description?: string;
   url: string;
-  type: 'post' | 'page' | 'project' | 'docs' | 'social' | 'external' | 'action';
+  type: "post" | "page" | "project" | "docs" | "social" | "external" | "action";
   icon?: string;
 }
 
@@ -160,25 +77,25 @@ export interface OpenGraphImage {
   height: number;
 }
 
-export interface SEOData {  
-  title: string;  
-  description: string;  
-  canonical: string;  
-  ogImage?: OpenGraphImage;  
-  ogType: 'website' | 'article';  
-  publishedTime?: string;  
-  modifiedTime?: string;  
-  tags?: string[];  
-  noIndex?: boolean;  
-  robots?: string;  
-  articleSection?: string;  
-  twitter?: {  
-    card?: string;  
-    title?: string;  
-    description?: string;  
-    image?: string;  
-  };  
-  keywords?: string[];  
+export interface SEOData {
+  title: string;
+  description: string;
+  canonical: string;
+  ogImage?: OpenGraphImage;
+  ogType: "website" | "article";
+  publishedTime?: string;
+  modifiedTime?: string;
+  tags?: string[];
+  noIndex?: boolean;
+  robots?: string;
+  articleSection?: string;
+  twitter?: {
+    card?: string;
+    title?: string;
+    description?: string;
+    image?: string;
+  };
+  keywords?: string[];
 }
 
 export interface WikilinkMatch {

@@ -2,6 +2,7 @@
 ---
 import type { Page } from '@/types';
 import { siteConfig } from '@/config';
+import { render } from 'astro:content';
 import { generatePageSEO } from '@/utils/seo';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import TableOfContents from '@/components/TableOfContents.astro';
@@ -17,7 +18,7 @@ const { page } = Astro.props;
 // No need for dynamic image import - ImageWrapper handles this
 
 // Render the page content
-const { Content, headings } = await page.render();
+const { Content, headings } = await render(page);
 
 // Generate SEO data
 const seoData = generatePageSEO(page, Astro.url.href);
@@ -54,12 +55,12 @@ const structuredData = {
   <Fragment slot="head">
     <!-- Structured Data -->
     <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
-    
+
     <!-- Preload page image if exists -->
     {page.data.image && typeof page.data.image === 'string' && !page.data.image.startsWith('http') && (
-      <link 
-        rel="preload" 
-        as="image" 
+      <link
+        rel="preload"
+        as="image"
         href={`/pages/attachments/${page.data.image}`}
         fetchpriority="high"
       />
@@ -159,7 +160,7 @@ const structuredData = {
         function initializeImageGrids() {
           // Check if browser supports :has() selector
           const supportsHas = CSS.supports('selector(:has(img))');
-          
+
           if (supportsHas) {
             // Browser supports :has(), CSS will handle it automatically
             return;
@@ -167,7 +168,7 @@ const structuredData = {
 
           // Fallback for browsers without :has() support
           const paragraphs = document.querySelectorAll('.prose p');
-          
+
           paragraphs.forEach(p => {
             const images = p.querySelectorAll('img, picture');
             const textNodes = Array.from(p.childNodes).filter((node) => {
@@ -176,22 +177,22 @@ const structuredData = {
             const otherElements = Array.from(p.childNodes).filter((node) => {
               return node.nodeType === Node.ELEMENT_NODE && !['IMG', 'PICTURE', 'BR'].includes(((node as Element).tagName || ''));
             });
-            
+
             // Only process if paragraph contains 2+ images and no other meaningful content
             if (images.length >= 2 && textNodes.length === 0 && otherElements.length === 0) {
               // Remove any existing image-grid classes first
               p.classList.remove('image-grid', 'image-grid-2', 'image-grid-3', 'image-grid-4', 'image-grid-5', 'image-grid-6');
-              
+
               // Add the appropriate grid class
               const gridClass = `image-grid-${Math.min(images.length, 6)}`;
               p.classList.add('image-grid', gridClass);
             }
           });
         }
-        
+
         // Initialize image grids
         initializeImageGrids();
-        
+
         // Process all external links in content to open in new tabs (including reference links)
         const allLinks = document.querySelectorAll('.prose a[href]');
         allLinks.forEach(link => {
@@ -204,7 +205,7 @@ const structuredData = {
             }
           }
         });
-        
+
         // Wrap tables in responsive containers for better mobile experience
         const tables = document.querySelectorAll('.prose table');
         tables.forEach((table) => {
@@ -212,20 +213,19 @@ const structuredData = {
             const wrapper = document.createElement('div');
             wrapper.className = 'table-wrapper';
             // Let CSS handle the styling instead of inline styles
-            
+
             if (table.parentNode) {
               (table.parentNode as Node & ParentNode).insertBefore(wrapper, table);
             }
             wrapper.appendChild(table);
-            
+
             // Reset table margin since wrapper handles it
             (table as unknown as HTMLElement).style.margin = '0';
           }
         });
 
-        
+
       });
     </script>
   </Fragment>
 </BaseLayout>
-

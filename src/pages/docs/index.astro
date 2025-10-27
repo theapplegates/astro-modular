@@ -1,5 +1,5 @@
 ---
-import { getCollection, getEntry } from 'astro:content';
+import { getCollection, getEntry, render } from 'astro:content';
 import { siteConfig } from '@/config';
 import { generatePostsListSEO } from '@/utils/seo';
 import { shouldShowContent } from '@/utils/markdown';
@@ -43,7 +43,7 @@ let DocsPageContent = null;
 try {
   docsPageContent = await getEntry('special', 'docs');
   if (docsPageContent) {
-    const { Content } = await docsPageContent.render();
+    const { Content } = await render(docsPageContent);
     DocsPageContent = Content;
     docsPageHideTOC = docsPageContent.data.hideTOC === true;
   }
@@ -81,7 +81,7 @@ shouldShowTOC = !docsPageHideTOC && tocHeadings.length > 0;
 
 
 // Generate SEO data
-const seoData = generatePostsListSEO(Astro.site?.toString() || '', undefined);
+const seoData = generatePostsListSEO(import.meta.env.SITE || '', undefined);
 seoData.title = docsPageContent?.data.title ? `${docsPageContent.data.title} | ${siteConfig.title}` : `Documentation | ${siteConfig.title}`;
 seoData.description = docsPageContent?.data.description || `Browse all documentation on ${siteConfig.title}`;
 seoData.noIndex = (docsPageContent?.data as any)?.noIndex || false;
@@ -122,11 +122,11 @@ seoData.noIndex = (docsPageContent?.data as any)?.noIndex || false;
                     </a>
                   </h2>
                 )}
-              
+
               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {docsByCategory[category].map((doc, index) => (
-                  <DocumentationCard 
-                    documentation={doc} 
+                  <DocumentationCard
+                    documentation={doc}
                     eager={index < 6}
                     context="docs"
                   />
@@ -166,13 +166,13 @@ seoData.noIndex = (docsPageContent?.data as any)?.noIndex || false;
       document.addEventListener('DOMContentLoaded', () => {
         const tocLinks = document.querySelectorAll('.toc-link');
         const categorySections = document.querySelectorAll('section[id^="category-"]');
-        
+
         if (!tocLinks.length || !categorySections.length) return;
-        
+
         // Enhanced highlight function for categories
         function highlightTOC() {
           let current = '';
-          
+
           categorySections.forEach(section => {
             const rect = section.getBoundingClientRect();
             // More precise threshold for categories
@@ -180,7 +180,7 @@ seoData.noIndex = (docsPageContent?.data as any)?.noIndex || false;
               current = section.id;
             }
           });
-          
+
           tocLinks.forEach(link => {
             const href = link.getAttribute('href')?.slice(1);
             if (href === current) {
@@ -190,7 +190,7 @@ seoData.noIndex = (docsPageContent?.data as any)?.noIndex || false;
             }
           });
         }
-        
+
         // Smooth scroll with better positioning for categories
         tocLinks.forEach(link => {
           link.addEventListener('click', (e) => {
@@ -198,13 +198,13 @@ seoData.noIndex = (docsPageContent?.data as any)?.noIndex || false;
             const targetId = link.getAttribute('href')?.slice(1);
             if (!targetId) return;
             const targetElement = document.getElementById(targetId);
-            
+
             if (targetElement) {
               // Better scroll positioning for categories
               const headerOffset = 80;
               const elementPosition = targetElement.getBoundingClientRect().top;
               const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-              
+
               window.scrollTo({
                 top: offsetPosition,
                 behavior: 'smooth'
@@ -212,10 +212,10 @@ seoData.noIndex = (docsPageContent?.data as any)?.noIndex || false;
             }
           });
         });
-        
+
         // Initial highlight
         highlightTOC();
-        
+
         // Update on scroll
         let ticking = false;
         window.addEventListener('scroll', () => {

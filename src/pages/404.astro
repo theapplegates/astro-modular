@@ -1,5 +1,5 @@
 ---
-import { getCollection } from 'astro:content';
+import { getCollection, render } from 'astro:content';
 import { siteConfig } from '@/config';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Icon from '@/components/Icon.astro';
@@ -8,9 +8,9 @@ import Icon from '@/components/Icon.astro';
 let pageContent = null;
 try {
   const specialPages = await getCollection('special');
-  const notFoundPage = specialPages.find(page => page.slug === '404');
+  const notFoundPage = specialPages.find(page => page.id === '404');
   if (notFoundPage) {
-    pageContent = await notFoundPage.render();
+    pageContent = await render(notFoundPage);
   }
 } catch (error) {
 }

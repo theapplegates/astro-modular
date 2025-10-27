@@ -23,26 +23,26 @@ const { Content, toc, readingTime, wordCount } = post;
 // Process Obsidian bracket syntax in image field
 const processedImage = (() => {
   if (!post.data.image) return post.data.image;
-  
+
   // Handle case where image is an array (unquoted YAML syntax)
   let imageValue = post.data.image;
   if (Array.isArray(post.data.image)) {
     // If it's an array, take the first element
     imageValue = post.data.image[0];
   }
-  
+
   // Ensure imageValue is a string before calling string methods
   if (typeof imageValue !== 'string') {
     console.warn('PostContent: imageValue is not a string:', imageValue);
     return imageValue;
   }
-  
+
   // Check if it's Obsidian double bracket syntax
   if (imageValue.startsWith('[[') && imageValue.endsWith(']]')) {
     // Extract the content inside the double brackets
     return imageValue.slice(2, -2);
   }
-  
+
   return imageValue;
 })();
 ---
@@ -56,7 +56,7 @@ const processedImage = (() => {
         <h1 class="text-3xl sm:text-4xl font-bold text-primary-900 dark:text-primary-50 mb-6 leading-tight">
           {post.data.title}
         </h1>
-        
+
         <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-primary-600 dark:text-primary-300 mb-6">
           <time datetime={post.data.date.toISOString()} class="font-medium">
             <span class="hidden sm:inline">
@@ -66,7 +66,7 @@ const processedImage = (() => {
               {formatDateMobile(post.data.date)}
             </span>
           </time>
-          
+
           {siteConfig.postOptions.readingTime && readingTime && (
             <>
               <span class="hidden sm:inline">•</span>
@@ -77,7 +77,7 @@ const processedImage = (() => {
               </span>
             </>
           )}
-          
+
           {siteConfig.postOptions.wordCount && wordCount && (
             <>
               <span class="hidden sm:inline">•</span>
@@ -89,11 +89,11 @@ const processedImage = (() => {
             </>
           )}
         </div>
-        
+
         {post.data.tags && post.data.tags.length > 0 && siteConfig.postOptions.tags && (
           <div class="flex flex-wrap gap-2 mb-8">
             {post.data.tags.map(tag => (
-              <a 
+              <a
                 href={`/posts?tag=${encodeURIComponent(tag)}`}
                 class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-100 dark:bg-primary-800 text-primary-800 dark:text-primary-200 hover:bg-primary-200 dark:hover:bg-primary-700 transition-colors"
               >
@@ -102,31 +102,35 @@ const processedImage = (() => {
             ))}
           </div>
         )}
-        
+
         {processedImage && (
           <div class="aspect-video overflow-hidden rounded-xl mb-8">
             <ImageWrapper
               src={processedImage}
               basePath={(() => {
                 // Three simple options:
-                
+
                 // 1. External URLs - no basePath needed
                 if (typeof processedImage === 'string' && processedImage.startsWith('http')) {
                   return '';
                 }
-                
-                // 2. Folder-based posts - check if post slug contains dashes (folder-based pattern)
-                if (post.slug.includes('-')) {
-                  // Check if image is in subdirectory (images/image.jpg)
-                  if (typeof processedImage === 'string' && processedImage.includes('/')) {
-                    return `/posts/${post.slug}/`;
-                  }
-                  // Image in same folder as index.md
-                  return `/posts/${post.slug}/`;
+
+                // 2. Clean the image path to check for attachments/ prefix
+                let cleanImagePath = processedImage;
+                if (typeof cleanImagePath === 'string' && cleanImagePath.startsWith('[[') && cleanImagePath.endsWith(']]')) {
+                  cleanImagePath = cleanImagePath.slice(2, -2);
                 }
-                
-                // 3. Regular posts - use global images directory
-                return "/posts/attachments/";
+
+                // 3. Check if image is in attachments/ subfolder
+                if (typeof cleanImagePath === 'string' && cleanImagePath.startsWith('attachments/')) {
+                  // Single-file post with image in attachments folder
+                  // The sync script copies these to /posts/attachments/
+                  return "/posts/attachments/";
+                }
+
+                // 4. Otherwise assume folder-based post with co-located image
+                // The sync script copies these to /posts/post-id/
+                return `/posts/${post.id}/`;
               })()}
               alt={post.data.imageAlt || `Image in post: ${post.data.title}`}
               class="w-full h-full"
@@ -141,13 +145,13 @@ const processedImage = (() => {
           </div>
         )}
       </header>
-      
+
       <!-- Article content -->
       <div class="prose dark:prose-dark max-w-none table-responsive">
         <Content />
       </div>
     </div>
-    
+
     <!-- Sidebar -->
     <div class="lg:col-span-4 xl:col-span-3">
       <div class="sticky top-24 space-y-6">
@@ -155,7 +159,7 @@ const processedImage = (() => {
         {siteConfig.tableOfContents.enabled && toc && toc.length > 0 && (
           <TableOfContents headings={toc} />
         )}
-        
+
         <!-- Post meta info -->
         <div class="p-6 bg-primary-50 dark:bg-primary-800/50 rounded-xl">
           <h3 class="font-semibold text-primary-900 dark:text-primary-50 mb-4">
@@ -168,21 +172,21 @@ const processedImage = (() => {
                 {formatDate(post.data.date)}
               </span>
             </div>
-            
+
             {readingTime && (
               <div class="flex justify-between">
                 <span class="text-primary-600 dark:text-primary-300">Reading time</span>
                 <span class="text-primary-900 dark:text-primary-50">{readingTime.text}</span>
               </div>
             )}
-            
+
             {wordCount && (
               <div class="flex justify-between">
                 <span class="text-primary-600 dark:text-primary-300">Word count</span>
                 <span class="text-primary-900 dark:text-primary-50">{wordCount.toLocaleString()}</span>
               </div>
             )}
-            
+
             {post.data.targetKeyword && (
               <div class="flex justify-between">
                 <span class="text-primary-600 dark:text-primary-300">Target keyword</span>
@@ -204,12 +208,12 @@ const processedImage = (() => {
       if (table.parentElement && !table.parentElement.classList.contains('table-wrapper')) {
         const wrapper = document.createElement('div');
         wrapper.className = 'table-wrapper';
-        
+
         if (table.parentNode) {
           table.parentNode.insertBefore(wrapper, table);
         }
         wrapper.appendChild(table);
-        
+
         // Reset table margin since wrapper handles it
         (table as HTMLElement).style.margin = '0';
       }
@@ -227,16 +231,16 @@ const processedImage = (() => {
     const target = e.target as HTMLElement;
     if (target && target.tagName === 'A' && target.classList.contains('anchor-link')) {
       const href = target.getAttribute('href');
-      
+
       if (href && href.startsWith('#') && href.length > 1) {
         const targetElement = document.querySelector(href);
-        
+
         if (targetElement) {
           e.preventDefault();
-          
+
           // Update URL
           history.pushState(null, '', href);
-          
+
           // Custom smooth scroll implementation
           const targetPosition = (targetElement as HTMLElement).offsetTop - 100; // Account for header
           const startPosition = window.pageYOffset;
@@ -248,19 +252,19 @@ const processedImage = (() => {
             if (!start) start = timestamp;
             const progress = timestamp - start;
             const percentage = Math.min(progress / duration, 1);
-            
+
             // Easing function (ease-in-out)
-            const easeInOut = percentage < 0.5 
-              ? 2 * percentage * percentage 
+            const easeInOut = percentage < 0.5
+              ? 2 * percentage * percentage
               : 1 - Math.pow(-2 * percentage + 2, 2) / 2;
-            
+
             window.scrollTo(0, startPosition + distance * easeInOut);
-            
+
             if (progress < duration) {
               requestAnimationFrame(step);
             }
           }
-          
+
           requestAnimationFrame(step);
         }
       }

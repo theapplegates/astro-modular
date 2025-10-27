@@ -36,7 +36,7 @@ const visiblePosts = allPosts.filter(post => shouldShowPost(post, isDev));
 const sortedPosts = sortPostsByDate(visiblePosts);
 
 // Filter by tag if specified
-const filteredPosts = selectedTag 
+const filteredPosts = selectedTag
   ? sortedPosts.filter(post => post.data.tags?.includes(selectedTag))
   : sortedPosts;
 
@@ -53,10 +53,10 @@ const paginatedPosts = filteredPosts.slice(startIndex, endIndex);
 const allTags = extractTags(sortedPosts);
 
 // Generate SEO data
-const pageTitle = selectedTag 
-  ? `Posts tagged "${selectedTag}"` 
+const pageTitle = selectedTag
+  ? `Posts tagged "${selectedTag}"`
   : (postsPageData?.data.title || 'All Posts');
-const pageDescription = selectedTag 
+const pageDescription = selectedTag
   ? `All posts tagged with "${selectedTag}"`
   : (postsPageData?.data.description || `Browse all ${totalPosts} posts on ${siteConfig.title}`);
 
@@ -85,15 +85,15 @@ const pagination = {
     {paginatedPosts.length > 0 && (() => {
       const firstPost = paginatedPosts[0];
       if (!firstPost.data.image || typeof firstPost.data.image === 'string' && firstPost.data.image.startsWith('http')) return null;
-      
+
       const showCoverImages = siteConfig.postOptions.showPostCardCoverImages;
       const shouldShowCoverImage = ['all', 'posts', 'featured-and-posts'].includes(showCoverImages);
-      
+
       return shouldShowCoverImage ? (
-        <link 
-          rel="preload" 
-          as="image" 
-          href={optimizePostImagePath(firstPost.data.image, firstPost.slug, firstPost.id)}
+        <link
+          rel="preload"
+          as="image"
+          href={optimizePostImagePath(firstPost.data.image, undefined, firstPost.id)}
           fetchpriority="high"
         />
       ) : null;
@@ -109,7 +109,7 @@ const pagination = {
             {pageTitle}
           </h1>
           <div class="flex items-center space-x-2">
-            <a 
+            <a
               href="/rss.xml"
               class="inline-flex items-center px-3 py-2 text-sm font-medium text-highlight-600 dark:text-highlight-400 bg-highlight-50 dark:bg-highlight-900/20 rounded-lg border border-highlight-200 dark:border-highlight-700 hover:bg-highlight-100 dark:hover:bg-highlight-900/40 hover:text-highlight-700 dark:hover:text-highlight-300 transition-all duration-200"
               title="Subscribe to RSS feed"
@@ -118,7 +118,7 @@ const pagination = {
               <Icon name="rss" class="w-4 h-4 mr-1.5" />
               RSS Feed
             </a>
-            <a 
+            <a
               href="/feed.xml"
               class="inline-flex items-center px-3 py-2 text-sm font-medium text-highlight-600 dark:text-highlight-400 bg-highlight-50 dark:bg-highlight-900/20 rounded-lg border border-highlight-200 dark:border-highlight-700 hover:bg-highlight-100 dark:hover:bg-highlight-900/40 hover:text-highlight-700 dark:hover:text-highlight-300 transition-all duration-200"
               title="Subscribe to Atom feed"
@@ -132,7 +132,7 @@ const pagination = {
         <p class="text-base text-primary-600 dark:text-primary-300">
           {selectedTag ? (
             <>
-              Showing <strong>{filteredPosts.length}</strong> posts tagged with 
+              Showing <strong>{filteredPosts.length}</strong> posts tagged with
               <span class="inline-flex items-center px-2 py-1 bg-highlight-100 dark:bg-highlight-900/30 text-highlight-800 dark:text-highlight-200 rounded text-sm font-medium ml-1">
                 #{selectedTag}
               </span>
@@ -144,7 +144,7 @@ const pagination = {
 
         {selectedTag && (
           <div class="mt-4">
-            <a 
+            <a
               href="/posts"
               class="inline-flex items-center text-sm text-primary-600 dark:text-primary-300 hover:text-primary-800 dark:hover:text-primary-200 transition-colors"
             >
@@ -178,7 +178,7 @@ const pagination = {
                 No posts found
               </h2>
               <p class="text-primary-600 dark:text-primary-300 mb-8 max-w-md mx-auto">
-                There are no posts tagged with "{selectedTag}". Try browsing other tags or 
+                There are no posts tagged with "{selectedTag}". Try browsing other tags or
                 <a href="/posts" class="text-primary-600 dark:text-primary-300 hover:underline">view all posts</a>.
               </p>
             </div>

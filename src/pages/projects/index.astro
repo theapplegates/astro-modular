@@ -1,5 +1,5 @@
 ---
-import { getCollection, getEntry } from 'astro:content';
+import { getCollection, getEntry, render } from 'astro:content';
 import { siteConfig } from '@/config';
 import { generatePostsListSEO } from '@/utils/seo';
 import { shouldShowContent, sortPostsByDate, isValidDate } from '@/utils/markdown';
@@ -52,7 +52,7 @@ let ProjectsPageContent = null;
 try {
   projectsPageContent = await getEntry('special', 'projects');
   if (projectsPageContent) {
-    const { Content } = await projectsPageContent.render();
+    const { Content } = await render(projectsPageContent);
     ProjectsPageContent = Content;
   }
 } catch (error) {
@@ -60,7 +60,7 @@ try {
 }
 
 // Generate SEO data
-const seoData = generatePostsListSEO(Astro.site?.toString() || '', undefined);
+const seoData = generatePostsListSEO(import.meta.env.SITE || '', undefined);
 seoData.title = projectsPageContent?.data.title ? `${projectsPageContent.data.title} | ${siteConfig.title}` : `Projects | ${siteConfig.title}`;
 seoData.description = projectsPageContent?.data.description || `Browse all projects on ${siteConfig.title}`;
 seoData.noIndex = (projectsPageContent?.data as any)?.noIndex || false;
@@ -96,8 +96,8 @@ seoData.noIndex = (projectsPageContent?.data as any)?.noIndex || false;
               <!-- Projects grid -->
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
             {visibleProjects.map((project, index) => (
-              <ProjectCard 
-                project={project} 
+              <ProjectCard
+                project={project}
                 eager={index < 4}
                 context="projects"
                 showCategories={projectsHaveCategories}

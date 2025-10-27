@@ -14,7 +14,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
   // Generate paths
   return visiblePosts.map(post => ({
-    params: { slug: post.slug },
+    params: { slug: post.id },
     props: { post }
   }));
 };

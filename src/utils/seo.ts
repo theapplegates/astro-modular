@@ -1,11 +1,22 @@
-import type { Post, Page, Project, Docs, SEOData, OpenGraphImage } from '@/types';
-import siteConfig from '@/config';
-import { getFallbackOGImage, optimizePostImagePath, optimizeContentImagePath } from './images';
+import type {
+  Post,
+  Page,
+  Project,
+  Docs,
+  SEOData,
+  OpenGraphImage,
+} from "@/types";
+import siteConfig from "@/config";
+import {
+  getFallbackOGImage,
+  optimizePostImagePath,
+  optimizeContentImagePath,
+} from "./images";
 
 // Helper function to get default OG image
 function getDefaultOGImage(): OpenGraphImage {
   return {
-    url: '/open-graph.png',
+    url: "/open-graph.png",
     alt: siteConfig.seo.defaultOgImageAlt,
     width: 1200,
     height: 630,
@@ -14,18 +25,18 @@ function getDefaultOGImage(): OpenGraphImage {
 
 // Helper function to extract image path from Obsidian bracket syntax
 function extractImagePath(image: string): string {
-  if (!image || typeof image !== 'string') return '';
-  
+  if (!image || typeof image !== "string") return "";
+
   // Handle Obsidian bracket syntax: [[path/to/image.jpg]] (unquoted)
-  if (image.startsWith('[[') && image.endsWith(']]')) {
+  if (image.startsWith("[[") && image.endsWith("]]")) {
     return image.slice(2, -2); // Remove [[ and ]]
   }
-  
+
   // Handle quoted Obsidian bracket syntax: "[[path/to/image.jpg]]"
   if (image.startsWith('"[[') && image.endsWith(']]"')) {
     return image.slice(3, -3); // Remove "[[ and ]]"
   }
-  
+
   // Return as-is for regular paths
   return image;
 }
@@ -39,15 +50,19 @@ export function generatePostSEO(post: Post, url: string): SEOData {
   if (image && imageOG) {
     // Extract image path from Obsidian bracket syntax if needed
     const imagePath = extractImagePath(image);
-    
+
     // Handle both local and external image paths
     let imageUrl: string;
-    if (imagePath.startsWith('http')) {
+    if (imagePath.startsWith("http")) {
       // External URL
       imageUrl = imagePath;
     } else {
       // Use optimizePostImagePath for proper path resolution
-      const optimizedPath = optimizePostImagePath(imagePath, post.slug);
+      const optimizedPath = optimizePostImagePath(
+        imagePath,
+        undefined,
+        post.id
+      );
       imageUrl = `${siteConfig.site}${optimizedPath}`;
     }
     ogImage = {
@@ -61,55 +76,57 @@ export function generatePostSEO(post: Post, url: string): SEOData {
     ogImage = getDefaultOGImage();
     ogImage = {
       ...ogImage,
-      url: `${siteConfig.site}${ogImage.url}`
+      url: `${siteConfig.site}${ogImage.url}`,
     };
   }
 
-  return {  
-    title: `${title} | ${siteConfig.title}`,  
-    description,  
-    canonical: url,  
-    ogImage,  
-    ogType: 'article',  
-    publishedTime: date.toISOString(),  
-    modifiedTime: date.toISOString(),  
-    tags,  
-    noIndex: post.data.noIndex || false  // Add this line  
-  };  
+  return {
+    title: `${title} | ${siteConfig.title}`,
+    description: description || `Post: ${title}`,
+    canonical: url,
+    ogImage,
+    ogType: "article",
+    publishedTime: date.toISOString(),
+    modifiedTime: date.toISOString(),
+    tags: tags?.filter((tag) => tag !== null) || undefined,
+    noIndex: post.data.noIndex || false, // Add this line
+  };
 }
 
 // Generate SEO data for pages
 export function generatePageSEO(page: Page, url: string): SEOData {
-  const { title, description, image, imageOG } = page.data;
+  const { title, description, image } = page.data;
 
   let ogImage: OpenGraphImage | undefined;
 
-  if (image && imageOG) {
+  if (image) {
     // Extract image path from Obsidian bracket syntax if needed
     const imagePath = extractImagePath(image);
-    
+
     ogImage = {
-      url: `${siteConfig.site}${imagePath.startsWith('/') ? '' : '/'}${imagePath}`,
+      url: `${siteConfig.site}${
+        imagePath.startsWith("/") ? "" : "/"
+      }${imagePath}`,
       alt: page.data.imageAlt || `Featured image for page: ${title}`,
       width: 1200,
-      height: 630
+      height: 630,
     };
   } else {
     // Use default OG image
     ogImage = getDefaultOGImage();
     ogImage = {
       ...ogImage,
-      url: `${siteConfig.site}${ogImage.url}`
+      url: `${siteConfig.site}${ogImage.url}`,
     };
   }
 
-  return {  
-    title: `${title} | ${siteConfig.title}`,  
-    description,  
-    canonical: url,  
-    ogImage,  
-    ogType: 'website',  
-    noIndex: page.data.noIndex || false  // Add this line  
+  return {
+    title: `${title} | ${siteConfig.title}`,
+    description: description || "",
+    canonical: url,
+    ogImage,
+    ogType: "website",
+    noIndex: page.data.noIndex || false, // Add this line
   };
 }
 
@@ -122,15 +139,20 @@ export function generateProjectSEO(project: Project, url: string): SEOData {
   if (image) {
     // Extract image path from Obsidian bracket syntax if needed
     const imagePath = extractImagePath(image);
-    
+
     // Handle both local and external image paths
     let imageUrl: string;
-    if (imagePath.startsWith('http')) {
+    if (imagePath.startsWith("http")) {
       // External URL
       imageUrl = imagePath;
     } else {
       // Use optimizeImagePath for proper path resolution
-      const optimizedPath = optimizeContentImagePath(imagePath, 'projects', project.slug, project.id);
+      const optimizedPath = optimizeContentImagePath(
+        imagePath,
+        "projects",
+        project.id,
+        project.id
+      );
       imageUrl = `${siteConfig.site}${optimizedPath}`;
     }
     ogImage = {
@@ -144,66 +166,78 @@ export function generateProjectSEO(project: Project, url: string): SEOData {
     ogImage = getDefaultOGImage();
     ogImage = {
       ...ogImage,
-      url: `${siteConfig.site}${ogImage.url}`
+      url: `${siteConfig.site}${ogImage.url}`,
     };
   }
 
-  return {  
-    title: `${title} | ${siteConfig.title}`,  
-    description,  
-    canonical: url,  
-    ogImage,  
-    ogType: 'article',  
-    publishedTime: date.toISOString(),  
-    modifiedTime: date.toISOString(),  
-    tags: project.data.categories,    
-    noIndex: project.data.noIndex || false  
+  return {
+    title: `${title} | ${siteConfig.title}`,
+    description: description || `Project: ${title}`,
+    canonical: url,
+    ogImage,
+    ogType: "article",
+    publishedTime: date.toISOString(),
+    modifiedTime: date.toISOString(),
+    tags: project.data.categories?.filter((cat) => cat !== null) || undefined,
+    noIndex: project.data.noIndex || false,
   };
 }
 
 // Generate SEO data for documentation
-export function generateDocumentationSEO(documentation: Docs, url: string): SEOData {
-  const { title, description, image, imageOG, category, version } = documentation.data;
+export function generateDocumentationSEO(
+  documentation: Docs,
+  url: string
+): SEOData {
+  const { title, description, image, category, version } = documentation.data;
 
   let ogImage: OpenGraphImage | undefined;
 
-  if (image && imageOG) {
+  if (image) {
     // Extract image path from Obsidian bracket syntax if needed
     const imagePath = extractImagePath(image);
-    
+
     let imageUrl: string;
-    if (imagePath.startsWith('http')) {
+    if (imagePath.startsWith("http")) {
       // External URL
       imageUrl = imagePath;
     } else {
       // Use optimizeImagePath for proper path resolution
-      const optimizedPath = optimizeContentImagePath(imagePath, 'docs', documentation.slug, documentation.id);
+      const optimizedPath = optimizeContentImagePath(
+        imagePath,
+        "documentation",
+        documentation.id,
+        documentation.id
+      );
       imageUrl = `${siteConfig.site}${optimizedPath}`;
     }
     ogImage = {
       url: imageUrl,
-      alt: documentation.data.imageAlt || `Featured image for documentation: ${title}`,
+      alt:
+        documentation.data.imageAlt ||
+        `Featured image for documentation: ${title}`,
       width: 1200,
-      height: 630
+      height: 630,
     };
   } else {
     // Use default OG image
     ogImage = getDefaultOGImage();
     ogImage = {
       ...ogImage,
-      url: `${siteConfig.site}${ogImage.url}`
+      url: `${siteConfig.site}${ogImage.url}`,
     };
   }
 
-  return {  
-    title: `${title} | ${siteConfig.title}`,  
-    description,  
-    canonical: url,  
-    ogImage,  
-    ogType: 'article',  
-    articleSection: category,
-    keywords: version ? [`${category}`, `version ${version}`] : [category],
-    noIndex: documentation.data.noIndex || false  
+  return {
+    title: `${title} | ${siteConfig.title}`,
+    description: description || `Documentation: ${title}`,
+    canonical: url,
+    ogImage,
+    ogType: "article",
+    articleSection: category || undefined,
+    keywords: version
+      ? [`${category || "Documentation"}`, `version ${version}`]
+      : [category || "Documentation"],
+    noIndex: documentation.data.noIndex || false,
   };
 }
 
@@ -215,7 +249,7 @@ export function generateHomeSEO(url: string): SEOData {
   ogImage = getDefaultOGImage();
   ogImage = {
     ...ogImage,
-    url: `${siteConfig.site}${ogImage.url}`
+    url: `${siteConfig.site}${ogImage.url}`,
   };
 
   return {
@@ -223,68 +257,66 @@ export function generateHomeSEO(url: string): SEOData {
     description: siteConfig.description,
     canonical: normalizeCanonicalUrl(url),
     ogImage,
-    ogType: 'website'
+    ogType: "website",
   };
 }
 
 // Generate SEO data for tag pages
-export function generateTagSEO(tag: string, site: string, currentPage?: number): SEOData {
+export function generateTagSEO(
+  tag: string,
+  site: string,
+  currentPage?: number
+): SEOData {
   const title = `Posts tagged with "${tag}" | ${siteConfig.title}`;
   const description = `Browse all posts tagged with ${tag} on ${siteConfig.title}`;
   const baseUrl = `${site}/posts/tag/${tag}`;
-  const canonical = currentPage && currentPage > 1 ? `${baseUrl}/${currentPage}` : baseUrl;
+  const canonical =
+    currentPage && currentPage > 1 ? `${baseUrl}/${currentPage}` : baseUrl;
 
   return {
     title,
     description,
     canonical,
-    robots: 'index, follow',
-    openGraph: {
-      title,
-      description,
-      url: canonical,
-      type: 'website',
-      image: getDefaultOGImage(),
-      siteName: siteConfig.title
-    },
+    robots: "index, follow",
+    ogType: "website",
+    ogImage: getDefaultOGImage(),
     twitter: {
-      card: 'summary_large_image',
+      card: "summary_large_image",
       title,
       description,
-      image: getDefaultOGImage().url
-    }
+      image: getDefaultOGImage().url,
+    },
   };
 }
 
 // Generate SEO data for posts listing pages
-export function generatePostsListSEO(site: string, currentPage?: number): SEOData {
-  const title = currentPage && currentPage > 1
-    ? `Posts - Page ${currentPage} | ${siteConfig.title}`
-    : `Posts | ${siteConfig.title}`;
+export function generatePostsListSEO(
+  site: string,
+  currentPage?: number
+): SEOData {
+  const title =
+    currentPage && currentPage > 1
+      ? `Posts - Page ${currentPage} | ${siteConfig.title}`
+      : `Posts | ${siteConfig.title}`;
   const description = `Browse all posts on ${siteConfig.title}`;
-  const canonical = currentPage && currentPage > 1
-    ? `${site}/posts/${currentPage}`
-    : `${site}/posts`;
+  const canonical =
+    currentPage && currentPage > 1
+      ? `${site}/posts/${currentPage}`
+      : `${site}/posts`;
 
   return {
     title,
     description,
     canonical,
-    robots: 'index, follow',
-    openGraph: {
-      title,
-      description,
-      url: canonical,
-      type: 'website',
-      image: getDefaultOGImage(),
-      siteName: siteConfig.title
-    },
+    robots: "index, follow",
+    ogType: "website",
+    ogImage: getDefaultOGImage(),
     twitter: {
-      card: 'summary_large_image',
+      card: "summary_large_image",
       title,
       description,
-      image: getDefaultOGImage().url
-    }
+      image: getDefaultOGImage().url,
+    },
   };
 }
 
@@ -293,7 +325,7 @@ export function normalizeCanonicalUrl(url: string): string {
   try {
     const urlObj = new URL(url);
     // Remove trailing slash unless it's the root
-    if (urlObj.pathname !== '/' && urlObj.pathname.endsWith('/')) {
+    if (urlObj.pathname !== "/" && urlObj.pathname.endsWith("/")) {
       urlObj.pathname = urlObj.pathname.slice(0, -1);
     }
     return urlObj.toString();
@@ -303,11 +335,15 @@ export function normalizeCanonicalUrl(url: string): string {
 }
 
 // Generate structured data (JSON-LD)
-export function generateStructuredData(type: 'blog' | 'article' | 'website', data: any) {
+export function generateStructuredData(
+  type: "blog" | "article" | "website",
+  data: any
+) {
   const baseData = {
-    '@context': 'https://schema.org',
-    '@type': type === 'blog' ? 'Blog' : type === 'article' ? 'BlogPosting' : 'WebSite',
-    ...data
+    "@context": "https://schema.org",
+    "@type":
+      type === "blog" ? "Blog" : type === "article" ? "BlogPosting" : "WebSite",
+    ...data,
   };
 
   return JSON.stringify(baseData);
@@ -347,20 +383,26 @@ export function generateMetaTags(seoData: SEOData): string {
   }
 
   // Add article-specific tags
-  if (seoData.ogType === 'article') {
+  if (seoData.ogType === "article") {
     if (seoData.publishedTime) {
-      tags.push(`<meta property="article:published_time" content="${seoData.publishedTime}">`);
+      tags.push(
+        `<meta property="article:published_time" content="${seoData.publishedTime}">`
+      );
     }
     if (seoData.modifiedTime) {
-      tags.push(`<meta property="article:modified_time" content="${seoData.modifiedTime}">`);
+      tags.push(
+        `<meta property="article:modified_time" content="${seoData.modifiedTime}">`
+      );
     }
     if (seoData.tags) {
-      seoData.tags.forEach(tag => {
+      seoData.tags.forEach((tag) => {
         tags.push(`<meta property="article:tag" content="${tag}">`);
       });
     }
     if (seoData.articleSection) {
-      tags.push(`<meta property="article:section" content="${seoData.articleSection}">`);
+      tags.push(
+        `<meta property="article:section" content="${seoData.articleSection}">`
+      );
     }
   }
 
@@ -369,40 +411,35 @@ export function generateMetaTags(seoData: SEOData): string {
     tags.push(`<meta name="keywords" content="${seoData.keywords}">`);
   }
 
-  // Add Twitter creator
-  if (seoData.twitter?.creator) {
-    tags.push(`<meta name="twitter:creator" content="${seoData.twitter.creator}">`);
-  }
+  // Twitter meta tags
 
-  return tags.filter(Boolean).join('\n');
+  return tags.filter(Boolean).join("\n");
 }
 
 // Check if page should be excluded from sitemap
 export function shouldExcludeFromSitemap(slug: string): boolean {
   if (!slug) return false;
 
-  const excludePatterns = [
-    '404',
-    'sitemap',
-    'rss',
-    'api/'
-  ];
+  const excludePatterns = ["404", "sitemap", "rss", "api/"];
 
-  return excludePatterns.some(pattern => slug.includes(pattern));
+  return excludePatterns.some((pattern) => slug.includes(pattern));
 }
 
 // Generate meta description
-export function generateMetaDescription(content: string, maxLength: number = 160): string {
-  if (!content) return '';
+export function generateMetaDescription(
+  content: string,
+  maxLength: number = 160
+): string {
+  if (!content) return "";
 
   // Remove markdown formatting and HTML tags
   const cleanContent = content
-    .replace(/#+\s/g, '') // Remove headers
-    .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold
-    .replace(/\*(.*?)\*/g, '$1') // Remove italic
-    .replace(/\[(.*?)\]\(.*?\)/g, '$1') // Remove links, keep text
-    .replace(/<[^>]*>/g, '') // Remove HTML tags
-    .replace(/\s+/g, ' ') // Normalize whitespace
+    .replace(/#+\s/g, "") // Remove headers
+    .replace(/\*\*(.*?)\*\*/g, "$1") // Remove bold
+    .replace(/\*(.*?)\*/g, "$1") // Remove italic
+    .replace(/\[(.*?)\]\(.*?\)/g, "$1") // Remove links, keep text
+    .replace(/<[^>]*>/g, "") // Remove HTML tags
+    .replace(/\s+/g, " ") // Normalize whitespace
     .trim();
 
   if (cleanContent.length <= maxLength) {
@@ -411,42 +448,47 @@ export function generateMetaDescription(content: string, maxLength: number = 160
 
   // Truncate at word boundary
   const truncated = cleanContent.substring(0, maxLength);
-  const lastSpaceIndex = truncated.lastIndexOf(' ');
+  const lastSpaceIndex = truncated.lastIndexOf(" ");
 
   if (lastSpaceIndex > maxLength * 0.8) {
-    return truncated.substring(0, lastSpaceIndex) + '...';
+    return truncated.substring(0, lastSpaceIndex) + "...";
   }
 
-  return truncated + '...';
+  return truncated + "...";
 }
 
 // Generate robots meta tag
-export function generateRobotsMeta(index: boolean = true, follow: boolean = true): string {
+export function generateRobotsMeta(
+  index: boolean = true,
+  follow: boolean = true
+): string {
   const directives = [];
 
-  if (!index) directives.push('noindex');
-  if (!follow) directives.push('nofollow');
+  if (!index) directives.push("noindex");
+  if (!follow) directives.push("nofollow");
 
   if (directives.length === 0) {
     return '<meta name="robots" content="index, follow">';
   }
 
-  return `<meta name="robots" content="${directives.join(', ')}">`;
+  return `<meta name="robots" content="${directives.join(", ")}">`;
 }
 
 // Create breadcrumb structured data
-export function generateBreadcrumbs(path: Array<{ name: string; url: string }>): any {
+export function generateBreadcrumbs(
+  path: Array<{ name: string; url: string }>
+): any {
   const items = path.map((item, index) => ({
-    '@type': 'ListItem',
+    "@type": "ListItem",
     position: index + 1,
     name: item.name,
-    item: item.url
+    item: item.url,
   }));
 
   return {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: items
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items,
   };
 }
 
@@ -458,28 +500,28 @@ export function validateSEOData(seoData: SEOData): {
   const warnings: string[] = [];
 
   if (seoData.title.length > 60) {
-    warnings.push('Title is longer than 60 characters');
+    warnings.push("Title is longer than 60 characters");
   }
 
   if (seoData.title.length < 30) {
-    warnings.push('Title is shorter than 30 characters');
+    warnings.push("Title is shorter than 30 characters");
   }
 
   if (seoData.description.length > 160) {
-    warnings.push('Description is longer than 160 characters');
+    warnings.push("Description is longer than 160 characters");
   }
 
   if (seoData.description.length < 120) {
-    warnings.push('Description is shorter than 120 characters');
+    warnings.push("Description is shorter than 120 characters");
   }
 
   if (!seoData.ogImage) {
-    warnings.push('No Open Graph image provided');
+    warnings.push("No Open Graph image provided");
   }
 
   return {
     isValid: warnings.length === 0,
-    warnings
+    warnings,
   };
 }
 
@@ -490,37 +532,37 @@ export function validateStructuredData(data: any): {
 } {
   const errors: string[] = [];
 
-  if (!data['@context']) {
-    errors.push('Missing @context property');
-  } else if (data['@context'] !== 'https://schema.org') {
-    errors.push('Invalid @context value, should be https://schema.org');
+  if (!data["@context"]) {
+    errors.push("Missing @context property");
+  } else if (data["@context"] !== "https://schema.org") {
+    errors.push("Invalid @context value, should be https://schema.org");
   }
 
-  if (!data['@type']) {
-    errors.push('Missing @type property');
+  if (!data["@type"]) {
+    errors.push("Missing @type property");
   }
 
   // Validate based on type
-  if (data['@type'] === 'Blog' || data['@type'] === 'WebSite') {
-    if (!data.name) errors.push('Missing name property');
-    if (!data.description) errors.push('Missing description property');
-    if (!data.url) errors.push('Missing url property');
+  if (data["@type"] === "Blog" || data["@type"] === "WebSite") {
+    if (!data.name) errors.push("Missing name property");
+    if (!data.description) errors.push("Missing description property");
+    if (!data.url) errors.push("Missing url property");
   }
 
-  if (data['@type'] === 'BlogPosting') {
-    if (!data.headline) errors.push('Missing headline property');
-    if (!data.datePublished) errors.push('Missing datePublished property');
-    if (!data.author) errors.push('Missing author property');
+  if (data["@type"] === "BlogPosting") {
+    if (!data.headline) errors.push("Missing headline property");
+    if (!data.datePublished) errors.push("Missing datePublished property");
+    if (!data.author) errors.push("Missing author property");
   }
 
   // Validate author structure
-  if (data.author && typeof data.author === 'object') {
-    if (!data.author['@type']) errors.push('Missing author @type');
-    if (!data.author.name) errors.push('Missing author name');
+  if (data.author && typeof data.author === "object") {
+    if (!data.author["@type"]) errors.push("Missing author @type");
+    if (!data.author.name) errors.push("Missing author name");
   }
 
   return {
     isValid: errors.length === 0,
-    errors
+    errors,
   };
 }

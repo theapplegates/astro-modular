@@ -1,5 +1,5 @@
 ---
-import { getCollection, getEntry, type CollectionEntry } from 'astro:content';
+import { getCollection, getEntry, render, type CollectionEntry } from 'astro:content';
 import { isValidDate } from '@/utils/markdown';
 import { siteConfig } from '@/config';
 import { generateHomeSEO } from '@/utils/seo';
@@ -29,13 +29,13 @@ if (siteConfig.homeOptions.featuredPost.enabled) {
   if (siteConfig.homeOptions.featuredPost.type === "latest") {
     featuredPost = processedPosts[0];
   } else if (siteConfig.homeOptions.featuredPost.type === "featured" && siteConfig.homeOptions.featuredPost.slug) {
-    // Find the specific post by slug
-    featuredPost = processedPosts.find(post => post.slug === siteConfig.homeOptions.featuredPost.slug) || null;
+    // Find the specific post by id (slug config value maps to post.id in v6)
+    featuredPost = processedPosts.find(post => post.id === siteConfig.homeOptions.featuredPost.slug) || null;
   }
 }
 
 // Get preview posts based on whether featured post is shown
-const previewPosts = featuredPost 
+const previewPosts = featuredPost
   ? processedPosts.slice(1, siteConfig.homeOptions.recentPosts.count + 1)
   : processedPosts.slice(0, siteConfig.homeOptions.recentPosts.count);
 
@@ -45,13 +45,13 @@ let projectsHaveCategories = false;
 if (siteConfig.homeOptions.projects.enabled && siteConfig.optionalContentTypes.projects) {
   const allProjects = await getCollection('projects');
   const visibleProjects = allProjects.filter(project => shouldShowContent(project, isDev));
-  
+
   // Check if any projects have categories
   projectsHaveCategories = hasProjectCategories(visibleProjects);
-  
+
   // First try to get featured projects
   const featuredOnly = visibleProjects.filter(project => project.data.featured);
-  
+
   if (featuredOnly.length > 0) {
     // Show up to configured count of featured projects
             featuredProjects = featuredOnly
@@ -71,7 +71,7 @@ if (siteConfig.homeOptions.projects.enabled && siteConfig.optionalContentTypes.p
       })
       .slice(0, siteConfig.homeOptions.projects.count);
   }
-  
+
 }
 
 // Get featured docs if enabled
@@ -79,10 +79,10 @@ let featuredDocs: any[] = [];
 if (siteConfig.homeOptions.docs.enabled && siteConfig.optionalContentTypes.docs) {
   const allDocs = await getCollection('docs');
   const visibleDocs = allDocs.filter(doc => shouldShowContent(doc, isDev));
-  
+
   // First try to get featured docs
   const featuredOnly = visibleDocs.filter(doc => doc.data.featured);
-  
+
   if (featuredOnly.length > 0) {
     // Show up to configured count of featured docs
     featuredDocs = featuredOnly
@@ -114,7 +114,7 @@ if (siteConfig.homeOptions.blurb.placement !== 'none') {
   try {
     homeBlurbContent = await getEntry('special', 'home');
     if (homeBlurbContent) {
-      const { Content } = await homeBlurbContent.render();
+      const { Content } = await render(homeBlurbContent);
       HomeBlurbContent = Content;
     }
   } catch (error) {
@@ -165,10 +165,10 @@ const structuredData = {
 
     <!-- Preload critical images - use same URL as actual img tags for caching -->
     {featuredPost && featuredPost.data.image && siteConfig.postOptions.showPostCardCoverImages === 'all' && !featuredPost.data.hideCoverImage && typeof featuredPost.data.image === 'string' && !featuredPost.data.image.startsWith('http') && (
-      <link 
-        rel="preload" 
-        as="image" 
-        href={optimizePostImagePath(featuredPost.data.image, featuredPost.slug)}
+      <link
+        rel="preload"
+        as="image"
+        href={optimizePostImagePath(featuredPost.data.image, undefined, featuredPost.id)}
         fetchpriority="high"
       />
     )}
@@ -225,7 +225,7 @@ const structuredData = {
                   <h2 class="text-lg font-semibold text-primary-900 dark:text-primary-50">
                     Recent Posts
                   </h2>
-                  <a 
+                  <a
                     href="/posts"
                     class="text-primary-600 dark:text-primary-300 hover:text-highlight-600 dark:hover:text-highlight-400 font-medium transition-colors"
                   >
@@ -242,7 +242,7 @@ const structuredData = {
 
               {useSpecialTreatment && (
                 <div class="mt-8 text-center">
-                  <a 
+                  <a
                     href="/posts"
                     class="text-primary-600 dark:text-primary-300 hover:text-highlight-600 dark:hover:text-highlight-400 font-medium transition-colors"
                   >
@@ -261,7 +261,7 @@ const structuredData = {
                   <h2 class="text-lg font-semibold text-primary-900 dark:text-primary-50">
                     Projects
                   </h2>
-                  <a 
+                  <a
                     href="/projects"
                     class="text-primary-600 dark:text-primary-300 hover:text-highlight-600 dark:hover:text-highlight-400 font-medium transition-colors"
                   >
@@ -278,7 +278,7 @@ const structuredData = {
 
               {useSpecialTreatment && (
                 <div class="mt-8 text-center">
-                  <a 
+                  <a
                     href="/projects"
                     class="text-primary-600 dark:text-primary-300 hover:text-highlight-600 dark:hover:text-highlight-400 font-medium transition-colors"
                   >
@@ -297,7 +297,7 @@ const structuredData = {
                   <h2 class="text-lg font-semibold text-primary-900 dark:text-primary-50">
                     Documentation
                   </h2>
-                  <a 
+                  <a
                     href="/docs"
                     class="text-primary-600 dark:text-primary-300 hover:text-highlight-600 dark:hover:text-highlight-400 font-medium transition-colors"
                   >
@@ -314,7 +314,7 @@ const structuredData = {
 
               {useSpecialTreatment && (
                 <div class="mt-8 text-center">
-                  <a 
+                  <a
                     href="/docs"
                     class="text-primary-600 dark:text-primary-300 hover:text-highlight-600 dark:hover:text-highlight-400 font-medium transition-colors"
                   >

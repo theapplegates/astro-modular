@@ -2,16 +2,16 @@
  * Optimized Mermaid utility with lazy loading, caching, and performance improvements
  */
 
-import mermaid from 'mermaid';
+import mermaid from "mermaid";
 
 // Mermaid configuration
 const mermaidConfig = {
   startOnLoad: false,
-  securityLevel: 'loose',
+  securityLevel: "loose" as const,
   flowchart: {
     useMaxWidth: true,
-    htmlLabels: true
-  }
+    htmlLabels: true,
+  },
 };
 
 // Cache for rendered diagrams to avoid re-rendering on theme changes
@@ -22,12 +22,12 @@ let intersectionObserver: IntersectionObserver | null = null;
 
 // Initialize Mermaid with current theme
 function initializeMermaid(): void {
-  const isDark = document.documentElement.classList.contains('dark');
-  const theme = isDark ? 'dark' : 'default';
-  
+  const isDark = document.documentElement.classList.contains("dark");
+  const theme = isDark ? "dark" : "default";
+
   mermaid.initialize({
     ...mermaidConfig,
-    theme: theme
+    theme: theme,
   });
 }
 
@@ -48,8 +48,8 @@ function createIntersectionObserver(): IntersectionObserver {
       });
     },
     {
-      rootMargin: '50px', // Start loading 50px before entering viewport
-      threshold: 0.1
+      rootMargin: "50px", // Start loading 50px before entering viewport
+      threshold: 0.1,
     }
   );
 
@@ -58,17 +58,19 @@ function createIntersectionObserver(): IntersectionObserver {
 
 // Render a single diagram with caching
 async function renderDiagram(diagram: HTMLElement): Promise<void> {
-  const source = diagram.getAttribute('data-mermaid-source');
+  const source = diagram.getAttribute("data-mermaid-source");
   if (!source) return;
 
   const decodedSource = decodeURIComponent(source);
-  const currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'default';
+  const currentTheme = document.documentElement.classList.contains("dark")
+    ? "dark"
+    : "default";
   const cacheKey = `${decodedSource}-${currentTheme}`;
 
   // Check cache first
   if (diagramCache.has(cacheKey)) {
     const cached = diagramCache.get(cacheKey)!;
-    const contentDiv = diagram.querySelector('.mermaid-diagram-content');
+    const contentDiv = diagram.querySelector(".mermaid-diagram-content");
     if (contentDiv) {
       contentDiv.innerHTML = cached.svg;
     }
@@ -76,7 +78,7 @@ async function renderDiagram(diagram: HTMLElement): Promise<void> {
   }
 
   // Show loading state
-  const contentDiv = diagram.querySelector('.mermaid-diagram-content');
+  const contentDiv = diagram.querySelector(".mermaid-diagram-content");
   if (contentDiv) {
     contentDiv.innerHTML = `
       <div class="mermaid-loading-skeleton">
@@ -91,12 +93,14 @@ async function renderDiagram(diagram: HTMLElement): Promise<void> {
     // Initialize Mermaid with current theme
     initializeMermaid();
 
-    const diagramId = `mermaid-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const diagramId = `mermaid-${Date.now()}-${Math.random()
+      .toString(36)
+      .substr(2, 9)}`;
     const { svg } = await mermaid.render(diagramId, decodedSource);
-    
+
     // Cache the rendered diagram
     diagramCache.set(cacheKey, { svg, theme: currentTheme });
-    
+
     // Insert the rendered SVG
     if (contentDiv) {
       contentDiv.innerHTML = svg;
@@ -118,19 +122,20 @@ async function renderDiagram(diagram: HTMLElement): Promise<void> {
 
 // Render all diagrams with lazy loading
 async function renderAllDiagrams(): Promise<void> {
-  const diagrams = document.querySelectorAll('.mermaid-diagram[data-mermaid-source]');
-  
+  const diagrams = document.querySelectorAll(
+    ".mermaid-diagram[data-mermaid-source]"
+  );
+
   if (diagrams.length === 0) {
     return;
   }
-
 
   // Initialize Mermaid
   initializeMermaid();
 
   // Set up intersection observer for lazy loading
   const observer = createIntersectionObserver();
-  
+
   diagrams.forEach((diagram) => {
     observer.observe(diagram);
   });
@@ -138,20 +143,24 @@ async function renderAllDiagrams(): Promise<void> {
 
 // Handle theme changes with caching
 function handleThemeChange(): void {
-  const diagrams = document.querySelectorAll('.mermaid-diagram[data-mermaid-source]');
-  const currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'default';
-  
+  const diagrams = document.querySelectorAll(
+    ".mermaid-diagram[data-mermaid-source]"
+  );
+  const currentTheme = document.documentElement.classList.contains("dark")
+    ? "dark"
+    : "default";
+
   diagrams.forEach((diagram) => {
-    const source = diagram.getAttribute('data-mermaid-source');
+    const source = diagram.getAttribute("data-mermaid-source");
     if (!source) return;
-    
+
     const decodedSource = decodeURIComponent(source);
     const cacheKey = `${decodedSource}-${currentTheme}`;
-    
+
     // Check if we have a cached version for this theme
     if (diagramCache.has(cacheKey)) {
       const cached = diagramCache.get(cacheKey)!;
-      const contentDiv = diagram.querySelector('.mermaid-diagram-content');
+      const contentDiv = diagram.querySelector(".mermaid-diagram-content");
       if (contentDiv) {
         contentDiv.innerHTML = cached.svg;
       }
@@ -169,8 +178,8 @@ function clearCache(): void {
 
 // Initialize Mermaid when DOM is ready
 function initializeMermaidOnLoad(): void {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', renderAllDiagrams);
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", renderAllDiagrams);
   } else {
     renderAllDiagrams();
   }
@@ -182,11 +191,11 @@ export {
   renderAllDiagrams,
   handleThemeChange,
   initializeMermaidOnLoad,
-  clearCache
+  clearCache,
 };
 
 // Make functions globally available for Swup compatibility
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   (window as any).initializeMermaid = renderAllDiagrams;
   (window as any).handleMermaidThemeChange = handleThemeChange;
   (window as any).clearMermaidCache = clearCache;

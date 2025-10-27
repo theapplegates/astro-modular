@@ -1,10 +1,9 @@
+import type { APIRoute } from "astro";
+import { siteConfig } from "../config";
 
-import type { APIRoute } from 'astro';
-import { siteConfig } from '../config';
+export const GET: APIRoute = async () => {
+  const siteUrl = import.meta.env.SITE || siteConfig.site;
 
-export const GET: APIRoute = async ({ site }) => {
-  const siteUrl = site?.toString() || siteConfig.site;
-  
   const robotsTxt = `User-agent: *
 Allow: /
 
@@ -31,8 +30,8 @@ Allow: /pages/attachments/
 
   return new Response(robotsTxt, {
     headers: {
-      'Content-Type': 'text/plain',
-      'Cache-Control': 'public, max-age=86400', // Cache for 24 hours
+      "Content-Type": "text/plain",
+      "Cache-Control": "public, max-age=86400", // Cache for 24 hours
     },
   });
 };

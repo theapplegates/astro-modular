@@ -26,27 +26,9 @@ const { post } = Astro.props;
 const isDev = import.meta.env.DEV;
 
 // Generate SEO data
-const seoData = generatePostSEO(post, Astro.site ? Astro.site.toString() : '');
+const seoData = generatePostSEO(post, import.meta.env.SITE || '');
 
 
-// Dynamic image import for local images
-let localImage: any = null;
-let hasImageError = false;
-if (post.data.image && typeof post.data.image === 'string' && !post.data.image.startsWith('http')) {
-  try {
-    const imagePath = optimizePostImagePath(post.data.image, post.slug, post.id);
-    const images = import.meta.glob('/public/**');
-    const imageKey = `/public${imagePath}`;
-
-    if (images[imageKey]) {
-      localImage = await images[imageKey]();
-    } else {
-      hasImageError = true;
-    }
-  } catch (error) {
-    hasImageError = true;
-  }
-}
 
 // Generate structured data for the post
 const structuredData = {
@@ -88,22 +70,22 @@ const shouldShowTOC = !hideTOC && siteConfig.tableOfContents.enabled && headings
 const toc = shouldShowTOC ? await generateTOC(headings) : [];
 
 // Get adjacent posts for navigation
-const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.slug);
+const { prev: prevPost, next: nextPost } = getAdjacentPosts(visiblePosts, post.id);
 
 // Check if current post has connections for LocalGraph
 let hasLocalGraphConnections = false;
 if (siteConfig.postOptions.graphView.enabled && siteConfig.postOptions.graphView.showInSidebar) {
   try {
     // Read the graph data file to check for connections
-    const graphDataPath = new URL('/graph/graph-data.json', Astro.site);
+    const graphDataPath = new URL('/graph/graph-data.json', import.meta.env.SITE);
     const graphDataResponse = await fetch(graphDataPath);
-    
+
     if (graphDataResponse.ok) {
       const graphData = await graphDataResponse.json();
-      
+
       // Check if current post has any connections
-      hasLocalGraphConnections = graphData.connections.some((conn: any) => 
-        conn.source === post.slug || conn.target === post.slug
+      hasLocalGraphConnections = graphData.connections.some((conn: any) =>
+        conn.source === post.id || conn.target === post.id
       );
     }
   } catch (error) {
@@ -121,19 +103,19 @@ if (siteConfig.postOptions.graphView.enabled && siteConfig.postOptions.graphView
     <!-- Preload post cover image - only for posts that will definitely show the image immediately -->
     {(() => {
       if (!post.data.image || post.data.hideCoverImage === true) return false;
-      
+
       const showCoverImages = siteConfig.postOptions.showPostCardCoverImages;
       // Only preload for posts that are likely to show the image immediately
       // Skip preload for complex posts that might have delayed rendering
-      const shouldPreload = ['all', 'posts', 'featured-and-posts'].includes(showCoverImages) && 
-                           post.slug !== 'formatting-reference';
-      
+      const shouldPreload = ['all', 'posts', 'featured-and-posts'].includes(showCoverImages) &&
+                           post.id !== 'formatting-reference';
+
       return shouldPreload;
     })() && (
-      <link 
-        rel="preload" 
-        as="image" 
-        href={post.data.image?.startsWith('http') ? post.data.image : (post.data.image ? optimizePostImagePath(post.data.image, post.slug, post.id) : '')}
+      <link
+        rel="preload"
+        as="image"
+        href={post.data.image?.startsWith('http') ? post.data.image : (post.data.image ? optimizePostImagePath(post.data.image, post.id, post.id) : '')}
         fetchpriority="high"
       />
     )}
@@ -151,41 +133,16 @@ if (siteConfig.postOptions.graphView.enabled && siteConfig.postOptions.graphView
         {/* Cover image - shown if global config allows and not hidden by frontmatter */}
         {siteConfig.postOptions.showPostCardCoverImages !== 'none' && post.data.image && post.data.hideCoverImage !== true && (
           <div class="h-40 sm:h-48 md:h-56 lg:h-64 overflow-hidden rounded-t-lg bg-primary-100 dark:bg-primary-800">
-            {typeof post.data.image === 'string' && post.data.image.startsWith('http') ? (
-              <img 
-                src={post.data.image}
-                alt={post.data.imageAlt || `Featured image for post: ${post.data.title}`}
-                class="w-full h-full object-cover"
-                width="800"
-                height="256"
-                loading="eager"
-                decoding="async"
-                fetchpriority="high"
-              />
-            ) : localImage ? (
-              <Image
-                src={localImage.default}
-                alt={post.data.imageAlt || `Featured image for post: ${post.data.title}`}
-                width={800}
-                height={256}
-                format="webp"
-                class="w-full h-full object-cover"
-                loading="eager"
-                decoding="async"
-                fetchpriority="high"
-              />
-            ) : (
-              <img 
-                src={optimizePostImagePath(post.data.image, post.slug, post.id)}
-                alt={post.data.imageAlt || `Featured image for post: ${post.data.title}`}
-                class="w-full h-full object-cover"
-                width="800"
-                height="256"
-                loading="eager"
-                decoding="async"
-                fetchpriority="high"
-              />
-            )}
+            <img
+              src={typeof post.data.image === 'string' && post.data.image.startsWith('http') ? post.data.image : optimizePostImagePath(post.data.image, post.id, post.id)}
+              alt={post.data.imageAlt || `Featured image for post: ${post.data.title}`}
+              class="w-full h-full object-cover"
+              width="800"
+              height="256"
+              loading="eager"
+              decoding="async"
+              fetchpriority="high"
+            />
           </div>
         )}
 
@@ -250,7 +207,7 @@ if (siteConfig.postOptions.graphView.enabled && siteConfig.postOptions.graphView
         </div>
 
         {siteConfig.postOptions.linkedMentions.enabled && (
-          <LinkedMentions currentSlug={post.slug} />
+          <LinkedMentions currentSlug={post.id} />
         )}
 
         <!-- Post navigation -->
@@ -260,7 +217,7 @@ if (siteConfig.postOptions.graphView.enabled && siteConfig.postOptions.graphView
               {prevPost && (
                 <div class="text-left">
                   <a
-                    href={`/posts/${prevPost.slug}`}
+                    href={`/posts/${prevPost.id}`}
                     class="group block p-4 rounded-lg border border-primary-200 dark:border-primary-700 hover:border-highlight-300 dark:hover:border-highlight-600 transition-all duration-200 hover:shadow-md"
                   >
                     <h3 class="font-semibold text-primary-900 dark:text-primary-50 group-hover:text-highlight-600 dark:group-hover:text-highlight-400 transition-colors">
@@ -276,7 +233,7 @@ if (siteConfig.postOptions.graphView.enabled && siteConfig.postOptions.graphView
               {nextPost && (
                 <div class={`text-right ${!prevPost ? 'md:col-start-2' : ''}`}>
                   <a
-                    href={`/posts/${nextPost.slug}`}
+                    href={`/posts/${nextPost.id}`}
                     class="group block p-4 rounded-lg border border-primary-200 dark:border-primary-700 hover:border-highlight-300 dark:hover:border-highlight-600 transition-all duration-200 hover:shadow-md"
                   >
                     <h3 class="font-semibold text-primary-900 dark:text-primary-50 group-hover:text-highlight-600 dark:group-hover:text-highlight-400 transition-colors">
@@ -297,7 +254,7 @@ if (siteConfig.postOptions.graphView.enabled && siteConfig.postOptions.graphView
           <div class="mt-16">
             <GiscusComments
               postTitle={post.data.title}
-              postSlug={post.slug}
+              postSlug={post.id}
               postUrl={Astro.url.href}
             />
           </div>
@@ -310,11 +267,11 @@ if (siteConfig.postOptions.graphView.enabled && siteConfig.postOptions.graphView
         <div class={`top-24 ${hasLocalGraphConnections || shouldShowTOC ? 'space-y-4' : ''}`} id="sidebar">
           {hasLocalGraphConnections && (
             <div id="local-graph-sidebar">
-              <LocalGraph currentSlug={post.slug} />
+              <LocalGraph currentSlug={post.id} />
             </div>
           )}
-          
-          
+
+
           {shouldShowTOC && (
             <div id="toc">
               <TableOfContents headings={toc} />
@@ -326,12 +283,12 @@ if (siteConfig.postOptions.graphView.enabled && siteConfig.postOptions.graphView
   </div>
 
   <Fragment slot="scripts">
-    <script define:vars={{ posts: visiblePosts, commentsEnabled: siteConfig.postOptions.comments.enabled, postTitle: post.data.title, postSlug: post.slug }}>
+    <script define:vars={{ posts: visiblePosts, commentsEnabled: siteConfig.postOptions.comments.enabled, postTitle: post.data.title, postSlug: post.id }}>
 
       // Process wikilinks and initialize layouts after content loads
       document.addEventListener('DOMContentLoaded', () => {
 
-        
+
         // Process external links in captions to open in new tabs
         const captionLinks = document.querySelectorAll('p em a, .image-caption-container a');
         captionLinks.forEach(link => {
@@ -341,7 +298,7 @@ if (siteConfig.postOptions.graphView.enabled && siteConfig.postOptions.graphView
             link.setAttribute('rel', 'noopener noreferrer');
           }
         });
-        
+
         // Process all external links in content to open in new tabs (including reference links)
         const allLinks = document.querySelectorAll('.prose a[href]');
         allLinks.forEach(link => {
@@ -354,7 +311,7 @@ if (siteConfig.postOptions.graphView.enabled && siteConfig.postOptions.graphView
             }
           }
         });
-        
+
 
         // Process wikilinks - unified logic for all wikilink types
         const wikilinks = document.querySelectorAll('.wikilink[data-wikilink]');
@@ -372,16 +329,16 @@ if (siteConfig.postOptions.graphView.enabled && siteConfig.postOptions.graphView
             .replace(/^-+|-+$/g, '');
 
           const post = posts.find(p => p.slug === slug);
-          
+
           if (post) {
             // Update href
-            link.href = `/posts/${post.slug}`;
-            
-            // Simple logic: 
+            link.href = `/posts/${post.id}`;
+
+            // Simple logic:
             // - If displayOverride exists and is not null, it's a wikilink with custom text [[link|display]] - use it
             // - If displayOverride is null/undefined, it's a standard markdown link [text](url) - NEVER change the text
             // - If displayOverride is empty string, it's a naked wikilink [[link]] - use post title
-            
+
             if (displayOverride && displayOverride !== 'null' && displayOverride !== 'undefined') {
               // Wikilink with custom display: [[link|display]]
               link.textContent = displayOverride;
@@ -415,7 +372,7 @@ if (siteConfig.postOptions.graphView.enabled && siteConfig.postOptions.graphView
               link.setAttribute('rel', 'noopener noreferrer');
             }
           });
-          
+
           // Process all external links in content to open in new tabs (including reference links)
           const allLinks = document.querySelectorAll('.prose a[href]');
           allLinks.forEach(link => {

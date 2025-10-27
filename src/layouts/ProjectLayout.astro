@@ -31,9 +31,9 @@ const status = normalizeStatus(project.data.status);
 // Smart repository icon detection
 const getRepositoryIcon = (repositoryUrl: string) => {
   if (!repositoryUrl) return 'folder-git-2';
-  
+
   const url = repositoryUrl.toLowerCase();
-  
+
   if (url.includes('github.com') || url.includes('github.io')) {
     return 'github';
   } else if (url.includes('gitlab.com')) {
@@ -47,7 +47,7 @@ const getRepositoryIcon = (repositoryUrl: string) => {
 const isDev = import.meta.env.DEV;
 
 // Generate SEO data
-const seoData = generateProjectSEO(project, Astro.site ? Astro.site.toString() : '');
+const seoData = generateProjectSEO(project, import.meta.env.SITE || '');
 
 // Image handling is now done by ImageWrapper component
 
@@ -108,16 +108,16 @@ const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProject
     <!-- Preload project cover image - only for projects that will definitely show the image immediately -->
     {(() => {
       if (!project.data.image || project.data.hideCoverImage === true) return false;
-      
+
       // Projects always show images when available, so always preload
       const shouldPreload = true;
-      
+
       return shouldPreload;
     })() && (
-      <link 
-        rel="preload" 
-        as="image" 
-        href="/projects/obsidian-astro-suite/glacier.png"
+      <link
+        rel="preload"
+        as="image"
+        href={optimizeContentImagePath(project.data.image, 'projects', project.id, project.id)}
         fetchpriority="high"
       />
     )}
@@ -132,11 +132,11 @@ const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProject
     <div class="mx-auto px-4 sm:px-6 lg:px-8 relative" style={`max-width: ${siteConfig.layout.contentWidth}`}>
       <!-- Main content -->
       <article class={`bg-primary-50 dark:bg-primary-900 rounded-lg border border-primary-200 dark:border-primary-700 shadow-sm ${project.data.image && project.data.hideCoverImage !== true ? 'overflow-hidden' : ''}`}>
-        {/* Cover image - FORCE SHOW FOR DEBUGGING */}
-        {true && (
+        {/* Cover image */}
+        {project.data.image && project.data.hideCoverImage !== true && (
           <div class="h-40 sm:h-48 md:h-56 lg:h-64 overflow-hidden rounded-t-lg bg-primary-100 dark:bg-primary-800">
-            <img 
-              src="/projects/obsidian-astro-suite/glacier.png"
+            <img
+              src={optimizeContentImagePath(project.data.image, 'projects', project.id, project.id)}
               alt={project.data.imageAlt || `Featured image for project: ${project.data.title}`}
               class="w-full h-full object-cover"
               width="800"
@@ -155,7 +155,7 @@ const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProject
             <h1 class="text-xl font-bold text-primary-900 dark:text-primary-50 mb-6 leading-tight pr-20">
               {project.data.title}
             </h1>
-            
+
             <!-- Floating Action Buttons -->
             <div class="absolute top-0 right-0 flex gap-2">
               {project.data.repositoryUrl && (
@@ -203,7 +203,7 @@ const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProject
                   <span class="text-primary-300 dark:text-primary-600 sm:hidden">•</span>
                 </>
               )}
-              
+
               {status && (
                 <span class={`px-2 py-1 rounded-full text-xs font-medium ${getStatusClasses(status)}`}>
                   {getStatusDisplayText(status)}
@@ -215,7 +215,7 @@ const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProject
             <!-- Categories -->
             {projectsHaveCategories && project.data.categories && project.data.categories.length > 0 && (
               <div class="flex flex-wrap gap-2 mb-8">
-                {project.data.categories.map(category => (
+                {project.data.categories.map((category: string) => (
                   <span
                     class="text-xs text-primary-600 dark:text-primary-300 bg-primary-100 dark:bg-primary-800 px-2.5 py-1 rounded-full border border-primary-200 dark:border-primary-700"
                   >
@@ -319,7 +319,7 @@ const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProject
         function initializeImageGrids() {
           // Check if browser supports :has() selector
           const supportsHas = CSS.supports('selector(:has(img))');
-          
+
           if (supportsHas) {
             // Browser supports :has(), CSS will handle it automatically
             return;
@@ -330,10 +330,10 @@ const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProject
 
           paragraphs.forEach(p => {
             const images = p.querySelectorAll('img, picture');
-            const textNodes = Array.from(p.childNodes).filter(node => 
+            const textNodes = Array.from(p.childNodes).filter(node =>
               node.nodeType === Node.TEXT_NODE && node.textContent.trim() !== ''
             );
-            const otherElements = Array.from(p.childNodes).filter(node => 
+            const otherElements = Array.from(p.childNodes).filter(node =>
               node.nodeType === Node.ELEMENT_NODE && !['IMG', 'PICTURE', 'BR'].includes(node.tagName)
             );
 
@@ -351,7 +351,7 @@ const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProject
 
         // Initialize image grids
         initializeImageGrids();
-        
+
         // Process all external links in content to open in new tabs (including reference links)
         const allLinks = document.querySelectorAll('.prose a[href]');
         allLinks.forEach(link => {
@@ -364,7 +364,7 @@ const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProject
             }
           }
         });
-        
+
         // Make initializeImageGrids globally accessible
         window.initializeImageGrids = initializeImageGrids;
 
@@ -383,17 +383,17 @@ const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProject
             .replace(/-+/g, '-')
             .replace(/^-+|-+$/g, '');
 
-          const post = posts.find(p => p.slug === slug);
-          
+          const post = posts.find(p => p.id === slug);
+
           if (post) {
             // Update href
-            link.href = `/posts/${post.slug}`;
-            
-            // Simple logic: 
+            link.href = `/posts/${post.id}`;
+
+            // Simple logic:
             // - If displayOverride exists and is not null, it's a wikilink with custom text [[link|display]] - use it
             // - If displayOverride is null/undefined, it's a standard markdown link [text](url) - NEVER change the text
             // - If displayOverride is empty string, it's a naked wikilink [[link]] - use post title
-            
+
             if (displayOverride && displayOverride !== 'null' && displayOverride !== 'undefined') {
               // Wikilink with custom display: [[link|display]]
               link.textContent = displayOverride;

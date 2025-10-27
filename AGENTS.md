@@ -20,14 +20,78 @@ This document contains essential information for AI agents working with this Ast
 **⚠️ READ THESE FIRST - These are the #1 issues that keep coming up:**
 
 1. **🚨 NEVER EDIT MARKDOWN CONTENT** - NEVER edit markdown files in `src/content/` without explicit user permission
-2. **🚨 SWUP BREAKS JAVASCRIPT** - Interactive elements stop working after page transitions. [See detailed solution](#-critical-javascript-re-initialization-after-page-transitions)
-3. **🚨 MATH RENDERING DUPLICATION** - Math appears twice due to wrong CSS. [See solution](#1--math-rendering-duplication-most-critical)
-4. **🚨 PRODUCTION LOGGING** - Never use raw `console.log()` in production code
-5. **🚨 IMAGE SYSTEM CONFUSION** - Post cards vs post content images are separate systems
-6. **🚨 URL MAPPING SYSTEM CONFUSION** - URL mapping is for rendering only, doesn't affect linked mentions/graph view
-7. **🚨 FOLDER-BASED CONTENT ASSUMPTIONS** - ALL content types support folder-based organization, not just posts
+2. **🚨 USE `id` NOT `slug`** - `slug` is deprecated in Astro v6. ALWAYS use `entry.id` instead. [See detailed solution](#-critical-use-id-not-slug)
+3. **🚨 SWUP BREAKS JAVASCRIPT** - Interactive elements stop working after page transitions. [See detailed solution](#-critical-javascript-re-initialization-after-page-transitions)
+4. **🚨 MATH RENDERING DUPLICATION** - Math appears twice due to wrong CSS. [See solution](#1--math-rendering-duplication-most-critical)
+5. **🚨 PRODUCTION LOGGING** - Never use raw `console.log()` in production code
+6. **🚨 IMAGE SYSTEM CONFUSION** - Post cards vs post content images are separate systems
+7. **🚨 URL MAPPING SYSTEM CONFUSION** - URL mapping is for rendering only, doesn't affect linked mentions/graph view
+8. **🚨 FOLDER-BASED CONTENT ASSUMPTIONS** - ALL content types support folder-based organization, not just posts
 
 **These issues are documented in detail in the [Common AI Agent Mistakes](#common-ai-agent-mistakes) section.**
+
+## 🚨 CRITICAL: Use `id` Not `slug` (Astro v6)
+
+**⚠️ AI AGENTS MUST READ THIS SECTION CAREFULLY ⚠️**
+
+**The `slug` property is DEPRECATED in Astro v6 and MUST NOT be used.**
+
+### **The Breaking Change**
+
+According to the [Astro v6 Upgrade Guide](https://deploy-preview-12322--astro-docs-2.netlify.app/en/guides/upgrade-to/v6/#upgrade-astro), the `slug` property on collection entries has been removed in favor of `id`:
+
+- **Old (WRONG)**: `post.slug` - This is deprecated and will cause "undefined" URLs
+- **New (CORRECT)**: `post.id` - This is the modern API and always works correctly
+
+### **Why This Matters**
+
+Previously, Astro used:
+- `id` - Based on the filename (e.g., `getting-started/index.md` → `"getting-started/index"`)
+- `slug` - A URL-friendly version (e.g., `"getting-started"`)
+
+Now in Astro v5/v6:
+- `id` - IS the slug (e.g., `"getting-started"`)
+- `slug` - REMOVED/DEPRECATED (causes undefined values)
+
+### **Common Mistakes**
+
+**❌ WRONG - Using `slug`:**
+```typescript
+// DON'T DO THIS - slug is deprecated
+const posts = await getCollection('posts');
+posts.map(post => ({
+  url: `/posts/${post.slug}`,  // ❌ Will be undefined!
+  id: post.slug                 // ❌ Will be undefined!
+}));
+```
+
+**✅ CORRECT - Using `id`:**
+```typescript
+// DO THIS - id is the modern API
+const posts = await getCollection('posts');
+posts.map(post => ({
+  url: `/posts/${post.id}`,    // ✅ Works correctly
+  id: post.id                   // ✅ Works correctly
+}));
+```
+
+### **Where to Check**
+
+Search your codebase for these patterns and replace `slug` with `id`:
+- API endpoints: `src/pages/api/*.json.ts`
+- Dynamic routes: `src/pages/[...slug].astro`
+- Component props: Any component receiving collection entries
+- URL generation: Anywhere constructing URLs from collection entries
+
+### **Files Already Fixed**
+
+These files have been updated to use `id` instead of `slug`:
+- ✅ `src/pages/api/posts.json.ts`
+- ✅ `src/pages/api/pages.json.ts`
+- ✅ `src/pages/api/projects.json.ts`
+- ✅ `src/pages/api/docs.json.ts`
+
+**This is CRITICAL for command palette search, navigation, and all URL generation.**
 
 ## 🚨 CRITICAL: Astro v6 Compatibility Status
 
@@ -41,6 +105,7 @@ This document contains essential information for AI agents working with this Ast
 - **Content Collections**: ✅ Using modern v5/v6 API
 - **Config Location**: ✅ `src/content.config.ts` (v6 requirement)
 - **Legacy Patterns**: ✅ All removed
+- **Using `id` not `slug`**: ✅ All files updated
 
 ### **What Was Fixed for v6 Compatibility**
 1. **Config File Location**: Moved from `src/content/config.ts` to `src/content.config.ts`
@@ -48,6 +113,7 @@ This document contains essential information for AI agents working with this Ast
 3. **ViewTransitions Import**: Removed unused import (v6 breaking change)
 4. **Image Field Safety**: Added type checking for `null` image fields
 5. **Legacy API Usage**: Verified no deprecated APIs are used
+6. **Slug to ID Migration**: All references to `entry.slug` replaced with `entry.id`
 
 ### **Verified Clean (No Issues Found)**
 - ✅ No experimental flags in use
@@ -56,6 +122,7 @@ This document contains essential information for AI agents working with this Ast
 - ✅ No `handleForms` prop on ClientRouter
 - ✅ No legacy collection methods
 - ✅ All integrations v6 compatible
+- ✅ Using `id` instead of deprecated `slug`
 
 ### **When Astro v6 Releases**
 - **No action required** - theme will work immediately
@@ -3987,24 +4054,45 @@ The comments are styled to match your theme automatically. If you see styling is
   - "It works on first load but not after navigation"
 - **This is the #1 most common issue** - affects ToC collapse, command palette, theme toggles, etc.
 
-#### 4. **🚨 PRODUCTION LOGGING (CRITICAL)**
+#### 4. **🚨 USE `id` NOT `slug` (CRITICAL - ASTRO v6)**
+- **NEVER use `entry.slug`** - It's deprecated in Astro v6 and causes "undefined" URLs
+- **ALWAYS use `entry.id`** - This is the modern API that works correctly
+- **Common mistake**: `post.slug` → causes command palette to navigate to "undefined"
+- **Correct usage**: `post.id` → properly generates URLs like `/posts/getting-started`
+- **Why it matters**: In Astro v5/v6, `id` IS the slug. The old `slug` property is removed.
+- **Reference**: [Astro v6 Upgrade Guide](https://deploy-preview-12322--astro-docs-2.netlify.app/en/guides/upgrade-to/v6/#upgrade-astro)
+- **Where to check**:
+  - API endpoints: `src/pages/api/*.json.ts`
+  - Dynamic routes: `src/pages/[...slug].astro`
+  - Component props: Any component receiving collection entries
+  - URL generation: Anywhere constructing URLs from entries
+- **Example fix**:
+  ```typescript
+  // ❌ WRONG - slug is deprecated
+  url: `/posts/${post.slug}`,  // undefined!
+  
+  // ✅ CORRECT - id is the modern API
+  url: `/posts/${post.id}`,    // works correctly
+  ```
+
+#### 5. **🚨 PRODUCTION LOGGING (CRITICAL)**
 - **NEVER use raw `console.log()`** in production code
 - **Use the project's logger utility** (`src/utils/logger.ts`) for any logging needs
 - **Keep console output clean** for professional deployments
 
-#### 5. **Image System Confusion (Most Common)**
+#### 6. **Image System Confusion (Most Common)**
 - **Post cards** show images based on `showPostCardCoverImages` config, NOT `hideCoverImage` frontmatter
 - **Post content** shows images based on `hideCoverImage` frontmatter, NOT config
 - These are completely separate systems - don't mix them up!
 
-#### 6. **Linking Behavior Confusion (Important)**
+#### 7. **Linking Behavior Confusion (Important)**
 - **Wikilinks (`[[...]]`) only work with posts** - this is intentional and matches Obsidian's primary use case
 - **Standard markdown links (`[text](url)`) work with all content types** - use these for pages, projects, docs
 - **Don't try to extend wikilinks to other collections** - use standard links instead: `[Page Title](page-slug)`, `[Project](projects/project-slug)`, `[Doc](docs/doc-slug)`
 - **Linked mentions only track posts** - pages, projects, and docs are not included in linked mentions
 - **File renamed for clarity**: `wikilinks.ts` → `internallinks.ts` to distinguish between the two behaviors
 
-#### 7. **🚨 URL MAPPING SYSTEM CONFUSION (CRITICAL)**
+#### 8. **🚨 URL MAPPING SYSTEM CONFUSION (CRITICAL)**
 - **URL mapping is for RENDERING ONLY** - it doesn't affect linked mentions or graph view filtering
 - **Linked mentions and graph view remain posts-only** - URL mapping doesn't change this behavior
 - **Two separate systems**:
@@ -4013,7 +4101,7 @@ The comments are styled to match your theme automatically. If you see styling is
 - **Don't confuse the systems** - URL mapping makes links work, but doesn't change feature scope
 - **Test both systems independently** - URL mapping and linked mentions are separate concerns
 
-#### 8. **🚨 FOLDER-BASED CONTENT ASSUMPTIONS (CRITICAL)**
+#### 9. **🚨 FOLDER-BASED CONTENT ASSUMPTIONS (CRITICAL)**
 - **ALL content types support folder-based organization** - not just posts
 - **Pages, projects, and docs work identically to posts** for folder-based content
 - **Don't assume folder-based is posts-only** - all collections handle `folder-name/index.md` structure
@@ -4021,12 +4109,12 @@ The comments are styled to match your theme automatically. If you see styling is
 - **Asset syncing works for all content types** - images, PDFs, etc. are copied to public directory
 - **URL generation is consistent** - folder name becomes slug for all content types
 
-#### 9. **H1 Title Handling**
+#### 10. **H1 Title Handling**
 - **Both Posts and Pages**: NO H1 in markdown content - title comes from frontmatter, content starts with H2
 - **H1 is hardcoded** in both PostLayout and PageLayout using frontmatter title
 - **NEVER add H1** to any markdown content - both posts and pages have hardcoded H1s from frontmatter
 
-#### 10. **Custom Collections Approach**
+#### 11. **Custom Collections Approach**
 - **Use subfolders within pages collection** - avoid creating custom collections at content level
 - **No Astro warnings** - subfolders within pages don't trigger auto-generation warnings
 - **Same URL structure** - `/services/web-development` works the same way

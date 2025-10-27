@@ -16,7 +16,7 @@ export async function getStaticPaths() {
   return projects
     .filter(project => shouldShowContent(project, isDev))
     .map(project => ({
-      params: { slug: project.slug },
+      params: { slug: project.id },
       props: { project }
     }));
 }
