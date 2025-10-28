@@ -265,34 +265,8 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
     function handleGiscusThemeChange(isDark) {
       // Giscus theme changes are handled by the Giscus client script
       // This is just a placeholder to prevent the error
-      console.log('Giscus theme change - isDark:', isDark);
     }
 
-    // Listen for theme changes using MutationObserver (elegant approach from master)
-    if (typeof window !== 'undefined') {
-      // Watch for class changes on documentElement (theme toggle)
-      const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-          if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-            const isDark = document.documentElement.classList.contains('dark');
-            const wasDark = mutation.oldValue && mutation.oldValue.includes('dark');
-            
-            // Only re-render if theme actually changed
-            if (isDark !== wasDark) {
-              handleMermaidThemeChange();
-              handleTwitterThemeChange(isDark);
-              handleGiscusThemeChange(isDark);
-            }
-          }
-        });
-      });
-      
-      observer.observe(document.documentElement, {
-        attributes: true,
-        attributeOldValue: true,
-        attributeFilter: ['class']
-      });
-    }
 
     // Reset theme to default and clear user preferences
     function resetThemeToDefault() {
@@ -1101,7 +1075,6 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
 
   <!-- Global scripts - Defer non-critical JavaScript -->
   <script define:vars={{ commentsEnabled: siteConfig.postOptions.comments.enabled }} defer>
-    console.log('=== DEFERRED SCRIPT START ===');
     
     // Logger removed - no console output in production
 
@@ -1682,31 +1655,20 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
 
     // Initialize Twitter theme immediately on page load (before widgets render)
     function initializeTwitterThemeImmediately() {
-      console.log('=== TWITTER THEME INIT START ===');
-      console.log('Twitter theme init - documentElement classes:', document.documentElement.classList.toString());
-      console.log('Twitter theme init - has dark class:', document.documentElement.classList.contains('dark'));
-      
       const isDark = document.documentElement.classList.contains('dark');
       const newTheme = isDark ? 'dark' : 'light';
-      
-      console.log('Twitter theme init - setting theme to:', newTheme);
       
       // Update the meta tag immediately
       const themeMeta = document.querySelector('meta[name="twitter:widgets:theme"]');
       if (themeMeta) {
-        console.log('Twitter theme init - updating meta tag to:', newTheme);
         themeMeta.setAttribute('content', newTheme);
-      } else {
-        console.log('Twitter theme init - meta tag not found!');
       }
       
       // Update data-theme attributes on any existing blockquotes
       const twitterEmbeds = document.querySelectorAll('.twitter-tweet');
-      console.log('Twitter theme init - found', twitterEmbeds.length, 'twitter embeds');
       twitterEmbeds.forEach(embed => {
         embed.setAttribute('data-theme', newTheme);
       });
-      console.log('=== TWITTER THEME INIT END ===');
     }
 
     // Initialize Twitter theme immediately (before widgets load)
@@ -1899,6 +1861,32 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
         // Wait for Swup to be available
         document.addEventListener('swup:enable', setupSwupScrollBehavior);
       }
+    }
+
+    // Listen for theme changes using MutationObserver (elegant approach from master)
+    if (typeof window !== 'undefined') {
+      // Watch for class changes on documentElement (theme toggle)
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+            const isDark = document.documentElement.classList.contains('dark');
+            const wasDark = mutation.oldValue && mutation.oldValue.includes('dark');
+            
+            // Only re-render if theme actually changed
+            if (isDark !== wasDark) {
+              handleMermaidThemeChange();
+              handleTwitterThemeChange(isDark);
+              handleGiscusThemeChange(isDark);
+            }
+          }
+        });
+      });
+      
+      observer.observe(document.documentElement, {
+        attributes: true,
+        attributeOldValue: true,
+        attributeFilter: ['class']
+      });
     }
   </script>
 
