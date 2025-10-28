@@ -89,12 +89,9 @@ if (siteConfig.postOptions.graphView.enabled && siteConfig.postOptions.graphView
       );
       
       hasLocalGraphConnections = matchingConnections.length > 0;
-    } else {
-      console.log('Failed to fetch graph data:', graphDataResponse.status);
     }
   } catch (error) {
     // If we can't read the graph data at build time, don't show the graph
-    console.log('Error reading graph data:', error);
     hasLocalGraphConnections = false;
   }
 }
