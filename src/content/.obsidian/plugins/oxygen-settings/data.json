@@ -1,8 +1,8 @@
 {
   "lightStyle": "minimal-light",
   "darkStyle": "minimal-dark",
-  "lightScheme": "minimal-default-light",
-  "darkScheme": "minimal-default-dark",
+  "lightScheme": "minimal-oxygen-light",
+  "darkScheme": "minimal-oxygen-dark",
   "editorFont": "",
   "lineHeight": 1.5,
   "lineWidth": 40,
@@ -10,14 +10,14 @@
   "maxWidth": 88,
   "textNormal": 16,
   "textSmall": 13,
-  "imgGrid": true,
+  "imgGrid": false,
   "imgWidth": "img-default-width",
   "tableWidth": "table-default-width",
   "iframeWidth": "iframe-default-width",
   "mapWidth": "map-default-width",
   "chartWidth": "chart-default-width",
   "colorfulHeadings": false,
-  "colorfulFrame": false,
+  "colorfulFrame": true,
   "colorfulActiveStates": false,
   "trimNames": true,
   "labeledNav": false,
@@ -30,5 +30,7 @@
   "folding": true,
   "lineNumbers": false,
   "readableLineLength": true,
-  "devBlockWidth": false
+  "devBlockWidth": false,
+  "customPresets": [],
+  "enableCustomPresets": true
 }

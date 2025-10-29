@@ -52,7 +52,15 @@ if (cleanSrc.startsWith('[[') && cleanSrc.endsWith(']]')) {
 
 // Determine image type using cleaned src
 // For folder-based content, if basePath indicates a synced folder, treat as local for optimization
-const isSyncedFolder = basePath && basePath.includes('/') && !basePath.endsWith('/attachments/');
+// Also treat global attachments directories as synced folders for Astro Image optimization
+const isSyncedFolder = basePath && basePath.includes('/') && (
+  !basePath.endsWith('/attachments/') || 
+  basePath === '/posts/attachments/' || 
+  basePath === '/projects/attachments/' || 
+  basePath === '/docs/attachments/' ||
+  basePath === '/pages/attachments/' ||
+  basePath === '/special/attachments/'
+);
 const isLocal = !(
   cleanSrc.startsWith("/") ||
   cleanSrc.startsWith("http") ||
@@ -79,13 +87,13 @@ if (isLocal) {
     
     // Remove leading "images/" if present since basePath already includes it
     // But only for global images, not folder-based images
-    if (cleanSrc.startsWith('images/') && (basePath === '/posts/attachments/' || basePath === '/projects/attachments/' || basePath === '/docs/attachments/')) {
+    if (cleanSrc.startsWith('images/') && (basePath === '/posts/attachments/' || basePath === '/projects/attachments/' || basePath === '/docs/attachments/' || basePath === '/pages/attachments/' || basePath === '/special/attachments/')) {
       cleanSrc = cleanSrc.slice(7);
     }
     
     // For folder-based content, if basePath already includes 'images/' and cleanSrc starts with 'images/',
     // remove the prefix from cleanSrc to avoid double 'images/'
-    if (cleanSrc.startsWith('images/') && basePath.includes('/attachments/') && basePath !== '/posts/attachments/' && basePath !== '/projects/attachments/' && basePath !== '/docs/attachments/') {
+    if (cleanSrc.startsWith('images/') && basePath.includes('/attachments/') && basePath !== '/posts/attachments/' && basePath !== '/projects/attachments/' && basePath !== '/docs/attachments/' && basePath !== '/pages/attachments/' && basePath !== '/special/attachments/') {
       cleanSrc = cleanSrc.slice(7);
     }
     

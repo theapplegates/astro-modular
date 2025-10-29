@@ -33,9 +33,9 @@ All plugins, key bindings, and the theme can be customized to your liking, but t
 
 ## Theme
 
-For out-of-the-box customization, [Minimal](https://minimal.guide/home) theme is used. It uses an understated color scheme with high contract options. 
+For out-of-the-box customization, [Oxygen](https://github.com/davidvkimball/obsidian-oxygen) theme is used, based on the [Minimal theme system](https://minimal.guide/home). It uses a slick color scheme that's highly customizable. 
 
-The [Minimal Theme Settings](https://github.com/kepano/obsidian-minimal-settings), [Hider](https://github.com/kepano/obsidian-hider), and [Style Settings](https://obsidian.md/plugins?id=obsidian-style-settings) community plugins are also installed by default, giving you complete control over your experience. 
+The [Oxygen Theme Settings](https://github.com/davidvkimball/obsidian-oxygen-settings), [Hider](https://github.com/kepano/obsidian-hider), and [Style Settings](https://obsidian.md/plugins?id=obsidian-style-settings) community plugins are also installed by default, giving you complete control over your experience. You can even define your own color scheme presets and tweak just about anything.
 
 ## CSS Snippets
 
@@ -92,7 +92,7 @@ Community plugins enabled:
 - Hider
 - Homepage
 - Image Inserter
-- Minimal Theme Settings
+- Oxygen Theme Settings
 - Paste image into property
 - Paste image rename
 - Property Over Filename

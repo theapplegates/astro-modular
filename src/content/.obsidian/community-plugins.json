@@ -1,6 +1,5 @@
 [
   "insert-unsplash-image",
-  "obsidian-minimal-settings",
   "obsidian-paste-image-rename",
   "obsidian-hider",
   "obsidian42-brat",
@@ -18,5 +17,6 @@
   "homepage",
   "astro-composer",
   "obsidian-prozen",
-  "seo"
+  "seo",
+  "oxygen-settings"
 ]
