@@ -4,5 +4,7 @@
   "showRibbon": false,
   "enabledCssSnippets": [
     "astro-modular-styling"
-  ]
+  ],
+  "theme": "system",
+  "accentColor": ""
 }
