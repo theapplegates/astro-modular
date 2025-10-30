@@ -4,7 +4,9 @@ A flexible blog theme designed for Obsidian users.
 
 <img width="1600" height="900" alt="Astro Modular theme shown off in 3 screenshots, with the left screenshot showing the homepage, the top right showing the bottom of a post, and the bottom right showing a minimal homepage." src="https://github.com/user-attachments/assets/612b2171-d141-412b-a891-5b1caa1447b8" />
 
-<img width="1920" height="1080" alt="Astro Modular Obsidian vault." src="https://github.com/user-attachments/assets/f87be126-b6dc-4367-82bc-511ab73f5a07" />
+## Use Obsidian as a CMS
+
+<img width="1515" height="932" alt="Astro Modular Obsidian vault." src="https://github.com/user-attachments/assets/671eb486-e736-410d-b3f8-f98ac21f15f8" />
 
 
 ## Stats
