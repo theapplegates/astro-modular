@@ -5,7 +5,7 @@
       "type": "post",
       "title": "Formatting Reference",
       "slug": "formatting-reference",
-      "date": "2025-09-08T00:00:00.000Z",
+      "date": "2025-09-07T00:00:00.000Z",
       "connections": 8
     },
     {
@@ -17,19 +17,11 @@
       "connections": 6
     },
     {
-      "id": "mermaid-diagrams",
-      "type": "post",
-      "title": "Mermaid Diagrams",
-      "slug": "mermaid-diagrams",
-      "date": "2025-09-07T00:00:00.000Z",
-      "connections": 0
-    },
-    {
       "id": "obsidian-embeds-demo",
       "type": "post",
       "title": "Obsidian Embeds Demo",
       "slug": "obsidian-embeds-demo",
-      "date": "2025-10-30T00:00:00.000Z",
+      "date": "2025-09-09T00:00:00.000Z",
       "connections": 0
     },
     {
@@ -45,7 +37,7 @@
       "type": "post",
       "title": "Sample Folder-Based Post",
       "slug": "sample-folder-based-post",
-      "date": "2025-09-09T00:00:00.000Z",
+      "date": "2025-09-08T00:00:00.000Z",
       "connections": 0
     }
   ],
@@ -72,7 +64,7 @@
     },
     {
       "source": "formatting-reference",
-      "target": "mermaid-diagrams",
+      "target": "obsidian-embeds-demo",
       "type": "link"
     },
     {
@@ -107,10 +99,10 @@
     }
   ],
   "metadata": {
-    "generated": "2025-10-30T20:29:56.597Z",
-    "totalPosts": 6,
+    "generated": "2025-10-30T20:58:26.528Z",
+    "totalPosts": 5,
     "totalConnections": 11,
     "maxNodesApplied": false,
-    "originalNodeCount": 6
+    "originalNodeCount": 5
   }
 }

@@ -1,6 +1,6 @@
 ---
 title: Formatting Reference
-date: 2025-09-08
+date: 2025-09-07
 description: Explore all the markdown, extended markdown, and other embed features available in this blog theme.
 tags:
   - markdown
@@ -150,56 +150,12 @@ Simply place multiple images together without empty lines between them:
 
 On mobile devices, all layouts switch to a single column for better readability.
 
-### Video Files
+### Linked Images
 
-![[attachments/video.mp4|Eye drop video]]
+[![Mountains](/posts/attachments/mountains.png)](https://obsidian.md)
 
-Video files are embedded as HTML5 video players with controls and responsive design.
-
-### YouTube Videos
-
-![Astro Suite for Obsidian](https://www.youtube.com/watch?v=ZhizarvwLnU)
-
-YouTube videos are automatically embedded with responsive design and optimized settings.
-
-### Audio Files
-
-![[attachments/sound.wav|sound.wav]]
-
-Audio files are embedded as HTML5 audio players with controls and filename display.
-
-### PDF Documents
-
-![[attachments/document.pdf|document.pdf]]
-
-PDFs are embedded as inline viewers with download links. 
-
-Use `![[attachments/document.pdf#page=3]]` to select a specific PDF page to display.
-
-### Twitter/X Posts
-
-![Why doesn't everyone use Astro? Writing blog posts in markdown is beautiful.](https://x.com/davidvkimball/status/1933196479801536736)
-
-Twitter posts are embedded with theme-aware styling that matches your site's light/dark mode.
-
-## Buttons
-
-These buttons use your existing color palette and adapt perfectly to light/dark themes. Wrap them in internal or external links if you prefer:
-
-<div class="btn-group my-8">
-  <a href="https://google.com" class="no-styling no-underline" target="_blank"><button class="btn btn-primary">Primary Action</button></a>
-  <a href="https://google.com" class="no-styling no-underline" target="_blank"><button class="btn btn-secondary">Secondary</button></a>
-    <a href="https://google.com" class="no-styling no-underline" target="_blank"><button class="btn btn-outline">Outlined</button></a>
-      <a href="https://google.com" class="no-styling no-underline" target="_blank"><button class="btn btn-ghost">Subtle</button></a>
-</div>
-
-```html
-<div class="btn-group-center my-8">
-  <a href="https://google.com" class="no-styling no-underline" target="_blank"><button class="btn btn-primary">Primary Action</button></a>
-  <a href="https://google.com" class="no-styling no-underline" target="_blank"><button class="btn btn-secondary">Secondary</button></a>
-    <a href="https://google.com" class="no-styling no-underline" target="_blank"><button class="btn btn-outline">Outlined</button></a>
-      <a href="https://google.com" class="no-styling no-underline" target="_blank"><button class="btn btn-ghost">Subtle</button></a>
-</div>
+```
+[![Mountains](/posts/attachments/mountains.png)](https://obsidian.md)
 ```
 
 ## Lists
@@ -256,136 +212,6 @@ This is a [reference link][1] and this is another [reference link][markdown].
 
 [1]: https://example.com
 [markdown]: https://daringfireball.net/projects/markdown/
-
-### Linked Images
-
-[![Mountains](/posts/attachments/mountains.png)](https://obsidian.md)
-
-```
-[![Mountains](/posts/attachments/mountains.png)](https://obsidian.md)
-```
-
-## Mathematical Notation
-
-This theme includes comprehensive LaTeX math support using KaTeX for fast, client-side rendering. All math works seamlessly in both light and dark themes.
-
-### Inline Math
-
-Use single dollar signs for inline math: $E = mc^2$ or $\int_0^{2\pi} d\theta x+e^{-i\theta}$.
-
-### Display Math
-
-Use double dollar signs for centered display math:
-
-$$
-\begin{vmatrix}a & b\\
-c & d
-\end{vmatrix}=ad-bc
-$$
-
-$$
-f(x) = x^2 + 3x + 2
-$$
-
-### Common Mathematical Notation
-
-#### Fractions and Superscripts
-- Fractions: $\frac{a}{b}$, $\frac{x^2 + 1}{x - 1}$
-- Superscripts: $x^2$, $e^{i\pi} + 1 = 0$
-- Subscripts: $x_1$, $H_2O$
-
-#### Greek Letters
-- $\alpha, \beta, \gamma, \delta, \epsilon, \theta, \lambda, \mu, \pi, \sigma, \phi, \omega$
-- $\Gamma, \Delta, \Theta, \Lambda, \Pi, \Sigma, \Phi, \Omega$
-
-#### Mathematical Symbols
-- Summation: $\sum_{i=1}^{n} x_i$
-- Product: $\prod_{i=1}^{n} x_i$
-- Integral: $\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}$
-- Limit: $\lim_{x \to 0} \frac{\sin x}{x} = 1$
-
-#### Matrices and Vectors
-$$
-\begin{pmatrix}
-a & b \\
-c & d
-\end{pmatrix}
-\begin{pmatrix}
-x \\
-y
-\end{pmatrix}
-=
-\begin{pmatrix}
-ax + by \\
-cx + dy
-\end{pmatrix}
-$$
-
-#### Complex Equations
-$$
-\nabla \times \vec{E} = -\frac{\partial \vec{B}}{\partial t}
-$$
-
-$$
-i\hbar\frac{\partial}{\partial t}\Psi(\vec{r},t) = \hat{H}\Psi(\vec{r},t)
-$$
-
-### Math in Callouts
-
-Math works perfectly within callouts:
-
-> [!note] Mathematical Proof
-> The Pythagorean theorem states that for a right triangle:
-> $$a^2 + b^2 = c^2$$
-> 
-> Where $c$ is the hypotenuse and $a$ and $b$ are the other two sides.
-
-> [!tip] Integration by Parts
-> The formula for integration by parts is:
-> $$\int u \, dv = uv - \int v \, du$$
-> 
-> This is particularly useful for integrals involving products of functions.
-
-### Advanced Mathematical Typesetting
-
-#### Aligned Equations
-$$
-\begin{align}
-f(x) &= ax^2 + bx + c \\
-f'(x) &= 2ax + b \\
-f''(x) &= 2a
-\end{align}
-$$
-
-#### Cases and Piecewise Functions
-$$
-f(x) = \begin{cases}
-x^2 & \text{if } x \geq 0 \\
--x^2 & \text{if } x < 0
-\end{cases}
-$$
-
-#### Set Notation
-- Natural numbers: $\mathbb{N} = \{1, 2, 3, \ldots\}$
-- Real numbers: $\mathbb{R}$
-- Complex numbers: $\mathbb{C}$
-- Set union: $A \cup B$
-- Set intersection: $A \cap B$
-- Subset: $A \subseteq B$
-
-### Math with Text
-
-You can mix math with regular text seamlessly. For example, the quadratic formula is $x = \frac{1}{2}$, which gives us the roots of any quadratic equation $ax^2 + bx + c = 0$.
-
-### Obsidian Compatibility
-
-All math notation works identically in Obsidian and your published blog:
-
-- **Inline math**: `$...$` syntax
-- **Display math**: `$$...$$` syntax  
-- **LaTeX commands**: Full support for standard LaTeX math commands
-- **Greek letters**: Use `\alpha`, `\beta`, etc.
-- **Symbols**: Use `\sum`, `\int`, `\infty`, etc. 
 
 ## Code Blocks
 
@@ -503,25 +329,9 @@ Or three underscores:
 
 ___
 
-## Keyboard Shortcuts
-
-Press <kbd>Ctrl</kbd> + <kbd>C</kbd> to copy and <kbd>Ctrl</kbd> + <kbd>V</kbd> to paste.
-
-Use <kbd>Cmd</kbd> + <kbd>K</kbd> to open the command palette.
-
-## Special Characters and Symbols
-
-- Copyright: ©
-- Trademark: ™
-- Registered: ®
-- Arrows: ← ↑ → ↓ ↔ ↕
-- Symbols: ★ ☆ ♠ ♣ ♥ ♦
-- Currency: $ € £ ¥
-
-
 ## HTML Elements
 
-Sometimes you need to use HTML for more complex formatting:
+You can use HTML directly. Here are some examples:
 
 <details>
 <summary>Click to expand</summary>
@@ -531,6 +341,42 @@ This content is hidden by default and can be expanded by clicking the summary.
 </details>
 
 <small>Small text for fine print</small>
+
+### Keyboard Shortcuts
+
+Press <kbd>Ctrl</kbd> + <kbd>C</kbd> to copy and <kbd>Ctrl</kbd> + <kbd>V</kbd> to paste.
+
+Use <kbd>Cmd</kbd> + <kbd>K</kbd> to open the command palette.
+
+### Special Characters and Symbols
+
+- Copyright: ©
+- Trademark: ™
+- Registered: ®
+- Arrows: ← ↑ → ↓ ↔ ↕
+- Symbols: ★ ☆ ♠ ♣ ♥ ♦
+- Currency: $ € £ ¥
+
+### Buttons
+
+These buttons use your existing color palette and adapt perfectly to light/dark themes. Wrap them in internal or external links if you prefer:
+
+<div class="btn-group my-8">
+  <a href="https://google.com" class="no-styling no-underline" target="_blank"><button class="btn btn-primary">Primary Action</button></a>
+  <a href="https://google.com" class="no-styling no-underline" target="_blank"><button class="btn btn-secondary">Secondary</button></a>
+    <a href="https://google.com" class="no-styling no-underline" target="_blank"><button class="btn btn-outline">Outlined</button></a>
+      <a href="https://google.com" class="no-styling no-underline" target="_blank"><button class="btn btn-ghost">Subtle</button></a>
+</div>
+
+```html
+<div class="btn-group-center my-8">
+  <a href="https://google.com" class="no-styling no-underline" target="_blank"><button class="btn btn-primary">Primary Action</button></a>
+  <a href="https://google.com" class="no-styling no-underline" target="_blank"><button class="btn btn-secondary">Secondary</button></a>
+    <a href="https://google.com" class="no-styling no-underline" target="_blank"><button class="btn btn-outline">Outlined</button></a>
+      <a href="https://google.com" class="no-styling no-underline" target="_blank"><button class="btn btn-ghost">Subtle</button></a>
+</div>
+```
+
 
 ## Works with Obsidian
 
@@ -551,4 +397,4 @@ All of these formatting options should also appear in Obsidian, with some differ
 - **Callouts**: `> [!TYPE]`
 - **Horizontal rule**: `---`
 
-Happy writing! 
+Further reading: [Obsidian Embeds Demo](posts/obsidian-embeds-demo.md)
