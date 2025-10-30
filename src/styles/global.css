@@ -764,6 +764,7 @@ textarea {
   border-radius: 0.75rem !important;
   @apply border border-primary-300 dark:border-primary-600 bg-white dark:bg-primary-800;
   overflow: hidden !important; /* Ensures rounded corners work properly */
+  position: relative; /* Enable edge hint pseudo-elements */
 }
 
 .table-wrapper table {
@@ -772,6 +773,23 @@ textarea {
   min-width: 500px;
   border-radius: 0.75rem;
   overflow: hidden;
+}
+
+/* Subtle right-edge scroll hint on narrow screens */
+@media (max-width: 768px) {
+  .table-wrapper::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 24px;
+    height: 100%;
+    pointer-events: none;
+    background: linear-gradient(to left, rgb(var(--color-primary-100)) 70%, rgba(0,0,0,0));
+  }
+  .dark .table-wrapper::after {
+    background: linear-gradient(to left, rgb(var(--color-primary-800)) 70%, rgba(0,0,0,0));
+  }
 }
 
 .prose th, .prose td {
@@ -1355,7 +1373,9 @@ svg:has(text:contains("mermaid version")) {
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .pdf-embed .pdf-viewer {
-    height: 43vh;
+    height: 50vh;
+    min-height: 300px;
+    max-height: 500px;
   }
   
   .pdf-embed .pdf-info {
