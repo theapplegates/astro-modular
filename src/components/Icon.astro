@@ -80,6 +80,10 @@ const iconPath = icons[name as keyof typeof icons];
 
 // Try Font Awesome brands first (for social icons)
 const faIcon = icon({ prefix: 'fab', iconName: name as any });
+
+// Use a graceful fallback icon (external-link) if neither FA nor custom icon exists
+const fallbackIcon = 'external-link';
+const fallbackPath = icons[fallbackIcon];
 ---
 
 {faIcon ? (
@@ -97,6 +101,18 @@ const faIcon = icon({ prefix: 'fab', iconName: name as any });
     class={className}
     set:html={iconPath}
   />
-) : (
-  <span class={`inline-block w-${size/4} h-${size/4} bg-red-200 ${className}`} title={`Missing icon: ${name}`}></span>
-)}
+) : fallbackPath ? (
+  <svg 
+    width={size} 
+    height={size} 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    stroke-width="2" 
+    stroke-linecap="round" 
+    stroke-linejoin="round" 
+    class={className}
+    set:html={fallbackPath}
+    title={`${name} (using fallback icon)`}
+  />
+) : null}

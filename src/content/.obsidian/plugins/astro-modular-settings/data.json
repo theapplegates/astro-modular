@@ -196,7 +196,7 @@
       "image": "/profile.jpg",
       "alt": "Profile picture",
       "size": "md",
-      "url": "/about",
+      "url": "",
       "placement": "footer",
       "style": "circle"
     },
@@ -240,5 +240,6 @@
     "docs": true
   },
   "availableThemes": "default",
-  "customThemes": ""
+  "customThemes": "",
+  "customThemeGenerationEnabled": false
 }

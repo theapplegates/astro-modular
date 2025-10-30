@@ -1,5 +1,6 @@
 {
   "pluginList": [
+    "davidvkimball/obsidian-astro-modular-settings",
     "davidvkimball/obsidian-oxygen-settings",
     "davidvkimball/obsidian-alias-file-name-history",
     "davidvkimball/obsidian-seo",
@@ -8,6 +9,10 @@
     "davidvkimball/obsidian-astro-composer"
   ],
   "pluginSubListFrozenVersion": [
+    {
+      "repo": "davidvkimball/obsidian-astro-modular-settings",
+      "version": "latest"
+    },
     {
       "repo": "davidvkimball/obsidian-oxygen-settings",
       "version": "latest"
