@@ -311,9 +311,10 @@ import Icon from './Icon.astro';
         return false; // Block all other events
       })
       .on("start", function(event) {
-        // Use default cursor for pan operations
+        // Show grabbing cursor only when starting to pan on empty space
         if (event.sourceEvent && event.sourceEvent.type === 'mousedown') {
-          if (svg) svg.style('cursor', 'default');
+          const isOnNode = !!(event.sourceEvent.target as Element)?.closest('g[data-id]');
+          if (!isOnNode && svg) svg.style('cursor', 'grabbing');
         }
       })
       .on("end", function(event) {

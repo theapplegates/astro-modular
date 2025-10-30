@@ -42,11 +42,12 @@ A flexible blog theme designed for Obsidian users.
 - [x] **Dark/Light Mode** 
 - [x] **Search & Command Palette** 
 - [x] **Wikilinks & Linked Mentions** 
-- [x] **Obsidian-Style Callouts** 
+- [x] **Obsidian-Style Callouts**
+- [x] **Obsidian Embeds** (Audio, Video, YouTube, PDF, Twitter/X, posts, Bases) 
 - [x] **Folder-Based Posts** 
 - [x] **Multiple Content Types** (Posts, Pages, Projects, Documentation)
 - [x] **Image Optimization** 
-- [x] **Automatic Sitemap, RSS, Open Graph, robots.txt, & llms.txt Generation** 
+- [x] **Automatic Sitemap, RSS & Atom Feeds, Open Graph, robots.txt, & llms.txt Generation** 
 - [x] **Table of Contents** 
 - [x] **Smooth Scroll & Page Transitions** 
 - [x] **Image Gallery & Lightbox** 
@@ -55,6 +56,7 @@ A flexible blog theme designed for Obsidian users.
 - [x] **Graph View**
 - [x] **Mermaid Diagrams**
 - [x] **LaTeX & Math Rendering** 
+- [x] **Custom Typography** (Separate fonts for headings & body text)
 - [x] **Profile Picture** 
 - [x] **Comments**
 
@@ -113,6 +115,10 @@ For detailed guides, see the included blog posts:
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=davidvkimball/astro-modular&type=date&legend=top-left)](https://www.star-history.com/#davidvkimball/astro-modular&type=date&legend=top-left)
+
+## Acknowledgments 
+
+[Spaceship Astro theme](https://github.com/aitorllj93/astro-theme-spaceship) for the graph view functionality upon which this theme's is based.
 
 ## Contributing
 

@@ -177,9 +177,11 @@ const shouldShowGraph = true;
     const zoom = d3.zoom()
       .scaleExtent([0.2, 6]) // Extended zoom range for more flexibility
       .on("start", function(event) {
-        // Use default cursor for pan operations
+        // Show grabbing cursor only when starting to pan on empty space
         if (event.sourceEvent && event.sourceEvent.type === 'mousedown') {
-          if (svg) svg.style('cursor', 'default');
+          const isOnNode = !!(event.sourceEvent.target as Element)?.closest('g');
+          // Only set grabbing if not on a node group (background pan)
+          if (!isOnNode && svg) svg.style('cursor', 'grabbing');
         }
       })
       .on("end", function(event) {
