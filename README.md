@@ -110,6 +110,7 @@ For detailed guides, see the included blog posts:
 - **[Getting Started](src/content/posts/getting-started.md)** - complete setup and workflow guide
 - **[Formatting Reference](src/content/posts/formatting-reference.md)** - comprehensive formatting reference  
 - **[Astro Suite Vault Guide](src/content/posts/astro-suite-vault-modular-guide.md)** - Obsidian vault walkthrough
+- **[Obsidian Embeds Demo](src/content/posts/obsidian-embeds-demo.md)** - Obsidian embed examples
 
 **For AI Agents & Developers:** See [AGENTS.md](AGENTS.md) for comprehensive technical documentation.
 
