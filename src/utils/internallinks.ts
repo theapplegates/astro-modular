@@ -1085,49 +1085,82 @@ export function processContentAwareWikilinks(
 // IMAGE PROCESSING
 // ============================================================================
 
-// Custom remark plugin to handle folder-based post and project images
+// Custom remark plugin to handle ALL content images (folder-based AND single-file)
 export function remarkFolderImages() {
   return function transformer(tree: any, file: any) {
     visit(tree, "image", (node: any) => {
-      // Check if this is a folder-based post or project by looking at the file path
-      const isFolderPost =
-        file.path &&
-        file.path.includes("/posts/") &&
-        file.path.endsWith("/index.md");
-      const isFolderProject =
-        file.path &&
-        file.path.includes("/projects/") &&
-        file.path.endsWith("/index.md");
+      // Skip if already absolute or external URL
+      if (!node.url || node.url.startsWith("/") || node.url.startsWith("http")) {
+        return;
+      }
 
-      if (
-        (isFolderPost || isFolderProject) &&
-        node.url &&
-        !node.url.startsWith("/") &&
-        !node.url.startsWith("http")
-      ) {
-        // Extract the content slug from the file path
+      // Determine content type and whether it's folder-based
+      let collection: string | null = null;
+      let contentSlug: string | null = null;
+      let isFolderBased = false;
+
+      if (file.path) {
         const pathParts = file.path.split("/");
-        const contentIndex = isFolderPost
-          ? pathParts.indexOf("posts")
-          : pathParts.indexOf("projects");
-        const contentSlug = pathParts[contentIndex + 1];
-        const collection = isFolderPost ? "posts" : "projects";
-
-        // Handle both relative paths and subdirectory paths
-        let imagePath = node.url;
-
-        // Remove leading './' if present
-        if (imagePath.startsWith("./")) {
-          imagePath = imagePath.slice(2);
+        
+        // Check for posts
+        if (file.path.includes("/posts/")) {
+          collection = "posts";
+          const postsIndex = pathParts.indexOf("posts");
+          isFolderBased = file.path.endsWith("/index.md");
+          contentSlug = isFolderBased ? pathParts[postsIndex + 1] : null;
         }
+        // Check for projects
+        else if (file.path.includes("/projects/")) {
+          collection = "projects";
+          const projectsIndex = pathParts.indexOf("projects");
+          isFolderBased = file.path.endsWith("/index.md");
+          contentSlug = isFolderBased ? pathParts[projectsIndex + 1] : null;
+        }
+        // Check for docs
+        else if (file.path.includes("/docs/")) {
+          collection = "docs";
+          const docsIndex = pathParts.indexOf("docs");
+          isFolderBased = file.path.endsWith("/index.md");
+          contentSlug = isFolderBased ? pathParts[docsIndex + 1] : null;
+        }
+        // Check for pages
+        else if (file.path.includes("/pages/")) {
+          collection = "pages";
+          const pagesIndex = pathParts.indexOf("pages");
+          isFolderBased = file.path.endsWith("/index.md");
+          contentSlug = isFolderBased ? pathParts[pagesIndex + 1] : null;
+        }
+      }
 
-        // Update the image URL to point to the correct folder (preserving subdirectory structure)
+      if (!collection) {
+        return; // Not a recognized content type
+      }
+
+      // Clean up image path
+      let imagePath = node.url;
+      if (imagePath.startsWith("./")) {
+        imagePath = imagePath.slice(2);
+      }
+
+      // Handle folder-based content (e.g., /posts/my-post/index.md with image.png)
+      if (isFolderBased && contentSlug) {
+        // Image is relative to the folder: /posts/my-post/image.png
         node.url = `/${collection}/${contentSlug}/${imagePath}`;
+      }
+      // Handle single-file content with attachments/ prefix
+      else if (imagePath.startsWith("attachments/")) {
+        // Image uses shared attachments folder: /posts/attachments/image.png
+        node.url = `/${collection}/${imagePath}`;
+      }
+      // Handle single-file content with other relative paths
+      else {
+        // Assume it's in the attachments folder
+        node.url = `/${collection}/attachments/${imagePath}`;
+      }
 
-        // Also update the hProperties if they exist (for wikilink images)
-        if (node.data && node.data.hProperties) {
-          node.data.hProperties.src = node.url;
-        }
+      // Also update the hProperties if they exist (for wikilink images)
+      if (node.data && node.data.hProperties) {
+        node.data.hProperties.src = node.url;
       }
     });
   };
