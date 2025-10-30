@@ -1,3 +1,22 @@
+---
+title: Obsidian Embeds Demo
+date: 2025-10-30
+description: Demonstration of Obsidian-style embeds.
+tags:
+  - obsidian
+  - tutorial
+  - formatting
+draft: false
+image: "[[attachments/galaxy.png]]"
+imageAlt: Galaxy
+imageOG: false
+hideCoverImage: false
+hideTOC: false
+targetKeyword: obsidian embeds
+---
+You can embed bases with `base` directive syntax:
+
+```base
 filters:
   and:
     - file.ext == "md"
@@ -35,6 +54,7 @@ properties:
 views:
   - type: cards
     name: Posts
+    limit: 4
     filters:
       and:
         - file.folder.startsWith("posts")
@@ -110,3 +130,18 @@ views:
     cardSize: 230
     image: note.image
     imageAspectRatio: 0.55
+
+```
+
+You can also embed a `.base` as a markdown embed:
+
+```markdown
+![](_bases/home.base)
+```
+
+You can also embed a `.base` as a wikilinks embed:
+
+```markdown
+![[home.base]]
+```
+

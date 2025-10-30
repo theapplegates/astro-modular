@@ -1,4 +1,3 @@
-
 ---
 import { siteConfig, getFontFamily, getGoogleFontsUrl, shouldLoadLocalFonts, shouldLoadCdnFonts, getFontDisplay, getThemeDisplayName } from '@/config';
 import type { SEOData } from '@/types';
@@ -1070,7 +1069,10 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
 
     <!-- Mermaid diagrams handled by client script -->
     <script>
-      import('../scripts/mermaid-client.ts');
+      try { await import('../scripts/base-embeds-client.ts'); } catch (_) {}
+    </script>
+    <script>
+      try { await import('../scripts/mermaid-client.ts'); } catch (_) {}
     </script>
 
   <!-- Global scripts - Defer non-critical JavaScript -->
@@ -1188,6 +1190,10 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
         }
         window.initializeGiscusComments();
       }
+      // Initialize base embeds on initial page load (before table wrappers)
+      if (window.initializeBaseEmbeds) {
+        window.initializeBaseEmbeds();
+      }
       // Initialize table wrappers on initial page load
       window.initializeTableWrappers();
 
@@ -1289,12 +1295,15 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
           }
           // Reinitialize favicon after page transition
           setFavicon();
-          // Initialize table wrappers after content replacement
+          // Initialize after content replacement
           setTimeout(() => {
             if (document.querySelector('#giscus-comments')) {
               window.initializeGiscusComments();
             }
-            // Initialize table wrappers
+            // Initialize base embeds first, then wrap tables
+            if (window.initializeBaseEmbeds) {
+              window.initializeBaseEmbeds();
+            }
             window.initializeTableWrappers();
             // Initialize linked mentions
             if (window.initializeLinkedMentions) {
@@ -1324,8 +1333,12 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
             if (document.querySelector('#giscus-comments')) {
               window.initializeGiscusComments();
             }
-            // Initialize table wrappers with small delay to ensure DOM is ready
+            // Initialize with small delay to ensure DOM is ready
             setTimeout(() => {
+              // Initialize base embeds first, then wrap tables
+              if (window.initializeBaseEmbeds) {
+                window.initializeBaseEmbeds();
+              }
               window.initializeTableWrappers();
             }, 50);
             // Re-initialize GraphModal after page transition
@@ -1480,32 +1493,6 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
 
     // Initialize global preloader
     window.imagePreloader = new ImagePreloader();
-
-    // Initialize table wrappers for responsive tables
-    function initializeTableWrappers() {
-      // Try multiple selectors to catch all tables
-      const proseTables = document.querySelectorAll('.prose table');
-      const allTables = document.querySelectorAll('table');
-      const tables = proseTables.length > 0 ? proseTables : allTables;
-
-      tables.forEach((table, index) => {
-        if (!table.parentElement?.classList.contains('table-wrapper')) {
-          const wrapper = document.createElement('div');
-          wrapper.className = 'table-wrapper';
-          // Let CSS handle the styling instead of inline styles
-
-          table.parentNode?.insertBefore(wrapper, table);
-          wrapper.appendChild(table);
-
-          // Reset table margin since wrapper handles it
-          table.style.margin = '0';
-        }
-      });
-    }
-
-    // Make initializeTableWrappers globally accessible
-    window.initializeTableWrappers = initializeTableWrappers;
-
 
     // Handle smooth scrolling for anchor links (same-page only)
     function setupSmoothScrolling() {
@@ -1795,6 +1782,12 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
           if (window.initializeLinkedMentions) {
             window.initializeLinkedMentions();
           }
+          // Initialize base embeds after page transition is complete
+          if (window.initializeBaseEmbeds) {
+            window.initializeBaseEmbeds();
+          }
+          // Then wrap tables
+          window.initializeTableWrappers();
           // Initialize Mermaid diagrams after page transition is complete
           if (typeof window.initializeMermaid === 'function') {
             window.initializeMermaid();
@@ -1878,6 +1871,34 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
         attributeFilter: ['class']
       });
     }
+
+    function initializeTableWrappers() {
+      // Try multiple selectors to catch all tables
+      const proseTables = document.querySelectorAll('.prose table');
+      const allTables = document.querySelectorAll('table');
+      const tables = proseTables.length > 0 ? proseTables : allTables;
+
+      tables.forEach((table, index) => {
+        // Skip tables already inside a base embed container (client adds wrapper)
+        if (table.closest && table.closest('.base-embed')) {
+          return;
+        }
+        if (!table.parentElement?.classList.contains('table-wrapper')) {
+          const wrapper = document.createElement('div');
+          wrapper.className = 'table-wrapper';
+          // Let CSS handle the styling instead of inline styles
+
+          table.parentNode?.insertBefore(wrapper, table);
+          wrapper.appendChild(table);
+
+          // Reset table margin since wrapper handles it
+          table.style.margin = '0';
+        }
+      });
+    }
+
+    // Expose for Swup hooks
+    window.initializeTableWrappers = initializeTableWrappers;
   </script>
 
 
@@ -1891,5 +1912,4 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
   <!-- Additional body scripts -->
   <slot name="scripts" />
 </body>
-</html>
 </html>

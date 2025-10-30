@@ -1,8 +1,8 @@
 {
   "name": "astro-modular",
-  "version": "0.4.7",
+  "version": "0.4.8",
   "type": "module",
-  "description": "A minimal, elegant blog theme for Astro heavily inspired by Obsidian, designed for clarity, performance, and seamless compatibility with Obsidian markdown workflows.",
+  "description": "A flexible blog theme designed for Obsidian users.",
   "main": "index.js",
   "scripts": {
     "dev": "cross-env ASTRO_CONTENT_COLLECTION_CACHE=false node scripts/setup-dev.mjs && node scripts/sync-images.js && node scripts/process-aliases.js && node scripts/generate-deployment-config.js && node scripts/generate-graph-data.js && astro dev --host localhost --port 5000",
@@ -18,9 +18,14 @@
     "version": "node scripts/get-version.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "astro",
+    "blog",
+    "theme",
+    "obsidian"
+  ],
+  "author": "David V. Kimball",
+  "license": "MIT",
   "dependencies": {
     "@astrojs/check": "^0.9.5",
     "@astrojs/mdx": "^4.3.8",
