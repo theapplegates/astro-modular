@@ -81,13 +81,13 @@ const iconPath = icons[name as keyof typeof icons];
 // Try Font Awesome brands first (for social icons)
 const faIcon = icon({ prefix: 'fab', iconName: name as any });
 
-// Use a graceful fallback icon (external-link) if neither FA nor custom icon exists
-const fallbackIcon = 'external-link';
+// Use a graceful fallback icon (link-2) if neither FA nor custom icon exists
+const fallbackIcon = 'link-2';
 const fallbackPath = icons[fallbackIcon];
 ---
 
 {faIcon ? (
-  <div class={className} style={`width: ${size}px; height: ${size}px; display: inline-block; transform: scale(0.7);`} set:html={faIcon.html[0]} />
+  <div class={className} style={`width: ${size}px; height: ${size}px; display: inline-flex; align-items: center; justify-content: center; transform: scale(0.7);`} set:html={faIcon.html[0]} />
 ) : iconPath ? (
   <svg 
     width={size} 
@@ -102,17 +102,17 @@ const fallbackPath = icons[fallbackIcon];
     set:html={iconPath}
   />
 ) : fallbackPath ? (
-  <svg 
-    width={size} 
-    height={size} 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    stroke-width="2" 
-    stroke-linecap="round" 
-    stroke-linejoin="round" 
-    class={className}
-    set:html={fallbackPath}
-    title={`${name} (using fallback icon)`}
-  />
+  <div class={className} style={`width: ${size}px; height: ${size}px; display: inline-flex; align-items: center; justify-content: center; transform: scale(0.7);`}>
+    <svg 
+      width={size} 
+      height={size} 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="currentColor" 
+      stroke-width="2" 
+      stroke-linecap="round" 
+      stroke-linejoin="round"
+      set:html={fallbackPath}
+    />
+  </div>
 ) : null}
