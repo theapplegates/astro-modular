@@ -287,35 +287,8 @@ if (siteConfig.postOptions.graphView.enabled && siteConfig.postOptions.graphView
   <Fragment slot="scripts">
     <script define:vars={{ posts: visiblePosts, commentsEnabled: siteConfig.postOptions.comments.enabled, postTitle: post.data.title, postSlug: post.id }}>
 
-      // Process wikilinks and initialize layouts after content loads
-      document.addEventListener('DOMContentLoaded', () => {
-
-
-        // Process external links in captions to open in new tabs
-        const captionLinks = document.querySelectorAll('p em a, .image-caption-container a');
-        captionLinks.forEach(link => {
-          const href = link.getAttribute('href');
-          if (href && (href.startsWith('http://') || href.startsWith('https://'))) {
-            link.setAttribute('target', '_blank');
-            link.setAttribute('rel', 'noopener noreferrer');
-          }
-        });
-
-        // Process all external links in content to open in new tabs (including reference links)
-        const allLinks = document.querySelectorAll('.prose a[href]');
-        allLinks.forEach(link => {
-          const href = link.getAttribute('href');
-          if (href && (href.startsWith('http://') || href.startsWith('https://'))) {
-            // Skip if already has target attribute (e.g., manually set)
-            if (!link.hasAttribute('target')) {
-              link.setAttribute('target', '_blank');
-              link.setAttribute('rel', 'noopener noreferrer');
-            }
-          }
-        });
-
-
-        // Process wikilinks - unified logic for all wikilink types
+      // Process wikilinks - unified logic for all wikilink types
+      function initializeWikilinks() {
         const wikilinks = document.querySelectorAll('.wikilink[data-wikilink]');
 
         wikilinks.forEach(link => {
@@ -323,14 +296,29 @@ if (siteConfig.postOptions.graphView.enabled && siteConfig.postOptions.graphView
           const displayOverride = link.dataset.displayOverride;
           const currentDisplayText = link.textContent;
 
-          // Find the matching post
+          // Find the matching post - use id (not slug, which is deprecated in Astro v6)
           const slug = linkText.toLowerCase()
             .replace(/[^a-z0-9\s-]/g, '')
             .replace(/\s+/g, '-')
             .replace(/-+/g, '-')
             .replace(/^-+|-+$/g, '');
 
-          const post = posts.find(p => p.slug === slug);
+          // Helper function to create slug from title (same as resolveWikilink logic)
+          const createSlugFromTitle = (title: string) => {
+            return title.toLowerCase()
+              .replace(/[^a-z0-9\s-]/g, '')
+              .replace(/\s+/g, '-')
+              .replace(/-+/g, '-')
+              .replace(/^-+|-+$/g, '');
+          };
+
+          // First try exact id match (Astro v6 uses id, not slug)
+          let post = posts.find(p => p.id === slug);
+          
+          // If not found, try title match (for wikilinks that use post titles)
+          if (!post) {
+            post = posts.find(p => createSlugFromTitle(p.data.title) === slug);
+          }
 
           if (post) {
             // Update href
@@ -357,65 +345,23 @@ if (siteConfig.postOptions.graphView.enabled && siteConfig.postOptions.graphView
             link.title = 'Link not found';
           }
         });
+      }
 
+      // Make function globally available for Swup re-initialization
+      window.initializeWikilinks = initializeWikilinks;
 
-      });
-
-      // Handle Swup page transitions for comments
-      document.addEventListener('swup:contentReplaced', () => {
-        setTimeout(() => {
-
-          // Process external links in captions to open in new tabs
-          const captionLinks = document.querySelectorAll('p em a, .image-caption-container a');
-          captionLinks.forEach(link => {
-            const href = link.getAttribute('href');
-            if (href && (href.startsWith('http://') || href.startsWith('https://'))) {
-              link.setAttribute('target', '_blank');
-              link.setAttribute('rel', 'noopener noreferrer');
-            }
-          });
-
-          // Process all external links in content to open in new tabs (including reference links)
-          const allLinks = document.querySelectorAll('.prose a[href]');
-          allLinks.forEach(link => {
-            const href = link.getAttribute('href');
-            if (href && (href.startsWith('http://') || href.startsWith('https://'))) {
-              // Skip if already has target attribute (e.g., manually set)
-              if (!link.hasAttribute('target')) {
-                link.setAttribute('target', '_blank');
-                link.setAttribute('rel', 'noopener noreferrer');
-              }
-            }
-          });
-
-
-          // Comments are now handled globally by BaseLayout Swup hooks
-        }, 100);
-
-        // Initialize lightbox functionality for images
-        function initializeLightbox() {
-          const images = document.querySelectorAll('img');
-          images.forEach((img, index) => {
-            // Skip images that are already clickable (like in galleries)
-            if (img.closest('a')) {
-              return;
-            }
-
-            // Make image clickable
-            img.style.cursor = 'pointer';
-            img.addEventListener('click', () => {
-              // Dispatch custom event to open lightbox
-              window.dispatchEvent(new CustomEvent('openLightbox', {
-                detail: { index }
-              }));
-            });
-          });
+      // Process wikilinks and initialize layouts after content loads
+      document.addEventListener('DOMContentLoaded', () => {
+        // Process external links - handled by BaseLayout, but call here as backup for initial load
+        if (window.processExternalLinks) {
+          window.processExternalLinks();
         }
 
-        // Initialize lightbox after a short delay to ensure images are loaded
-        setTimeout(initializeLightbox, 200);
-
+        // Initialize wikilinks on initial load
+        initializeWikilinks();
       });
+
+      // External links are now handled globally by BaseLayout Swup hooks
 
     </script>
   </Fragment>

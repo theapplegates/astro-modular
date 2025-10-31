@@ -1017,6 +1017,42 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
     } else {
       initializeCollapsibleCallouts();
     }
+
+    // Process external links to open in new tabs
+    function processExternalLinks() {
+      // Process external links in captions to open in new tabs
+      const captionLinks = document.querySelectorAll('p em a, .image-caption-container a');
+      captionLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        if (href && (href.startsWith('http://') || href.startsWith('https://'))) {
+          link.setAttribute('target', '_blank');
+          link.setAttribute('rel', 'noopener noreferrer');
+        }
+      });
+
+      // Process all external links in content to open in new tabs (including reference links)
+      const allLinks = document.querySelectorAll('.prose a[href], article a[href]');
+      allLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        if (href && (href.startsWith('http://') || href.startsWith('https://'))) {
+          // Skip if already has target attribute (e.g., manually set)
+          if (!link.hasAttribute('target')) {
+            link.setAttribute('target', '_blank');
+            link.setAttribute('rel', 'noopener noreferrer');
+          }
+        }
+      });
+    }
+
+    // Make function globally accessible
+    window.processExternalLinks = processExternalLinks;
+
+    // Initialize external links when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', processExternalLinks);
+    } else {
+      processExternalLinks();
+    }
   </script>
 
   <!-- View Transitions - temporarily disabled to fix compiler issues -->
@@ -1309,6 +1345,10 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
             if (window.initializeLinkedMentions) {
               window.initializeLinkedMentions();
             }
+            // Initialize wikilinks
+            if (window.initializeWikilinks) {
+              window.initializeWikilinks();
+            }
             // Initialize image galleries
             if (typeof window['initializeImageGalleries'] === 'function') {
               window['initializeImageGalleries']();
@@ -1316,6 +1356,10 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
             // Initialize category filtering
             if (typeof window['initializeCategoryFiltering'] === 'function') {
               window['initializeCategoryFiltering']();
+            }
+            // Process external links to open in new tabs
+            if (window.processExternalLinks) {
+              window.processExternalLinks();
             }
             // Re-setup smooth scrolling for anchor links
             setupSmoothScrolling();
@@ -1349,6 +1393,10 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
             if (window.initializeLinkedMentions) {
               window.initializeLinkedMentions();
             }
+            // Initialize wikilinks
+            if (window.initializeWikilinks) {
+              window.initializeWikilinks();
+            }
             // Initialize category filtering
             if (typeof window['initializeCategoryFiltering'] === 'function') {
               window['initializeCategoryFiltering']();
@@ -1366,6 +1414,10 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
             }
             if (window.setupGraphButtons) {
               window.setupGraphButtons();
+            }
+            // Process external links to open in new tabs
+            if (window.processExternalLinks) {
+              window.processExternalLinks();
             }
             // Re-setup smooth scrolling for anchor links
             setupSmoothScrolling();

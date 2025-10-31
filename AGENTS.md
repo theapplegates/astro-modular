@@ -1791,6 +1791,45 @@ features: {
 - `linkedMentions: true` - Enable linked mentions section at the end of the page showing which posts reference the current post
 - `linkedMentionsCompact: false` - Choose between detailed view (default) or compact view for linked mentions
 
+#### Linked Mentions Excerpt Extraction Logic
+
+**🚨 CRITICAL: Structural-Only Approach**
+
+The Linked Mentions excerpt extraction logic uses **purely structural/syntax-based patterns** - **NEVER word or phrase matching**.
+
+**Key Principles:**
+
+1. **Markdown Cleanup (Structural Only)**:
+   - Remove markdown syntax: code blocks (`` ``` ``), inline code (`` ` ``), bold (`**`), italic (`*`), headers (`#`), blockquotes (`>`), callouts (`> [!TYPE]`), horizontal rules (`---`), list markers (`-`, `1.`)
+   - Remove structural patterns: orphaned labels ending with `:` (e.g., `Label:` at end), trailing colons/dashes
+   - **NEVER match specific words or phrases** like "Further reading", "See also", "Start lines with", etc.
+   - **ONLY use structural patterns** like `([A-Z][a-z]+):` to match any capitalized label, not specific label names
+
+2. **Ellipsis Placement (Structural Detection)**:
+   - **Detects natural endings** using structural patterns only:
+     - Links as endings: `]]` (wikilink), `)` (markdown link), `</mark>` (processed link HTML)
+     - Sentence endings: `.`, `!`, `?` (complete sentences)
+     - Incomplete punctuation: `,`, `:`, `-`, `;` (suggesting truncation)
+     - Letter endings: Ends with letter/word but no sentence punctuation (e.g., "or", "and" - detected structurally, not word-specific)
+   - **NEVER check for specific phrases** like "Further reading", "See also", etc.
+   - **NEVER match specific conjunctions** like "or", "and", "but" - instead check for letter endings without punctuation
+
+3. **Link Processing**:
+   - Processes standard markdown links FIRST, then wikilinks (prevents double-processing)
+   - Handles incomplete/truncated links (e.g., `[Obsidian Vault...`) by detecting structural patterns
+   - Highlights relevant links (matching target post) using slug comparison, not word matching
+
+4. **Semantic HTML**:
+   - Uses `div` elements for "Linked Mentions" heading and individual post titles (NOT `h2`/`h3` headings)
+   - Maintains proper visual hierarchy without interfering with post heading structure
+
+**Common Mistakes to Avoid:**
+- ❌ **NEVER hardcode word/phrase patterns** like `/\bFurther reading|See also\b/i`
+- ❌ **NEVER match specific words** like `/\b(or|and|but)\b/` - use structural letter-ending detection instead
+- ❌ **NEVER remove specific phrases** like "Start lines with", "separate columns" - use structural label patterns
+- ✅ **ALWAYS use structural patterns** like `/[.!?]\s*$/` (sentence endings), `/<\/mark>/i` (link endings)
+- ✅ **ALWAYS check for syntax artifacts** like code blocks, markdown formatting, not content-specific text
+
 #### Cover Image Options
 - `"all"` - Show cover images everywhere
 - `"featured"` - Show only on the featured post section and featured posts
@@ -4133,12 +4172,24 @@ The comments are styled to match your theme automatically. If you see styling is
 - **Common symptoms**: Folder-based post images don't display on post cards
 - **This mistake breaks folder-based post functionality completely**
 
-#### 11. **H1 Title Handling**
+#### 11. **🚨 LINKED MENTIONS EXCERPT LOGIC (CRITICAL)**
+- **NEVER use word/phrase matching** - All logic must be structural/syntax-based only
+- **Markdown cleanup** should only remove syntax artifacts (code blocks, formatting markers, structural patterns)
+- **Ellipsis placement** should detect endings using punctuation patterns (`.!?`, `,:;-`, letter endings), NOT specific words
+- **Link detection** should use slug comparison and structural patterns, NOT word matching
+- **Common mistakes**:
+  - ❌ Matching phrases like "Further reading", "See also", "Start lines with"
+  - ❌ Matching specific conjunctions like "or", "and", "but" as words
+  - ❌ Removing specific phrases from cleanup logic
+  - ✅ Using structural patterns like `/[.!?]\s*$/` (sentence endings), `/<\/mark>/i` (link HTML), `/([A-Z][a-z]+):/` (any label pattern)
+- **See [Linked Mentions Excerpt Extraction Logic](#linked-mentions-excerpt-extraction-logic) section for detailed guidelines**
+
+#### 12. **H1 Title Handling**
 - **Both Posts and Pages**: NO H1 in markdown content - title comes from frontmatter, content starts with H2
 - **H1 is hardcoded** in both PostLayout and PageLayout using frontmatter title
 - **NEVER add H1** to any markdown content - both posts and pages have hardcoded H1s from frontmatter
 
-#### 12. **Custom Collections Approach**
+#### 13. **Custom Collections Approach**
 - **Use subfolders within pages collection** - avoid creating custom collections at content level
 - **No Astro warnings** - subfolders within pages don't trigger auto-generation warnings
 - **Same URL structure** - `/services/web-development` works the same way
@@ -4147,7 +4198,7 @@ The comments are styled to match your theme automatically. If you see styling is
   - `pages/services/web-development.md` → `/services/web-development`
   - `pages/services/web-development/index.md` → `/services/web-development`
 
-#### 13. **🚨 FAVICON THEME BEHAVIOR (CRITICAL)**
+#### 14. **🚨 FAVICON THEME BEHAVIOR (CRITICAL)**
 - **Favicon should NOT change with manual theme toggle** - it should only change with browser system theme
 - **SIMPLE WORKING IMPLEMENTATION** (20 lines max, add to BaseLayout.astro script section):
   ```javascript
@@ -4179,25 +4230,25 @@ The comments are styled to match your theme automatically. If you see styling is
 - **Files**: Use `.png` format (matches existing favicon files)
 - **Behavior**: Favicon reflects OS/browser theme preference, ignores website theme toggle
 
-#### 14. **🎨 COLOR USAGE (CRITICAL)**
+#### 15. **🎨 COLOR USAGE (CRITICAL)**
 - **NEVER use hardcoded colors** - Always use theme variables from `src/themes/index.ts`
 - **Use Tailwind classes** that reference theme variables (`primary-*`, `highlight-*`)
 - **Include dark mode variants** for all color definitions (`dark:bg-primary-800`)
 - **Check existing code** for hardcoded colors and replace them
 - **Reference theme files** to understand available color scales
 
-#### 15. **Package Manager**
+#### 16. **Package Manager**
 - Always use `pnpm` instead of `npm` for all commands
 - Scripts: `pnpm run <script-name>`, not `npm run <script-name>`
 
-#### 16. **Deployment Platform Configuration**
+#### 17. **Deployment Platform Configuration**
 - **Set platform once in config** - Use `deployment.platform` in `src/config.ts`, not environment variables
 - **No environment variables needed** - The build process automatically detects the platform from config
 - **Platform options**: "netlify", "vercel", "github-pages" (all lowercase with hyphens)
 - **Backward compatibility**: Environment variables still work but are not recommended
 - **Configuration files**: Automatically generated based on platform choice
 
-#### 17. **Homepage Configuration Structure**
+#### 18. **Homepage Configuration Structure**
 - **Use `homeOptions`** - All homepage content is now under `homeOptions`, not `features` or `homeBlurb`
 - **Featured Post**: Use `homeOptions.featuredPost` with `type: "latest"` or `type: "featured"`
 - **Slug Flexibility**: Slug can be present even when `type: "latest"` - it will be ignored until switched to "featured"
@@ -4206,7 +4257,7 @@ The comments are styled to match your theme automatically. If you see styling is
 - **Blurb**: Use `homeOptions.blurb` with `placement: "above" | "below" | "none"`
 - **Old References**: `showLatestPost`, `recentPostsCount`, and `homeBlurb` are deprecated
 
-#### 18. **Development vs Production Behavior**
+#### 19. **Development vs Production Behavior**
 - **Development**: Missing images show placeholders, warnings are logged
 - **Production**: Missing images cause build failures
 - Always run `pnpm run check-images` before deploying

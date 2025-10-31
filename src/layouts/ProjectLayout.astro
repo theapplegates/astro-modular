@@ -369,21 +369,37 @@ const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProject
         window.initializeImageGrids = initializeImageGrids;
 
         // Process wikilinks - unified logic for all wikilink types
-        const wikilinks = document.querySelectorAll('.wikilink[data-wikilink]');
+        function initializeWikilinks() {
+          const wikilinks = document.querySelectorAll('.wikilink[data-wikilink]');
 
-        wikilinks.forEach(link => {
-          const linkText = link.dataset.wikilink;
-          const displayOverride = link.dataset.displayOverride;
-          const currentDisplayText = link.textContent;
+          wikilinks.forEach(link => {
+            const linkText = link.dataset.wikilink;
+            const displayOverride = link.dataset.displayOverride;
+            const currentDisplayText = link.textContent;
 
-          // Find the matching post
-          const slug = linkText.toLowerCase()
-            .replace(/[^a-z0-9\s-]/g, '')
-            .replace(/\s+/g, '-')
-            .replace(/-+/g, '-')
-            .replace(/^-+|-+$/g, '');
+            // Find the matching post - use id (not slug, which is deprecated in Astro v6)
+            const slug = linkText.toLowerCase()
+              .replace(/[^a-z0-9\s-]/g, '')
+              .replace(/\s+/g, '-')
+              .replace(/-+/g, '-')
+              .replace(/^-+|-+$/g, '');
 
-          const post = posts.find(p => p.id === slug);
+            // Helper function to create slug from title (same as resolveWikilink logic)
+            const createSlugFromTitle = (title: string) => {
+              return title.toLowerCase()
+                .replace(/[^a-z0-9\s-]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-')
+                .replace(/^-+|-+$/g, '');
+            };
+
+            // First try exact id match (Astro v6 uses id, not slug)
+            let post = posts.find(p => p.id === slug);
+            
+            // If not found, try title match (for wikilinks that use post titles)
+            if (!post) {
+              post = posts.find(p => createSlugFromTitle(p.data.title) === slug);
+            }
 
           if (post) {
             // Update href
@@ -410,43 +426,16 @@ const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProject
             link.title = 'Link not found';
           }
         });
+      }
+
+      // Make function globally available for Swup re-initialization
+      window.initializeWikilinks = initializeWikilinks;
+
+      // Initialize wikilinks on initial load
+      initializeWikilinks();
       });
 
-      // Handle Swup page transitions for comments
-      document.addEventListener('swup:contentReplaced', () => {
-        // Re-initialize image grids after content replacement
-        setTimeout(() => {
-          if (window.initializeImageGrids) {
-            window.initializeImageGrids();
-          }
-
-          // Comments are now handled globally by BaseLayout Swup hooks
-        }, 100);
-
-        // Initialize lightbox functionality for images
-        function initializeLightbox() {
-          const images = document.querySelectorAll('img');
-          images.forEach((img, index) => {
-            // Skip images that are already clickable (like in galleries)
-            if (img.closest('a') || img.closest('.image-grid')) {
-              return;
-            }
-
-            // Make image clickable
-            img.style.cursor = 'pointer';
-            img.addEventListener('click', () => {
-              // Dispatch custom event to open lightbox
-              window.dispatchEvent(new CustomEvent('openLightbox', {
-                detail: { index }
-              }));
-            });
-          });
-        }
-
-        // Initialize lightbox after a short delay to ensure images are loaded
-        setTimeout(initializeLightbox, 200);
-
-      });
+      // Image grids, lightbox, and external links are now handled globally by BaseLayout Swup hooks
 
     </script>
   </Fragment>

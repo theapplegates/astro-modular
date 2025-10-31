@@ -350,7 +350,8 @@ function extractLinkTextFromUrlWithAnchor(
   if (link.endsWith(".md")) {
     let linkText = link.replace(/\.md$/, "");
     // Conservative approach: only remove /index if it follows folder-based pattern
-    if (linkText.endsWith("/index") && linkText.split("/").length === 1) {
+    // Pattern: folder-name/index -> folder-name (where folder-name matches the slug)
+    if (linkText.endsWith("/index") && linkText.split("/").length === 2) {
       linkText = linkText.replace("/index", "");
     }
     return {
@@ -720,9 +721,10 @@ export function remarkStandardLinks() {
               // Posts: /posts/slug/
               baseUrl = `/${node.url.replace(/\.md.*$/, "")}`;
               // Conservative approach: only remove /index if it follows folder-based pattern
+              // Pattern: /posts/folder-name/index -> /posts/folder-name
               if (
                 baseUrl.endsWith("/index") &&
-                baseUrl.split("/").length === 3
+                baseUrl.split("/").length === 4
               ) {
                 baseUrl = baseUrl.replace("/index", "");
               }
@@ -744,9 +746,10 @@ export function remarkStandardLinks() {
               // Projects: /projects/slug/
               baseUrl = `/${node.url.replace(/\.md.*$/, "")}`;
               // Remove /index for folder-based projects
+              // Pattern: /projects/folder-name/index -> /projects/folder-name
               if (
                 baseUrl.endsWith("/index") &&
-                baseUrl.split("/").length === 3
+                baseUrl.split("/").length === 4
               ) {
                 baseUrl = baseUrl.replace("/index", "");
               }
@@ -754,9 +757,10 @@ export function remarkStandardLinks() {
               // Docs: /docs/slug/
               baseUrl = `/${node.url.replace(/\.md.*$/, "")}`;
               // Remove /index for folder-based docs
+              // Pattern: /docs/folder-name/index -> /docs/folder-name
               if (
                 baseUrl.endsWith("/index") &&
-                baseUrl.split("/").length === 3
+                baseUrl.split("/").length === 4
               ) {
                 baseUrl = baseUrl.replace("/index", "");
               }
@@ -772,21 +776,34 @@ export function remarkStandardLinks() {
                 baseUrl = `/${specialPath}`;
               } else {
                 // Assume posts for backward compatibility
-                baseUrl = `/posts/${linkText}`;
-                // Conservative approach: only remove /index if it follows folder-based pattern
-                if (
-                  baseUrl.endsWith("/index") &&
-                  baseUrl.split("/").length === 3
-                ) {
-                  baseUrl = baseUrl.replace("/index", "");
+                // CRITICAL: Use linkText which already has /index removed by extractLinkTextFromUrlWithAnchor
+                // If linkText is null/undefined, fall back to processing node.url directly
+                if (!linkText) {
+                  // Fallback: process node.url directly
+                  let processedUrl = node.url.replace(/\.md.*$/, "");
+                  // Remove /index if present
+                  processedUrl = processedUrl.replace(/\/index$/, "");
+                  baseUrl = `/posts/${processedUrl}`;
+                } else {
+                  // Use linkText which should already be clean
+                  let cleanLinkText = linkText.replace(/\/index$/, ""); // Extra defensive check
+                  baseUrl = `/posts/${cleanLinkText}`;
                 }
               }
             }
 
+            // Final defensive check: ALWAYS remove /index from any URL BEFORE adding anchor
+            // Aggressively remove /index from the end of any URL (multiple passes to be sure)
+            baseUrl = baseUrl.replace(/\/index$/, "");
+            baseUrl = baseUrl.replace(/\/index#/, "#"); // Handle /index#anchor pattern
+            
             if (anchor) {
               baseUrl += `#${createAnchorSlug(anchor)}`;
             }
-            node.url = baseUrl;
+            
+            // ABSOLUTE FINAL CHECK - Remove /index from final URL no matter what
+            // Use a more aggressive regex that catches /index at end or before #
+            node.url = baseUrl.replace(/\/index(?=#|$)/g, "");
           } else {
             // For non-.md URLs, apply URL mapping and handle anchors
             let mappedUrl = mapRelativeUrlToSiteUrl(node.url);
@@ -797,6 +814,27 @@ export function remarkStandardLinks() {
               }
             }
             node.url = mappedUrl;
+          }
+
+          // ABSOLUTE FINAL PASS - Remove /index from ANY /posts/ URL before styling
+          // This is a brute-force safety check that runs after all other processing
+          // CRITICAL: This MUST run after all URL processing to catch any missed cases
+          // Unconditionally check and fix ALL /posts/ URLs
+          if (node.url && typeof node.url === 'string') {
+            // Check if it's a /posts/ URL with /index
+            if (node.url.startsWith("/posts/")) {
+              // Apply multiple removal strategies
+              let fixedUrl = node.url;
+              // Strategy 1: Regex before anchor
+              fixedUrl = fixedUrl.replace(/\/index(?=#|$)/g, "");
+              // Strategy 2: Regex end of string
+              fixedUrl = fixedUrl.replace(/\/index$/g, "");
+              // Strategy 3: String slice if still present
+              if (fixedUrl.endsWith("/index")) {
+                fixedUrl = fixedUrl.slice(0, -6);
+              }
+              node.url = fixedUrl;
+            }
           }
 
           // Add wikilink styling to internal links for visual consistency
