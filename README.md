@@ -6,7 +6,7 @@ A flexible blog theme designed for Obsidian users.
 
 ## Use Obsidian as a CMS
 
-![Alt](https://github.com/user-attachments/assets/671eb486-e736-410d-b3f8-f98ac21f15f8 "Astro Modular Obsidian vault")
+![Alt](https://github.com/user-attachments/assets/7bb4cdb9-0680-4776-8a72-c542dd63055b "Astro Modular Obsidian vault")
 
 
 ## Stats
