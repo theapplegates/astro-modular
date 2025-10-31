@@ -11,6 +11,7 @@ import remarkBases from './src/utils/remark-bases.ts';
 import remarkMath from 'remark-math';
 import remarkReadingTime from 'remark-reading-time';
 import remarkToc from 'remark-toc';
+import remarkBreaks from 'remark-breaks';
 import rehypeKatex from 'rehype-katex';
 import rehypeMark from './src/utils/rehype-mark.ts';
 import rehypeOptimizeImages from './src/utils/rehype-optimize-images.ts';
@@ -83,8 +84,9 @@ export default defineConfig({
     })
   ],
   markdown: {
-        remarkPlugins: [
-          remarkInternalLinks,
+      remarkPlugins: [
+      remarkInternalLinks,
+      remarkBreaks,
       remarkFolderImages,
       remarkObsidianEmbeds,
       // Bases directive (table-only v1)
