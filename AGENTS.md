@@ -698,6 +698,24 @@ The included Obsidian vault follows three core principles:
 
 ### Vault Setup & Configuration
 
+#### Obsidian Settings for Best Compatibility
+
+**Critical Settings:**
+- **Files & Links → New link format**: Set to **"Absolute path in Vault"** - This ensures paths like `bases/home.base` or `attachments/image.jpg` work correctly with the theme's image processing logic
+- **Files & Links → Default location for new attachments**: `./attachments` (as configured in vault)
+- **Files & Links → Use `[[]]` style links**: Can be enabled if you prefer wikilinks, but standard markdown links work better for cross-content-type linking
+
+**Why "Absolute path in Vault" is Recommended:**
+- Matches the theme's path processing logic which expects paths like `bases/home.base` (not `../bases/home.base` or just `home.base`)
+- Prevents issues with relative path resolution (`../` patterns aren't explicitly handled)
+- Maintains consistent paths when moving files around in Obsidian
+- Works seamlessly with the theme's image optimization functions
+
+**Path Format Examples:**
+- ✅ **Absolute path in Vault**: `bases/home.base` → Processes correctly
+- ❌ **Relative paths**: `../bases/home.base` → May cause resolution issues
+- ❌ **Shortest path possible**: `home.base` → Loses folder context
+
 #### Theme & Visual Experience
 - **Minimal Theme** - Understated color scheme with high contrast options
 - **Minimal Theme Settings** - Complete control over your experience
@@ -746,7 +764,7 @@ When working with the Obsidian vault, these hotkeys are crucial:
 
 #### Homepage and Default New Tab Page
 - **Home Base**: Default screen shows a `.base` file with all blog posts in reverse-chronological order
-- **Location**: Nested in `_bases` folder (underscore prefix prevents Astro processing)
+- **Location**: Nested in `bases` folder
 - **Customization**: Note properties in views can be customized
 
 #### Content Management Plugins
@@ -804,8 +822,9 @@ This theme supports two distinct linking behaviors, each with specific use cases
   - `[Home](special/home)` or `[Home](homepage)` → Special pages
 
 #### **When to Use Which**
-- **Use Wikilinks** when writing in Obsidian for posts - they feel natural and work seamlessly
-- **Use Standard Links** when linking between different content types or when you need explicit control
+- **Use Standard Markdown Links** (`[text](url)`) for linking between different content types - this is the most ideal approach if you care about cross-content-type linking
+- **Use Wikilinks** (`[[Post Title]]`) only if you exclusively link between posts and want the Obsidian-native feel - they work seamlessly for posts but don't support other content types
+- **Best Practice**: If you plan to link between posts, pages, projects, or docs, use standard markdown links for maximum flexibility
 - **Both work together** - you can mix wikilinks and standard links in the same document
 
 #### **Technical Implementation**
@@ -4126,8 +4145,9 @@ The comments are styled to match your theme automatically. If you see styling is
 - These are completely separate systems - don't mix them up!
 
 #### 7. **Linking Behavior Confusion (Important)**
-- **Wikilinks (`[[...]]`) only work with posts** - this is intentional and matches Obsidian's primary use case
-- **Standard markdown links (`[text](url)`) work with all content types** - use these for pages, projects, docs
+- **Standard markdown links (`[text](url)`) are the most ideal** - use these for linking between different content types (posts, pages, projects, docs)
+- **Wikilinks (`[[...]]`) only work with posts** - use these only if you exclusively link between posts and want the Obsidian-native feel
+- **Best Practice**: Prefer standard markdown links for maximum flexibility and cross-content-type linking
 - **Don't try to extend wikilinks to other collections** - use standard links instead: `[Page Title](page-slug)`, `[Project](projects/project-slug)`, `[Doc](docs/doc-slug)`
 - **Linked mentions only track posts** - pages, projects, and docs are not included in linked mentions
 - **File renamed for clarity**: `wikilinks.ts` → `internallinks.ts` to distinguish between the two behaviors

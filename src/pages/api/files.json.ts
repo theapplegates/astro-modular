@@ -23,7 +23,7 @@ export const GET: APIRoute = async () => {
   try {
     const contentRoot = path.join(process.cwd(), 'src', 'content');
     const files = listAllFiles(contentRoot)
-      .filter((p) => !p.includes(`${path.sep}_bases${path.sep}`))
+      .filter((p) => !p.includes(`${path.sep}bases${path.sep}`))
       .map((p) => {
         const base = path.basename(p);
         if (base.toLowerCase().endsWith('.md')) {

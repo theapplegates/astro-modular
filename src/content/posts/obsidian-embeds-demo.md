@@ -94,9 +94,8 @@ properties:
   formula.Slug:
     displayName: Path
 views:
-  - type: cards
+  - type: table
     name: Posts
-    limit: 4
     filters:
       and:
         - file.folder.startsWith("posts")
@@ -175,10 +174,30 @@ views:
 
 ```
 
+By adding a `limit` under `views` you can limit the number of items that appear. 
+
+```base
+views:
+  - type: table
+    name: Posts
+    limit: 2
+```
+
+This is the syntax:
+
+````markdown
+```base
+views:
+  - type: table
+    name: Posts
+    limit: 2
+```
+````
+
 You can also embed a `.base` as a markdown embed:
 
 ```markdown
-![](_bases/home.base)
+![](bases/home.base)
 ```
 
 Or as a wikilinks embed:

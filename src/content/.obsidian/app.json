@@ -4,7 +4,7 @@
   "showIndentGuide": false,
   "attachmentFolderPath": "./attachments",
   "userIgnoreFilters": [
-    "_bases/"
+    "bases/"
   ],
   "focusNewTab": false,
   "mobilePullAction": "file-explorer:new-file",
@@ -38,6 +38,6 @@
   ],
   "newFileLocation": "folder",
   "newFileFolderPath": "posts",
-  "newLinkFormat": "relative",
+  "newLinkFormat": "absolute",
   "mobileQuickRibbonItem": "command-palette:Open command palette"
 }

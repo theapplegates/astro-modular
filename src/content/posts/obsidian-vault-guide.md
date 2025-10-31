@@ -120,8 +120,6 @@ You can adjust lots of settings including regex for ignoring names (like `Untitl
 
 Both of these work together so you're default screen is a `.base` file that's a directory of all of your blog posts, listed in reverse-chronological order. You're able to customize the note properties and views to your liking. 
 
-The Base is nested within a folder called `_bases` because Astro will ignore files and folders with an underscore prefix, letting you use this for Obsidian without processing it for the live site.
-
 I call this "Home Base."
 
 ```base
@@ -162,7 +160,7 @@ properties:
 views:
   - type: cards
     name: Posts
-    limit: 4
+    limit: 8
     filters:
       and:
         - file.folder.startsWith("posts")

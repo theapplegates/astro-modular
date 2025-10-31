@@ -198,7 +198,7 @@ export const remarkObsidianEmbeds: Plugin<[], Root> = () => {
 
         // Read the .base file and map a single view to config (no try/catch to satisfy older parser)
         const baseName = raw.split('/').pop()?.replace(/\.base$/i, '') || 'home';
-        const basePath = path.join(process.cwd(), 'src', 'content', '_bases', `${baseName}.base`);
+        const basePath = path.join(process.cwd(), 'src', 'content', 'bases', `${baseName}.base`);
         if (fs.existsSync(basePath)) {
           const text = fs.readFileSync(basePath, 'utf8');
           // Global filter hint: detect file.ext == "md" to require md
