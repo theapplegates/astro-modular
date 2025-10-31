@@ -1306,10 +1306,15 @@ svg:has(text:contains("mermaid version")) {
 /* YouTube embeds */
 .youtube-embed {
   @apply aspect-video overflow-hidden rounded-xl my-8;
+  position: relative;
 }
 
 .youtube-embed iframe {
   @apply w-full h-full;
+  position: absolute;
+  top: 0;
+  left: 0;
+  border: 0;
 }
 
 /* Twitter/X embeds */

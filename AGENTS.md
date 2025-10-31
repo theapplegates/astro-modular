@@ -28,6 +28,7 @@ This document contains essential information for AI agents working with this Ast
 7. **🚨 URL MAPPING SYSTEM CONFUSION** - URL mapping is for rendering only, doesn't affect linked mentions/graph view
 8. **🚨 FOLDER-BASED CONTENT ASSUMPTIONS** - ALL content types support folder-based organization, not just posts
 9. **🚨 FOLDER-BASED POST ID DETECTION** - Astro v6 folder-based posts have IDs like 'folder-name', NOT 'folder-name/index'
+10. **🚨 NEVER DISABLE ASTRO DEV TOOLBAR** - The dev toolbar must remain enabled (`devToolbar.enabled: true`) - do NOT disable it to resolve module loading errors
 
 **These issues are documented in detail in the [Common AI Agent Mistakes](#common-ai-agent-mistakes) section.**
 
@@ -4281,6 +4282,21 @@ The comments are styled to match your theme automatically. If you see styling is
 - **Development**: Missing images show placeholders, warnings are logged
 - **Production**: Missing images cause build failures
 - Always run `pnpm run check-images` before deploying
+
+#### 20. **🚨 NEVER DISABLE ASTRO DEV TOOLBAR (CRITICAL)**
+- **NEVER disable the Astro dev toolbar** - Always keep `devToolbar.enabled: true` in `astro.config.mjs`
+- **The dev toolbar is a critical development tool** - It provides debugging, auditing, and inspection capabilities
+- **Module loading errors with pnpm are harmless** - Known issue with pnpm's nested node_modules structure - errors appear in console but toolbar still works
+- **If dev toolbar modules fail to load:**
+  - **With pnpm**: Console errors are expected and harmless - toolbar functionality works despite errors
+  - **With npm/yarn**: Check Vite HMR configuration (should be enabled)
+  - Verify Vite server configuration is correct
+  - Ensure TypeScript module resolution is properly configured
+  - Check for duplicate `vite.server` configuration blocks
+  - **DO NOT** disable the toolbar as a workaround
+- **The toolbar is development-only** - It automatically excludes itself from production builds
+- **Configuration location**: `astro.config.mjs` → `devToolbar: { enabled: true }`
+- **Known pnpm issue**: Dev toolbar module loading errors in console with pnpm are cosmetic - functionality is unaffected
 
 ### Accessibility Warnings
 

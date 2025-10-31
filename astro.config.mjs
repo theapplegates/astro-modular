@@ -141,20 +141,19 @@ export default defineConfig({
       port: 5000,
       allowedHosts: [],
       middlewareMode: false,
-      hmr: false,
+      hmr: true,
+      watch: {
+        usePolling: process.platform === 'win32', // Use polling on Windows for better file watching
+        interval: 1000
+      },
       headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate'
+        // CSP headers are handled by src/middleware.ts for all routes
       }
     },
     define: {
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
       'process.env.ASTRO_CONTENT_COLLECTION_CACHE': 'false'
-    },
-    server: {
-      watch: {
-        usePolling: process.platform === 'win32', // Use polling on Windows for better file watching
-        interval: 1000
-      }
     },
     optimizeDeps: {
       exclude: ['astro:content']

@@ -5,7 +5,6 @@
       "type": "post",
       "title": "Formatting Reference",
       "slug": "formatting-reference",
-      "date": "2025-09-07T00:00:00.000Z",
       "connections": 8
     },
     {
@@ -13,7 +12,6 @@
       "type": "post",
       "title": "Getting Started",
       "slug": "getting-started",
-      "date": "2025-09-06T00:00:00.000Z",
       "connections": 6
     },
     {
@@ -21,7 +19,6 @@
       "type": "post",
       "title": "Obsidian Embeds Demo",
       "slug": "obsidian-embeds-demo",
-      "date": "2025-09-09T00:00:00.000Z",
       "connections": 0
     },
     {
@@ -29,7 +26,6 @@
       "type": "post",
       "title": "Obsidian Vault Guide",
       "slug": "obsidian-vault-guide",
-      "date": "2025-09-10T00:00:00.000Z",
       "connections": 0
     },
     {
@@ -37,7 +33,6 @@
       "type": "post",
       "title": "Sample Folder-Based Post",
       "slug": "sample-folder-based-post",
-      "date": "2025-09-08T00:00:00.000Z",
       "connections": 0
     }
   ],
@@ -99,7 +94,6 @@
     }
   ],
   "metadata": {
-    "generated": "2025-10-31T21:04:44.957Z",
     "totalPosts": 5,
     "totalConnections": 11,
     "maxNodesApplied": false,

@@ -379,6 +379,7 @@ export const remarkObsidianEmbeds: Plugin<[], Root> = () => {
   <iframe 
     src="https://www.youtube.com/embed/${youtubeVideoId}?rel=0&modestbranding=1" 
     title="${alt || 'YouTube video player'}" 
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
     allowfullscreen 
     loading="lazy"
     class="w-full h-full"
@@ -478,6 +479,7 @@ export const remarkObsidianEmbeds: Plugin<[], Root> = () => {
   <iframe 
     src="https://www.youtube.com/embed/${youtubeVideoId}?rel=0&modestbranding=1" 
     title="${title || 'YouTube video player'}" 
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
     allowfullscreen 
     loading="lazy"
     class="w-full h-full"

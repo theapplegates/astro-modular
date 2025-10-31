@@ -498,12 +498,14 @@ async function generateGraphData() {
       );
     }
 
+    // Remove date field from nodes before exporting (only needed for sorting)
+    const nodesForExport = filteredNodes.map(({ date, ...node }) => node);
+
     // Generate graph data
     const graphData = {
-      nodes: filteredNodes,
+      nodes: nodesForExport,
       connections: filteredConnections,
       metadata: {
-        generated: new Date().toISOString(),
         totalPosts: filteredNodes.length,
         totalConnections: filteredConnections.length,
         maxNodesApplied: maxNodes && nodes.length > maxNodes,
