@@ -110,7 +110,21 @@ function isInsideCodeBlock(parent: any, tree: any): boolean {
 
 // Helper function to check if a wikilink is inside backticks in raw content
 function isWikilinkInCode(content: string, wikilinkIndex: number): boolean {
-  // Find all backtick pairs in the content
+  // First check for code blocks (triple backticks)
+  const codeBlockRegex = /```[\s\S]*?```/g;
+  let codeBlockMatch;
+  
+  while ((codeBlockMatch = codeBlockRegex.exec(content)) !== null) {
+    const codeBlockStart = codeBlockMatch.index;
+    const codeBlockEnd = codeBlockMatch.index + codeBlockMatch[0].length;
+    
+    // Check if the wikilink is inside this code block
+    if (wikilinkIndex >= codeBlockStart && wikilinkIndex < codeBlockEnd) {
+      return true;
+    }
+  }
+  
+  // Then check for inline code (single backticks)
   const backtickRegex = /`([^`]*)`/g;
   let match;
 
@@ -457,9 +471,19 @@ export function remarkWikilinks() {
             url = `/posts/${cleanPath}`;
             wikilinkData = cleanPath;
           } else if (link.includes("/")) {
-            // Paths with slashes that don't start with posts/ are not valid for wikilinks
+            // Handle folder-based post format: folder-name/index
+            // In Astro v6, folder-based posts have IDs like 'folder-name' (not 'folder-name/index')
+            // So we need to handle the /index pattern explicitly
+            if (link.endsWith("/index") && link.split("/").length === 2) {
+              // This is a folder-based post: folder-name/index -> folder-name
+              const folderName = link.replace("/index", "");
+              url = `/posts/${folderName}`;
+              wikilinkData = folderName;
+            } else {
+              // Other paths with slashes that don't start with posts/ are not valid for wikilinks
             // Skip processing - this would not work in Obsidian
             return;
+            }
           } else {
             // Handle simple slug format - ASSUMES POSTS COLLECTION
             const slugifiedLink = createSlugFromTitle(link);
@@ -561,6 +585,14 @@ export function extractWikilinks(content: string): WikilinkMatch[] {
         } else {
           slug = postPath;
         }
+      } else if (baseLink.includes("/")) {
+        // Handle folder-based post format: folder-name/index
+        // In Astro v6, folder-based posts have IDs like 'folder-name' (not 'folder-name/index')
+        if (baseLink.endsWith("/index") && baseLink.split("/").length === 2) {
+          // This is a folder-based post: folder-name/index -> folder-name
+          slug = baseLink.replace("/index", "");
+        }
+        // If it's some other path format, keep as-is for slug conversion
       }
 
       // Convert to slug format
@@ -834,6 +866,14 @@ export function extractStandardLinks(content: string): WikilinkMatch[] {
             } else {
               slug = postPath;
             }
+          } else if (linkText.includes("/")) {
+            // Handle folder-based post format: folder-name/index
+            // In Astro v6, folder-based posts have IDs like 'folder-name' (not 'folder-name/index')
+            if (linkText.endsWith("/index") && linkText.split("/").length === 2) {
+              // This is a folder-based post: folder-name/index -> folder-name
+              slug = linkText.replace("/index", "");
+            }
+            // If it's some other path format, keep as-is for slug conversion
           }
 
           // Convert to slug format
@@ -932,15 +972,16 @@ export function findLinkedMentions(
       if (matchingLinks.length > 0) {
         // Use the original link text from the content for excerpt creation
         const originalLinkText = matchingLinks[0].link;
-        return {
-          title: post.data.title,
-          slug: post.id,
-          excerpt: createExcerptAroundWikilink(
+        const excerptResult = createExcerptAroundWikilink(
             post.body,
             originalLinkText,
             allPosts,
             allPages
-          ),
+        );
+        return {
+          title: post.data.title,
+          slug: post.id,
+          excerpt: excerptResult,
         };
       }
       return null;
@@ -975,11 +1016,13 @@ function createExcerptAroundWikilink(
 
     // Check if this wikilink is inside backticks
     if (!isWikilinkInCode(withoutFrontmatter, actualIndex)) {
-      return extractExcerptAtPosition(
+      const result = extractExcerptAtPosition(
         withoutFrontmatter,
         actualIndex,
-        match[0].length
+        match[0].length,
+        withoutFrontmatter.length
       );
+      return result.excerpt;
     }
 
     searchStart = actualIndex + match[0].length;
@@ -990,12 +1033,15 @@ function createExcerptAroundWikilink(
   const markdownLinkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
   let markdownMatch;
 
+  // Reset regex lastIndex before searching
+  markdownLinkRegex.lastIndex = 0;
+
   while (
     (markdownMatch = markdownLinkRegex.exec(withoutFrontmatter)) !== null
   ) {
     const [fullMatch, displayText, url] = markdownMatch;
 
-    // Check if this markdown link is inside backticks
+    // Check if this markdown link is inside code blocks or inline code
     if (!isWikilinkInCode(withoutFrontmatter, markdownMatch.index)) {
       // Check if this URL points to our target linkText
       if (isInternalLink(url)) {
@@ -1013,11 +1059,13 @@ function createExcerptAroundWikilink(
             normalizedUrlLinkText === normalizedLinkText ||
             urlLinkText === linkText
           ) {
-            return extractExcerptAtPosition(
+            const result = extractExcerptAtPosition(
               withoutFrontmatter,
               markdownMatch.index,
-              fullMatch.length
+              fullMatch.length,
+              withoutFrontmatter.length
             );
+            return result.excerpt;
           }
         }
       }
@@ -1031,24 +1079,426 @@ function createExcerptAroundWikilink(
 function extractExcerptAtPosition(
   content: string,
   position: number,
-  linkLength: number
-): string {
-  const contextLength = 100;
+  linkLength: number,
+  contentLength: number
+): { excerpt: string; isAtStart: boolean; isAtEnd: boolean } {
+  const contextLength = 100; // Context before and after the link (desired) - reduced to focus on relevant content
+  const minContextLength = 60; // Minimum context before/after the link (required) - reduced
+  const maxExcerptLength = 200; // Maximum final excerpt length (about 3 lines)
 
   // Get context around the match
-  const start = Math.max(0, position - contextLength);
-  const end = Math.min(content.length, position + linkLength + contextLength);
+  // Ensure we don't cut off in the middle of a link - extend end if needed
+  // Also avoid including code blocks in excerpts - if we hit a code block boundary, stop there
+  // Start with more context since markdown cleaning reduces content significantly
+  // If link is near the end, extract more context from before (can't extend after)
+  const isNearEnd = (contentLength - (position + linkLength)) < minContextLength;
+  const contextBeforeLink = isNearEnd ? Math.max(contextLength * 2, 250) : contextLength; // Double context if near end
+  
+  let start = Math.max(0, position - contextBeforeLink);
+  let end = Math.min(contentLength, position + linkLength + (isNearEnd ? 0 : contextLength));
+  
+  // Store initial boundaries to check minimum context after adjustments
+  const initialStart = start;
+  const initialEnd = end;
+  
+  // Check if our excerpt window includes any code blocks - if so, adjust boundaries
+  const codeBlockRegex = /```[\s\S]*?```/g;
+  let codeBlockMatch;
+  codeBlockRegex.lastIndex = 0; // Reset
+  
+  while ((codeBlockMatch = codeBlockRegex.exec(content)) !== null) {
+    const codeBlockStart = codeBlockMatch.index;
+    const codeBlockEnd = codeBlockMatch.index + codeBlockMatch[0].length;
+    
+    // If the link itself is inside a code block, we shouldn't be extracting an excerpt
+    // (This should be caught by isWikilinkInCode, but double-check)
+    if (position >= codeBlockStart && position < codeBlockEnd) {
+      // This is an error case - return empty excerpt
+      return { excerpt: "", isAtStart: false, isAtEnd: false };
+    }
+    
+    // If code block starts within our excerpt window, adjust end to before it
+    if (codeBlockStart > start && codeBlockStart < end && codeBlockStart > position) {
+      end = codeBlockStart; // Stop excerpt before code block
+    }
+    
+    // If code block ends within our excerpt window and starts before, adjust start to after it
+    if (codeBlockEnd > start && codeBlockEnd < position && codeBlockStart < start) {
+      start = codeBlockEnd; // Start excerpt after code block
+    }
+  }
+  
+  // After code block adjustments, ensure we still have minimum context
+  // Re-check context before/after to ensure we have enough
+  const contextBefore = position - start;
+  const contextAfter = end - (position + linkLength);
+  
+  // If code block adjustments reduced context too much, try to extend in the other direction
+  if (contextBefore < minContextLength && start > 0) {
+    const neededBefore = minContextLength - contextBefore;
+    const desiredStart = Math.max(0, start - neededBefore);
+    // Only extend if we're not hitting a code block (re-check)
+    let canExtend = true;
+    codeBlockRegex.lastIndex = 0;
+    while ((codeBlockMatch = codeBlockRegex.exec(content)) !== null) {
+      const codeBlockEnd = codeBlockMatch.index + codeBlockMatch[0].length;
+      if (codeBlockEnd > desiredStart && codeBlockEnd <= start) {
+        canExtend = false;
+        break;
+      }
+    }
+    if (canExtend) {
+      start = desiredStart;
+    }
+  }
+  
+  if (contextAfter < minContextLength && end < contentLength) {
+    const neededAfter = minContextLength - contextAfter;
+    const desiredEnd = Math.min(contentLength, end + neededAfter);
+    // Only extend if we're not hitting a code block (re-check)
+    let canExtend = true;
+    codeBlockRegex.lastIndex = 0;
+    while ((codeBlockMatch = codeBlockRegex.exec(content)) !== null) {
+      const codeBlockStart = codeBlockMatch.index;
+      if (codeBlockStart >= end && codeBlockStart < desiredEnd) {
+        canExtend = false;
+        break;
+      }
+    }
+    if (canExtend) {
+      end = desiredEnd;
+    }
+  }
+  
+  // Check if the match itself is a wikilink - if so, find its complete length
+  // This handles wikilinks with anchors and display text that are longer than expected
+  const matchContent = content.substring(position, Math.min(position + 100, contentLength));
+  if (matchContent.startsWith('[[')) {
+    // This is a wikilink - find the complete wikilink including any anchor and display text
+    const fullWikilinkMatch = content.substring(position).match(/^\[\[([^\]]+)(?:\|([^\]]+))?\]\]/);
+    if (fullWikilinkMatch) {
+      const actualLinkLength = fullWikilinkMatch[0].length;
+      // Update linkLength to the actual length and extend end if needed
+      if (actualLinkLength > linkLength) {
+        linkLength = actualLinkLength;
+        end = Math.min(contentLength, position + linkLength + contextLength);
+      }
+    }
+  }
+  
+  // Check if we're cutting off in the middle of a link after our match
+  const afterPosition = content.substring(position + linkLength);
+  
+  // Check for markdown links after our match
+  const markdownLinkMatch = afterPosition.match(/^[^\]]*\][^\)]*\)/);
+  if (markdownLinkMatch && end < position + linkLength + markdownLinkMatch[0].length) {
+    end = Math.min(contentLength, position + linkLength + markdownLinkMatch[0].length + 50);
+  }
+  
+  // Check for wikilinks after our match
+  const wikilinkMatch = afterPosition.match(/^\[\[([^\]]+)(?:\|([^\]]+))?\]\]/);
+  if (wikilinkMatch && end < position + linkLength + wikilinkMatch[0].length) {
+    end = Math.min(contentLength, position + linkLength + wikilinkMatch[0].length + 50);
+  }
+
+
+  // Determine if we're at the start or end of content
+  const isAtStart = start === 0;
+  const isAtEnd = end >= contentLength;
 
   let excerpt = content.slice(start, end);
 
-  // Clean up excerpt
+  // Clean up excerpt and strip markdown syntax (but preserve links for processExcerptLinks)
+  // First, normalize whitespace and newlines
   excerpt = excerpt
-    .replace(/^\S*\s*/, "") // Remove partial word at start
-    .replace(/\s*\S*$/, "") // Remove partial word at end
     .replace(/\n+/g, " ") // Replace newlines with spaces
+    .replace(/\s+/g, " ") // Normalize all whitespace to single spaces
     .trim();
 
-  return excerpt;
+  // Strip markdown formatting (but preserve links for processExcerptLinks)
+  // Process code blocks first (before other formatting that might conflict)
+  // Remove code blocks entirely, including any trailing/leading fragments
+  excerpt = excerpt
+    .replace(/```[\s\S]*?```/g, " ") // Remove complete code blocks entirely (replace with space)
+    .replace(/```[\s\S]*$/g, " ") // Remove incomplete code blocks at end
+    .replace(/^[\s\S]*?```/g, " ") // Remove incomplete code blocks at start
+    .replace(/```+/g, " ") // Remove any remaining code block markers (``` or ````` etc)
+    // Remove inline code - remove the entire inline code block completely
+    // This includes file paths, commands, config keys, etc. that appear in backticks
+    .replace(/`([^`\n]+)`/g, " ") // Remove inline code entirely (must have matching backticks, no newlines)
+    // Then process other formatting - be thorough and catch all cases
+    .replace(/\*\*([^*]+?)\*\*/g, "$1") // Remove bold markers **text** -> text (non-greedy)
+    .replace(/\*([^*\s][^*]*?[^*\s])\*/g, "$1") // Remove italic markers *text* -> text (but not single * characters)
+    .replace(/\*([^*\s]+)\*/g, "$1") // Catch single-word italic *word* -> word
+    .replace(/_{1,2}([^_]+)_{1,2}/g, "$1") // Remove underline markers, keep text
+    .replace(/~~([^~]+)~~/g, "$1") // Remove strikethrough markers, keep text
+    .replace(/#{1,6}\s+/g, "") // Remove headers
+    // Remove markdown syntax patterns that appear in the middle of text
+    .replace(/\s*>\s*\[![\w-]+\]\s*/g, " ") // Remove callout syntax like "> [!TYPE]"
+    .replace(/\s*>\s*/g, " ") // Remove standalone > characters (blockquote markers)
+    .replace(/\s*---+\s*/g, " ") // Remove horizontal rules (---, ----, etc.)
+    .replace(/\s*\[![\w-]+\]\s*/g, " ") // Remove any remaining callout syntax [!TYPE]
+    .replace(/^-\s+/gm, "") // Remove list markers at start
+    .replace(/^\d+\.\s+/gm, "") // Remove numbered list markers
+    // Final cleanup of any remaining markdown artifacts
+    .replace(/\*\*+/g, "") // Remove any remaining bold markers (trailing **, ***, etc.)
+    .replace(/\s+/g, " ") // Normalize whitespace again
+    .trim();
+
+  // Clean up incomplete fragments and sentences - be very aggressive
+  // Multiple passes to catch all variations and patterns
+  for (let pass = 0; pass < 5; pass++) {
+    excerpt = excerpt
+      // Remove patterns like "Label: - Label:" (consecutive orphaned labels)
+      .replace(/([A-Z][a-z]+):\s*-\s*([A-Z][a-z]+):/g, "") 
+      // Remove "Label: - " patterns (but only if it's truly orphaned - followed by another label or end)
+      .replace(/\b([A-Z][a-z]+):\s*-\s*(?=[A-Z][a-z]+:|$)/g, "") // Only if followed by label or end
+      // Remove orphaned labels at end (any label ending with colon and no content)
+      // This catches structural patterns like "Label:" or "Multi-word Label:" at end of excerpt
+      .replace(/\b([A-Z][a-z]+(?:\s+[a-z]+)?):\s*$/g, "") // Remove trailing labels (like "Callouts:", "Horizontal rule:", etc.)
+      // Remove patterns like "text - Label:" where the label has no content (orphaned list items)
+      // But be careful - don't remove valid patterns like "For example:" which has content after the colon
+      .replace(/([a-z\s]+)\s+-\s+([A-Z][a-z]+(?:\s+[a-z]+)?):\s*(?=[A-Z]|\[|$)/g, "$1 ") // Only if followed by capital, link, or end
+      // Remove standalone dashes that are list item markers before labels
+      .replace(/\s*-\s*(?=[A-Z][a-z]+(?:\s+[a-z]+)?:)/g, " ") // Handles multi-word labels
+      // Remove trailing dashes and colons that are fragments
+      .replace(/:\s*$/, "") // Remove trailing colon
+      .replace(/\s*-\s*$/, "") // Remove trailing dash
+      // Clean up multiple spaces
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+  
+  // Final cleanup - remove only syntax/formatting artifacts
+  // NO WORD OR PHRASE MATCHING - only structural markdown syntax patterns
+  
+  excerpt = excerpt
+    // Remove any remaining code block markers (markdown syntax)
+    .replace(/```+/g, " ") // Remove ``` markers (one or more)
+    .replace(/\s*```\s*/g, " ") // Remove standalone ``` with whitespace
+    // Remove orphaned markdown syntax patterns
+    // Patterns like "Label:" followed immediately by another "Label:" or end (structural, not word-specific)
+    .replace(/\b([A-Z][a-z]+(?:\s+[a-z]+)?):\s+(?=[A-Z][a-z]+(?:\s+[a-z]+)?:|$)/g, " ") // Label: followed by Label: or end (structural pattern)
+    // Remove trailing labels (markdown list syntax artifact)
+    .replace(/\b([A-Z][a-z]+(?:\s+[a-z]+)?):\s*$/g, "") // Multi-word labels at end (structural pattern)
+    // Clean up whitespace
+    .replace(/\s+/g, " ")
+    .trim();
+    
+    // Remove duplicate consecutive words/phrases (common after code stripping)
+    // Only remove duplicates if they're clearly unintentional (very close together)
+    // Be conservative - don't remove duplicates that might be intentional
+    for (let dupPass = 0; dupPass < 2; dupPass++) {
+      excerpt = excerpt
+        // Only remove duplicates if separated by space and not part of a larger phrase
+        .replace(/\b(\w+)\s+\1\b(?=\s|$)/gi, "$1") // Remove single-word duplicates at word boundaries
+        .replace(/(\[\[[^\]]+\]\])\s+\1(?=\s|$)/g, "$1") // Remove duplicate wikilinks [[text]] [[text]]
+        .replace(/(\[[^\]]+\]\([^\)]+\))\s+\1(?=\s|$)/g, "$1") // Remove duplicate markdown links [text](url) [text](url)
+        .replace(/\s+/g, " ") // Normalize spaces between passes
+        .trim();
+    }
+    // Final whitespace normalization
+    excerpt = excerpt.replace(/\s+/g, " ").trim();
+
+  // Ensure minimum context AFTER cleaning - if cleaned excerpt is too short, extend and re-clean
+  // Check the cleaned excerpt length to ensure we have enough meaningful content
+  const cleanedWords = excerpt.split(/\s+/).filter(w => w.length > 0 && w.match(/[a-zA-Z0-9]/));
+  const minCleanedWords = 10; // Minimum words in cleaned excerpt
+  const minCleanedLength = 60; // Minimum characters in cleaned excerpt
+  
+  // Recalculate context before link (start may have changed during code block adjustments)
+  const currentContextBefore = position - start;
+  
+  // If cleaned excerpt is too short, we need more raw content
+  if ((cleanedWords.length < minCleanedWords || excerpt.length < minCleanedLength) && start > 0) {
+    // Calculate how much more raw content we need (markdown takes ~2-3x space)
+    const currentRawLength = end - start;
+    const ratio = excerpt.length > 0 ? currentRawLength / excerpt.length : 3; // How much raw content per cleaned char (default 3x if empty)
+    const neededCleaned = Math.max(minCleanedLength - excerpt.length, (minCleanedWords - cleanedWords.length) * 8);
+    const additionalRaw = Math.ceil(neededCleaned * Math.max(ratio, 2) * 1.5); // Add buffer, minimum 2x ratio
+    
+    // Try extending before (prioritize getting context before the link)
+    const newStart = Math.max(0, start - additionalRaw);
+    
+    // Check for code blocks
+    let canExtend = true;
+    const codeBlockRegex4 = /```[\s\S]*?```/g;
+    codeBlockRegex4.lastIndex = 0;
+    while ((codeBlockMatch = codeBlockRegex4.exec(content)) !== null) {
+      const codeBlockEnd = codeBlockMatch.index + codeBlockMatch[0].length;
+      if (codeBlockEnd > newStart && codeBlockEnd <= start) {
+        canExtend = false;
+        break;
+      }
+    }
+    
+    if (canExtend && newStart < start) {
+      start = newStart;
+      // Re-extract and re-clean the extended excerpt
+      let newExcerpt = content.slice(start, end);
+      
+      // Re-run all cleaning steps
+      newExcerpt = newExcerpt
+        .replace(/\n+/g, " ")
+        .replace(/\s+/g, " ")
+        .trim()
+        .replace(/```[\s\S]*?```/g, " ")
+        .replace(/```[\s\S]*$/g, " ")
+        .replace(/^[\s\S]*?```/g, " ")
+        .replace(/```+/g, " ")
+        .replace(/`([^`]+)`/g, " ")
+        .replace(/\*\*([^*]+?)\*\*/g, "$1")
+        .replace(/\*([^*\s][^*]*?[^*\s])\*/g, "$1")
+        .replace(/\*([^*\s]+)\*/g, "$1")
+        .replace(/_{1,2}([^_]+)_{1,2}/g, "$1")
+        .replace(/~~([^~]+)~~/g, "$1")
+        .replace(/#{1,6}\s+/g, "")
+        .replace(/\s*>\s*\[![\w-]+\]\s*/g, " ")
+        .replace(/\s*>\s*/g, " ")
+        .replace(/\s*---+\s*/g, " ")
+        .replace(/\s*\[![\w-]+\]\s*/g, " ")
+        .replace(/^-\s+/gm, "")
+        .replace(/^\d+\.\s+/gm, "")
+        .replace(/\*\*+/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+      
+      // Re-run cleanup passes
+      for (let pass = 0; pass < 5; pass++) {
+        newExcerpt = newExcerpt
+          .replace(/([A-Z][a-z]+):\s*-\s*([A-Z][a-z]+):/g, "")
+          .replace(/\b([A-Z][a-z]+):\s*-\s*/g, "")
+          .replace(/\bStart\s+lines\s+with\b/gi, " ")
+          .replace(/\bto\s+separate\s+columns\b/gi, " ")
+          .replace(/\bseparate\s+columns\b/gi, " ")
+          .replace(/\bUse\s+to\s+separate\b/gi, " ")
+          .replace(/\bcolumns\b/gi, " ")
+          .replace(/\b([A-Z][a-z]+(?:\s+[a-z]+)?):\s*$/g, "")
+          .replace(/([a-z\s]+)\s+-\s+([A-Z][a-z]+(?:\s+[a-z]+)?):\s*(?=[A-Z]|\[|$)/g, "$1 ")
+          .replace(/\s*-\s*(?=[A-Z][a-z]+(?:\s+[a-z]+)?:)/g, " ")
+          .replace(/:\s*$/, "")
+          .replace(/\s*-\s*$/, "")
+          .replace(/\s+/g, " ")
+          .trim();
+      }
+      
+      // Re-run pattern removal
+      const patternsToRemove2 = [
+        /\bStart\s+lines\s+with\b/gi,
+        /\bto\s+separate\s+columns\b/gi,
+        /\bseparate\s+columns\b/gi,
+        /\bUse\s+to\s+separate\b/gi,
+        /\bUse\s+to\s+separate\s+columns\b/gi,
+        /\bcolumns\b/gi,
+      ];
+      
+      for (const pattern of patternsToRemove2) {
+        let previousExcerpt = '';
+        while (newExcerpt !== previousExcerpt) {
+          previousExcerpt = newExcerpt;
+          newExcerpt = newExcerpt.replace(pattern, ' ');
+        }
+      }
+      
+      newExcerpt = newExcerpt
+        .replace(/```+/g, " ")
+        .replace(/\s*```\s*/g, " ")
+        .replace(/\b([A-Z][a-z]+(?:\s+[a-z]+)?):\s+(?=[A-Z][a-z]+(?:\s+[a-z]+)?:|$)/g, " ")
+        .replace(/\b([A-Z][a-z]+(?:\s+[a-z]+)?):\s*$/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+      
+      excerpt = newExcerpt;
+    }
+  }
+
+  // Truncate to maximum length if needed (preserve word boundaries and don't cut links)
+  // CRITICAL: Always truncate at word boundaries - never cut words in half
+  // CRITICAL: If truncating would cut off a link at the end, try to include the complete link
+  if (excerpt.length > maxExcerptLength) {
+    const truncated = excerpt.substring(0, maxExcerptLength);
+    
+    // Check if we're cutting off in the middle of a link (wikilink or markdown)
+    const incompleteWikilinkMatch = truncated.match(/\[\[[^\]]*$/);
+    const incompleteMarkdownMatch = truncated.match(/\[[^\]]*\]\([^\)]*$/);
+    
+    // Also check if there's a complete link right after the truncation point
+    const afterTruncation = excerpt.substring(maxExcerptLength);
+    const completeLinkAfter = afterTruncation.match(/^[^\[]*(\[[^\]]+\]\([^\)]+\)|\[\[[^\]]+\]\])/);
+    
+    let truncateAt = maxExcerptLength;
+    
+    if (incompleteWikilinkMatch || incompleteMarkdownMatch) {
+      // We're cutting off a link - check if we can include the complete link
+      if (completeLinkAfter && completeLinkAfter.index !== undefined) {
+        // There's a complete link right after truncation - include it
+        const linkEnd = maxExcerptLength + (completeLinkAfter.index || 0) + completeLinkAfter[1].length;
+        // Only extend if it's reasonable (not more than 50% over limit)
+        if (linkEnd <= maxExcerptLength * 1.5) {
+          truncateAt = linkEnd;
+          // Find word boundary after the link
+          const afterLink = excerpt.substring(truncateAt, truncateAt + 30);
+          const nextSpace = afterLink.indexOf(' ');
+          if (nextSpace > 0) {
+            truncateAt = truncateAt + nextSpace;
+          }
+        } else {
+          // Link is too far - truncate before the incomplete link
+          const incompleteStart = incompleteWikilinkMatch 
+            ? (incompleteWikilinkMatch.index || 0)
+            : (incompleteMarkdownMatch?.index || 0);
+          if (incompleteStart > 0) {
+            truncateAt = incompleteStart;
+          }
+        }
+      } else {
+        // No complete link found after - truncate before incomplete link
+        const incompleteStart = incompleteWikilinkMatch 
+          ? (incompleteWikilinkMatch.index || 0)
+          : (incompleteMarkdownMatch?.index || 0);
+        if (incompleteStart > 0) {
+          truncateAt = incompleteStart;
+        }
+      }
+    } else if (completeLinkAfter && completeLinkAfter.index !== undefined && completeLinkAfter.index < 20) {
+      // No incomplete link, but there's a complete link very close after truncation - include it
+      const linkEnd = maxExcerptLength + (completeLinkAfter.index || 0) + completeLinkAfter[1].length;
+      if (linkEnd <= maxExcerptLength * 1.3) {
+        truncateAt = linkEnd;
+        // Find word boundary after the link
+        const afterLink = excerpt.substring(truncateAt, truncateAt + 30);
+        const nextSpace = afterLink.indexOf(' ');
+        if (nextSpace > 0) {
+          truncateAt = truncateAt + nextSpace;
+        }
+      }
+    }
+    
+    // ALWAYS truncate at word boundary - find last space before truncate point
+    const toTruncate = excerpt.substring(0, truncateAt);
+    const lastSpace = toTruncate.lastIndexOf(' ');
+    
+    // Always use word boundary if available (unless it's at the very start)
+    if (lastSpace > 10) {
+      // Found a word boundary - use it (minimum 10 chars to avoid truncating too early)
+      excerpt = toTruncate.substring(0, lastSpace).trim();
+    } else if (lastSpace > 0) {
+      // Found a space but very early - still better than cutting a word
+      excerpt = toTruncate.substring(0, lastSpace).trim();
+    } else {
+      // No space found at all - this is very rare
+      // Try to find any whitespace character as fallback
+      const lastWhitespace = toTruncate.search(/\s+$/);
+      if (lastWhitespace > 0) {
+        excerpt = toTruncate.substring(0, lastWhitespace).trim();
+      } else {
+        // Truly no whitespace - truncate at safe point (shouldn't happen in normal text)
+        excerpt = toTruncate.trim();
+      }
+    }
+  }
+
+  return { excerpt, isAtStart, isAtEnd };
 }
 
 // ============================================================================

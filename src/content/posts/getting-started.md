@@ -74,8 +74,8 @@ No problem! You can still use Astro Modular with any editor.
 3. **Deploy** when ready
 
 **Next Steps:**
-- Read the [Complete Setup Guide](docs/configuration.md) for detailed configuration
-- Explore the [Formatting Reference](formatting-reference.md) for markdown features
+- Read the [setup guide](docs/configuration.md) for detailed configuration
+- Explore the [reference guide](formatting-reference.md) for markdown features
 - Customize your theme and layout in `src/config.ts`
 
 ## Essential Configuration
