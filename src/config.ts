@@ -17,6 +17,8 @@ export interface SiteConfig {
   description: string;
   author: string;
   language: string;
+  faviconThemeAdaptive: boolean;
+  defaultOgImageAlt: string;
   
   // Global Settings
   theme: "minimal" | "oxygen" | "atom" | "ayu" | "catppuccin" | "charcoal" | "dracula" | "everforest" | "flexoki" | "gruvbox" | "macos" | "nord" | "obsidian" | "rose-pine" | "sky" | "solarized" | "things" | "custom";
@@ -47,9 +49,6 @@ export interface SiteConfig {
   hideScrollBar: boolean;
   scrollToTop: boolean;
   featureButton: "mode" | "graph" | "theme" | "none";
-  seo: {
-    defaultOgImageAlt: string;
-  };
   deployment: {
     platform: "netlify" | "vercel" | "github-pages";
   };
@@ -190,6 +189,10 @@ export const siteConfig: SiteConfig = {
   author: "David V. Kimball",
   // [CONFIG:SITE_LANGUAGE]
   language: "en",
+  // [CONFIG:FAVICON_THEME_ADAPTIVE]
+  faviconThemeAdaptive: true, // If true, favicon switches between favicon-dark.png and favicon-light.png based on browser's system theme preference. If false, always uses favicon.png
+  // [CONFIG:DEFAULT_OG_IMAGE_ALT]
+  defaultOgImageAlt: "Astro Modular logo.", // Alt text for the default Open Graph image, public/open-graph.png
 
   // Global Settings
   // [CONFIG:THEME]
@@ -236,10 +239,6 @@ export const siteConfig: SiteConfig = {
   scrollToTop: true,
   // [CONFIG:FEATURE_BUTTON]
   featureButton: "mode", // "mode" | "graph" | "theme" | "none"
-  seo: {
-    // [CONFIG:SEO_DEFAULT_OG_IMAGE_ALT]
-    defaultOgImageAlt: "Astro Modular logo.", // Alt text for the default Open Graph image, public/open-graph.png
-  },
   deployment: {
     // [CONFIG:DEPLOYMENT_PLATFORM]
     platform: "netlify", // "netlify" | "vercel" | "github-pages" - sets redirect configuration for the chosen platform

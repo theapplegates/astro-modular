@@ -368,7 +368,7 @@ export async function getImageDimensions(
 export function getDefaultOGImage(): OpenGraphImage {
   return {
     url: "/open-graph.png",
-    alt: siteConfig.seo.defaultOgImageAlt,
+    alt: siteConfig.defaultOgImageAlt,
     width: 1200,
     height: 630,
   };
@@ -384,7 +384,7 @@ export function getFallbackOGImage(site?: URL): OpenGraphImage {
   const baseUrl = site ? site.toString() : siteConfig.site;
   return {
     url: `${baseUrl}/open-graph.png`,
-    alt: siteConfig.seo.defaultOgImageAlt,
+    alt: siteConfig.defaultOgImageAlt,
     width: 1200,
     height: 630,
   };

@@ -16,7 +16,8 @@
     "title": "Astro Modular",
     "description": "A flexible blog theme designed for Obsidian users.",
     "author": "David V. Kimball",
-    "language": "en"
+    "language": "en",
+    "faviconThemeAdaptive": true
   },
   "layout": {
     "contentWidth": "45rem"

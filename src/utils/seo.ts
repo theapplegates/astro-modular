@@ -17,7 +17,7 @@ import {
 function getDefaultOGImage(): OpenGraphImage {
   return {
     url: "/open-graph.png",
-    alt: siteConfig.seo.defaultOgImageAlt,
+    alt: siteConfig.defaultOgImageAlt,
     width: 1200,
     height: 630,
   };
