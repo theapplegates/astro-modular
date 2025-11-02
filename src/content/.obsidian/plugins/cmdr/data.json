@@ -15,13 +15,13 @@
       "id": "obsidian-shellcommands:shell-command-c3n55v60kx",
       "icon": "lucide-terminal-square",
       "name": "Shell commands: Execute: Start Terminal",
-      "mode": "any"
+      "mode": "desktop"
     },
     {
       "id": "obsidian-shellcommands:shell-command-rgw8uy11vq",
       "icon": "lucide-wrench",
       "name": "Shell commands: Execute: Configuration",
-      "mode": "any"
+      "mode": "desktop"
     }
   ],
   "hide": {
