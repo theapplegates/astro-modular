@@ -1,5 +1,5 @@
 ---
-title: Getting Started
+title: Getting Started 2
 date: 2025-09-06
 description: Quick start guide for Astro Modular - get your blog running in minutes.
 tags:
