@@ -2,7 +2,7 @@
   "enableUnderscorePrefix": false,
   "defaultTemplate": "---\ntitle: \"{{title}}\"\ndate: {{date}}\ndescription: \"\"\ntags: []\nimage: \"\"\nimageAlt: \"\"\nimageOG: false\nhideCoverImage: false\nhideTOC: false\ntargetKeyword: \"\"\ndraft: true\n---",
   "postsFolder": "posts",
-  "postsLinkBasePath": "/blog/",
+  "postsLinkBasePath": "/posts/",
   "automatePostCreation": true,
   "autoInsertProperties": true,
   "creationMode": "file",
@@ -17,8 +17,8 @@
   "pagesIndexFileName": "",
   "pageTemplate": "---\ntitle: \"{{title}}\"\ndescription: \"\"\nnoIndex: false\nhideTOC: false\n---\n",
   "enableCopyHeadingLink": true,
-  "copyHeadingLinkFormat": "obsidian",
-  "addTrailingSlashToLinks": false,
+  "copyHeadingLinkFormat": "astro",
+  "addTrailingSlashToLinks": true,
   "customContentTypes": [
     {
       "id": "custom-1758090445018",

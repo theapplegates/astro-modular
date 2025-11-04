@@ -16,7 +16,7 @@ hideTOC: false
 targetKeyword: astro blog quick start
 draft: false
 ---
-Welcome to Astro Modular! This quick start guide will get your blog running in minutes. Choose your preferred workflow below.
+Welcome to Astro Modular! This quick start guide will get your blog running in minutes. Choose your preferred workflow [below](posts/getting-started.md#Choose%20Your%20Workflow).
 
 ## Prerequisites & Installation
 

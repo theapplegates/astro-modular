@@ -7,16 +7,16 @@
   "paste-image-into-property",
   "cmdr",
   "obsidian-git",
-  "alias-file-name-history",
-  "property-over-file-name",
   "new-tab-default-page",
   "homepage",
-  "astro-composer",
   "obsidian-prozen",
   "obsidian-style-settings",
   "simple-banner",
-  "oxygen-settings",
   "iconic",
   "seo",
-  "astro-modular-settings"
+  "alias-file-name-history",
+  "astro-modular-settings",
+  "oxygen-settings",
+  "property-over-file-name",
+  "astro-composer"
 ]

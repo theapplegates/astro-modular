@@ -292,6 +292,12 @@ if (siteConfig.postOptions.graphView.enabled && siteConfig.postOptions.graphView
 
         wikilinks.forEach(link => {
           const linkText = link.dataset.wikilink;
+          
+          // Skip same-page anchors (empty data-wikilink) - they're already properly formatted
+          if (!linkText || linkText === '') {
+            return;
+          }
+          
           const displayOverride = link.dataset.displayOverride;
           const currentDisplayText = link.textContent;
 
@@ -320,8 +326,16 @@ if (siteConfig.postOptions.graphView.enabled && siteConfig.postOptions.graphView
           }
 
           if (post) {
-            // Update href
-            link.href = `/posts/${post.id}`;
+            // Update href - preserve anchor if present
+            const currentHref = link.href || link.getAttribute('href') || '';
+            const anchorMatch = currentHref.match(/#(.+)$/);
+            const anchor = anchorMatch ? anchorMatch[1] : null;
+            
+            if (anchor) {
+              link.href = `/posts/${post.id}#${anchor}`;
+            } else {
+              link.href = `/posts/${post.id}`;
+            }
 
             // Simple logic:
             // - If displayOverride exists and is not null, it's a wikilink with custom text [[link|display]] - use it

@@ -59,7 +59,21 @@ function createSlugFromTitle(title: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
+// Decode URL-encoded anchor text (for Obsidian compatibility)
+// Handles %20 (space), %23 (#), and other URL-encoded characters
+function decodeAnchorText(encodedText: string): string {
+  try {
+    // Decode URL-encoded characters (e.g., %20 -> space, %23 -> #)
+    return decodeURIComponent(encodedText);
+  } catch (error) {
+    // If decoding fails (invalid encoding), return original text
+    // This handles edge cases like double encoding or malformed sequences
+    return encodedText;
+  }
+}
+
 // Create anchor slug from text (for heading anchors)
+// Expects decoded text (spaces, not %20)
 function createAnchorSlug(text: string): string {
   return text
     .toLowerCase()
@@ -70,6 +84,7 @@ function createAnchorSlug(text: string): string {
 }
 
 // Parse link with potential anchor fragment
+// Returns decoded anchor text for proper slugification
 function parseLinkWithAnchor(linkText: string): {
   link: string;
   anchor: string | null;
@@ -81,8 +96,12 @@ function parseLinkWithAnchor(linkText: string): {
 
   const link = linkText.substring(0, anchorIndex);
   const anchor = linkText.substring(anchorIndex + 1);
+  
+  // Decode URL-encoded anchor text (e.g., %20 -> space)
+  // This ensures both "#Choose Your Workflow" and "#Choose%20Your%20Workflow" produce the same slug
+  const decodedAnchor = anchor ? decodeAnchorText(anchor) : null;
 
-  return { link, anchor };
+  return { link, anchor: decodedAnchor };
 }
 
 // Helper function to check if a node is inside a code block
@@ -456,11 +475,29 @@ export function remarkWikilinks() {
           // Process link wikilink - WIKILINKS ONLY WORK WITH POSTS
           const { link, anchor } = parseLinkWithAnchor(linkText);
 
+          // Check if this is a same-page anchor (starts with #)
+          // Format: [[#heading]] or [[#heading|text]]
+          const isSamePageAnchor = linkText.startsWith("#") || link === "";
+
           // Handle different link formats
           let url: string;
           let wikilinkData: string;
 
-          if (link.startsWith("posts/")) {
+          if (isSamePageAnchor) {
+            // Same-page anchor: [[#heading]] or [[#heading|text]]
+            // Extract anchor from linkText (which starts with #)
+            const anchorText = linkText.startsWith("#") 
+              ? linkText.substring(1) 
+              : linkText;
+            
+            // Decode URL-encoded anchor if present
+            const decodedAnchor = decodeAnchorText(anchorText);
+            
+            // Generate slug for same-page anchor
+            const anchorSlug = createAnchorSlug(decodedAnchor);
+            url = `#${anchorSlug}`;
+            wikilinkData = ""; // No post reference for same-page anchors
+          } else if (link.startsWith("posts/")) {
             // Handle posts/path format
             const postPath = link.replace("posts/", "");
             // Conservative approach: only remove /index if it follows folder-based pattern
@@ -492,10 +529,14 @@ export function remarkWikilinks() {
             wikilinkData = link.trim();
           }
 
-          // Add anchor if present
-          if (anchor) {
+          // Add anchor if present (for cross-page anchors, not same-page)
+          // CRITICAL: This must run AFTER all URL construction
+          if (anchor && !isSamePageAnchor) {
             const anchorSlug = createAnchorSlug(anchor);
-            url += `#${anchorSlug}`;
+            // Ensure anchor is added (don't overwrite existing anchor)
+            if (!url.includes('#')) {
+              url += `#${anchorSlug}`;
+            }
           }
 
           // Add the wikilink as a link node
@@ -515,7 +556,7 @@ export function remarkWikilinks() {
             children: [
               {
                 type: "text",
-                value: displayText || link.trim(),
+                value: displayText || (isSamePageAnchor ? linkText.replace(/^#/, "") : link.trim()),
               },
             ],
           });
@@ -575,6 +616,11 @@ export function extractWikilinks(content: string): WikilinkMatch[] {
 
       // Parse anchor if present
       const { link: baseLink } = parseLinkWithAnchor(link.trim());
+
+      // Skip same-page anchors ([[#heading]]) - they don't reference other posts
+      if (link.trim().startsWith("#") || baseLink === "") {
+        continue;
+      }
 
       // Create proper slug for linked mentions
       let slug = baseLink;
@@ -676,7 +722,53 @@ export function remarkStandardLinks() {
   return function transformer(tree: any, file: any) {
     // Process existing link nodes to add wikilink data attributes for internal links
     visit(tree, "link", (node: any) => {
-      if (node.url && isInternalLink(node.url)) {
+      if (!node.url) return;
+
+      // Handle same-page anchor links (e.g., #Choose%20Your%20Workflow)
+      // These need to be decoded and slugified to match heading IDs
+      // Check both encoded and decoded versions
+      if (node.url.startsWith("#") && node.url.length > 1) {
+        let anchorText = node.url.substring(1);
+        
+        // Decode URL-encoded anchor text first (e.g., Choose%20Your%20Workflow -> Choose Your Workflow)
+        try {
+          anchorText = decodeURIComponent(anchorText);
+        } catch {
+          // If decoding fails, use as-is
+        }
+        
+        // Now create slug from decoded text
+        const anchorSlug = createAnchorSlug(anchorText);
+        const normalizedUrl = `#${anchorSlug}`;
+        
+        // Set the URL in both the node.url and hProperties.href to ensure it's rendered correctly
+        node.url = normalizedUrl;
+        
+        // Ensure link has proper data attributes for styling/identification
+        if (!node.data) {
+          node.data = {};
+        }
+        if (!node.data.hProperties) {
+          node.data.hProperties = {};
+        }
+        
+        // CRITICAL: Set href in hProperties to ensure HTML rendering uses the correct URL
+        node.data.hProperties.href = normalizedUrl;
+        
+        // Add wikilink class for styling consistency (dashed underline)
+        node.data.hProperties.className = node.data.hProperties.className || [];
+        if (!Array.isArray(node.data.hProperties.className)) {
+          node.data.hProperties.className = [node.data.hProperties.className];
+        }
+        // Add wikilink class if not already present
+        if (!node.data.hProperties.className.includes('wikilink')) {
+          node.data.hProperties.className.push('wikilink');
+        }
+        
+        return; // Early return - no further processing needed
+      }
+
+      if (isInternalLink(node.url)) {
         const { linkText, anchor } = extractLinkTextFromUrlWithAnchor(node.url);
         if (linkText) {
           // Handle /pages/ URLs that don't end in .md (simple URL mapping)
@@ -718,16 +810,14 @@ export function remarkStandardLinks() {
               // Handle special 404 marker
               baseUrl = "/404";
             } else if (node.url.startsWith("posts/")) {
-              // Posts: /posts/slug/
-              baseUrl = `/${node.url.replace(/\.md.*$/, "")}`;
-              // Conservative approach: only remove /index if it follows folder-based pattern
-              // Pattern: /posts/folder-name/index -> /posts/folder-name
-              if (
-                baseUrl.endsWith("/index") &&
-                baseUrl.split("/").length === 4
-              ) {
-                baseUrl = baseUrl.replace("/index", "");
+              // Posts: /posts/slug/ (handle posts/ prefixed URLs WITH .md extension)
+              // Extract path and handle anchor properly
+              let postPath = node.url.replace("posts/", "").replace(/\.md.*$/, "");
+              // Remove /index if present
+              if (postPath.endsWith("/index") && postPath.split("/").length === 2) {
+                postPath = postPath.replace("/index", "");
               }
+              baseUrl = `/posts/${postPath}`;
             } else if (node.url.startsWith("pages/")) {
               // Pages: /slug/ (no prefix) - use URL mapping
               baseUrl = mapRelativeUrlToSiteUrl(
@@ -803,17 +893,35 @@ export function remarkStandardLinks() {
             
             // ABSOLUTE FINAL CHECK - Remove /index from final URL no matter what
             // Use a more aggressive regex that catches /index at end or before #
-            node.url = baseUrl.replace(/\/index(?=#|$)/g, "");
+            let finalUrl = baseUrl.replace(/\/index(?=#|$)/g, "");
+            node.url = finalUrl;
           } else {
             // For non-.md URLs, apply URL mapping and handle anchors
-            let mappedUrl = mapRelativeUrlToSiteUrl(node.url);
-            if (anchor) {
-              // Handle anchors in non-.md URLs - only add if not already present
-              if (!mappedUrl.includes("#")) {
+            // Handle posts/ prefixed URLs (without .md extension)
+            if (node.url.startsWith("posts/")) {
+              // Extract the path after posts/
+              let postPath = node.url.replace("posts/", "");
+              // Remove anchor if present for path processing
+              const pathWithoutAnchor = postPath.split('#')[0];
+              // Remove /index if present
+              const cleanPath = pathWithoutAnchor.replace(/\/index$/, "");
+              let mappedUrl = `/posts/${cleanPath}`;
+              
+              if (anchor) {
                 mappedUrl += `#${createAnchorSlug(anchor)}`;
               }
+              node.url = mappedUrl;
+            } else {
+              // For other non-.md URLs, apply URL mapping and handle anchors
+              let mappedUrl = mapRelativeUrlToSiteUrl(node.url);
+              if (anchor) {
+                // Handle anchors in non-.md URLs - only add if not already present
+                if (!mappedUrl.includes("#")) {
+                  mappedUrl += `#${createAnchorSlug(anchor)}`;
+                }
+              }
+              node.url = mappedUrl;
             }
-            node.url = mappedUrl;
           }
 
           // ABSOLUTE FINAL PASS - Remove /index from ANY /posts/ URL before styling
@@ -838,7 +946,8 @@ export function remarkStandardLinks() {
           }
 
           // Add wikilink styling to internal links for visual consistency
-          if (node.url.startsWith("/posts/")) {
+          // Include posts/ prefixed URLs and /posts/ URLs (but not double /posts/posts/)
+          if (node.url.startsWith("/posts/") || (node.url.startsWith("posts/") && !node.url.startsWith("posts/posts/"))) {
             if (!node.data) {
               node.data = {};
             }

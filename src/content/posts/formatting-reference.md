@@ -205,6 +205,14 @@ For example: [[getting-started|Getting Started]] or [Astro Suite Vault (Modular)
 
 Here's an internal link with an anchor: [[sample-folder-based-post/index#Benefits of Folder-Based Approach|Benefits of Folder-Based Approach]]
 
+Here's the same internal link with an anchor formatted in 4 different ways (both Obsidian and standard Astro syntax work):
+
+[Choose Your Workflow](posts/getting-started.md#Choose%20Your%20Workflow)
+[Choose Your Workflow](posts/getting-started#Choose%20Your%20Workflow)
+[[posts/getting-started#Choose Your Workflow|Choose Your Workflow]]
+[Choose Your Workflow](/posts/getting-started#choose-your-workflow)
+
+
 Here's a relative link: [Mermaid Diagram Test](mermaid-diagrams.md) 
 ### Reference Links
 

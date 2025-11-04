@@ -15,6 +15,7 @@ import remarkBreaks from 'remark-breaks';
 import rehypeKatex from 'rehype-katex';
 import rehypeMark from './src/utils/rehype-mark.ts';
 import rehypeOptimizeImages from './src/utils/rehype-optimize-images.ts';
+import { rehypeNormalizeAnchors } from './src/utils/rehype-normalize-anchors.ts';
 import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import { siteConfig } from './src/config.ts';
@@ -118,7 +119,8 @@ export default defineConfig({
           className: ['anchor-link'],
           ariaLabel: 'Link to this section'
         }
-      }]
+      }],
+      rehypeNormalizeAnchors, // Run LAST to ensure className and href fixes aren't overridden
     ],
     shikiConfig: {
       theme: 'github-dark',

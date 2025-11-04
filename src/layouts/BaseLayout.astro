@@ -1391,6 +1391,8 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
             }
             // Re-setup smooth scrolling for anchor links
             setupSmoothScrolling();
+            // Also setup same-page path anchor handler
+            setupSamePagePathAnchors();
           }, 100);
         });
 
@@ -1577,22 +1579,145 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
     // Handle smooth scrolling for anchor links (same-page only)
     function setupSmoothScrolling() {
       // Remove any existing event listeners to avoid duplicates
-      const existingLinks = document.querySelectorAll('a[href^="#"]:not([href="/"]):not([href^="/"])');
+      // Select all anchor links (starting with #) but exclude root anchor (# only)
+      const existingLinks = document.querySelectorAll('a[href^="#"]');
       existingLinks.forEach(link => {
-        link.removeEventListener('click', handleAnchorClick);
+        const href = link.getAttribute('href');
+        // Only process links that have a hash with content (not just #)
+        if (href && href.length > 1) {
+          link.removeEventListener('click', handleAnchorClick);
+        }
       });
 
-      // Only handle anchor links that are NOT navigation links
-      const anchorLinks = document.querySelectorAll('a[href^="#"]:not([href="/"]):not([href^="/"])');
+      // Only handle anchor links that have content after #
+      const anchorLinks = document.querySelectorAll('a[href^="#"]');
 
       anchorLinks.forEach(link => {
-        link.addEventListener('click', handleAnchorClick);
+        const href = link.getAttribute('href');
+        // Only attach handler to links with actual anchor (not just #)
+        if (href && href.length > 1) {
+          link.addEventListener('click', handleAnchorClick);
+        }
       });
+
+      // Also handle same-page links with paths (e.g., /posts/getting-started#heading)
+      // These aren't handled by Swup (same-page), so browser jumps - we smooth scroll instead
+      const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
+      const allLinks = document.querySelectorAll('a[href]');
+      
+      allLinks.forEach(link => {
+        const hrefAttr = link.getAttribute('href');
+        if (!hrefAttr) return;
+        
+        // Skip links already handled above (starting with #)
+        if (hrefAttr.startsWith('#')) return;
+        
+        // Skip external links
+        if (hrefAttr.startsWith('http') || hrefAttr.startsWith('mailto:') || hrefAttr.startsWith('tel:')) return;
+        
+        const hashIndex = hrefAttr.indexOf('#');
+        if (hashIndex === -1) return; // No hash
+
+        // Use resolved href (after markdown processing) for path comparison
+        const href = link.href;
+        if (!href) return;
+
+        // Parse the link URL
+        let linkUrl;
+        try {
+          linkUrl = new URL(href);
+        } catch {
+          return;
+        }
+
+        // Only handle same origin
+        if (linkUrl.origin !== window.location.origin) return;
+
+        // Normalize paths - remove trailing slashes and .md extensions for comparison
+        const linkPath = linkUrl.pathname.replace(/\/$/, '').replace(/\.md$/, '') || '/';
+        const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
+        
+        // Only attach handler if same page
+        if (linkPath === currentPath) {
+          link.removeEventListener('click', handleSamePagePathAnchorClick);
+          link.addEventListener('click', handleSamePagePathAnchorClick, true); // Capture phase - run before Swup
+        }
+      });
+    }
+
+    // Handler for same-page path anchors - uses same smooth scroll as handleAnchorClick
+    function handleSamePagePathAnchorClick(e) {
+      const target = e.target;
+      const link = target.closest('a[href]');
+      if (!link) return;
+
+      // Use resolved href (after markdown processing) instead of raw attribute
+      const href = link.href;
+      if (!href) return;
+
+      // Parse the link URL
+      let linkUrl;
+      try {
+        linkUrl = new URL(href);
+      } catch {
+        return;
+      }
+
+      // Only handle same origin
+      if (linkUrl.origin !== window.location.origin) return;
+
+      const linkPath = linkUrl.pathname.replace(/\/$/, '').replace(/\.md$/, '') || '/';
+      const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
+      const hash = linkUrl.hash;
+
+      // Only handle if same page AND has hash
+      if (linkPath === currentPath && hash && hash.length > 1) {
+        e.preventDefault();
+        e.stopPropagation(); // Stop Swup from intercepting
+        e.stopImmediatePropagation(); // Stop all other handlers
+
+        const targetElement = document.querySelector(hash);
+        
+        if (targetElement) {
+          // Update URL without triggering Swup
+          const currentUrl = window.location.pathname + window.location.search;
+          window.history.pushState(null, '', currentUrl + hash);
+
+          // Same smooth scroll as handleAnchorClick
+          const targetPosition = targetElement.offsetTop - 100;
+          const startPosition = window.pageYOffset;
+          const distance = targetPosition - startPosition;
+          const duration = 800;
+          let start = null;
+
+          function step(timestamp) {
+            if (!start) start = timestamp;
+            const progress = timestamp - start;
+            const percentage = Math.min(progress / duration, 1);
+
+            const easeInOut = percentage < 0.5
+              ? 2 * percentage * percentage
+              : 1 - Math.pow(-2 * percentage + 2, 2) / 2;
+
+            window.scrollTo(0, startPosition + distance * easeInOut);
+
+            if (progress < duration) {
+              requestAnimationFrame(step);
+            }
+          }
+
+          requestAnimationFrame(step);
+        }
+      }
     }
 
     // Handle anchor link clicks with smooth scrolling
     function handleAnchorClick(e) {
-      const href = e.target.getAttribute('href');
+      const target = e.target;
+      const link = target.closest('a[href]');
+      if (!link) return;
+
+      const href = link.getAttribute('href');
       if (href && href.startsWith('#') && href.length > 1) {
         const targetElement = document.querySelector(href);
         if (targetElement) {
