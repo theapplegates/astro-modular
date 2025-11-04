@@ -3,8 +3,8 @@ import { siteConfig } from '@/config';
 import Icon from './Icon.astro';
 
 const currentYear = new Date().getFullYear();
-const showSocialIcons = siteConfig.footer.showSocialIconsInFooter;
-const socialLinks = siteConfig.navigation.social;
+const socialLinks = (siteConfig.navigation.social || []).filter((social) => social && social.url && social.icon);
+const showSocialIcons = siteConfig.footer.showSocialIconsInFooter && socialLinks.length > 0;
 const showProfilePicture = siteConfig.profilePicture.enabled && siteConfig.profilePicture.placement === 'footer';
 const profilePicture = siteConfig.profilePicture;
 const footerEnabled = siteConfig.footer.enabled;
@@ -61,7 +61,7 @@ const getProfilePictureClasses = (size: string, style: string) => {
     )}
 
     <!-- Mobile: Social icons above footer content, centered -->
-    {showSocialIcons && socialLinks.length > 0 && (
+    {showSocialIcons && (
       <div class="flex justify-center md:hidden mb-4">
         <div class="flex items-center space-x-4">
           {socialLinks.map((social) => (
@@ -81,12 +81,12 @@ const getProfilePictureClasses = (size: string, style: string) => {
     
     <!-- Footer content and social icons on same line -->
     {footerEnabled && (
-      <div class={`text-center ${showSocialIcons && socialLinks.length > 0 ? 'md:flex md:justify-between md:items-center' : ''}`}>
+      <div class={`text-center ${showSocialIcons ? 'md:flex md:justify-between md:items-center' : ''}`}>
         <p class="text-xs text-primary-500 dark:text-primary-400" set:html={footerContent}>
         </p>
         
         <!-- Desktop: Social icons on same line as footer content -->
-        {showSocialIcons && socialLinks.length > 0 && (
+        {showSocialIcons && (
           <div class="hidden md:flex items-center space-x-4">
             {socialLinks.map((social) => (
               <a
@@ -106,7 +106,7 @@ const getProfilePictureClasses = (size: string, style: string) => {
 
     <!-- When footer is disabled: Profile picture aligned with social icons OR just centered social icons -->
     {!footerEnabled && (
-      <div class={`text-center ${showProfilePicture && showSocialIcons && socialLinks.length > 0 ? 'md:flex md:justify-between md:items-center' : ''}`}>
+      <div class={`text-center ${showProfilePicture && showSocialIcons ? 'md:flex md:justify-between md:items-center' : ''}`}>
         {showProfilePicture ? (
           <div class="flex justify-start">
             {profilePicture.url ? (
@@ -133,7 +133,7 @@ const getProfilePictureClasses = (size: string, style: string) => {
         ) : null}
         
         <!-- Social icons: centered when no profile picture, or aligned when profile picture exists -->
-        {showSocialIcons && socialLinks.length > 0 && (
+        {showSocialIcons && (
           <div class={`flex items-center space-x-4 ${showProfilePicture ? 'hidden md:flex' : 'justify-center'}`}>
             {socialLinks.map((social) => (
               <a
