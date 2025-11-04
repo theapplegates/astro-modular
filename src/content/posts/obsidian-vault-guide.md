@@ -68,8 +68,8 @@ Here's a guide for some important hotkeys set especially for this theme:
 - Insert callout: `CTRL + SHIFT + C`
 - Rename current note: `CTRL + R` 
 - Open SEO audit: `CTRL + SHIFT + A`
-- Start Terminal: `CTRL + SHIFT + D`
-- Open Astro config file: `CTRL + SHIFT + ,`
+- Open Terminal: `CTRL + SHIFT + D`
+- Open Astro Modular Settings: `CTRL + SHIFT + ,`
 - Git: Commit and Sync `CTRL + SHIFT + S`
 
 If you're on Mac, `CTRL` = `CMD`.
@@ -87,6 +87,7 @@ Disabled default core plugins:
 Community plugins enabled: 
 - Alias Filename History
 - Astro Composer
+- Astro Modular Settings
 - Default New Tab Page
 - Git
 - Hider
@@ -98,9 +99,22 @@ Community plugins enabled:
 - Property Over Filename
 - ProZen
 - SEO
-- Shell commands
 - Style Settings
 - Title-Only Tab
+
+### Astro Modular Settings and Commander
+
+The Astro Modular Settings plugin was specifically made for this theme. It has everything you need to easily tweak your blog's features. It edits the project's `config.ts` file, even though it's outside of the Obsidian vault's root directory. 
+
+A wizard will open at startup which will lead you through some configuration options. You can disable this pop up if you like. 
+
+Pretty much anything else you'd possible want to customize is in the settings of the plugin. You can also create your own theme, import and export configs, and a bunch more.
+
+It also has several useful commands. To open terminal quickly, use the `Open terminal` command. It's been modified for Windows, macOS, and Linux to start terminal in the relevant directory so you can easily do standard package manager commands with `pnpm` or `npm`. It can be activated with `CTRL + SHIFT + D`. 
+
+You can quickly configure your site settings with the `Open Astro Modular Settings` command. You can also press `CTRL + SHIFT + ,` to open it. 
+
+The Commander plugin helps us place a button for each of these actions on the file explorer UI. If you don't want them there, simply disable the plugin or customize the clickable icons to be somewhere else in Obsidian's interface.
 
 ### Astro Composer and Alias Filename History
 
@@ -239,7 +253,7 @@ views:
 
 ```
 
-### Minimal Theme Settings, Hider, and Style Settings
+### Oxygen Theme Settings, Hider, and Style Settings
 
 As mentioned earlier, these plugins keep you focused and distraction-free while allowing for customization of your experience. 
 
@@ -273,20 +287,7 @@ This plugin is a great alternative if you don't prefer to use Hider to remove th
 
 ### SEO
 
-Get a snappy audit of your content for search engine rankings and AI parsing. You can get a quick snapshot of your whole vault or drill down into specific posts.  
-
-### Shell commands and Commander
-
-Shell commands helps us open two things quickly: terminal and Astro's `config.ts` file. 
-
-To open terminal quickly, use the `Start Terminal` command. It's been modified for Windows, macOS, and Linux to start terminal in the relevant directory so you can easily do standard package manager commands like `npm` or `pnpm`. It can be activated with `CTRL + SHIFT + D`. 
-
-To open your `config.ts` file quickly, simply use the `Astro Configuration` command. You can also press `CTRL + SHIFT + ,` to open it with your default application. 
-
-Commander helps us place a button for each of these actions on the file explorer UI.
-
-> [!warning]- Linux User Warning
-> On Linux, there isn't a universal method to open the default terminal. Additionally, the widely used Flatpak (via Flathub) employs non-trivial sandboxing, which introduces further challenges. To address this, both commands utilize FreeDesktop's `xdg-open` to access the configuration file and launch the file manager. Most file managers offer a right-click option like `Open in Terminal`, so if you're using a Linux distribution, you can rely on that feature.
+Get a snappy audit of your content for search engine rankings and AI parsing. You can get a quick snapshot of your whole vault or drill down into specific posts. 
 
 ### BRAT (Temporary)
 
@@ -301,3 +302,7 @@ With the [Git](https://obsidian.md/plugins?id=obsidian-git) plugin, you can easi
 This is off by default, but if enabled, opening any new tab replaces the current one only. Especially nice for when you're hiding the tab bar and don't want multiple tabs. If you enable this plugin, you'd probably want to use some of those optional CSS snippets mentioned above to make window management easier.
 
 When combined with the Homepage and New Default Tab plugins, `CTRL + T` and `CTRL + M` essentially do the same thing.
+
+### Shell Commands
+
+Off by default also, we used to use this to open the `config.ts` file and open the terminal in the project's root directory, but these functions have been replaced by Astro Modular Settings. You can re-enable it and use it though if it's useful to you.

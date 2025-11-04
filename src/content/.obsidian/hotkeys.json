@@ -91,24 +91,6 @@
     }
   ],
   "custom-save:save": [],
-  "obsidian-shellcommands:shell-command-c3n55v60kx": [
-    {
-      "modifiers": [
-        "Mod",
-        "Shift"
-      ],
-      "key": "D"
-    }
-  ],
-  "obsidian-shellcommands:shell-command-rgw8uy11vq": [
-    {
-      "modifiers": [
-        "Mod",
-        "Shift"
-      ],
-      "key": ","
-    }
-  ],
   "editor:insert-callout": [
     {
       "modifiers": [
@@ -159,6 +141,24 @@
         "Shift"
       ],
       "key": "'"
+    }
+  ],
+  "astro-modular-settings:open-settings": [
+    {
+      "modifiers": [
+        "Mod",
+        "Shift"
+      ],
+      "key": ","
+    }
+  ],
+  "astro-modular-settings:open-terminal": [
+    {
+      "modifiers": [
+        "Mod",
+        "Shift"
+      ],
+      "key": "D"
     }
   ]
 }

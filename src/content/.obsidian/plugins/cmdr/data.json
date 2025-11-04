@@ -12,16 +12,16 @@
   "macros": [],
   "explorer": [
     {
-      "id": "obsidian-shellcommands:shell-command-c3n55v60kx",
-      "icon": "lucide-terminal-square",
-      "name": "Shell commands: Execute: Start Terminal",
-      "mode": "desktop"
+      "id": "astro-modular-settings:open-terminal",
+      "icon": "terminal-square",
+      "name": "Open terminal",
+      "mode": "any"
     },
     {
-      "id": "obsidian-shellcommands:shell-command-rgw8uy11vq",
-      "icon": "lucide-wrench",
-      "name": "Shell commands: Execute: Configuration",
-      "mode": "desktop"
+      "id": "astro-modular-settings:open-settings",
+      "icon": "settings-2",
+      "name": "Open Astro Modular Settings",
+      "mode": "any"
     }
   ],
   "hide": {

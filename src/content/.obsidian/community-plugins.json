@@ -6,7 +6,6 @@
   "title-only-tab",
   "paste-image-into-property",
   "cmdr",
-  "obsidian-shellcommands",
   "obsidian-git",
   "alias-file-name-history",
   "property-over-file-name",
@@ -18,5 +17,6 @@
   "simple-banner",
   "oxygen-settings",
   "iconic",
-  "seo"
+  "seo",
+  "astro-modular-settings"
 ]
