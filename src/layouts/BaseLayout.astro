@@ -1287,7 +1287,7 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
       const shortcut = shortcutMeta.getAttribute('content');
       if (!shortcut || shortcut.trim() === '') return;
 
-      // Parse the shortcut (e.g., "ctrl+e" -> {ctrl: true, key: "e"})
+      // Parse the shortcut (e.g., "ctrl+e" -> {ctrl/meta primary, key: "e"})
       const parts = shortcut.toLowerCase().split('+').map(p => p.trim());
       const modifiers = {
         ctrl: parts.includes('ctrl') || parts.includes('control'),
@@ -1295,6 +1295,9 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
         shift: parts.includes('shift'),
         meta: parts.includes('meta') || parts.includes('cmd') || parts.includes('command')
       };
+      const isMac = typeof navigator !== 'undefined' && (/mac/i.test(navigator.platform) || /mac os x/i.test(navigator.userAgent));
+      // Treat ctrl on Windows/Linux and cmd (meta) on macOS as the same "primary" modifier
+      const requiresPrimary = modifiers.ctrl || modifiers.meta;
 
       // Get the main key (last part)
       const key = parts[parts.length - 1];
@@ -1302,11 +1305,12 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
 
       // Add global keyboard listener
       document.addEventListener('keydown', (e) => {
-        // Check if all required modifiers are pressed
-        const modifiersMatch = modifiers.ctrl === e.ctrlKey &&
-                              modifiers.alt === e.altKey &&
-                              modifiers.shift === e.shiftKey &&
-                              modifiers.meta === e.metaKey;
+        // Check modifiers with cross-platform primary mapping (Ctrl on Win/Linux, Cmd on macOS)
+        const primaryPressed = isMac ? e.metaKey : e.ctrlKey;
+        const primaryMatch = requiresPrimary ? primaryPressed : (!e.ctrlKey && !e.metaKey);
+        const modifiersMatch = primaryMatch &&
+                              (modifiers.alt === e.altKey) &&
+                              (modifiers.shift === e.shiftKey);
 
         // Check if the key matches (case insensitive)
         const keyMatch = e.key.toLowerCase() === key.toLowerCase();
