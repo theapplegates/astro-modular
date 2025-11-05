@@ -534,6 +534,10 @@ const shouldShowGraph = true;
           outerContainer.style.display = 'block';
           container.innerHTML = '';
           renderLocalGraph(container, filteredData);
+          
+          // Track initial dimensions for resize detection
+          lastContainerWidth = container.offsetWidth;
+          lastContainerHeight = container.offsetHeight;
         })
         .catch(error => {
           console.warn('Could not load local graph data:', error);
@@ -729,6 +733,9 @@ const shouldShowGraph = true;
     // Clear any cached data
     (window as any).localGraphData = null;
     (window as any).localGraphFilteredData = null;
+    // Reset dimension tracking
+    lastContainerWidth = 0;
+    lastContainerHeight = 0;
   }
 
   if (document.readyState === 'loading') {
@@ -830,6 +837,90 @@ const shouldShowGraph = true;
           console.error('LocalGraph: Error fetching graph data for theme update:', error);
         });
     }
+  });
+
+  // Listen for window resize to re-render graph with correct dimensions
+  let resizeTimeout: ReturnType<typeof setTimeout> | null = null;
+  let lastContainerWidth = 0;
+  let lastContainerHeight = 0;
+
+  function handleResize() {
+    const container = document.getElementById('local-graph-content');
+    const outerContainer = document.getElementById('local-graph-container');
+    if (!container || !outerContainer || !localGraphInitialized) return;
+
+    // Check if container is visible (not hidden by CSS)
+    const containerRect = outerContainer.getBoundingClientRect();
+    if (containerRect.width === 0 || containerRect.height === 0) {
+      // Container is hidden, wait for it to become visible
+      return;
+    }
+
+    const currentWidth = container.offsetWidth;
+    const currentHeight = container.offsetHeight;
+
+    // Only re-render if dimensions actually changed
+    if (currentWidth !== lastContainerWidth || currentHeight !== lastContainerHeight) {
+      lastContainerWidth = currentWidth;
+      lastContainerHeight = currentHeight;
+
+      // Get cached data if available
+      const cachedFilteredData = (window as any).localGraphFilteredData;
+      if (cachedFilteredData && cachedFilteredData.nodes.length > 1) {
+        renderLocalGraph(container, cachedFilteredData);
+      } else {
+        // Fetch fresh data if cache is not available
+        const currentPath = window.location.pathname;
+        let currentSlug = '';
+        
+        const patterns = [
+          /\/posts\/([^\/]+)/,
+          /\/posts\/([^\/]+)\/$/,
+          /\/posts\/([^\/]+)\/index/,
+        ];
+        
+        for (const pattern of patterns) {
+          const match = currentPath.match(pattern);
+          if (match) {
+            currentSlug = match[1];
+            break;
+          }
+        }
+
+        fetch('/graph/graph-data.json')
+          .then(response => response.json())
+          .then(data => {
+            const filteredData = filterLocalGraphData(data, currentSlug);
+            (window as any).localGraphFilteredData = filteredData;
+            if (filteredData.nodes.length > 1) {
+              renderLocalGraph(container, filteredData);
+            }
+          })
+          .catch(error => {
+            console.warn('LocalGraph: Error fetching graph data for resize:', error);
+          });
+      }
+    }
+  }
+
+  // Debounced resize handler
+  function onResize() {
+    if (resizeTimeout) {
+      clearTimeout(resizeTimeout);
+    }
+    resizeTimeout = setTimeout(() => {
+      handleResize();
+    }, 150); // 150ms debounce
+  }
+
+  window.addEventListener('resize', onResize);
+
+  // Also listen for orientation changes on mobile
+  window.addEventListener('orientationchange', () => {
+    // Give browser time to update layout after orientation change
+    setTimeout(() => {
+      handleResize();
+    }, 300);
   });
 
   // Make functions globally available for BaseLayout integration
