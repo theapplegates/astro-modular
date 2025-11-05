@@ -36,26 +36,68 @@
       "file": "posts/sample-folder-based-post/index.md",
       "displayName": "Sample Folder-Based Post",
       "checks": {
-        "titleLength": [],
-        "metaDescription": [
+        "titleLength": [
           {
             "passed": false,
-            "message": "No frontmatter found",
-            "suggestion": "Add frontmatter with description property",
+            "message": "Title too short: 24 characters",
+            "suggestion": "Aim for 30-60 characters",
             "severity": "warning"
           }
         ],
-        "titleH1Uniqueness": [],
-        "keywordInTitle": [],
-        "keywordInDescription": [],
-        "keywordInHeadings": [],
-        "keywordInSlug": [],
+        "metaDescription": [
+          {
+            "passed": false,
+            "message": "Description too short: 60 characters",
+            "suggestion": "Aim for 120-160 characters",
+            "severity": "warning"
+          }
+        ],
+        "titleH1Uniqueness": [
+          {
+            "passed": false,
+            "message": "Meta title and H1 are identical",
+            "suggestion": "Modify one to be unique, or specify a suffix/prefix in plugin settings",
+            "severity": "warning"
+          }
+        ],
+        "keywordInTitle": [
+          {
+            "passed": false,
+            "message": "Keyword not found in title",
+            "suggestion": "Include your target keyword in the title",
+            "severity": "warning"
+          }
+        ],
+        "keywordInDescription": [
+          {
+            "passed": false,
+            "message": "Keyword not found in description",
+            "suggestion": "Include your target keyword in the description",
+            "severity": "warning"
+          }
+        ],
+        "keywordInHeadings": [
+          {
+            "passed": false,
+            "message": "Keyword not found in H1",
+            "suggestion": "Include your target keyword in the H1 heading for better SEO",
+            "severity": "warning"
+          }
+        ],
+        "keywordInSlug": [
+          {
+            "passed": false,
+            "message": "Target keyword \"\"\"\" not found in slug",
+            "suggestion": "Include your target keyword in the filename",
+            "severity": "warning"
+          }
+        ],
         "slugFormat": [],
         "keywordDensity": [
           {
             "passed": false,
-            "message": "No frontmatter found",
-            "suggestion": "Add frontmatter with keyword property",
+            "message": "Keyword density too low: 0.0%",
+            "suggestion": "Aim for at least 1% density",
             "severity": "warning"
           }
         ],
@@ -69,7 +111,7 @@
         "contentLength": [
           {
             "passed": false,
-            "message": "Content too short: 133 words",
+            "message": "Content too short: 82 words",
             "suggestion": "Aim for at least 300 words",
             "severity": "warning"
           }
@@ -123,40 +165,81 @@
         "readingLevel": [
           {
             "passed": true,
-            "message": "Good reading level: 11.3 (Moderately easy to read)",
+            "message": "Good reading level: 9.9 (Moderately easy to read)",
             "severity": "info"
           }
         ]
       },
-      "overallScore": 71.22727272727273,
+      "overallScore": 40,
       "issuesCount": 0,
-      "warningsCount": 3,
+      "warningsCount": 9,
       "noticesCount": 0
     },
     {
       "file": "posts/obsidian-vault-guide.md",
       "displayName": "Obsidian Vault Guide",
       "checks": {
-        "titleLength": [],
-        "metaDescription": [
+        "titleLength": [
           {
             "passed": false,
-            "message": "No frontmatter found",
-            "suggestion": "Add frontmatter with description property",
+            "message": "Title too short: 20 characters",
+            "suggestion": "Aim for 30-60 characters",
             "severity": "warning"
           }
         ],
-        "titleH1Uniqueness": [],
-        "keywordInTitle": [],
-        "keywordInDescription": [],
-        "keywordInHeadings": [],
-        "keywordInSlug": [],
+        "metaDescription": [
+          {
+            "passed": false,
+            "message": "Description too short: 51 characters",
+            "suggestion": "Aim for 120-160 characters",
+            "severity": "warning"
+          }
+        ],
+        "titleH1Uniqueness": [
+          {
+            "passed": false,
+            "message": "Meta title and H1 are identical",
+            "suggestion": "Modify one to be unique, or specify a suffix/prefix in plugin settings",
+            "severity": "warning"
+          }
+        ],
+        "keywordInTitle": [
+          {
+            "passed": false,
+            "message": "Keyword not found in title",
+            "suggestion": "Include your target keyword in the title",
+            "severity": "warning"
+          }
+        ],
+        "keywordInDescription": [
+          {
+            "passed": true,
+            "message": "Keyword found in description",
+            "severity": "info"
+          }
+        ],
+        "keywordInHeadings": [
+          {
+            "passed": false,
+            "message": "Keyword not found in H1",
+            "suggestion": "Include your target keyword in the H1 heading for better SEO",
+            "severity": "warning"
+          }
+        ],
+        "keywordInSlug": [
+          {
+            "passed": false,
+            "message": "Target keyword \"astro suite obsidian vault\" not found in slug",
+            "suggestion": "Include your target keyword in the filename",
+            "severity": "warning"
+          }
+        ],
         "slugFormat": [],
         "keywordDensity": [
           {
             "passed": false,
-            "message": "No frontmatter found",
-            "suggestion": "Add frontmatter with keyword property",
+            "message": "Keyword density too low: 0.0%",
+            "suggestion": "Aim for at least 1% density",
             "severity": "warning"
           }
         ],
@@ -170,7 +253,7 @@
         "contentLength": [
           {
             "passed": true,
-            "message": "Good content length: 1692 words",
+            "message": "Good content length: 1680 words",
             "severity": "info"
           }
         ],
@@ -214,7 +297,7 @@
             "position": {
               "line": 22,
               "searchText": "[Astro and Obsidian logos stacked vertically with a \"+\" (plus) sign between them.](/posts/attachments/astro-composer-suite-for-obsidian.png)",
-              "context": "  - astro-suite-obsidian-vault-guide-astro-modular\r\n---\r\n![Astro and Obsidian logos stacked vertically with a \"+\" (plus) sign between them.](/posts/attachments/astro-composer-suite-for-obsidian.png)\r\n\r\n## Overview\r"
+              "context": "  - astro-suite-obsidian-vault-guide-astro-modular\n---\n![Astro and Obsidian logos stacked vertically with a \"+\" (plus) sign between them.](/posts/attachments/astro-composer-suite-for-obsidian.png)\n\n## Overview"
             }
           }
         ],
@@ -228,7 +311,7 @@
             "position": {
               "line": 36,
               "searchText": "https://github.com/davidvkimball/obsidian-oxygen",
-              "context": "## Theme\r\n\r\nFor out-of-the-box customization, [Oxygen](https://github.com/davidvkimball/obsidian-oxygen) theme is used, based on the [Minimal theme system](https://minimal.guide/home). It uses a slick color scheme that's highly customizable. \r\n\r\nThe [Oxygen Theme Settings](https://github.com/davidvkimball/obsidian-oxygen-settings), [Hider](https://github.com/kepano/obsidian-hider), and [Style Settings](https://obsidian.md/plugins?id=obsidian-style-settings) community plugins are also installed by default, giving you complete control over your experience. You can even define your own color scheme presets and tweak just about anything.\r"
+              "context": "## Theme\n\nFor out-of-the-box customization, [Oxygen](https://github.com/davidvkimball/obsidian-oxygen) theme is used, based on the [Minimal theme system](https://minimal.guide/home). It uses a slick color scheme that's highly customizable. \n\nThe [Oxygen Theme Settings](https://github.com/davidvkimball/obsidian-oxygen-settings), [Hider](https://github.com/kepano/obsidian-hider), and [Style Settings](https://obsidian.md/plugins?id=obsidian-style-settings) community plugins are also installed by default, giving you complete control over your experience. You can even define your own color scheme presets and tweak just about anything."
             }
           },
           {
@@ -239,7 +322,7 @@
             "position": {
               "line": 36,
               "searchText": "https://minimal.guide/home",
-              "context": "## Theme\r\n\r\nFor out-of-the-box customization, [Oxygen](https://github.com/davidvkimball/obsidian-oxygen) theme is used, based on the [Minimal theme system](https://minimal.guide/home). It uses a slick color scheme that's highly customizable. \r\n\r\nThe [Oxygen Theme Settings](https://github.com/davidvkimball/obsidian-oxygen-settings), [Hider](https://github.com/kepano/obsidian-hider), and [Style Settings](https://obsidian.md/plugins?id=obsidian-style-settings) community plugins are also installed by default, giving you complete control over your experience. You can even define your own color scheme presets and tweak just about anything.\r"
+              "context": "## Theme\n\nFor out-of-the-box customization, [Oxygen](https://github.com/davidvkimball/obsidian-oxygen) theme is used, based on the [Minimal theme system](https://minimal.guide/home). It uses a slick color scheme that's highly customizable. \n\nThe [Oxygen Theme Settings](https://github.com/davidvkimball/obsidian-oxygen-settings), [Hider](https://github.com/kepano/obsidian-hider), and [Style Settings](https://obsidian.md/plugins?id=obsidian-style-settings) community plugins are also installed by default, giving you complete control over your experience. You can even define your own color scheme presets and tweak just about anything."
             }
           },
           {
@@ -250,7 +333,7 @@
             "position": {
               "line": 38,
               "searchText": "https://github.com/davidvkimball/obsidian-oxygen-settings",
-              "context": "For out-of-the-box customization, [Oxygen](https://github.com/davidvkimball/obsidian-oxygen) theme is used, based on the [Minimal theme system](https://minimal.guide/home). It uses a slick color scheme that's highly customizable. \r\n\r\nThe [Oxygen Theme Settings](https://github.com/davidvkimball/obsidian-oxygen-settings), [Hider](https://github.com/kepano/obsidian-hider), and [Style Settings](https://obsidian.md/plugins?id=obsidian-style-settings) community plugins are also installed by default, giving you complete control over your experience. You can even define your own color scheme presets and tweak just about anything.\r\n\r\n## CSS Snippets\r"
+              "context": "For out-of-the-box customization, [Oxygen](https://github.com/davidvkimball/obsidian-oxygen) theme is used, based on the [Minimal theme system](https://minimal.guide/home). It uses a slick color scheme that's highly customizable. \n\nThe [Oxygen Theme Settings](https://github.com/davidvkimball/obsidian-oxygen-settings), [Hider](https://github.com/kepano/obsidian-hider), and [Style Settings](https://obsidian.md/plugins?id=obsidian-style-settings) community plugins are also installed by default, giving you complete control over your experience. You can even define your own color scheme presets and tweak just about anything.\n\n## CSS Snippets"
             }
           },
           {
@@ -261,7 +344,7 @@
             "position": {
               "line": 38,
               "searchText": "https://github.com/kepano/obsidian-hider",
-              "context": "For out-of-the-box customization, [Oxygen](https://github.com/davidvkimball/obsidian-oxygen) theme is used, based on the [Minimal theme system](https://minimal.guide/home). It uses a slick color scheme that's highly customizable. \r\n\r\nThe [Oxygen Theme Settings](https://github.com/davidvkimball/obsidian-oxygen-settings), [Hider](https://github.com/kepano/obsidian-hider), and [Style Settings](https://obsidian.md/plugins?id=obsidian-style-settings) community plugins are also installed by default, giving you complete control over your experience. You can even define your own color scheme presets and tweak just about anything.\r\n\r\n## CSS Snippets\r"
+              "context": "For out-of-the-box customization, [Oxygen](https://github.com/davidvkimball/obsidian-oxygen) theme is used, based on the [Minimal theme system](https://minimal.guide/home). It uses a slick color scheme that's highly customizable. \n\nThe [Oxygen Theme Settings](https://github.com/davidvkimball/obsidian-oxygen-settings), [Hider](https://github.com/kepano/obsidian-hider), and [Style Settings](https://obsidian.md/plugins?id=obsidian-style-settings) community plugins are also installed by default, giving you complete control over your experience. You can even define your own color scheme presets and tweak just about anything.\n\n## CSS Snippets"
             }
           },
           {
@@ -272,7 +355,7 @@
             "position": {
               "line": 38,
               "searchText": "https://obsidian.md/plugins?id=obsidian-style-settings",
-              "context": "For out-of-the-box customization, [Oxygen](https://github.com/davidvkimball/obsidian-oxygen) theme is used, based on the [Minimal theme system](https://minimal.guide/home). It uses a slick color scheme that's highly customizable. \r\n\r\nThe [Oxygen Theme Settings](https://github.com/davidvkimball/obsidian-oxygen-settings), [Hider](https://github.com/kepano/obsidian-hider), and [Style Settings](https://obsidian.md/plugins?id=obsidian-style-settings) community plugins are also installed by default, giving you complete control over your experience. You can even define your own color scheme presets and tweak just about anything.\r\n\r\n## CSS Snippets\r"
+              "context": "For out-of-the-box customization, [Oxygen](https://github.com/davidvkimball/obsidian-oxygen) theme is used, based on the [Minimal theme system](https://minimal.guide/home). It uses a slick color scheme that's highly customizable. \n\nThe [Oxygen Theme Settings](https://github.com/davidvkimball/obsidian-oxygen-settings), [Hider](https://github.com/kepano/obsidian-hider), and [Style Settings](https://obsidian.md/plugins?id=obsidian-style-settings) community plugins are also installed by default, giving you complete control over your experience. You can even define your own color scheme presets and tweak just about anything.\n\n## CSS Snippets"
             }
           },
           {
@@ -281,49 +364,87 @@
             "suggestion": "To find if any of these are broken, use the 'Check external links for 404s' button to trigger it.",
             "severity": "notice",
             "position": {
-              "line": 299,
+              "line": 298,
               "searchText": "https://obsidian.md/plugins?id=obsidian-git",
-              "context": "### Git\r\n\r\nWith the [Git](https://obsidian.md/plugins?id=obsidian-git) plugin, you can easily publish to your Astro blog without leaving Obsidian using `CTRL + SHIFT + S`. Simply enable the plugin and configure with git to turn it on.\r\n\r\n### Disable Tabs\r"
+              "context": "### Git\n\nWith the [Git](https://obsidian.md/plugins?id=obsidian-git) plugin, you can easily publish to your Astro blog without leaving Obsidian using `CTRL + SHIFT + S`. Simply enable the plugin and configure with git to turn it on.\n\n### Disable Tabs"
             }
           }
         ],
         "readingLevel": [
           {
             "passed": true,
-            "message": "Good reading level: 10.1 (Moderately easy to read)",
+            "message": "Good reading level: 9.6 (Moderately easy to read)",
             "severity": "info"
           }
         ]
       },
-      "overallScore": 76.77777777777777,
+      "overallScore": 40,
       "issuesCount": 0,
-      "warningsCount": 2,
+      "warningsCount": 7,
       "noticesCount": 7
     },
     {
       "file": "posts/obsidian-embeds-demo.md",
       "displayName": "Obsidian Embeds Demo",
       "checks": {
-        "titleLength": [],
-        "metaDescription": [
+        "titleLength": [
           {
             "passed": false,
-            "message": "No frontmatter found",
-            "suggestion": "Add frontmatter with description property",
+            "message": "Title too short: 20 characters",
+            "suggestion": "Aim for 30-60 characters",
             "severity": "warning"
           }
         ],
-        "titleH1Uniqueness": [],
-        "keywordInTitle": [],
-        "keywordInDescription": [],
-        "keywordInHeadings": [],
-        "keywordInSlug": [],
+        "metaDescription": [
+          {
+            "passed": false,
+            "message": "Description too short: 39 characters",
+            "suggestion": "Aim for 120-160 characters",
+            "severity": "warning"
+          }
+        ],
+        "titleH1Uniqueness": [
+          {
+            "passed": false,
+            "message": "Meta title and H1 are identical",
+            "suggestion": "Modify one to be unique, or specify a suffix/prefix in plugin settings",
+            "severity": "warning"
+          }
+        ],
+        "keywordInTitle": [
+          {
+            "passed": true,
+            "message": "Keyword found in title",
+            "severity": "info"
+          }
+        ],
+        "keywordInDescription": [
+          {
+            "passed": true,
+            "message": "Keyword found in description",
+            "severity": "info"
+          }
+        ],
+        "keywordInHeadings": [
+          {
+            "passed": true,
+            "message": "Keyword found in H1",
+            "severity": "info"
+          }
+        ],
+        "keywordInSlug": [
+          {
+            "passed": true,
+            "message": "Target keyword \"obsidian embeds\" found in slug",
+            "severity": "info"
+          }
+        ],
         "slugFormat": [],
         "keywordDensity": [
           {
             "passed": false,
-            "message": "No frontmatter found",
-            "suggestion": "Add frontmatter with keyword property",
+            "message": "Keyword density too low: 0.1%",
+            "suggestion": "Aim for at least 1% density",
             "severity": "warning"
           }
         ],
@@ -337,7 +458,7 @@
         "contentLength": [
           {
             "passed": true,
-            "message": "Good content length: 733 words",
+            "message": "Good content length: 720 words",
             "severity": "info"
           }
         ],
@@ -360,7 +481,7 @@
             "position": {
               "line": 53,
               "searchText": "![Why doesn't everyone use Astro? Writing blog posts in markdown is beautiful.](https://x.com/davidvkimball/status/1933196479801536736)",
-              "context": "### Twitter/X Posts\r\n\r\n![Why doesn't everyone use Astro? Writing blog posts in markdown is beautiful.](https://x.com/davidvkimball/status/1933196479801536736)\r\n\r\nTwitter posts are embedded with theme-aware styling that matches your site's light/dark mode.\r"
+              "context": "### Twitter/X Posts\n\n![Why doesn't everyone use Astro? Writing blog posts in markdown is beautiful.](https://x.com/davidvkimball/status/1933196479801536736)\n\nTwitter posts are embedded with theme-aware styling that matches your site's light/dark mode."
             }
           }
         ],
@@ -395,7 +516,7 @@
             "position": {
               "line": 47,
               "searchText": "https://www.youtube.com/watch?v=ZhizarvwLnU",
-              "context": "### YouTube Videos\r\n\r\n![Astro Suite for Obsidian](https://www.youtube.com/watch?v=ZhizarvwLnU)\r\n\r\nYouTube videos are automatically embedded with responsive design and optimized settings.\r"
+              "context": "### YouTube Videos\n\n![Astro Suite for Obsidian](https://www.youtube.com/watch?v=ZhizarvwLnU)\n\nYouTube videos are automatically embedded with responsive design and optimized settings."
             }
           },
           {
@@ -406,21 +527,21 @@
             "position": {
               "line": 53,
               "searchText": "https://x.com/davidvkimball/status/1933196479801536736",
-              "context": "### Twitter/X Posts\r\n\r\n![Why doesn't everyone use Astro? Writing blog posts in markdown is beautiful.](https://x.com/davidvkimball/status/1933196479801536736)\r\n\r\nTwitter posts are embedded with theme-aware styling that matches your site's light/dark mode.\r"
+              "context": "### Twitter/X Posts\n\n![Why doesn't everyone use Astro? Writing blog posts in markdown is beautiful.](https://x.com/davidvkimball/status/1933196479801536736)\n\nTwitter posts are embedded with theme-aware styling that matches your site's light/dark mode."
             }
           }
         ],
         "readingLevel": [
           {
             "passed": true,
-            "message": "Good reading level: 9.1 (Moderately easy to read)",
+            "message": "Good reading level: 8.6 (Easy to read)",
             "severity": "info"
           }
         ]
       },
-      "overallScore": 68.5,
+      "overallScore": 66.25,
       "issuesCount": 0,
-      "warningsCount": 3,
+      "warningsCount": 5,
       "noticesCount": 2
     },
     {
@@ -430,7 +551,7 @@
         "titleLength": [
           {
             "passed": false,
-            "message": "Title too short: 9 characters",
+            "message": "Title too short: 20 characters",
             "suggestion": "Aim for 30-60 characters",
             "severity": "warning"
           }
@@ -438,23 +559,47 @@
         "metaDescription": [
           {
             "passed": false,
-            "message": "No frontmatter found",
-            "suggestion": "Add frontmatter with description property",
+            "message": "Description too short: 99 characters",
+            "suggestion": "Aim for 120-160 characters",
             "severity": "warning"
           }
         ],
-        "titleH1Uniqueness": [],
-        "keywordInTitle": [],
+        "titleH1Uniqueness": [
+          {
+            "passed": false,
+            "message": "Meta title and H1 are identical",
+            "suggestion": "Modify one to be unique, or specify a suffix/prefix in plugin settings",
+            "severity": "warning"
+          }
+        ],
+        "keywordInTitle": [
+          {
+            "passed": true,
+            "message": "No valid keyword defined in properties",
+            "severity": "notice"
+          }
+        ],
         "keywordInDescription": [],
-        "keywordInHeadings": [],
-        "keywordInSlug": [],
+        "keywordInHeadings": [
+          {
+            "passed": true,
+            "message": "No valid keyword defined in properties",
+            "severity": "notice"
+          }
+        ],
+        "keywordInSlug": [
+          {
+            "passed": true,
+            "message": "No valid keyword defined in properties",
+            "severity": "notice"
+          }
+        ],
         "slugFormat": [],
         "keywordDensity": [
           {
-            "passed": false,
-            "message": "No frontmatter found",
-            "suggestion": "Add frontmatter with keyword property",
-            "severity": "warning"
+            "passed": true,
+            "message": "No valid keyword defined in properties",
+            "severity": "notice"
           }
         ],
         "headingOrder": [
@@ -465,15 +610,15 @@
             "severity": "warning",
             "position": {
               "line": 35,
-              "searchText": "# Heading 1\r",
-              "context": "### Headings\r\n\r\n# Heading 1\r\n## Heading 2\r\n### Heading 3\r"
+              "searchText": "# Heading 1",
+              "context": "### Headings\n\n# Heading 1\n## Heading 2\n### Heading 3"
             }
           }
         ],
         "contentLength": [
           {
             "passed": true,
-            "message": "Good content length: 1202 words",
+            "message": "Good content length: 1185 words",
             "severity": "info"
           }
         ],
@@ -496,7 +641,7 @@
             "position": {
               "line": 125,
               "searchText": "![Mountain landscape](https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop)",
-              "context": "**Two Images Side by Side**\r\n\r\n![Mountain landscape](https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop)\r\n![Ocean view](https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=800&h=600&fit=crop)\r\n\r"
+              "context": "**Two Images Side by Side**\n\n![Mountain landscape](https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop)\n![Ocean view](https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=800&h=600&fit=crop)\n"
             }
           },
           {
@@ -507,7 +652,7 @@
             "position": {
               "line": 126,
               "searchText": "![Ocean view](https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=800&h=600&fit=crop)",
-              "context": "\r\n![Mountain landscape](https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop)\r\n![Ocean view](https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=800&h=600&fit=crop)\r\n\r\n**Three Images in a Row**\r"
+              "context": "\n![Mountain landscape](https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop)\n![Ocean view](https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=800&h=600&fit=crop)\n\n**Three Images in a Row**"
             }
           },
           {
@@ -518,7 +663,7 @@
             "position": {
               "line": 130,
               "searchText": "![Forest path](https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop)",
-              "context": "**Three Images in a Row**\r\n\r\n![Forest path](https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop)\r\n![Desert sunset](https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop)\r\n![City skyline](https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop)\r"
+              "context": "**Three Images in a Row**\n\n![Forest path](https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop)\n![Desert sunset](https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop)\n![City skyline](https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop)"
             }
           },
           {
@@ -529,7 +674,7 @@
             "position": {
               "line": 131,
               "searchText": "![Desert sunset](https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop)",
-              "context": "\r\n![Forest path](https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop)\r\n![Desert sunset](https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop)\r\n![City skyline](https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop)\r\n\r"
+              "context": "\n![Forest path](https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop)\n![Desert sunset](https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop)\n![City skyline](https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop)\n"
             }
           },
           {
@@ -540,7 +685,7 @@
             "position": {
               "line": 132,
               "searchText": "![City skyline](https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop)",
-              "context": "![Forest path](https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop)\r\n![Desert sunset](https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop)\r\n![City skyline](https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop)\r\n\r\n**Four Images in a Row**\r"
+              "context": "![Forest path](https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop)\n![Desert sunset](https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop)\n![City skyline](https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop)\n\n**Four Images in a Row**"
             }
           },
           {
@@ -551,7 +696,7 @@
             "position": {
               "line": 136,
               "searchText": "![Winter landscape](https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&h=600&fit=crop)",
-              "context": "**Four Images in a Row**\r\n\r\n![Winter landscape](https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&h=600&fit=crop)\r\n![Spring flowers](https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800&h=600&fit=crop)\r\n![Summer beach](https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=600&fit=crop)\r"
+              "context": "**Four Images in a Row**\n\n![Winter landscape](https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&h=600&fit=crop)\n![Spring flowers](https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800&h=600&fit=crop)\n![Summer beach](https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=600&fit=crop)"
             }
           },
           {
@@ -562,7 +707,7 @@
             "position": {
               "line": 137,
               "searchText": "![Spring flowers](https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800&h=600&fit=crop)",
-              "context": "\r\n![Winter landscape](https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&h=600&fit=crop)\r\n![Spring flowers](https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800&h=600&fit=crop)\r\n![Summer beach](https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=600&fit=crop)\r\n![Autumn leaves](https://images.unsplash.com/photo-1441260038675-7329ab4cc264?w=800&h=600&fit=crop)\r"
+              "context": "\n![Winter landscape](https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&h=600&fit=crop)\n![Spring flowers](https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800&h=600&fit=crop)\n![Summer beach](https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=600&fit=crop)\n![Autumn leaves](https://images.unsplash.com/photo-1441260038675-7329ab4cc264?w=800&h=600&fit=crop)"
             }
           },
           {
@@ -573,7 +718,7 @@
             "position": {
               "line": 138,
               "searchText": "![Summer beach](https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=600&fit=crop)",
-              "context": "![Winter landscape](https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&h=600&fit=crop)\r\n![Spring flowers](https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800&h=600&fit=crop)\r\n![Summer beach](https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=600&fit=crop)\r\n![Autumn leaves](https://images.unsplash.com/photo-1441260038675-7329ab4cc264?w=800&h=600&fit=crop)\r\n\r"
+              "context": "![Winter landscape](https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&h=600&fit=crop)\n![Spring flowers](https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800&h=600&fit=crop)\n![Summer beach](https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=600&fit=crop)\n![Autumn leaves](https://images.unsplash.com/photo-1441260038675-7329ab4cc264?w=800&h=600&fit=crop)\n"
             }
           },
           {
@@ -584,7 +729,7 @@
             "position": {
               "line": 139,
               "searchText": "![Autumn leaves](https://images.unsplash.com/photo-1441260038675-7329ab4cc264?w=800&h=600&fit=crop)",
-              "context": "![Spring flowers](https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800&h=600&fit=crop)\r\n![Summer beach](https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=600&fit=crop)\r\n![Autumn leaves](https://images.unsplash.com/photo-1441260038675-7329ab4cc264?w=800&h=600&fit=crop)\r\n\r\n**How to Use Multiple Images / Gallery**\r"
+              "context": "![Spring flowers](https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800&h=600&fit=crop)\n![Summer beach](https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=600&fit=crop)\n![Autumn leaves](https://images.unsplash.com/photo-1441260038675-7329ab4cc264?w=800&h=600&fit=crop)\n\n**How to Use Multiple Images / Gallery**"
             }
           }
         ],
@@ -595,9 +740,9 @@
             "suggestion": "Convert to markdown link format: [link text](url)",
             "severity": "warning",
             "position": {
-              "line": 213,
+              "line": 221,
               "searchText": "https://example.com",
-              "context": "This is a [reference link][1] and this is another [reference link][markdown].\r\n\r\n[1]: https://example.com\r\n[markdown]: https://daringfireball.net/projects/markdown/\r\n\r"
+              "context": "This is a [reference link][1] and this is another [reference link][markdown].\n\n[1]: https://example.com\n[markdown]: https://daringfireball.net/projects/markdown/\n"
             }
           },
           {
@@ -606,9 +751,9 @@
             "suggestion": "Convert to markdown link format: [link text](url)",
             "severity": "warning",
             "position": {
-              "line": 214,
+              "line": 222,
               "searchText": "https://daringfireball.net/projects/markdown/",
-              "context": "\r\n[1]: https://example.com\r\n[markdown]: https://daringfireball.net/projects/markdown/\r\n\r\n## Code Blocks\r"
+              "context": "\n[1]: https://example.com\n[markdown]: https://daringfireball.net/projects/markdown/\n\n## Code Blocks"
             }
           }
         ],
@@ -637,7 +782,7 @@
         "readingLevel": [
           {
             "passed": true,
-            "message": "Good reading level: 6.4 (Easy to read)",
+            "message": "Good reading level: 6.7 (Easy to read)",
             "severity": "info"
           }
         ]
@@ -645,7 +790,7 @@
       "overallScore": 40,
       "issuesCount": 0,
       "warningsCount": 15,
-      "noticesCount": 0
+      "noticesCount": 4
     },
     {
       "file": "posts/getting-started.md",
@@ -654,7 +799,7 @@
         "titleLength": [
           {
             "passed": false,
-            "message": "Title too short: 26 characters (Install pnpm + \" - Author Name\")",
+            "message": "Title too short: 15 characters",
             "suggestion": "Aim for 30-60 characters",
             "severity": "warning"
           }
@@ -662,22 +807,56 @@
         "metaDescription": [
           {
             "passed": false,
-            "message": "No frontmatter found",
-            "suggestion": "Add frontmatter with description property",
+            "message": "Description too short: 71 characters",
+            "suggestion": "Aim for 120-160 characters",
             "severity": "warning"
           }
         ],
-        "titleH1Uniqueness": [],
-        "keywordInTitle": [],
-        "keywordInDescription": [],
-        "keywordInHeadings": [],
-        "keywordInSlug": [],
+        "titleH1Uniqueness": [
+          {
+            "passed": false,
+            "message": "Meta title and H1 are identical",
+            "suggestion": "Modify one to be unique, or specify a suffix/prefix in plugin settings",
+            "severity": "warning"
+          }
+        ],
+        "keywordInTitle": [
+          {
+            "passed": false,
+            "message": "Keyword not found in title",
+            "suggestion": "Include your target keyword in the title",
+            "severity": "warning"
+          }
+        ],
+        "keywordInDescription": [
+          {
+            "passed": true,
+            "message": "Keyword found in description",
+            "severity": "info"
+          }
+        ],
+        "keywordInHeadings": [
+          {
+            "passed": false,
+            "message": "Keyword not found in H1",
+            "suggestion": "Include your target keyword in the H1 heading for better SEO",
+            "severity": "warning"
+          }
+        ],
+        "keywordInSlug": [
+          {
+            "passed": false,
+            "message": "Target keyword \"astro blog quick start\" not found in slug",
+            "suggestion": "Include your target keyword in the filename",
+            "severity": "warning"
+          }
+        ],
         "slugFormat": [],
         "keywordDensity": [
           {
             "passed": false,
-            "message": "No frontmatter found",
-            "suggestion": "Add frontmatter with keyword property",
+            "message": "Keyword density too low: 0.0%",
+            "suggestion": "Aim for at least 1% density",
             "severity": "warning"
           }
         ],
@@ -691,7 +870,7 @@
         "contentLength": [
           {
             "passed": true,
-            "message": "Good content length: 505 words",
+            "message": "Good content length: 454 words",
             "severity": "info"
           }
         ],
@@ -744,17 +923,17 @@
         "readingLevel": [
           {
             "passed": true,
-            "message": "Good reading level: 8.5 (Easy to read)",
+            "message": "Good reading level: 8.6 (Easy to read)",
             "severity": "info"
           }
         ]
       },
-      "overallScore": 73.5,
+      "overallScore": 40,
       "issuesCount": 0,
-      "warningsCount": 3,
+      "warningsCount": 7,
       "noticesCount": 0
     }
   ],
-  "lastScanTimestamp": 1761860134898,
+  "lastScanTimestamp": 1762363864122,
   "showNotices": true
 }
