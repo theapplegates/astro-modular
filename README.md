@@ -122,6 +122,8 @@ For detailed guides, see the included blog posts:
 
 [Spaceship Astro theme](https://github.com/aitorllj93/astro-theme-spaceship) for the graph view functionality upon which this theme's is based.
 
+[ogImage/click](https://ogimage.click/) to generate the open graph image used for this theme.
+
 ## Contributing
 
 This is an open-source project. Feel free to submit feature requests, report bugs, or contribute improvements.
