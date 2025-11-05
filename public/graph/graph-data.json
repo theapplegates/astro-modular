@@ -5,7 +5,7 @@
       "type": "post",
       "title": "Formatting Reference",
       "slug": "formatting-reference",
-      "connections": 8
+      "connections": 11
     },
     {
       "id": "getting-started",
@@ -59,6 +59,21 @@
     },
     {
       "source": "formatting-reference",
+      "target": "getting-started",
+      "type": "link"
+    },
+    {
+      "source": "formatting-reference",
+      "target": "getting-started",
+      "type": "link"
+    },
+    {
+      "source": "formatting-reference",
+      "target": "getting-started",
+      "type": "link"
+    },
+    {
+      "source": "formatting-reference",
       "target": "obsidian-embeds-demo",
       "type": "link"
     },
@@ -95,7 +110,7 @@
   ],
   "metadata": {
     "totalPosts": 5,
-    "totalConnections": 11,
+    "totalConnections": 14,
     "maxNodesApplied": false,
     "originalNodeCount": 5
   }

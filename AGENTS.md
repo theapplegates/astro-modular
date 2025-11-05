@@ -28,7 +28,8 @@ This document contains essential information for AI agents working with this Ast
 7. **🚨 URL MAPPING SYSTEM CONFUSION** - URL mapping is for rendering only, doesn't affect linked mentions/graph view
 8. **🚨 FOLDER-BASED CONTENT ASSUMPTIONS** - ALL content types support folder-based organization, not just posts
 9. **🚨 FOLDER-BASED POST ID DETECTION** - Astro v6 folder-based posts have IDs like 'folder-name', NOT 'folder-name/index'
-10. **🚨 NEVER DISABLE ASTRO DEV TOOLBAR** - The dev toolbar must remain enabled (`devToolbar.enabled: true`) - do NOT disable it to resolve module loading errors
+10. **🚨 PLUGIN ORDER AND EMBED HANDLING** - Plugins execute sequentially - changes affect subsequent plugins. [See detailed solution](#12--plugin-order-and-embed-handling-critical)
+11. **🚨 NEVER DISABLE ASTRO DEV TOOLBAR** - The dev toolbar must remain enabled (`devToolbar.enabled: true`) - do NOT disable it to resolve module loading errors
 
 **These issues are documented in detail in the [Common AI Agent Mistakes](#common-ai-agent-mistakes) section.**
 
@@ -2945,13 +2946,17 @@ The math processing is integrated into the existing markdown pipeline:
 
 **Remark Plugins (Processing Order):**
 1. `remarkInternalLinks` - Process wikilinks and standard links
-2. `remarkFolderImages` - Handle folder-based images
-3. `remarkImageCaptions` - Process image captions
-4. `remarkCallouts` - Process Obsidian-style callouts
-5. `remarkImageGrids` - Handle image grid layouts
-6. **`remarkMath`** - Parse LaTeX math syntax
-7. `remarkReadingTime` - Calculate reading time
-8. `remarkToc` - Generate table of contents
+2. `remarkBreaks` - Process line breaks
+3. `remarkFolderImages` - Handle folder-based images (⚠️ MUST skip non-image files)
+4. `remarkObsidianEmbeds` - Process Obsidian embed syntax
+5. `remarkBases` - Process base directives
+6. `remarkImageCaptions` - Process image captions
+7. **`remarkMath`** - Parse LaTeX math syntax
+8. `remarkCallouts` - Process Obsidian-style callouts
+9. `remarkImageGrids` - Handle image grid layouts
+10. `remarkMermaid` - Process Mermaid diagrams
+11. `remarkReadingTime` - Calculate reading time
+12. `remarkToc` - Generate table of contents
 
 **Rehype Plugins (Rendering Order):**
 1. **`rehypeKatex`** - Render math with KaTeX (first in chain)
@@ -3243,13 +3248,17 @@ The Mermaid processing is integrated into the existing markdown pipeline:
 
 **Remark Plugins (Processing Order):**
 1. `remarkInternalLinks` - Process wikilinks and standard links
-2. `remarkFolderImages` - Handle folder-based images
-3. `remarkImageCaptions` - Process image captions
-4. `remarkCallouts` - Process Obsidian-style callouts
-5. `remarkImageGrids` - Handle image grid layouts
-6. **`remarkMermaid`** - Parse Mermaid code blocks
-7. `remarkReadingTime` - Calculate reading time
-8. `remarkToc` - Generate table of contents
+2. `remarkBreaks` - Process line breaks
+3. `remarkFolderImages` - Handle folder-based images (⚠️ MUST skip non-image files)
+4. `remarkObsidianEmbeds` - Process Obsidian embed syntax
+5. `remarkBases` - Process base directives
+6. `remarkImageCaptions` - Process image captions
+7. `remarkMath` - Parse LaTeX math syntax
+8. `remarkCallouts` - Process Obsidian-style callouts
+9. `remarkImageGrids` - Handle image grid layouts
+10. **`remarkMermaid`** - Parse Mermaid code blocks
+11. `remarkReadingTime` - Calculate reading time
+12. `remarkToc` - Generate table of contents
 
 #### Performance Features
 - **Lazy Loading**: Uses Intersection Observer API for viewport-based rendering
@@ -3827,15 +3836,19 @@ The embed processing is integrated into the existing markdown pipeline:
 
 **Remark Plugins (Processing Order):**
 1. `remarkInternalLinks` - Process wikilinks and standard links
-2. `remarkFolderImages` - Handle folder-based images
-3. `remarkImageCaptions` - Process image captions
-4. `remarkMath` - Parse LaTeX math syntax
-5. `remarkCallouts` - Process Obsidian-style callouts
-6. `remarkImageGrids` - Handle image grid layouts
-7. **`remarkObsidianEmbeds`** - Process Obsidian embed syntax
-8. `remarkMermaid` - Process Mermaid diagrams
-9. `remarkReadingTime` - Calculate reading time
-10. `remarkToc` - Generate table of contents
+2. `remarkBreaks` - Process line breaks
+3. `remarkFolderImages` - Handle folder-based images (⚠️ MUST skip non-image files)
+4. **`remarkObsidianEmbeds`** - Process Obsidian embed syntax (audio, video, PDF, YouTube, Twitter)
+5. `remarkBases` - Process base directives
+6. `remarkImageCaptions` - Process image captions
+7. `remarkMath` - Parse LaTeX math syntax
+8. `remarkCallouts` - Process Obsidian-style callouts
+9. `remarkImageGrids` - Handle image grid layouts
+10. `remarkMermaid` - Process Mermaid diagrams
+11. `remarkReadingTime` - Calculate reading time
+12. `remarkToc` - Generate table of contents
+
+**⚠️ CRITICAL**: `remarkFolderImages` runs BEFORE `remarkObsidianEmbeds`. It MUST skip non-image files (audio, video, PDF) to prevent breaking embeds. See [Plugin Order and Embed Handling](#12--plugin-order-and-embed-handling-critical) for details.
 
 ### Supported Embed Types
 
@@ -3886,8 +3899,11 @@ The embed processing is integrated into the existing markdown pipeline:
 - **Audio Processing**: Detects audio file extensions and generates HTML5 audio elements
 - **Video Processing**: Detects video file extensions and generates HTML5 video elements
 - **YouTube Processing**: Extracts video IDs and generates embed iframes
-- **PDF Processing**: Generates iframe viewers with download links
+- **PDF Processing**: Generates iframe viewers with download links (preserves hash fragments for page linking)
 - **Twitter Processing**: Generates Twitter widget embeds
+- **URL Resolution**: Handles both relative (`attachments/file.mp4`) and absolute (`/posts/attachments/file.mp4`) URLs
+- **URL Cleanup**: Removes pipe syntax (`|alt text`) and fragments (`#page=3`) before processing, but preserves fragments for PDFs
+- **External URL Processing**: Processes external URLs (YouTube, Twitter) FIRST before attachment processing to prevent conflicts
 
 #### CSS Styling
 ```css
@@ -3940,6 +3956,16 @@ The embed implementation maintains full compatibility with Obsidian:
 - **Print Styles**: Embeds render correctly in print layouts
 
 ### Best Practices for AI Agents
+
+#### 🚨 CRITICAL: Plugin Order Dependencies
+
+**⚠️ ALWAYS CHECK PLUGIN ORDER BEFORE MODIFYING EMBED PROCESSING ⚠️**
+
+- **`remarkFolderImages` runs BEFORE `remarkObsidianEmbeds`** - This is critical!
+- **`remarkFolderImages` MUST skip non-image files** - It processes ALL image nodes, including embeds
+- **If `remarkFolderImages` processes audio/video/PDF**, they get converted to `.webp` and break
+- **The fix**: `remarkFolderImages` checks file extensions and skips non-image files
+- **See [Plugin Order and Embed Handling](#12--plugin-order-and-embed-handling-critical) for complete details**
 
 #### Embed Implementation
 - **Always use Obsidian syntax**: Maintain compatibility with Obsidian workflows
@@ -4205,12 +4231,64 @@ The comments are styled to match your theme automatically. If you see styling is
   - ✅ Using structural patterns like `/[.!?]\s*$/` (sentence endings), `/<\/mark>/i` (link HTML), `/([A-Z][a-z]+):/` (any label pattern)
 - **See [Linked Mentions Excerpt Extraction Logic](#linked-mentions-excerpt-extraction-logic) section for detailed guidelines**
 
-#### 12. **H1 Title Handling**
+#### 12. **🚨 PLUGIN ORDER AND EMBED HANDLING (CRITICAL)**
+- **ALWAYS check plugin execution order** in `astro.config.mjs` before modifying remark/rehype plugins
+- **Plugins execute sequentially** - each plugin transforms the AST and passes it to the next
+- **Changes in one plugin affect subsequent plugins** - always trace the full data flow
+- **Critical plugin order** (from `astro.config.mjs`):
+  ```javascript
+  remarkPlugins: [
+    remarkInternalLinks,      // 1. Process wikilinks and standard links
+    remarkBreaks,              // 2. Process line breaks
+    remarkFolderImages,        // 3. ⚠️ Processes ALL image nodes - converts URLs and adds WebP
+    remarkObsidianEmbeds,      // 4. ⚠️ Processes embeds (audio, video, PDF, YouTube, Twitter)
+    remarkBases,               // 5. Process base directives
+    remarkImageCaptions,       // 6. Process image captions
+    remarkMath,                // 7. Parse LaTeX math
+    remarkCallouts,            // 8. Process callouts
+    remarkImageGrids,          // 9. Handle image grids
+    remarkMermaid,            // 10. Process Mermaid diagrams
+    remarkReadingTime,         // 11. Calculate reading time
+    remarkToc,                 // 12. Generate table of contents
+  ]
+  ```
+- **The Problem**: `remarkFolderImages` runs BEFORE `remarkObsidianEmbeds`
+  - `remarkFolderImages` processes ALL image nodes and converts URLs to WebP
+  - If it processes audio/video/PDF embeds, they get converted to `.webp` extensions
+  - Then `remarkObsidianEmbeds` can't detect them because extensions are wrong
+- **The Solution**: `remarkFolderImages` MUST skip non-image files:
+  ```typescript
+  // ✅ CORRECT - Skip non-image files in remarkFolderImages
+  const nonImageExtensions = ['.mp3', '.wav', '.ogg', '.m4a', '.3gp', '.flac', '.aac', // audio
+                              '.mp4', '.webm', '.ogv', '.mov', '.mkv', '.avi', // video
+                              '.pdf']; // PDF
+  if (nonImageExtensions.some(ext => urlLower.endsWith(ext))) {
+    return; // Let remarkObsidianEmbeds handle these
+  }
+  ```
+- **URL Resolution**: `remarkObsidianEmbeds` handles both relative and absolute URLs:
+  - Relative: `attachments/video.mp4` → `/posts/attachments/video.mp4`
+  - Absolute: `/posts/attachments/video.mp4` → Use as-is (already converted by remarkFolderImages)
+- **External URLs**: Process external URLs (YouTube, Twitter) FIRST before attachment processing
+- **URL Cleanup**: Remove pipe syntax (`|alt text`) and fragments (`#page=3`) before processing, but preserve fragments for PDFs
+- **Common mistakes**:
+  - ❌ Adding WebP conversion to `remarkFolderImages` without checking what else processes images
+  - ❌ Assuming plugins work independently - they don't, they transform the AST sequentially
+  - ❌ Not testing edge cases (embeds, external URLs, etc.) before making changes
+  - ❌ Modifying plugin logic without checking execution order
+- **Always do before modifying plugins**:
+  1. Check plugin order in `astro.config.mjs`
+  2. Trace data flow: input → plugin 1 → plugin 2 → output
+  3. Consider side effects: what else processes this data?
+  4. Test comprehensively: don't assume changes only affect intended targets
+- **This mistake breaks audio, video, PDF, and YouTube embeds completely**
+
+#### 13. **H1 Title Handling**
 - **Both Posts and Pages**: NO H1 in markdown content - title comes from frontmatter, content starts with H2
 - **H1 is hardcoded** in both PostLayout and PageLayout using frontmatter title
 - **NEVER add H1** to any markdown content - both posts and pages have hardcoded H1s from frontmatter
 
-#### 13. **Custom Collections Approach**
+#### 14. **Custom Collections Approach**
 - **Use subfolders within pages collection** - avoid creating custom collections at content level
 - **No Astro warnings** - subfolders within pages don't trigger auto-generation warnings
 - **Same URL structure** - `/services/web-development` works the same way
@@ -4219,7 +4297,7 @@ The comments are styled to match your theme automatically. If you see styling is
   - `pages/services/web-development.md` → `/services/web-development`
   - `pages/services/web-development/index.md` → `/services/web-development`
 
-#### 14. **🚨 FAVICON THEME BEHAVIOR (CRITICAL)**
+#### 15. **🚨 FAVICON THEME BEHAVIOR (CRITICAL)**
 - **Favicon should NOT change with manual theme toggle** - it should only change with browser system theme
 - **SIMPLE WORKING IMPLEMENTATION** (20 lines max, add to BaseLayout.astro script section):
   ```javascript
@@ -4251,25 +4329,25 @@ The comments are styled to match your theme automatically. If you see styling is
 - **Files**: Use `.png` format (matches existing favicon files)
 - **Behavior**: Favicon reflects OS/browser theme preference, ignores website theme toggle
 
-#### 15. **🎨 COLOR USAGE (CRITICAL)**
+#### 16. **🎨 COLOR USAGE (CRITICAL)**
 - **NEVER use hardcoded colors** - Always use theme variables from `src/themes/index.ts`
 - **Use Tailwind classes** that reference theme variables (`primary-*`, `highlight-*`)
 - **Include dark mode variants** for all color definitions (`dark:bg-primary-800`)
 - **Check existing code** for hardcoded colors and replace them
 - **Reference theme files** to understand available color scales
 
-#### 16. **Package Manager**
+#### 17. **Package Manager**
 - Always use `pnpm` instead of `npm` for all commands
 - Scripts: `pnpm run <script-name>`, not `npm run <script-name>`
 
-#### 17. **Deployment Platform Configuration**
+#### 18. **Deployment Platform Configuration**
 - **Set platform once in config** - Use `deployment.platform` in `src/config.ts`, not environment variables
 - **No environment variables needed** - The build process automatically detects the platform from config
 - **Platform options**: "netlify", "vercel", "github-pages" (all lowercase with hyphens)
 - **Backward compatibility**: Environment variables still work but are not recommended
 - **Configuration files**: Automatically generated based on platform choice
 
-#### 18. **Homepage Configuration Structure**
+#### 19. **Homepage Configuration Structure**
 - **Use `homeOptions`** - All homepage content is now under `homeOptions`, not `features` or `homeBlurb`
 - **Featured Post**: Use `homeOptions.featuredPost` with `type: "latest"` or `type: "featured"`
 - **Slug Flexibility**: Slug can be present even when `type: "latest"` - it will be ignored until switched to "featured"
@@ -4278,12 +4356,12 @@ The comments are styled to match your theme automatically. If you see styling is
 - **Blurb**: Use `homeOptions.blurb` with `placement: "above" | "below" | "none"`
 - **Old References**: `showLatestPost`, `recentPostsCount`, and `homeBlurb` are deprecated
 
-#### 19. **Development vs Production Behavior**
+#### 20. **Development vs Production Behavior**
 - **Development**: Missing images show placeholders, warnings are logged
 - **Production**: Missing images cause build failures
 - Always run `pnpm run check-images` before deploying
 
-#### 20. **🚨 NEVER DISABLE ASTRO DEV TOOLBAR (CRITICAL)**
+#### 21. **🚨 NEVER DISABLE ASTRO DEV TOOLBAR (CRITICAL)**
 - **NEVER disable the Astro dev toolbar** - Always keep `devToolbar.enabled: true` in `astro.config.mjs`
 - **The dev toolbar is a critical development tool** - It provides debugging, auditing, and inspection capabilities
 - **Module loading errors with pnpm are harmless** - Known issue with pnpm's nested node_modules structure - errors appear in console but toolbar still works

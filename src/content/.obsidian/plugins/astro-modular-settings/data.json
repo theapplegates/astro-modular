@@ -3,7 +3,7 @@
   "currentTemplate": "standard",
   "currentTheme": "oxygen",
   "customThemeFile": "custom",
-  "contentOrganization": "file-based",
+  "contentOrganization": "folder-based",
   "themeColors": {
     "mode": "simple",
     "simpleColors": {

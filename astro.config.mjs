@@ -14,7 +14,7 @@ import remarkToc from 'remark-toc';
 import remarkBreaks from 'remark-breaks';
 import rehypeKatex from 'rehype-katex';
 import rehypeMark from './src/utils/rehype-mark.ts';
-import rehypeOptimizeImages from './src/utils/rehype-optimize-images.ts';
+import rehypeImageAttributes from './src/utils/rehype-image-attributes.ts';
 import { rehypeNormalizeAnchors } from './src/utils/rehype-normalize-anchors.ts';
 import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
@@ -108,7 +108,7 @@ export default defineConfig({
     rehypePlugins: [
       rehypeKatex,
       rehypeMark,
-      rehypeOptimizeImages,
+      rehypeImageAttributes,
       [rehypeSlug, {
         test: (node) => node.tagName !== 'h1'
       }],

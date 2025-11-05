@@ -2,6 +2,7 @@
 import type { CollectionEntry } from 'astro:content';
 import { formatDate, formatDateMobile, processMarkdown, calculateReadingTime, getReadingTimeMobile } from '../utils/markdown';
 import { siteConfig, getPostCardAspectRatio } from '../config';
+import { getOptimizedFormat } from '@/utils/images';
 import ImageWrapper from './ImageWrapper.astro';
 
 interface Props {
@@ -87,11 +88,11 @@ const shouldShowCoverImage = (() => {
               cleanImagePath = cleanImagePath.slice(2, -2);
             }
             
+            // Detect folder-based posts: if image path doesn't start with 'attachments/',
+            // assume it's a folder-based post (co-located image)
+            // Single-file posts typically have images in 'attachments/' folder
+            const isFolderBasedPost = post.id && !cleanImagePath.startsWith('attachments/') && !cleanImagePath.startsWith('images/');
             
-            // For folder-based posts, handle different image locations
-            // In Astro v6, folder-based posts have IDs like 'folder-name' (not 'folder-name/index')
-            // We need to detect folder-based posts differently - check if the post has a folder structure
-            const isFolderBasedPost = post.id === 'sample-folder-based-post'; // TEMPORARY - need better detection
             if (isFolderBasedPost && typeof cleanImagePath === 'string') {
               // If image is in subfolder (images/ or attachments/), remove the prefix
               if (cleanImagePath.startsWith('images/') || cleanImagePath.startsWith('attachments/')) {
@@ -107,7 +108,8 @@ const shouldShowCoverImage = (() => {
             }
             
             const finalSrc = cleanImagePath || '';
-            return finalSrc;
+            // Convert to WebP if applicable (sync-images.js creates WebP versions)
+            return getOptimizedFormat(finalSrc);
           })()}
           basePath={(() => {
             // 1. External URLs - no basePath needed
@@ -115,19 +117,23 @@ const shouldShowCoverImage = (() => {
               return '';
             }
             
-            // 2. Check if this is a folder-based post by looking at the file path
+            // 2. Check if this is a folder-based post by looking at the image path
             // In Astro v6, folder-based posts have IDs like 'folder-name' (not 'folder-name/index')
-            const isFolderBasedPost = post.id === 'sample-folder-based-post'; // TEMPORARY - need better detection
+            // Detect folder-based posts: if image path doesn't start with 'attachments/',
+            // assume it's a folder-based post (co-located image)
+            let cleanImagePath = image;
+            if (typeof cleanImagePath === 'string' && cleanImagePath.startsWith('[[') && cleanImagePath.endsWith(']]')) {
+              cleanImagePath = cleanImagePath.slice(2, -2);
+            }
+            
+            const isFolderBasedPost = post.id && typeof cleanImagePath === 'string' && 
+              !cleanImagePath.startsWith('attachments/') && 
+              !cleanImagePath.startsWith('images/') &&
+              !cleanImagePath.startsWith('http');
             
             if (isFolderBasedPost) {
-              // Remove Obsidian brackets to get the actual image path
-              let cleanImagePath = image;
-              if (typeof cleanImagePath === 'string' && cleanImagePath.startsWith('[[') && cleanImagePath.endsWith(']]')) {
-                cleanImagePath = cleanImagePath.slice(2, -2);
-              }
-              
               // For folder-based posts, check if image is in images/ or attachments/ subfolder
-              if (typeof cleanImagePath === 'string' && (cleanImagePath.startsWith('images/') || cleanImagePath.startsWith('attachments/'))) {
+              if (cleanImagePath.startsWith('images/') || cleanImagePath.startsWith('attachments/')) {
                 // Sync script copies images to the root folder, so no subfolder in the URL
                 return `/posts/${post.id}/`;
               }

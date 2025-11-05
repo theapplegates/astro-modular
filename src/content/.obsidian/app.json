@@ -2,7 +2,7 @@
   "showInlineTitle": false,
   "promptDelete": true,
   "showIndentGuide": false,
-  "attachmentFolderPath": "./attachments",
+  "attachmentFolderPath": "./",
   "userIgnoreFilters": [
     "bases/"
   ],
@@ -38,6 +38,6 @@
   ],
   "newFileLocation": "folder",
   "newFileFolderPath": "posts",
-  "newLinkFormat": "absolute",
+  "newLinkFormat": "relative",
   "mobileQuickRibbonItem": "command-palette:Open command palette"
 }

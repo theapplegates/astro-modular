@@ -138,27 +138,33 @@ export function optimizePageImagePath(imagePath: string): string {
     return cleanPath; // Absolute path
   }
 
-  // Prevent double processing - if already optimized, return as-is
+  // Prevent double processing - if already optimized, convert to WebP and return
   if (cleanPath.startsWith("/pages/attachments/")) {
-    return cleanPath;
+    return getOptimizedFormat(cleanPath);
   }
 
   // Handle Obsidian-style relative paths from markdown content
   if (cleanPath.startsWith("./images/")) {
-    return cleanPath.replace("./images/", "/pages/attachments/");
+    const attachPath = cleanPath.replace("./images/", "/pages/attachments/");
+    return getOptimizedFormat(attachPath);
   }
 
   if (cleanPath.startsWith("images/")) {
-    return `/pages/${cleanPath}`;
+    const pagePath = `/pages/${cleanPath}`;
+    return getOptimizedFormat(pagePath);
   }
 
   // Handle case where filename is provided without path
   if (!cleanPath.includes("/")) {
-    return `/pages/attachments/${cleanPath}`;
+    const attachPath = `/pages/attachments/${cleanPath}`;
+    return getOptimizedFormat(attachPath);
   }
 
   // Default - assume it's a relative path in the pages directory
-  return `/pages/attachments/${cleanPath}`;
+  const finalPath = `/pages/attachments/${cleanPath}`;
+  
+  // Convert to WebP if applicable (sync-images.js creates WebP versions)
+  return getOptimizedFormat(finalPath);
 }
 
 // Strip Obsidian double bracket syntax from image paths
@@ -201,9 +207,9 @@ export function optimizePostImagePath(
     return cleanPath; // Absolute path
   }
 
-  // Prevent double processing - if already optimized, return as-is
+  // Prevent double processing - if already optimized, convert to WebP and return
   if (cleanPath.startsWith("/posts/attachments/")) {
-    return cleanPath;
+    return getOptimizedFormat(cleanPath);
   }
 
   // Handle folder-based posts - in v6, we can't reliably detect this from postId alone
@@ -219,38 +225,49 @@ export function optimizePostImagePath(
     const imageName = cleanPath.startsWith("./")
       ? cleanPath.slice(2)
       : cleanPath;
-    return `/posts/${postSlug}/${imageName}`;
+    const folderPath = `/posts/${postSlug}/${imageName}`;
+    // Convert to WebP if applicable (sync-images.js creates WebP versions)
+    return getOptimizedFormat(folderPath);
   }
 
   // Handle Obsidian-style relative paths from markdown content
   if (cleanPath.startsWith("./images/")) {
-    return cleanPath.replace("./images/", "/posts/attachments/");
+    const attachPath = cleanPath.replace("./images/", "/posts/attachments/");
+    return getOptimizedFormat(attachPath);
   }
 
   if (cleanPath.startsWith("images/")) {
-    return `/posts/${cleanPath}`;
+    const postPath = `/posts/${cleanPath}`;
+    return getOptimizedFormat(postPath);
   }
 
   // Handle Obsidian attachments subfolder within folder-based posts
   if (cleanPath.startsWith("./attachments/")) {
-    return cleanPath.replace("./attachments/", "/posts/attachments/");
+    const attachPath = cleanPath.replace("./attachments/", "/posts/attachments/");
+    return getOptimizedFormat(attachPath);
   }
 
   if (cleanPath.startsWith("attachments/")) {
-    return `/posts/${cleanPath}`;
+    const postPath = `/posts/${cleanPath}`;
+    return getOptimizedFormat(postPath);
   }
 
   // Handle case where filename is provided without path
   if (!cleanPath.includes("/")) {
     // For folder-based posts, check if the image exists in the post folder first
     if (isFolderBasedPost && postSlug) {
-      return `/posts/${postSlug}/${cleanPath}`;
+      const folderPath = `/posts/${postSlug}/${cleanPath}`;
+      return getOptimizedFormat(folderPath);
     }
-    return `/posts/attachments/${cleanPath}`;
+    const attachPath = `/posts/attachments/${cleanPath}`;
+    return getOptimizedFormat(attachPath);
   }
 
   // Default - assume it's a relative path in the posts directory
-  return `/posts/attachments/${cleanPath}`;
+  const finalPath = `/posts/attachments/${cleanPath}`;
+  
+  // Convert to WebP if applicable (sync-images.js creates WebP versions)
+  return getOptimizedFormat(finalPath);
 }
 
 // Generic image optimization function for all content types
@@ -285,9 +302,9 @@ export function optimizeContentImagePath(
     return cleanPath; // Absolute path
   }
 
-  // Prevent double processing - if already optimized, return as-is
+  // Prevent double processing - if already optimized, convert to WebP and return
   if (cleanPath.startsWith(`/${urlPath}/attachments/`)) {
-    return cleanPath;
+    return getOptimizedFormat(cleanPath);
   }
 
   // Handle folder-based content - in v6, we can't reliably detect this from contentId alone
@@ -304,38 +321,49 @@ export function optimizeContentImagePath(
     const imageName = cleanPath.startsWith("./")
       ? cleanPath.slice(2)
       : cleanPath;
-    return `/${urlPath}/${contentSlug}/${imageName}`;
+    const folderPath = `/${urlPath}/${contentSlug}/${imageName}`;
+    // Convert to WebP if applicable (sync-images.js creates WebP versions)
+    return getOptimizedFormat(folderPath);
   }
 
   // Handle Obsidian-style relative paths from markdown content
   if (cleanPath.startsWith("./images/")) {
-    return cleanPath.replace("./images/", `/${urlPath}/attachments/`);
+    const attachPath = cleanPath.replace("./images/", `/${urlPath}/attachments/`);
+    return getOptimizedFormat(attachPath);
   }
 
   if (cleanPath.startsWith("images/")) {
-    return `/${urlPath}/${cleanPath}`;
+    const contentPath = `/${urlPath}/${cleanPath}`;
+    return getOptimizedFormat(contentPath);
   }
 
   // Handle Obsidian attachments subfolder within folder-based content
   if (cleanPath.startsWith("./attachments/")) {
-    return cleanPath.replace("./attachments/", `/${urlPath}/attachments/`);
+    const attachPath = cleanPath.replace("./attachments/", `/${urlPath}/attachments/`);
+    return getOptimizedFormat(attachPath);
   }
 
   if (cleanPath.startsWith("attachments/")) {
-    return `/${urlPath}/${cleanPath}`;
+    const contentPath = `/${urlPath}/${cleanPath}`;
+    return getOptimizedFormat(contentPath);
   }
 
   // Handle case where filename is provided without path
   if (!cleanPath.includes("/")) {
     // For folder-based content, check if the image exists in the content folder first
     if (isFolderBasedContent && contentSlug) {
-      return `/${urlPath}/${contentSlug}/${cleanPath}`;
+      const folderPath = `/${urlPath}/${contentSlug}/${cleanPath}`;
+      return getOptimizedFormat(folderPath);
     }
-    return `/${urlPath}/attachments/${cleanPath}`;
+    const attachPath = `/${urlPath}/attachments/${cleanPath}`;
+    return getOptimizedFormat(attachPath);
   }
 
   // Default - assume it's a relative path in the content directory
-  return `/${urlPath}/attachments/${cleanPath}`;
+  const finalPath = `/${urlPath}/attachments/${cleanPath}`;
+  
+  // Convert to WebP if applicable (sync-images.js creates WebP versions)
+  return getOptimizedFormat(finalPath);
 }
 
 // Generate responsive image srcset
@@ -452,12 +480,18 @@ export function getMimeTypeFromPath(imagePath: string): string {
 }
 
 // Get optimized image format
+// Converts image paths to WebP format (sync-images.js creates WebP versions)
 export function getOptimizedFormat(imagePath: string): string {
-  if (imagePath.includes(".svg")) {
-    return imagePath; // Keep SVG as-is
+  // Don't convert external URLs, SVG, or already WebP files
+  if (!imagePath || 
+      imagePath.startsWith("http") || 
+      imagePath.toLowerCase().endsWith(".svg") ||
+      imagePath.toLowerCase().endsWith(".webp")) {
+    return imagePath;
   }
 
-  // For other formats, prefer WebP but be more flexible
+  // Convert supported image formats to WebP
+  // sync-images.js creates WebP versions of JPG/PNG/GIF/etc during build
   return imagePath.replace(/\.(jpg|jpeg|png|gif|bmp|tiff|tif)$/i, ".webp");
 }
 

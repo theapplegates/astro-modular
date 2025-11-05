@@ -4,6 +4,7 @@ import type { Page } from '@/types';
 import { siteConfig } from '@/config';
 import { render } from 'astro:content';
 import { generatePageSEO } from '@/utils/seo';
+import { optimizePageImagePath, getOptimizedFormat } from '@/utils/images';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import TableOfContents from '@/components/TableOfContents.astro';
 import Lightbox from '@/components/Lightbox.astro';
@@ -57,36 +58,90 @@ const structuredData = {
     <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
 
     <!-- Preload page image if exists -->
-    {page.data.image && typeof page.data.image === 'string' && !page.data.image.startsWith('http') && (
-      <link
-        rel="preload"
-        as="image"
-        href={`/pages/attachments/${page.data.image}`}
-        fetchpriority="high"
-      />
-    )}
+    {page.data.image && typeof page.data.image === 'string' && !page.data.image.startsWith('http') && (() => {
+      // Use optimizePageImagePath to handle folder-based pages and WebP conversion
+      const optimizedPath = optimizePageImagePath(page.data.image);
+      return (
+        <link
+          rel="preload"
+          as="image"
+          href={optimizedPath}
+          fetchpriority="high"
+        />
+      );
+    })()}
   </Fragment>
 
   <div class="py-8 relative">
     <div class="mx-auto px-4 sm:px-6 lg:px-8 relative" style={`max-width: ${siteConfig.layout.contentWidth}`}>
       <!-- Page content -->
       <article class={`bg-primary-50 dark:bg-primary-900 rounded-lg border border-primary-200 dark:border-primary-700 shadow-sm ${page.data.image ? 'overflow-hidden' : ''}`}>
-        {page.data.image && (
-          <div class="h-40 sm:h-48 md:h-56 lg:h-64 overflow-hidden rounded-t-lg bg-primary-100 dark:bg-primary-800">
-            <ImageWrapper
-              src={page.data.image}
-              basePath="/pages/attachments/"
-              alt={page.data.imageAlt || `Featured image for page: ${page.data.title}`}
-              class="w-full h-full object-cover"
-              width={800}
-              height={450}
-              format="webp"
-              quality={85}
-              loading="eager"
-              fetchpriority="high"
-            />
-          </div>
-        )}
+        {page.data.image && (() => {
+          // Process image path similar to PostLayout
+          let rawImage = page.data.image;
+          if (Array.isArray(rawImage)) {
+            rawImage = rawImage[0];
+          }
+          
+          // Clean Obsidian brackets
+          let cleanImagePath = typeof rawImage === 'string' ? rawImage : '';
+          if (cleanImagePath.startsWith('[[') && cleanImagePath.endsWith(']]')) {
+            cleanImagePath = cleanImagePath.slice(2, -2);
+          }
+          
+          // Detect folder-based pages: if image path doesn't start with 'attachments/',
+          // assume it's a folder-based page (co-located image)
+          const isFolderBasedPage = page.id && typeof cleanImagePath === 'string' && 
+            !cleanImagePath.startsWith('attachments/') && 
+            !cleanImagePath.startsWith('images/') &&
+            !cleanImagePath.startsWith('http');
+          
+          // Determine src and basePath for ImageWrapper
+          let imageSrc = cleanImagePath;
+          let imageBasePath = '';
+          
+          if (typeof cleanImagePath === 'string' && cleanImagePath.startsWith('http')) {
+            // External URL - pass as-is
+            imageSrc = cleanImagePath;
+            imageBasePath = '';
+          } else if (isFolderBasedPage) {
+            // Folder-based page - remove subfolder prefixes if present
+            if (cleanImagePath.startsWith('images/') || cleanImagePath.startsWith('attachments/')) {
+              imageSrc = cleanImagePath.replace(/^(images|attachments)\//, '');
+            } else {
+              imageSrc = cleanImagePath;
+            }
+            imageBasePath = `/pages/${page.id}/`;
+          } else {
+            // Regular page - remove attachments/ prefix if present
+            if (cleanImagePath.startsWith('attachments/')) {
+              imageSrc = cleanImagePath.replace('attachments/', '');
+            } else {
+              imageSrc = cleanImagePath;
+            }
+            imageBasePath = '/pages/attachments/';
+          }
+          
+          // Convert to WebP if applicable (sync-images.js creates WebP versions)
+          imageSrc = getOptimizedFormat(imageSrc);
+          
+          return (
+            <div class="h-40 sm:h-48 md:h-56 lg:h-64 overflow-hidden rounded-t-lg bg-primary-100 dark:bg-primary-800">
+              <ImageWrapper
+                src={imageSrc}
+                basePath={imageBasePath}
+                alt={page.data.imageAlt || `Featured image for page: ${page.data.title}`}
+                class="w-full h-full object-cover"
+                width={800}
+                height={450}
+                format="webp"
+                quality={85}
+                loading="eager"
+                fetchpriority="high"
+              />
+            </div>
+          );
+        })()}
 
         <!-- Page content wrapper -->
         <div class={`p-6 ${page.data.image ? 'rounded-b-lg' : 'rounded-lg'}`}>

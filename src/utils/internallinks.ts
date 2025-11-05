@@ -1682,6 +1682,22 @@ export function processContentAwareWikilinks(
 // IMAGE PROCESSING
 // ============================================================================
 
+/**
+ * Convert image path to WebP format (sync-images.js creates WebP versions)
+ */
+function convertToWebP(imagePath: string): string {
+  // Don't convert external URLs, SVG, or already WebP files
+  if (!imagePath || 
+      imagePath.startsWith("http") || 
+      imagePath.toLowerCase().endsWith(".svg") ||
+      imagePath.toLowerCase().endsWith(".webp")) {
+    return imagePath;
+  }
+
+  // Convert supported image formats to WebP
+  return imagePath.replace(/\.(jpg|jpeg|png|gif|bmp|tiff|tif)$/i, ".webp");
+}
+
 // Custom remark plugin to handle ALL content images (folder-based AND single-file)
 export function remarkFolderImages() {
   return function transformer(tree: any, file: any) {
@@ -1689,6 +1705,15 @@ export function remarkFolderImages() {
       // Skip if already absolute or external URL
       if (!node.url || node.url.startsWith("/") || node.url.startsWith("http")) {
         return;
+      }
+
+      // Skip non-image files (audio, video, PDF) - these are handled by remarkObsidianEmbeds
+      const urlLower = node.url.toLowerCase();
+      const nonImageExtensions = ['.mp3', '.wav', '.ogg', '.m4a', '.3gp', '.flac', '.aac', // audio
+                                  '.mp4', '.webm', '.ogv', '.mov', '.mkv', '.avi', // video
+                                  '.pdf']; // PDF
+      if (nonImageExtensions.some(ext => urlLower.endsWith(ext))) {
+        return; // Let remarkObsidianEmbeds handle these
       }
 
       // Determine content type and whether it's folder-based
@@ -1727,10 +1752,13 @@ export function remarkFolderImages() {
           isFolderBased = file.path.endsWith("/index.md");
           contentSlug = isFolderBased ? pathParts[pagesIndex + 1] : null;
         }
-      }
-
-      if (!collection) {
-        return; // Not a recognized content type
+        // Check for special pages (they also use pages collection paths)
+        else if (file.path.includes("/special/")) {
+          collection = "pages"; // Special pages use pages collection paths
+          const specialIndex = pathParts.indexOf("special");
+          isFolderBased = file.path.endsWith("/index.md");
+          contentSlug = isFolderBased ? pathParts[specialIndex + 1] : null;
+        }
       }
 
       // Clean up image path
@@ -1738,21 +1766,40 @@ export function remarkFolderImages() {
       if (imagePath.startsWith("./")) {
         imagePath = imagePath.slice(2);
       }
+      
+      // Fallback: If we couldn't detect collection but image starts with attachments/,
+      // assume it's pages (most common case for attachments)
+      if (!collection && imagePath.startsWith("attachments/")) {
+        collection = "pages";
+      }
+
+      if (!collection) {
+        return; // Not a recognized content type
+      }
 
       // Handle folder-based content (e.g., /posts/my-post/index.md with image.png)
       if (isFolderBased && contentSlug) {
         // Image is relative to the folder: /posts/my-post/image.png
-        node.url = `/${collection}/${contentSlug}/${imagePath}`;
+        let finalUrl = `/${collection}/${contentSlug}/${imagePath}`;
+        // Convert to WebP if applicable (sync-images.js creates WebP versions)
+        finalUrl = convertToWebP(finalUrl);
+        node.url = finalUrl;
       }
       // Handle single-file content with attachments/ prefix
       else if (imagePath.startsWith("attachments/")) {
         // Image uses shared attachments folder: /posts/attachments/image.png
-        node.url = `/${collection}/${imagePath}`;
+        let finalUrl = `/${collection}/${imagePath}`;
+        // Convert to WebP if applicable (sync-images.js creates WebP versions)
+        finalUrl = convertToWebP(finalUrl);
+        node.url = finalUrl;
       }
       // Handle single-file content with other relative paths
       else {
         // Assume it's in the attachments folder
-        node.url = `/${collection}/attachments/${imagePath}`;
+        let finalUrl = `/${collection}/attachments/${imagePath}`;
+        // Convert to WebP if applicable (sync-images.js creates WebP versions)
+        finalUrl = convertToWebP(finalUrl);
+        node.url = finalUrl;
       }
 
       // Also update the hProperties if they exist (for wikilink images)

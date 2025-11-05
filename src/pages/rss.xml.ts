@@ -2,6 +2,7 @@ import rss from "@astrojs/rss";
 import { getCollection } from "astro:content";
 import { siteConfig } from "../config";
 import { shouldShowPost, sortPostsByDate } from "../utils/markdown";
+import { optimizePostImagePath } from "../utils/images";
 
 // Helper function to extract image path from Obsidian bracket syntax
 function extractImagePath(image: string): string {
@@ -34,8 +35,14 @@ function getMimeTypeFromPath(path: string): string {
     case "webp":
       return "image/webp";
     default:
-      return "image/jpeg";
+      // Default to WebP since sync-images.js converts images to WebP
+      return "image/webp";
   }
+}
+
+// Helper function to normalize siteUrl - ensure it ends with a single slash
+function normalizeSiteUrl(url: string): string {
+  return url.replace(/\/+$/, '') + '/';
 }
 
 export async function GET() {
@@ -49,7 +56,7 @@ export async function GET() {
   );
   const sortedPosts = sortPostsByDate(visiblePosts);
 
-  const siteUrl = import.meta.env.SITE || siteConfig.site;
+  const siteUrl = normalizeSiteUrl(import.meta.env.SITE || siteConfig.site);
 
   return rss({
     title: siteConfig.title,
@@ -71,13 +78,13 @@ export async function GET() {
             ? {
                 url: (() => {
                   const imagePath = extractImagePath(post.data.image);
-                  return typeof imagePath === "string" &&
-                    imagePath.startsWith("http")
-                    ? imagePath
-                    : `${siteUrl}posts/attachments/${imagePath.replace(
-                        /^.*\//,
-                        ""
-                      )}`;
+                  if (typeof imagePath === "string" && imagePath.startsWith("http")) {
+                    return imagePath;
+                  }
+                  // Use optimizePostImagePath to handle folder-based posts and WebP conversion
+                  const optimizedPath = optimizePostImagePath(imagePath, (post as any).id, (post as any).id);
+                  // optimizedPath always starts with /, so remove it since siteUrl already ends with /
+                  return `${siteUrl}${optimizedPath.startsWith('/') ? optimizedPath.slice(1) : optimizedPath}`;
                 })(),
                 type: getMimeTypeFromPath(extractImagePath(post.data.image)),
                 length: 0, // Length is optional
@@ -89,13 +96,13 @@ export async function GET() {
           post.data.image &&
             `<image>${(() => {
               const imagePath = extractImagePath(post.data.image);
-              return typeof imagePath === "string" &&
-                imagePath.startsWith("http")
-                ? imagePath
-                : `${siteUrl}posts/attachments/${imagePath.replace(
-                    /^.*\//,
-                    ""
-                  )}`;
+              if (typeof imagePath === "string" && imagePath.startsWith("http")) {
+                return imagePath;
+              }
+              // Use optimizePostImagePath to handle folder-based posts and WebP conversion
+              const optimizedPath = optimizePostImagePath(imagePath, (post as any).id, (post as any).id);
+              // optimizedPath always starts with /, so remove it since siteUrl already ends with /
+              return `${siteUrl}${optimizedPath.startsWith('/') ? optimizedPath.slice(1) : optimizedPath}`;
             })()}</image>`,
         ]
           .filter(Boolean)

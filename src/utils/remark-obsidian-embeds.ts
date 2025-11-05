@@ -161,9 +161,49 @@ export const remarkObsidianEmbeds: Plugin<[], Root> = () => {
     visit(tree, 'image', (node: Image, index, parent) => {
       if (!node.url || !parent || typeof index !== 'number') return;
 
-      const url = node.url;
+      // Clean up URL - remove pipe syntax (alt text) and fragments if present
+      let url = node.url;
+      const pipeIndex = url.indexOf('|');
+      if (pipeIndex !== -1) {
+        url = url.slice(0, pipeIndex);
+      }
+      const hashIndex = url.indexOf('#');
+      if (hashIndex !== -1) {
+        url = url.slice(0, hashIndex);
+      }
+      
       const alt = node.alt || '';
       const extension = getFileExtension(url);
+
+      // Handle web embeds (YouTube, Twitter/X) FIRST - before attachment processing
+      if (isExternalUrl(url)) {
+        // Check for Twitter/X
+        const twitterPostId = extractTwitterPostId(url);
+        if (twitterPostId) {
+          const title = alt || 'Twitter post';
+          const html = `<blockquote class="twitter-tweet" data-twitter-embed data-theme="preferred_color_scheme" data-conversation="none" title="${title}"><a href="https://twitter.com/user/status/${twitterPostId}"></a></blockquote>`;
+          parent.children[index] = createHtmlNode(html);
+          return;
+        }
+
+        // Check for YouTube
+        const youtubeVideoId = extractYouTubeVideoId(url);
+        if (youtubeVideoId) {
+          const html = `
+<div class="youtube-embed aspect-video overflow-hidden rounded-xl my-8">
+  <iframe 
+    src="https://www.youtube.com/embed/${youtubeVideoId}?rel=0&modestbranding=1" 
+    title="${alt || 'YouTube video player'}" 
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+    allowfullscreen 
+    loading="lazy"
+    class="w-full h-full"
+  ></iframe>
+</div>`;
+          parent.children[index] = createHtmlNode(html);
+          return;
+        }
+      }
 
       // Handle Obsidian Bases files (.base)
       if (extension === '.base' || url.endsWith('.base') || url.includes('.base|')) {
@@ -280,39 +320,48 @@ export const remarkObsidianEmbeds: Plugin<[], Root> = () => {
 
         // Detect collection and slug from file path (same logic as remarkFolderImages)
         let resolvedUrl = url;
-        if (url.startsWith('attachments/') && file.path) {
-          const isFolderPost = file.path.includes('/posts/') && file.path.endsWith('/index.md');
-          const isFolderPage = file.path.includes('/pages/') && file.path.endsWith('/index.md');
-          const isFolderProject = file.path.includes('/projects/') && file.path.endsWith('/index.md');
-          const isFolderDoc = file.path.includes('/docs/') && file.path.endsWith('/index.md');
-          
-          if (isFolderPost || isFolderPage || isFolderProject || isFolderDoc) {
-            // Folder-based content: /collection/slug/attachments/file
-            const pathParts = file.path.split('/');
-            let collection = 'posts';
-            let contentIndex = pathParts.indexOf('posts');
-            
-            if (isFolderPage) {
-              collection = 'pages';
-              contentIndex = pathParts.indexOf('pages');
-            } else if (isFolderProject) {
-              collection = 'projects';
-              contentIndex = pathParts.indexOf('projects');
-            } else if (isFolderDoc) {
-              collection = 'docs';
-              contentIndex = pathParts.indexOf('docs');
-            }
-            
-            const contentSlug = pathParts[contentIndex + 1];
-            resolvedUrl = `/${collection}/${contentSlug}/${url}`;
+        
+        // Handle URLs that have already been converted by remarkFolderImages (absolute paths)
+        // or relative URLs that need conversion
+        if ((url.startsWith('attachments/') || url.includes('/attachments/')) && file.path) {
+          // If URL is already absolute (converted by remarkFolderImages), use it as-is
+          if (url.startsWith('/')) {
+            resolvedUrl = url;
           } else {
-            // File-based content: /collection/attachments/file (shared attachments folder)
-            let collection = 'posts';
-            if (file.path.includes('/pages/')) collection = 'pages';
-            else if (file.path.includes('/projects/')) collection = 'projects';
-            else if (file.path.includes('/docs/')) collection = 'docs';
+            // URL is relative, need to convert it
+            const isFolderPost = file.path.includes('/posts/') && file.path.endsWith('/index.md');
+            const isFolderPage = file.path.includes('/pages/') && file.path.endsWith('/index.md');
+            const isFolderProject = file.path.includes('/projects/') && file.path.endsWith('/index.md');
+            const isFolderDoc = file.path.includes('/docs/') && file.path.endsWith('/index.md');
             
-            resolvedUrl = `/${collection}/${url}`;
+            if (isFolderPost || isFolderPage || isFolderProject || isFolderDoc) {
+              // Folder-based content: /collection/slug/attachments/file
+              const pathParts = file.path.split('/');
+              let collection = 'posts';
+              let contentIndex = pathParts.indexOf('posts');
+              
+              if (isFolderPage) {
+                collection = 'pages';
+                contentIndex = pathParts.indexOf('pages');
+              } else if (isFolderProject) {
+                collection = 'projects';
+                contentIndex = pathParts.indexOf('projects');
+              } else if (isFolderDoc) {
+                collection = 'docs';
+                contentIndex = pathParts.indexOf('docs');
+              }
+              
+              const contentSlug = pathParts[contentIndex + 1];
+              resolvedUrl = `/${collection}/${contentSlug}/${url}`;
+            } else {
+              // File-based content: /collection/attachments/file (shared attachments folder)
+              let collection = 'posts';
+              if (file.path.includes('/pages/')) collection = 'pages';
+              else if (file.path.includes('/projects/')) collection = 'projects';
+              else if (file.path.includes('/docs/')) collection = 'docs';
+              
+              resolvedUrl = `/${collection}/${url}`;
+            }
           }
         }
 
@@ -338,13 +387,19 @@ export const remarkObsidianEmbeds: Plugin<[], Root> = () => {
 
       // Handle PDF files
       if (PDF_EXTENSIONS.includes(extension)) {
+        // Preserve hash fragment for PDF page linking
+        const originalUrl = node.url;
+        const hashIndex = originalUrl.indexOf('#');
+        const fragment = hashIndex !== -1 ? originalUrl.slice(hashIndex) : '';
+        
         const filename = url.split('/').pop() || 'document.pdf';
         const title = alt || filename; // Use alt text if available, fallback to filename
+        const pdfUrl = resolvedUrl + fragment; // Add fragment back to resolved URL
         const html = `<div class="pdf-embed">
-  <iframe class="pdf-viewer" src="${resolvedUrl}" title="${title}"></iframe>
+  <iframe class="pdf-viewer" src="${pdfUrl}" title="${title}"></iframe>
   <div class="pdf-info">
     <span class="pdf-filename">${filename}</span>
-    <a href="${resolvedUrl}" download class="pdf-download-link" target="_blank" rel="noopener noreferrer">Download PDF</a>
+    <a href="${pdfUrl}" download class="pdf-download-link" target="_blank" rel="noopener noreferrer">Download PDF</a>
   </div>
 </div>`;
         parent.children[index] = createHtmlNode(html);
@@ -358,36 +413,6 @@ export const remarkObsidianEmbeds: Plugin<[], Root> = () => {
 </div>`;
         parent.children[index] = createHtmlNode(html);
         return;
-      }
-
-      // Handle web embeds (YouTube, Twitter/X) in image syntax
-      if (isExternalUrl(url)) {
-        // Check for Twitter/X
-        const twitterPostId = extractTwitterPostId(url);
-        if (twitterPostId) {
-          const title = alt || 'Twitter post';
-          const html = `<blockquote class="twitter-tweet" data-twitter-embed data-theme="preferred_color_scheme" data-conversation="none" title="${title}"><a href="https://twitter.com/user/status/${twitterPostId}"></a></blockquote>`;
-          parent.children[index] = createHtmlNode(html);
-          return;
-        }
-
-        // Check for YouTube
-        const youtubeVideoId = extractYouTubeVideoId(url);
-        if (youtubeVideoId) {
-          const html = `
-<div class="youtube-embed aspect-video overflow-hidden rounded-xl my-8">
-  <iframe 
-    src="https://www.youtube.com/embed/${youtubeVideoId}?rel=0&modestbranding=1" 
-    title="${alt || 'YouTube video player'}" 
-    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-    allowfullscreen 
-    loading="lazy"
-    class="w-full h-full"
-  ></iframe>
-</div>`;
-          parent.children[index] = createHtmlNode(html);
-          return;
-        }
       }
     });
 

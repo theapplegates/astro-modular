@@ -8,6 +8,11 @@ function shouldExcludeFromSitemap(slug: string): boolean {
   return excludedSlugs.includes(slug);
 }
 
+// Helper function to normalize siteUrl - ensure it ends with a single slash
+function normalizeSiteUrl(url: string): string {
+  return url.replace(/\/+$/, '') + '/';
+}
+
 // Compute slug from collection entry id
 function getSlugFromId(id: string): string {
   // Remove file extension and handle folder-based content
@@ -16,7 +21,7 @@ function getSlugFromId(id: string): string {
 }
 
 export const GET: APIRoute = async () => {
-  const siteUrl = import.meta.env.SITE || siteConfig.site;
+  const siteUrl = normalizeSiteUrl(import.meta.env.SITE || siteConfig.site);
 
   // Get all content collections
   const posts = await getCollection("posts");
@@ -65,7 +70,7 @@ export const GET: APIRoute = async () => {
   // Posts index page
   urls.push(`
     <url>
-      <loc>${siteUrl}/posts/</loc>
+      <loc>${siteUrl}posts/</loc>
       <lastmod>${new Date().toISOString()}</lastmod>
       <changefreq>daily</changefreq>
       <priority>0.8</priority>
@@ -76,7 +81,7 @@ export const GET: APIRoute = async () => {
   if (siteConfig.optionalContentTypes.projects) {
     urls.push(`
       <url>
-        <loc>${siteUrl}/projects/</loc>
+        <loc>${siteUrl}projects/</loc>
         <lastmod>${new Date().toISOString()}</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.7</priority>
@@ -88,7 +93,7 @@ export const GET: APIRoute = async () => {
   if (siteConfig.optionalContentTypes.docs) {
     urls.push(`
       <url>
-        <loc>${siteUrl}/docs/</loc>
+        <loc>${siteUrl}docs/</loc>
         <lastmod>${new Date().toISOString()}</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.7</priority>

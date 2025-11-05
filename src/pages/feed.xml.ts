@@ -2,8 +2,13 @@ import type { APIRoute } from "astro";
 import { getCollection } from "astro:content";
 import { siteConfig } from "../config";
 
+// Helper function to normalize siteUrl - ensure it ends with a single slash
+function normalizeSiteUrl(url: string): string {
+  return url.replace(/\/+$/, '') + '/';
+}
+
 export const GET: APIRoute = async () => {
-  const siteUrl = import.meta.env.SITE || siteConfig.site;
+  const siteUrl = normalizeSiteUrl(import.meta.env.SITE || siteConfig.site);
   const posts = await getCollection("posts", ({ data }) => {
     return !data.draft;
   });

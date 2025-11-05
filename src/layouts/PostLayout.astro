@@ -2,7 +2,7 @@
 import type { Post, Heading } from '@/types';
 import { siteConfig } from '@/config';
 import { generatePostSEO } from '@/utils/seo';
-import { optimizePostImagePath } from '@/utils/images';
+import { optimizePostImagePath, getOptimizedFormat } from '@/utils/images';
 import { processWikilinksInHTML } from '@/utils/internallinks';
 import { getCollection } from 'astro:content';
 import { shouldShowPost, processPost, calculateReadingTime, generateTOC, getAdjacentPosts, formatDate, formatDateMobile, getReadingTimeMobile } from '@/utils/markdown';
@@ -13,7 +13,7 @@ import LocalGraph from '@/components/LocalGraph.astro';
 import GiscusComments from '@/components/GiscusComments.astro';
 import Lightbox from '@/components/Lightbox.astro';
 import Icon from '@/components/Icon.astro';
-import { Image } from 'astro:assets';
+import ImageWrapper from '@/components/ImageWrapper.astro';
 import { devConfig } from '@/config/dev';
 import { readFileSync } from 'fs';
 import { join } from 'path';
@@ -132,20 +132,71 @@ if (siteConfig.postOptions.graphView.enabled && siteConfig.postOptions.graphView
       <!-- Main content -->
       <article class={`bg-primary-50 dark:bg-primary-900 rounded-lg border border-primary-200 dark:border-primary-700 shadow-sm ${siteConfig.postOptions.showPostCardCoverImages !== 'none' && post.data.image && post.data.hideCoverImage !== true ? 'overflow-hidden' : ''}`}>
         {/* Cover image - shown if global config allows and not hidden by frontmatter */}
-        {siteConfig.postOptions.showPostCardCoverImages !== 'none' && post.data.image && post.data.hideCoverImage !== true && (
-          <div class="h-40 sm:h-48 md:h-56 lg:h-64 overflow-hidden rounded-t-lg bg-primary-100 dark:bg-primary-800">
-            <img
-              src={typeof post.data.image === 'string' && post.data.image.startsWith('http') ? post.data.image : optimizePostImagePath(post.data.image, post.id, post.id)}
-              alt={post.data.imageAlt || `Featured image for post: ${post.data.title}`}
-              class="w-full h-full object-cover"
-              width="800"
-              height="256"
-              loading="eager"
-              decoding="async"
-              fetchpriority="high"
-            />
-          </div>
-        )}
+        {siteConfig.postOptions.showPostCardCoverImages !== 'none' && post.data.image && post.data.hideCoverImage !== true && (() => {
+          // Process image path similar to PostCard
+          let rawImage = post.data.image;
+          if (Array.isArray(rawImage)) {
+            rawImage = rawImage[0];
+          }
+          
+          // Clean Obsidian brackets
+          let cleanImagePath = typeof rawImage === 'string' ? rawImage : '';
+          if (cleanImagePath.startsWith('[[') && cleanImagePath.endsWith(']]')) {
+            cleanImagePath = cleanImagePath.slice(2, -2);
+          }
+          
+          // Detect folder-based posts
+          const isFolderBasedPost = post.id && typeof cleanImagePath === 'string' && 
+            !cleanImagePath.startsWith('attachments/') && 
+            !cleanImagePath.startsWith('images/') &&
+            !cleanImagePath.startsWith('http');
+          
+          // Determine src and basePath for ImageWrapper
+          let imageSrc = cleanImagePath;
+          let imageBasePath = '';
+          
+          if (typeof cleanImagePath === 'string' && cleanImagePath.startsWith('http')) {
+            // External URL - pass as-is
+            imageSrc = cleanImagePath;
+            imageBasePath = '';
+          } else if (isFolderBasedPost) {
+            // Folder-based post - remove subfolder prefixes if present
+            if (cleanImagePath.startsWith('images/') || cleanImagePath.startsWith('attachments/')) {
+              imageSrc = cleanImagePath.replace(/^(images|attachments)\//, '');
+            } else {
+              imageSrc = cleanImagePath;
+            }
+            imageBasePath = `/posts/${post.id}/`;
+          } else {
+            // Regular post - remove attachments/ prefix if present
+            if (cleanImagePath.startsWith('attachments/')) {
+              imageSrc = cleanImagePath.replace('attachments/', '');
+            } else {
+              imageSrc = cleanImagePath;
+            }
+            imageBasePath = '/posts/attachments/';
+          }
+          
+          // Convert to WebP if applicable (sync-images.js creates WebP versions)
+          imageSrc = getOptimizedFormat(imageSrc);
+          
+          return (
+            <div class="h-40 sm:h-48 md:h-56 lg:h-64 overflow-hidden rounded-t-lg bg-primary-100 dark:bg-primary-800">
+              <ImageWrapper
+                src={imageSrc}
+                basePath={imageBasePath}
+                alt={post.data.imageAlt || `Featured image for post: ${post.data.title}`}
+                class="w-full h-full"
+                width={800}
+                height={450}
+                format="webp"
+                quality={85}
+                loading="eager"
+                fetchpriority="high"
+              />
+            </div>
+          );
+        })()}
 
         <!-- Post content wrapper -->
         <div class={`p-6 ${siteConfig.postOptions.showPostCardCoverImages !== 'none' && post.data.image && post.data.hideCoverImage !== true ? 'rounded-b-lg' : 'rounded-lg'}`}>

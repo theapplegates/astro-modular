@@ -2,6 +2,7 @@
 
 import { promises as fs } from 'fs';
 import path from 'path';
+import sharp from 'sharp';
 
 // Simple logging utility
 const isDev = process.env.NODE_ENV !== 'production';
@@ -57,6 +58,19 @@ async function findImageFiles(dir, relativePath = '') {
         const subImages = await findImageFiles(itemPath, itemRelativePath);
         imageFiles.push(...subImages);
       } else if (/\.(jpg|jpeg|png|gif|webp|svg|bmp|tiff|tif|ico|mp3|wav|ogg|m4a|3gp|flac|aac|mp4|webm|ogv|mov|mkv|avi|pdf)$/i.test(item)) {
+        // Skip WebP files if we already have the original (to avoid duplicate processing)
+        // We'll generate WebP from originals
+        if (item.toLowerCase().endsWith('.webp')) {
+          const originalName = item.replace(/\.webp$/i, '');
+          const hasOriginal = items.some(i => {
+            const nameWithoutExt = i.replace(/\.(jpg|jpeg|png|gif|bmp|tiff|tif)$/i, '');
+            return nameWithoutExt === originalName && /\.(jpg|jpeg|png|gif|bmp|tiff|tif)$/i.test(i);
+          });
+          if (hasOriginal) {
+            // Skip WebP if we have the original - we'll generate it
+            continue;
+          }
+        }
         imageFiles.push({
           sourcePath: itemPath,
           relativePath: itemRelativePath
@@ -109,22 +123,54 @@ async function syncFolderBasedImages(contentType) {
           // Ensure target directory exists
           await ensureDir(targetDirForFile);
           
-          // Check if file needs updating
+          // Check if file needs updating - check both original and WebP versions
           let needsUpdate = true;
-          try {
-            const sourceStats = await fs.stat(imageFile.sourcePath);
-            const targetStats = await fs.stat(targetPath);
-            
-            // Only update if source is newer or different size
-            needsUpdate = sourceStats.mtime > targetStats.mtime || sourceStats.size !== targetStats.size;
-          } catch {
-            // Target doesn't exist, definitely needs update
-            needsUpdate = true;
+          
+          // Check if this is an image that would be converted to WebP
+          if (/\.(jpg|jpeg|png|gif|bmp|tiff|tif)$/i.test(imageFile.relativePath)) {
+            const webpPath = path.join(targetDir, targetRelativePath.replace(/\.(jpg|jpeg|png|gif|bmp|tiff|tif)$/i, '.webp'));
+            try {
+              const sourceStats = await fs.stat(imageFile.sourcePath);
+              const webpStats = await fs.stat(webpPath);
+              // Only update if source is newer than WebP
+              needsUpdate = sourceStats.mtime > webpStats.mtime;
+            } catch {
+              // WebP doesn't exist, needs update
+              needsUpdate = true;
+            }
+          } else {
+            try {
+              const sourceStats = await fs.stat(imageFile.sourcePath);
+              const targetStats = await fs.stat(targetPath);
+              // Only update if source is newer or different size
+              needsUpdate = sourceStats.mtime > targetStats.mtime || sourceStats.size !== targetStats.size;
+            } catch {
+              // Target doesn't exist, definitely needs update
+              needsUpdate = true;
+            }
           }
           
           if (needsUpdate) {
-            await fs.copyFile(imageFile.sourcePath, targetPath);
-            totalSynced++;
+            // Optimize image if it's an image format (not audio, video, or PDF)
+            if (/\.(jpg|jpeg|png|gif|bmp|tiff|tif)$/i.test(imageFile.relativePath)) {
+              try {
+                // Convert to WebP and optimize
+                const webpPath = targetPath.replace(/\.(jpg|jpeg|png|gif|bmp|tiff|tif)$/i, '.webp');
+                await sharp(imageFile.sourcePath)
+                  .webp({ quality: 85 })
+                  .toFile(webpPath);
+                totalSynced++;
+              } catch (error) {
+                // If Sharp fails, fall back to copying original
+                log.warn(`⚠️  Could not optimize ${imageFile.relativePath}, copying original:`, error.message);
+                await fs.copyFile(imageFile.sourcePath, targetPath);
+                totalSynced++;
+              }
+            } else {
+              // Non-image files (audio, video, PDF) - just copy as-is
+              await fs.copyFile(imageFile.sourcePath, targetPath);
+              totalSynced++;
+            }
           } else {
             totalSkipped++;
           }
@@ -182,22 +228,54 @@ async function syncImagesForConfig(config) {
       // Ensure target directory exists (including subdirectories)
       await ensureDir(targetDirForFile);
 
-      // Check if file needs updating
+      // Check if file needs updating - check both original and WebP versions
       let needsUpdate = true;
-      try {
-        const sourceStats = await fs.stat(imageFile.sourcePath);
-        const targetStats = await fs.stat(targetPath);
-
-        // Only update if source is newer or different size
-        needsUpdate = sourceStats.mtime > targetStats.mtime || sourceStats.size !== targetStats.size;
-      } catch {
-        // Target doesn't exist, definitely needs update
-        needsUpdate = true;
+      
+      // Check if this is an image that would be converted to WebP
+      if (/\.(jpg|jpeg|png|gif|bmp|tiff|tif)$/i.test(imageFile.relativePath)) {
+        const webpPath = targetPath.replace(/\.(jpg|jpeg|png|gif|bmp|tiff|tif)$/i, '.webp');
+        try {
+          const sourceStats = await fs.stat(imageFile.sourcePath);
+          const webpStats = await fs.stat(webpPath);
+          // Only update if source is newer than WebP
+          needsUpdate = sourceStats.mtime > webpStats.mtime;
+        } catch {
+          // WebP doesn't exist, needs update
+          needsUpdate = true;
+        }
+      } else {
+        try {
+          const sourceStats = await fs.stat(imageFile.sourcePath);
+          const targetStats = await fs.stat(targetPath);
+          // Only update if source is newer or different size
+          needsUpdate = sourceStats.mtime > targetStats.mtime || sourceStats.size !== targetStats.size;
+        } catch {
+          // Target doesn't exist, definitely needs update
+          needsUpdate = true;
+        }
       }
 
       if (needsUpdate) {
-        await fs.copyFile(imageFile.sourcePath, targetPath);
-        synced++;
+        // Optimize image if it's an image format (not audio, video, or PDF)
+        if (/\.(jpg|jpeg|png|gif|bmp|tiff|tif)$/i.test(imageFile.relativePath)) {
+          try {
+            // Convert to WebP and optimize
+            const webpPath = targetPath.replace(/\.(jpg|jpeg|png|gif|bmp|tiff|tif)$/i, '.webp');
+            await sharp(imageFile.sourcePath)
+              .webp({ quality: 85 })
+              .toFile(webpPath);
+            synced++;
+          } catch (error) {
+            // If Sharp fails, fall back to copying original
+            log.warn(`⚠️  Could not optimize ${imageFile.relativePath}, copying original:`, error.message);
+            await fs.copyFile(imageFile.sourcePath, targetPath);
+            synced++;
+          }
+        } else {
+          // Non-image files (audio, video, PDF) - just copy as-is
+          await fs.copyFile(imageFile.sourcePath, targetPath);
+          synced++;
+        }
       } else {
         skipped++;
       }
@@ -223,6 +301,15 @@ async function cleanupTargetDirectory(targetDir, sourceImageFiles) {
     // Also add the path without attachments/ prefix for cleanup
     if (f.relativePath.startsWith('attachments/') || f.relativePath.startsWith('attachments\\')) {
       sourceFileSet.add(f.relativePath.replace(/^attachments[/\\]/, ''));
+    }
+    // Add WebP version of image paths (since we generate WebP from originals)
+    if (/\.(jpg|jpeg|png|gif|bmp|tiff|tif)$/i.test(f.relativePath)) {
+      const webpPath = f.relativePath.replace(/\.(jpg|jpeg|png|gif|bmp|tiff|tif)$/i, '.webp');
+      sourceFileSet.add(webpPath);
+      if (f.relativePath.startsWith('attachments/') || f.relativePath.startsWith('attachments\\')) {
+        const webpPathNoAttachments = webpPath.replace(/^attachments[/\\]/, '');
+        sourceFileSet.add(webpPathNoAttachments);
+      }
     }
   });
   let removed = 0;

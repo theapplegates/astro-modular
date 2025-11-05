@@ -17,6 +17,7 @@ import Lightbox from '@/components/Lightbox.astro';
 import Icon from '@/components/Icon.astro';
 import { Image } from 'astro:assets';
 import { devConfig } from '@/config/dev';
+import { getOptimizedFormat } from '@/utils/images';
 import ImageWrapper from '@/components/ImageWrapper.astro';
 
 export interface Props {
@@ -133,20 +134,62 @@ const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProject
       <!-- Main content -->
       <article class={`bg-primary-50 dark:bg-primary-900 rounded-lg border border-primary-200 dark:border-primary-700 shadow-sm ${project.data.image && project.data.hideCoverImage !== true ? 'overflow-hidden' : ''}`}>
         {/* Cover image */}
-        {project.data.image && project.data.hideCoverImage !== true && (
-          <div class="h-40 sm:h-48 md:h-56 lg:h-64 overflow-hidden rounded-t-lg bg-primary-100 dark:bg-primary-800">
-            <img
-              src={optimizeContentImagePath(project.data.image, 'projects', project.id, project.id)}
-              alt={project.data.imageAlt || `Featured image for project: ${project.data.title}`}
-              class="w-full h-full object-cover"
-              width="800"
-              height="256"
-              loading="eager"
-              decoding="async"
-              fetchpriority="high"
-            />
-          </div>
-        )}
+        {project.data.image && project.data.hideCoverImage !== true && (() => {
+          // Process image path similar to ProjectCard
+          let rawImage = project.data.image;
+          if (Array.isArray(rawImage)) {
+            rawImage = rawImage[0];
+          }
+          
+          // Clean Obsidian brackets
+          let cleanImagePath = typeof rawImage === 'string' ? rawImage : '';
+          if (cleanImagePath.startsWith('[[') && cleanImagePath.endsWith(']]')) {
+            cleanImagePath = cleanImagePath.slice(2, -2);
+          }
+          
+          // Determine src and basePath for ImageWrapper
+          let imageSrc = cleanImagePath;
+          let imageBasePath = '';
+          
+          if (typeof cleanImagePath === 'string' && cleanImagePath.startsWith('http')) {
+            // External URL - pass as-is
+            imageSrc = cleanImagePath;
+            imageBasePath = '';
+          } else if (typeof cleanImagePath === 'string' && cleanImagePath.startsWith('attachments/')) {
+            // Single-file project with image in attachments folder
+            imageSrc = cleanImagePath.replace('attachments/', '');
+            imageBasePath = '/projects/attachments/';
+          } else {
+            // Folder-based project with co-located image
+            // Remove images/ prefix if present
+            if (cleanImagePath.startsWith('images/')) {
+              imageSrc = cleanImagePath.replace('images/', '');
+            } else {
+              imageSrc = cleanImagePath;
+            }
+            imageBasePath = `/projects/${project.id}/`;
+          }
+          
+          // Convert to WebP if applicable (sync-images.js creates WebP versions)
+          imageSrc = getOptimizedFormat(imageSrc);
+          
+          return (
+            <div class="h-40 sm:h-48 md:h-56 lg:h-64 overflow-hidden rounded-t-lg bg-primary-100 dark:bg-primary-800">
+              <ImageWrapper
+                src={imageSrc}
+                basePath={imageBasePath}
+                alt={project.data.imageAlt || `Featured image for project: ${project.data.title}`}
+                class="w-full h-full"
+                width={800}
+                height={450}
+                format="webp"
+                quality={85}
+                loading="eager"
+                fetchpriority="high"
+              />
+            </div>
+          );
+        })()}
 
         <!-- Project content wrapper -->
         <div class={`p-6 ${project.data.image && project.data.hideCoverImage !== true ? 'rounded-b-lg' : 'rounded-lg'}`}>
