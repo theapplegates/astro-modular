@@ -398,9 +398,6 @@ function generateCloudflarePagesConfig(projectName) {
   configLines.push(`name = "${projectName}"`);
   configLines.push(`pages_build_output_dir = "./dist"`);
   configLines.push(`compatibility_date = "${compatibilityDate}"`);
-  configLines.push('');
-  configLines.push(`[build]`);
-  configLines.push(`command = "pnpm run build"`);
   
   return configLines.join('\n') + '\n';
 }
@@ -428,8 +425,8 @@ async function cleanupOtherPlatformFiles(currentPlatform) {
     }
   }
   
-  // Note: We don't remove vercel.json or netlify.toml as they may contain
-  // custom configuration (serverless functions, environment variables, etc.)
+  // Note: We don't remove vercel.json, netlify.toml, or wrangler.toml as they may contain
+  // custom configuration (serverless functions, environment variables, bindings, etc.)
 }
 
 // Platform-specific file writers
@@ -487,22 +484,108 @@ async function writeGitHubPagesConfig(redirects) {
     await fs.writeFile(redirectsPath, config, 'utf-8');
     log.info(`📝 Updated public/_redirects with ${redirects.length} redirects`);
     
-    // Write headers file (for paid GitHub Pages plans)
-    const headersContent = `# GitHub Pages Custom Headers
-# Note: Custom headers require GitHub Pages on a paid plan or GitHub Enterprise
-# For free GitHub Pages, these headers won't be applied
+    // Write headers file (for GitHub Pages and Cloudflare Pages)
+    // Note: Custom headers require GitHub Pages on a paid plan or GitHub Enterprise
+    // Cloudflare Pages supports custom headers on all plans (including free tier)
+    const headersContent = `# Custom Headers for GitHub Pages / Cloudflare Pages
+# Note: GitHub Pages requires paid plan for custom headers
+# Cloudflare Pages supports custom headers on all plans
 
-# PDF files - allow iframe embedding
-/*.pdf
-  X-Frame-Options: SAMEORIGIN
+# HTML files
+/*.html
+  Cache-Control: public, max-age=3600, s-maxage=86400
+
+# CSS files
+/*.css
+  Cache-Control: public, max-age=31536000, immutable
+
+# JavaScript files
+/*.js
+  Cache-Control: public, max-age=31536000, immutable
+
+# JSON files
+/*.json
   Cache-Control: public, max-age=3600
 
-# All pages - Content Security Policy for Twitter widgets
+# XML files
+/*.xml
+  Cache-Control: public, max-age=3600
+
+# Text files
+/*.txt
+  Cache-Control: public, max-age=3600
+
+# Pre-compressed files
+/*.gz
+  Content-Encoding: gzip
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.br
+  Content-Encoding: br
+  Cache-Control: public, max-age=31536000, immutable
+
+# Static assets with long-term caching
+/_assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# WebP images
+/*.webp
+  Cache-Control: public, max-age=31536000, immutable
+
+# Font files
+/*.woff2
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.woff
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.ttf
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.eot
+  Cache-Control: public, max-age=31536000, immutable
+
+# Image files
+/*.jpg
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.jpeg
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.png
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.gif
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.svg
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.ico
+  Cache-Control: public, max-age=31536000, immutable
+
+# Favicon files
+/favicon*
+  Cache-Control: public, max-age=31536000, immutable
+
+# All pages - Security headers and Content Security Policy
 /*
+  X-Frame-Options: DENY
+  X-XSS-Protection: 1; mode=block
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Cross-Origin-Embedder-Policy: unsafe-none
+  Cross-Origin-Opener-Policy: same-origin
   Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://giscus.app https://platform.twitter.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self' https://giscus.app; frame-src 'self' https://www.youtube.com https://giscus.app https://platform.twitter.com; object-src 'none'; base-uri 'self';
+
+# PDF files - allow iframe embedding (override X-Frame-Options for PDFs)
+/*.pdf
+  Cache-Control: public, max-age=3600
+  X-Frame-Options: SAMEORIGIN
 `;
     await fs.writeFile(headersPath, headersContent, 'utf-8');
-    log.info(`📝 Created public/_headers for GitHub Pages (requires paid plan)`);
+    log.info(`📝 Created public/_headers for GitHub Pages / Cloudflare Pages`);
   } catch (error) {
     log.error(`❌ Error updating GitHub Pages config:`, error.message);
   }
@@ -590,18 +673,7 @@ async function writeCloudflarePagesConfig(projectName) {
         updatedContent = updatedContent.replace(/^(pages_build_output_dir\s*=[^\n]+)/m, `$1\ncompatibility_date = "${compatibilityDate}"`);
       }
       
-      // Update [build] section
-      const buildSectionRegex = /\[build\]\s*\n\s*command\s*=\s*["'][^"']*["']/;
-      if (buildSectionRegex.test(updatedContent)) {
-        // Replace existing [build] command
-        updatedContent = updatedContent.replace(/\[build\]\s*\n\s*command\s*=\s*["'][^"']*["']/, `[build]\ncommand = "pnpm run build"`);
-      } else if (updatedContent.match(/\[build\]/)) {
-        // [build] section exists but no command, add it
-        updatedContent = updatedContent.replace(/\[build\]/, `[build]\ncommand = "pnpm run build"`);
-      } else {
-        // [build] section doesn't exist, add it at the end
-        updatedContent = updatedContent.trim() + '\n\n[build]\ncommand = "pnpm run build"';
-      }
+      updatedContent = updatedContent.replace(/\n*\[build\]\s*\n\s*command\s*=\s*["'][^"']*["']\s*\n*/g, '\n');
       
       await fs.writeFile(wranglerTomlPath, updatedContent, 'utf-8');
       log.info(`📝 Updated wrangler.toml (preserved custom settings)`);
@@ -755,8 +827,9 @@ async function generateRedirects() {
         await writeGitHubPagesConfig(allRedirects);
         break;
       case 'cloudflare-pages':
-        // Cloudflare Pages needs both wrangler.toml (deployment config) and _redirects/_headers (redirects/headers)
-        await writeCloudflarePagesConfig(projectName);
+        // Cloudflare Pages only needs _redirects/_headers (redirects/headers)
+        // wrangler.toml is optional and not generated by default to avoid configuration conflicts
+        // Users can create it manually if they need bindings (KV, D1, etc.)
         await writeGitHubPagesConfig(allRedirects); // Uses same _redirects/_headers format
         break;
       case 'netlify':
