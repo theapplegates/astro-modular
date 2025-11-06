@@ -145,12 +145,6 @@ if (siteConfig.postOptions.graphView.enabled && siteConfig.postOptions.graphView
             cleanImagePath = cleanImagePath.slice(2, -2);
           }
           
-          // Detect folder-based posts
-          const isFolderBasedPost = post.id && typeof cleanImagePath === 'string' && 
-            !cleanImagePath.startsWith('attachments/') && 
-            !cleanImagePath.startsWith('images/') &&
-            !cleanImagePath.startsWith('http');
-          
           // Determine src and basePath for ImageWrapper
           let imageSrc = cleanImagePath;
           let imageBasePath = '';
@@ -159,22 +153,21 @@ if (siteConfig.postOptions.graphView.enabled && siteConfig.postOptions.graphView
             // External URL - pass as-is
             imageSrc = cleanImagePath;
             imageBasePath = '';
-          } else if (isFolderBasedPost) {
-            // Folder-based post - remove subfolder prefixes if present
+          } else {
+            // All posts are folder-based - sync script copies images to the post folder root
+            // Remove 'images/' or 'attachments/' prefixes if present (sync script removes them)
             if (cleanImagePath.startsWith('images/') || cleanImagePath.startsWith('attachments/')) {
               imageSrc = cleanImagePath.replace(/^(images|attachments)\//, '');
             } else {
               imageSrc = cleanImagePath;
             }
-            imageBasePath = `/posts/${post.id}/`;
-          } else {
-            // Regular post - remove attachments/ prefix if present
-            if (cleanImagePath.startsWith('attachments/')) {
-              imageSrc = cleanImagePath.replace('attachments/', '');
+            // Safety check: ensure post.id exists before using it
+            if (post.id) {
+              imageBasePath = `/posts/${post.id}/`;
             } else {
-              imageSrc = cleanImagePath;
+              // Fallback to attachments directory if post.id is undefined
+              imageBasePath = '/posts/attachments/';
             }
-            imageBasePath = '/posts/attachments/';
           }
           
           // Convert to WebP if applicable (sync-images.js creates WebP versions)

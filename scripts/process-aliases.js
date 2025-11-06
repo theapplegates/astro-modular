@@ -162,6 +162,44 @@ function frontmatterToString(frontmatter) {
   return lines.join('\n');
 }
 
+// Function to get the current slug from a file path
+function getCurrentSlug(filePath) {
+  // Normalize path separators
+  const normalizedPath = filePath.replace(/\\/g, '/');
+  
+  // Extract slug based on content type
+  if (normalizedPath.includes('/posts/')) {
+    let postPath = normalizedPath.replace(/^.*\/posts\//, '').replace(/\.md$/, '');
+    if (postPath.endsWith('/index')) {
+      postPath = postPath.replace('/index', '');
+    }
+    return postPath;
+  } else if (normalizedPath.includes('/projects/')) {
+    let projectPath = normalizedPath.replace(/^.*\/projects\//, '').replace(/\.md$/, '');
+    if (projectPath.endsWith('/index')) {
+      projectPath = projectPath.replace('/index', '');
+    }
+    return projectPath;
+  } else if (normalizedPath.includes('/docs/')) {
+    let docPath = normalizedPath.replace(/^.*\/docs\//, '').replace(/\.md$/, '');
+    if (docPath.endsWith('/index')) {
+      docPath = docPath.replace('/index', '');
+    }
+    return docPath;
+  } else if (normalizedPath.includes('/pages/')) {
+    let pagePath = normalizedPath.replace(/^.*\/pages\//, '').replace(/\.md$/, '');
+    if (pagePath.endsWith('/index')) {
+      pagePath = pagePath.replace('/index', '');
+    }
+    if (pagePath === 'index') {
+      return 'index';
+    }
+    return pagePath;
+  }
+  
+  return null;
+}
+
 // Function to process a single markdown file
 async function processMarkdownFile(filePath) {
   try {
@@ -172,27 +210,49 @@ async function processMarkdownFile(filePath) {
       return false; // No aliases to process
     }
     
+    // Get the current slug for this file
+    const currentSlug = getCurrentSlug(filePath);
+    
     // Ensure aliases is an array
     const aliasesArray = Array.isArray(frontmatter.aliases) 
       ? frontmatter.aliases 
       : [frontmatter.aliases];
     
-    // Ensure aliases are in the correct format (no leading slash)
-    const cleanAliases = aliasesArray.map(alias => 
-      alias.startsWith('/') ? alias.substring(1) : alias
-    );
+    // Ensure aliases are in the correct format (no leading slash) and filter out self-aliases
+    const cleanAliases = aliasesArray
+      .map(alias => alias.startsWith('/') ? alias.substring(1) : alias)
+      .filter(alias => {
+        // Remove aliases that match the current slug (prevents self-redirects)
+        if (currentSlug && alias === currentSlug) {
+          log.warn(`⚠️  Removing self-alias "${alias}" from ${filePath} (matches current slug)`);
+          return false;
+        }
+        return true;
+      });
     
-    // Update frontmatter with cleaned aliases
-    frontmatter.aliases = cleanAliases;
+    // If no valid aliases remain, remove the aliases field entirely
+    if (cleanAliases.length === 0) {
+      delete frontmatter.aliases;
+    } else {
+      // Update frontmatter with cleaned aliases
+      frontmatter.aliases = cleanAliases.length === 1 ? cleanAliases[0] : cleanAliases;
+    }
     
-    // Rebuild the file content
-    const newFrontmatter = frontmatterToString(frontmatter);
-    const newContent = `${newFrontmatter}\n${body}`;
+    // Only write back if we made changes (removed aliases or cleaned them)
+    const originalAliasesCount = aliasesArray.length;
+    const hadChanges = cleanAliases.length !== originalAliasesCount || 
+                       (cleanAliases.length === 0 && originalAliasesCount > 0);
     
-    // Write back to file
-    await fs.writeFile(filePath, newContent, 'utf-8');
+    if (hadChanges) {
+      // Rebuild the file content
+      const newFrontmatter = frontmatterToString(frontmatter);
+      const newContent = `${newFrontmatter}\n${body}`;
+      
+      // Write back to file
+      await fs.writeFile(filePath, newContent, 'utf-8');
+    }
     
-    return { processed: true, aliases: cleanAliases.length };
+    return { processed: hadChanges, aliases: cleanAliases.length };
   } catch (error) {
     log.error(`❌ Error processing ${filePath}:`, error.message);
     return { processed: false, aliases: 0 };

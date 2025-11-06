@@ -205,11 +205,14 @@ async function processMarkdownFile(filePath, isPost = false) {
         redirectFrom = `/${cleanAlias}`;
       }
       
-      redirects.push({
-        from: redirectFrom,
-        to: targetUrl,
-        alias: cleanAlias
-      });
+      // Skip self-redirects (redirecting to the same URL causes infinite loops)
+      if (redirectFrom !== targetUrl) {
+        redirects.push({
+          from: redirectFrom,
+          to: targetUrl,
+          alias: cleanAlias
+        });
+      }
     }
     
     return redirects;
@@ -295,8 +298,11 @@ async function updateAstroConfig(redirects) {
 
 // Platform-specific configuration generators
 function generateVercelConfig(redirects) {
+  // Filter out self-redirects (redirecting to the same URL causes infinite loops)
+  const validRedirects = redirects.filter(redirect => redirect.from !== redirect.to);
+  
   const config = {
-    redirects: redirects.map(redirect => ({
+    redirects: validRedirects.map(redirect => ({
       source: redirect.from,
       destination: redirect.to,
       permanent: (redirect.status || 301) === 301
@@ -349,7 +355,10 @@ function generateVercelConfig(redirects) {
 }
 
 function generateGitHubPagesConfig(redirects) {
-  const redirectLines = redirects.map(redirect => 
+  // Filter out self-redirects (redirecting to the same URL causes infinite loops)
+  const validRedirects = redirects.filter(redirect => redirect.from !== redirect.to);
+  
+  const redirectLines = validRedirects.map(redirect => 
     `${redirect.from}    ${redirect.to}    ${redirect.status || 301}!`
   );
   
@@ -359,7 +368,10 @@ function generateGitHubPagesConfig(redirects) {
 function generateNetlifyConfig(redirects) {
   const redirectLines = [];
   
-  for (const redirect of redirects) {
+  // Filter out self-redirects (redirecting to the same URL causes infinite loops)
+  const validRedirects = redirects.filter(redirect => redirect.from !== redirect.to);
+  
+  for (const redirect of validRedirects) {
     redirectLines.push('[[redirects]]');
     redirectLines.push(`  from = "${redirect.from}"`);
     redirectLines.push(`  to = "${redirect.to}"`);

@@ -121,16 +121,24 @@ const processedImage = (() => {
                   cleanImagePath = cleanImagePath.slice(2, -2);
                 }
 
-                // 3. Check if image is in attachments/ subfolder
-                if (typeof cleanImagePath === 'string' && cleanImagePath.startsWith('attachments/')) {
-                  // Single-file post with image in attachments folder
-                  // The sync script copies these to /posts/attachments/
-                  return "/posts/attachments/";
+                // 3. All posts are folder-based - sync script copies images to post folder root
+                // Remove 'images/' or 'attachments/' prefixes if present (sync script removes them)
+                if (typeof cleanImagePath === 'string') {
+                  if (cleanImagePath.startsWith('images/') || cleanImagePath.startsWith('attachments/')) {
+                    // Sync script removes subfolder prefixes, so use post folder
+                    if (post.id) {
+                      return `/posts/${post.id}/`;
+                    }
+                  } else {
+                    // Co-located image in folder-based post
+                    if (post.id) {
+                      return `/posts/${post.id}/`;
+                    }
+                  }
                 }
 
-                // 4. Otherwise assume folder-based post with co-located image
-                // The sync script copies these to /posts/post-id/
-                return `/posts/${post.id}/`;
+                // Fallback to attachments directory if post.id is undefined
+                return "/posts/attachments/";
               })()}
               alt={post.data.imageAlt || `Image in post: ${post.data.title}`}
               class="w-full h-full"

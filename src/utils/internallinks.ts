@@ -1722,41 +1722,43 @@ export function remarkFolderImages() {
       let isFolderBased = false;
 
       if (file.path) {
-        const pathParts = file.path.split("/");
+        // Normalize path separators (Windows uses backslashes, Unix uses forward slashes)
+        const normalizedPath = file.path.replace(/\\/g, "/");
+        const pathParts = normalizedPath.split("/");
         
         // Check for posts
-        if (file.path.includes("/posts/")) {
+        if (normalizedPath.includes("/posts/")) {
           collection = "posts";
           const postsIndex = pathParts.indexOf("posts");
-          isFolderBased = file.path.endsWith("/index.md");
+          isFolderBased = normalizedPath.endsWith("/index.md");
           contentSlug = isFolderBased ? pathParts[postsIndex + 1] : null;
         }
         // Check for projects
-        else if (file.path.includes("/projects/")) {
+        else if (normalizedPath.includes("/projects/")) {
           collection = "projects";
           const projectsIndex = pathParts.indexOf("projects");
-          isFolderBased = file.path.endsWith("/index.md");
+          isFolderBased = normalizedPath.endsWith("/index.md");
           contentSlug = isFolderBased ? pathParts[projectsIndex + 1] : null;
         }
         // Check for docs
-        else if (file.path.includes("/docs/")) {
+        else if (normalizedPath.includes("/docs/")) {
           collection = "docs";
           const docsIndex = pathParts.indexOf("docs");
-          isFolderBased = file.path.endsWith("/index.md");
+          isFolderBased = normalizedPath.endsWith("/index.md");
           contentSlug = isFolderBased ? pathParts[docsIndex + 1] : null;
         }
         // Check for pages
-        else if (file.path.includes("/pages/")) {
+        else if (normalizedPath.includes("/pages/")) {
           collection = "pages";
           const pagesIndex = pathParts.indexOf("pages");
-          isFolderBased = file.path.endsWith("/index.md");
+          isFolderBased = normalizedPath.endsWith("/index.md");
           contentSlug = isFolderBased ? pathParts[pagesIndex + 1] : null;
         }
         // Check for special pages (they also use pages collection paths)
-        else if (file.path.includes("/special/")) {
+        else if (normalizedPath.includes("/special/")) {
           collection = "pages"; // Special pages use pages collection paths
           const specialIndex = pathParts.indexOf("special");
-          isFolderBased = file.path.endsWith("/index.md");
+          isFolderBased = normalizedPath.endsWith("/index.md");
           contentSlug = isFolderBased ? pathParts[specialIndex + 1] : null;
         }
       }
@@ -1779,8 +1781,14 @@ export function remarkFolderImages() {
 
       // Handle folder-based content (e.g., /posts/my-post/index.md with image.png)
       if (isFolderBased && contentSlug) {
+        // Sync script copies images to post folder root, removing subfolder prefixes
+        // Strip 'images/' or 'attachments/' prefixes if present
+        let cleanImagePath = imagePath;
+        if (cleanImagePath.startsWith('images/') || cleanImagePath.startsWith('attachments/')) {
+          cleanImagePath = cleanImagePath.replace(/^(images|attachments)\//, '');
+        }
         // Image is relative to the folder: /posts/my-post/image.png
-        let finalUrl = `/${collection}/${contentSlug}/${imagePath}`;
+        let finalUrl = `/${collection}/${contentSlug}/${cleanImagePath}`;
         // Convert to WebP if applicable (sync-images.js creates WebP versions)
         finalUrl = convertToWebP(finalUrl);
         node.url = finalUrl;

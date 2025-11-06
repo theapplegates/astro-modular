@@ -212,53 +212,26 @@ export function optimizePostImagePath(
     return getOptimizedFormat(cleanPath);
   }
 
-  // Handle folder-based posts - in v6, we can't reliably detect this from postId alone
-  // Instead, assume folder-based if imagePath doesn't start with 'attachments/'
-  // Single-file posts typically have images in 'attachments/' folder
-  const isFolderBasedPost = postId && !cleanPath.startsWith("attachments/");
-
-  if (
-    isFolderBasedPost &&
-    (cleanPath.startsWith("./") ||
-      (!cleanPath.startsWith("/") && !cleanPath.startsWith("http")))
-  ) {
-    const imageName = cleanPath.startsWith("./")
-      ? cleanPath.slice(2)
-      : cleanPath;
+  // All posts are folder-based - use postId to determine folder path
+  if (postId && postSlug) {
+    // Remove leading "./" if present
+    let imageName = cleanPath.startsWith("./") ? cleanPath.slice(2) : cleanPath;
+    
+    // Sync script copies images to post folder root, removing subfolder prefixes
+    // Strip 'images/' or 'attachments/' prefixes if present
+    if (imageName.startsWith("images/") || imageName.startsWith("attachments/")) {
+      imageName = imageName.replace(/^(images|attachments)\//, "");
+    }
+    
+    // For folder-based posts, images are in /posts/{postId}/
     const folderPath = `/posts/${postSlug}/${imageName}`;
     // Convert to WebP if applicable (sync-images.js creates WebP versions)
     return getOptimizedFormat(folderPath);
   }
 
-  // Handle Obsidian-style relative paths from markdown content
-  if (cleanPath.startsWith("./images/")) {
-    const attachPath = cleanPath.replace("./images/", "/posts/attachments/");
-    return getOptimizedFormat(attachPath);
-  }
-
-  if (cleanPath.startsWith("images/")) {
-    const postPath = `/posts/${cleanPath}`;
-    return getOptimizedFormat(postPath);
-  }
-
-  // Handle Obsidian attachments subfolder within folder-based posts
-  if (cleanPath.startsWith("./attachments/")) {
-    const attachPath = cleanPath.replace("./attachments/", "/posts/attachments/");
-    return getOptimizedFormat(attachPath);
-  }
-
-  if (cleanPath.startsWith("attachments/")) {
-    const postPath = `/posts/${cleanPath}`;
-    return getOptimizedFormat(postPath);
-  }
-
+  // Fallback for edge cases (shouldn't happen if postId is provided)
   // Handle case where filename is provided without path
   if (!cleanPath.includes("/")) {
-    // For folder-based posts, check if the image exists in the post folder first
-    if (isFolderBasedPost && postSlug) {
-      const folderPath = `/posts/${postSlug}/${cleanPath}`;
-      return getOptimizedFormat(folderPath);
-    }
     const attachPath = `/posts/attachments/${cleanPath}`;
     return getOptimizedFormat(attachPath);
   }

@@ -58,9 +58,10 @@ export function generatePostSEO(post: Post, url: string): SEOData {
       imageUrl = imagePath;
     } else {
       // Use optimizePostImagePath for proper path resolution
+      // Pass post.id as both postSlug and postId for folder-based posts
       const optimizedPath = optimizePostImagePath(
         imagePath,
-        undefined,
+        post.id,
         post.id
       );
       imageUrl = `${siteConfig.site}${optimizedPath}`;
