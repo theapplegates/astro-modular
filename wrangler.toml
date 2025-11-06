@@ -6,3 +6,6 @@ name = "astro-modular"
 pages_build_output_dir = "./dist"
 compatibility_date = "2025-01-09"
 
+[build]
+command = "pnpm run build"
+

@@ -398,6 +398,9 @@ function generateCloudflarePagesConfig(projectName) {
   configLines.push(`name = "${projectName}"`);
   configLines.push(`pages_build_output_dir = "./dist"`);
   configLines.push(`compatibility_date = "${compatibilityDate}"`);
+  configLines.push('');
+  configLines.push(`[build]`);
+  configLines.push(`command = "pnpm run build"`);
   
   return configLines.join('\n') + '\n';
 }
@@ -585,6 +588,19 @@ async function writeCloudflarePagesConfig(projectName) {
       if (!updatedContent.match(/^compatibility_date\s*=/m)) {
         // compatibility_date doesn't exist, add it after pages_build_output_dir
         updatedContent = updatedContent.replace(/^(pages_build_output_dir\s*=[^\n]+)/m, `$1\ncompatibility_date = "${compatibilityDate}"`);
+      }
+      
+      // Update [build] section
+      const buildSectionRegex = /\[build\]\s*\n\s*command\s*=\s*["'][^"']*["']/;
+      if (buildSectionRegex.test(updatedContent)) {
+        // Replace existing [build] command
+        updatedContent = updatedContent.replace(/\[build\]\s*\n\s*command\s*=\s*["'][^"']*["']/, `[build]\ncommand = "pnpm run build"`);
+      } else if (updatedContent.match(/\[build\]/)) {
+        // [build] section exists but no command, add it
+        updatedContent = updatedContent.replace(/\[build\]/, `[build]\ncommand = "pnpm run build"`);
+      } else {
+        // [build] section doesn't exist, add it at the end
+        updatedContent = updatedContent.trim() + '\n\n[build]\ncommand = "pnpm run build"';
       }
       
       await fs.writeFile(wranglerTomlPath, updatedContent, 'utf-8');
