@@ -104,10 +104,23 @@ export function generatePageSEO(page: Page, url: string): SEOData {
     // Extract image path from Obsidian bracket syntax if needed
     const imagePath = extractImagePath(image);
 
+    // Handle both local and external image paths
+    let imageUrl: string;
+    if (imagePath.startsWith("http")) {
+      // External URL
+      imageUrl = imagePath;
+    } else {
+      // Use optimizeContentImagePath for proper path resolution
+      const optimizedPath = optimizeContentImagePath(
+        imagePath,
+        "pages",
+        page.id,
+        page.id
+      );
+      imageUrl = `${siteConfig.site}${optimizedPath}`;
+    }
     ogImage = {
-      url: `${siteConfig.site}${
-        imagePath.startsWith("/") ? "" : "/"
-      }${imagePath}`,
+      url: imageUrl,
       alt: page.data.imageAlt || `Featured image for page: ${title}`,
       width: 1200,
       height: 630,

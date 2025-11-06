@@ -1,6 +1,6 @@
 ---
 import type { Post } from '@/types';
-import { processImagesForLightbox } from '@/utils/images';
+import { processImagesForLightbox, getOptimizedFormat } from '@/utils/images';
 import { siteConfig } from '@/config';
 import { formatDate, formatDateMobile, getReadingTimeMobile } from '@/utils/markdown';
 import ImageGallery from './ImageGallery.astro';
@@ -106,10 +106,38 @@ const processedImage = (() => {
         {processedImage && (
           <div class="aspect-video overflow-hidden rounded-xl mb-8">
             <ImageWrapper
-              src={processedImage}
+              src={(() => {
+                // Clean the image path by removing Obsidian brackets
+                let cleanImagePath = processedImage;
+                if (!cleanImagePath || typeof cleanImagePath !== 'string') return '';
+                if (cleanImagePath.startsWith('[[') && cleanImagePath.endsWith(']]')) {
+                  cleanImagePath = cleanImagePath.slice(2, -2);
+                }
+                
+                // Handle external URLs
+                if (cleanImagePath.startsWith('http')) {
+                  return cleanImagePath;
+                }
+                
+                // Detect folder-based vs file-based: if image path starts with 'attachments/',
+                // it's a single-file post (shared attachments folder)
+                const isFileBased = cleanImagePath.startsWith('attachments/');
+                
+                if (isFileBased) {
+                  // Single-file post - remove attachments/ prefix
+                  cleanImagePath = cleanImagePath.replace('attachments/', '');
+                } else {
+                  // Folder-based post - sync script copies images to post folder root
+                  // Remove 'images/' or 'attachments/' prefixes if present (sync script removes them)
+                  if (cleanImagePath.startsWith('images/') || cleanImagePath.startsWith('attachments/')) {
+                    cleanImagePath = cleanImagePath.replace(/^(images|attachments)\//, '');
+                  }
+                }
+                
+                // Convert to WebP if applicable (sync-images.js creates WebP versions)
+                return getOptimizedFormat(cleanImagePath);
+              })()}
               basePath={(() => {
-                // Three simple options:
-
                 // 1. External URLs - no basePath needed
                 if (typeof processedImage === 'string' && processedImage.startsWith('http')) {
                   return '';
@@ -121,24 +149,21 @@ const processedImage = (() => {
                   cleanImagePath = cleanImagePath.slice(2, -2);
                 }
 
-                // 3. All posts are folder-based - sync script copies images to post folder root
-                // Remove 'images/' or 'attachments/' prefixes if present (sync script removes them)
-                if (typeof cleanImagePath === 'string') {
-                  if (cleanImagePath.startsWith('images/') || cleanImagePath.startsWith('attachments/')) {
-                    // Sync script removes subfolder prefixes, so use post folder
-                    if (post.id) {
-                      return `/posts/${post.id}/`;
-                    }
-                  } else {
-                    // Co-located image in folder-based post
-                    if (post.id) {
-                      return `/posts/${post.id}/`;
-                    }
-                  }
+                // 3. Detect folder-based vs file-based: if image path starts with 'attachments/',
+                // it's a single-file post (shared attachments folder)
+                if (typeof cleanImagePath === 'string' && cleanImagePath.startsWith('attachments/')) {
+                  // Single-file post with image in attachments folder
+                  return '/posts/attachments/';
+                }
+
+                // 4. Folder-based post - sync script copies images to post folder root
+                // Safety check: ensure post.id exists before using it
+                if (post.id) {
+                  return `/posts/${post.id}/`;
                 }
 
                 // Fallback to attachments directory if post.id is undefined
-                return "/posts/attachments/";
+                return '/posts/attachments/';
               })()}
               alt={post.data.imageAlt || `Image in post: ${post.data.title}`}
               class="w-full h-full"

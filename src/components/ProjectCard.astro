@@ -101,16 +101,22 @@ const shouldShowCoverImage = true;
               cleanImagePath = cleanImagePath.slice(2, -2);
             }
 
-            // 3. Check if image is in attachments/ subfolder
+            // 3. Detect folder-based vs file-based: if image path starts with 'attachments/',
+            // it's a single-file project (shared attachments folder)
             if (typeof cleanImagePath === 'string' && cleanImagePath.startsWith('attachments/')) {
               // Single-file project with image in attachments folder
               // The sync script copies these to /projects/attachments/
               return "/projects/attachments/";
             }
 
-            // 4. Otherwise assume folder-based project with co-located image
-            // The sync script copies these to /projects/project-id/
-            return `/projects/${project.id}/`;
+            // 4. Folder-based project - sync script copies images to project folder root
+            // Safety check: ensure project.id exists before using it
+            if (project.id) {
+              return `/projects/${project.id}/`;
+            } else {
+              // Fallback to attachments directory if project.id is undefined
+              return '/projects/attachments/';
+            }
           })()}
           alt={imageAlt || `Cover image for project: ${title}`}
           width={800}

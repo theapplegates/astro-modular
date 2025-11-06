@@ -154,19 +154,29 @@ if (siteConfig.postOptions.graphView.enabled && siteConfig.postOptions.graphView
             imageSrc = cleanImagePath;
             imageBasePath = '';
           } else {
-            // All posts are folder-based - sync script copies images to the post folder root
-            // Remove 'images/' or 'attachments/' prefixes if present (sync script removes them)
-            if (cleanImagePath.startsWith('images/') || cleanImagePath.startsWith('attachments/')) {
-              imageSrc = cleanImagePath.replace(/^(images|attachments)\//, '');
-            } else {
-              imageSrc = cleanImagePath;
-            }
-            // Safety check: ensure post.id exists before using it
-            if (post.id) {
-              imageBasePath = `/posts/${post.id}/`;
-            } else {
-              // Fallback to attachments directory if post.id is undefined
+            // Detect folder-based vs file-based: if image path starts with 'attachments/',
+            // it's a single-file post (shared attachments folder)
+            const isFileBased = typeof cleanImagePath === 'string' && cleanImagePath.startsWith('attachments/');
+            
+            if (isFileBased) {
+              // Single-file post - remove attachments/ prefix
+              imageSrc = cleanImagePath.replace('attachments/', '');
               imageBasePath = '/posts/attachments/';
+            } else {
+              // Folder-based post - sync script copies images to post folder root
+              // Remove 'images/' or 'attachments/' prefixes if present (sync script removes them)
+              if (cleanImagePath.startsWith('images/') || cleanImagePath.startsWith('attachments/')) {
+                imageSrc = cleanImagePath.replace(/^(images|attachments)\//, '');
+              } else {
+                imageSrc = cleanImagePath;
+              }
+              // Safety check: ensure post.id exists before using it
+              if (post.id) {
+                imageBasePath = `/posts/${post.id}/`;
+              } else {
+                // Fallback to attachments directory if post.id is undefined
+                imageBasePath = '/posts/attachments/';
+              }
             }
           }
           

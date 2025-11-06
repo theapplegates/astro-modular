@@ -93,10 +93,19 @@ const shouldShowCoverImage = (() => {
               return cleanImagePath;
             }
             
-            // For folder-based posts, sync script copies images to the post folder root
-            // Remove 'images/' or 'attachments/' prefixes if present (sync script removes them)
-            if (cleanImagePath.startsWith('images/') || cleanImagePath.startsWith('attachments/')) {
-              cleanImagePath = cleanImagePath.replace(/^(images|attachments)\//, '');
+            // Detect folder-based vs file-based: if image path starts with 'attachments/',
+            // it's a single-file post (shared attachments folder)
+            const isFileBased = cleanImagePath.startsWith('attachments/');
+            
+            if (isFileBased) {
+              // Single-file post - remove attachments/ prefix
+              cleanImagePath = cleanImagePath.replace('attachments/', '');
+            } else {
+              // Folder-based post - sync script copies images to post folder root
+              // Remove 'images/' or 'attachments/' prefixes if present (sync script removes them)
+              if (cleanImagePath.startsWith('images/') || cleanImagePath.startsWith('attachments/')) {
+                cleanImagePath = cleanImagePath.replace(/^(images|attachments)\//, '');
+              }
             }
             
             // Convert to WebP if applicable (sync-images.js creates WebP versions)
@@ -108,8 +117,20 @@ const shouldShowCoverImage = (() => {
               return '';
             }
             
-            // 2. All posts are folder-based - use post folder as base path
-            // Sync script copies images to /posts/{post.id}/, removing subfolder prefixes
+            // 2. Clean the image path to check for attachments/ prefix
+            let cleanImagePath = image;
+            if (typeof cleanImagePath === 'string' && cleanImagePath.startsWith('[[') && cleanImagePath.endsWith(']]')) {
+              cleanImagePath = cleanImagePath.slice(2, -2);
+            }
+            
+            // 3. Detect folder-based vs file-based: if image path starts with 'attachments/',
+            // it's a single-file post (shared attachments folder)
+            if (typeof cleanImagePath === 'string' && cleanImagePath.startsWith('attachments/')) {
+              // Single-file post with image in attachments folder
+              return '/posts/attachments/';
+            }
+            
+            // 4. Folder-based post - sync script copies images to post folder root
             // Safety check: ensure post.id exists before using it
             if (post.id) {
               return `/posts/${post.id}/`;

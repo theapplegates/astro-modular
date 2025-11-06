@@ -4,7 +4,7 @@ import type { Page } from '@/types';
 import { siteConfig } from '@/config';
 import { render } from 'astro:content';
 import { generatePageSEO } from '@/utils/seo';
-import { optimizePageImagePath, getOptimizedFormat } from '@/utils/images';
+import { optimizeContentImagePath, getOptimizedFormat } from '@/utils/images';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import TableOfContents from '@/components/TableOfContents.astro';
 import Lightbox from '@/components/Lightbox.astro';
@@ -59,8 +59,8 @@ const structuredData = {
 
     <!-- Preload page image if exists -->
     {page.data.image && typeof page.data.image === 'string' && !page.data.image.startsWith('http') && (() => {
-      // Use optimizePageImagePath to handle folder-based pages and WebP conversion
-      const optimizedPath = optimizePageImagePath(page.data.image);
+      // Use optimizeContentImagePath to handle folder-based and file-based pages
+      const optimizedPath = optimizeContentImagePath(page.data.image, 'pages', page.id, page.id);
       return (
         <link
           rel="preload"
@@ -89,13 +89,6 @@ const structuredData = {
             cleanImagePath = cleanImagePath.slice(2, -2);
           }
           
-          // Detect folder-based pages: if image path doesn't start with 'attachments/',
-          // assume it's a folder-based page (co-located image)
-          const isFolderBasedPage = page.id && typeof cleanImagePath === 'string' && 
-            !cleanImagePath.startsWith('attachments/') && 
-            !cleanImagePath.startsWith('images/') &&
-            !cleanImagePath.startsWith('http');
-          
           // Determine src and basePath for ImageWrapper
           let imageSrc = cleanImagePath;
           let imageBasePath = '';
@@ -104,22 +97,31 @@ const structuredData = {
             // External URL - pass as-is
             imageSrc = cleanImagePath;
             imageBasePath = '';
-          } else if (isFolderBasedPage) {
-            // Folder-based page - remove subfolder prefixes if present
-            if (cleanImagePath.startsWith('images/') || cleanImagePath.startsWith('attachments/')) {
-              imageSrc = cleanImagePath.replace(/^(images|attachments)\//, '');
-            } else {
-              imageSrc = cleanImagePath;
-            }
-            imageBasePath = `/pages/${page.id}/`;
           } else {
-            // Regular page - remove attachments/ prefix if present
-            if (cleanImagePath.startsWith('attachments/')) {
+            // Detect folder-based vs file-based: if image path starts with 'attachments/',
+            // it's a single-file page (shared attachments folder)
+            const isFileBased = typeof cleanImagePath === 'string' && cleanImagePath.startsWith('attachments/');
+            
+            if (isFileBased) {
+              // Single-file page - remove attachments/ prefix
               imageSrc = cleanImagePath.replace('attachments/', '');
+              imageBasePath = '/pages/attachments/';
             } else {
-              imageSrc = cleanImagePath;
+              // Folder-based page - sync script copies images to page folder root
+              // Remove 'images/' or 'attachments/' prefixes if present (sync script removes them)
+              if (cleanImagePath.startsWith('images/') || cleanImagePath.startsWith('attachments/')) {
+                imageSrc = cleanImagePath.replace(/^(images|attachments)\//, '');
+              } else {
+                imageSrc = cleanImagePath;
+              }
+              // Safety check: ensure page.id exists before using it
+              if (page.id) {
+                imageBasePath = `/pages/${page.id}/`;
+              } else {
+                // Fallback to attachments directory if page.id is undefined
+                imageBasePath = '/pages/attachments/';
+              }
             }
-            imageBasePath = '/pages/attachments/';
           }
           
           // Convert to WebP if applicable (sync-images.js creates WebP versions)

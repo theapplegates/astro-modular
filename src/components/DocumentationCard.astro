@@ -106,16 +106,22 @@ const showCoverImage = shouldShowCoverImage && image && context !== 'home';
                 cleanImagePath = cleanImagePath.slice(2, -2);
               }
 
-              // 3. Check if image is in attachments/ subfolder
+              // 3. Detect folder-based vs file-based: if image path starts with 'attachments/',
+              // it's a single-file doc (shared attachments folder)
               if (typeof cleanImagePath === 'string' && cleanImagePath.startsWith('attachments/')) {
                 // Single-file doc with image in attachments folder
                 // The sync script copies these to /docs/attachments/
                 return "/docs/attachments/";
               }
 
-              // 4. Otherwise assume folder-based doc with co-located image
-              // The sync script copies these to /docs/documentation-id/
-              return `/docs/${documentation.id}/`;
+              // 4. Folder-based doc - sync script copies images to doc folder root
+              // Safety check: ensure documentation.id exists before using it
+              if (documentation.id) {
+                return `/docs/${documentation.id}/`;
+              } else {
+                // Fallback to attachments directory if documentation.id is undefined
+                return '/docs/attachments/';
+              }
             })()}
             alt={imageAlt || `Cover image for documentation: ${title}`}
             width={400}

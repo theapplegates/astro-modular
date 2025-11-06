@@ -155,19 +155,31 @@ const { prev: prevProject, next: nextProject } = getAdjacentPosts(visibleProject
             // External URL - pass as-is
             imageSrc = cleanImagePath;
             imageBasePath = '';
-          } else if (typeof cleanImagePath === 'string' && cleanImagePath.startsWith('attachments/')) {
-            // Single-file project with image in attachments folder
-            imageSrc = cleanImagePath.replace('attachments/', '');
-            imageBasePath = '/projects/attachments/';
           } else {
-            // Folder-based project with co-located image
-            // Remove images/ prefix if present
-            if (cleanImagePath.startsWith('images/')) {
-              imageSrc = cleanImagePath.replace('images/', '');
+            // Detect folder-based vs file-based: if image path starts with 'attachments/',
+            // it's a single-file project (shared attachments folder)
+            const isFileBased = typeof cleanImagePath === 'string' && cleanImagePath.startsWith('attachments/');
+            
+            if (isFileBased) {
+              // Single-file project - remove attachments/ prefix
+              imageSrc = cleanImagePath.replace('attachments/', '');
+              imageBasePath = '/projects/attachments/';
             } else {
-              imageSrc = cleanImagePath;
+              // Folder-based project - sync script copies images to project folder root
+              // Remove 'images/' or 'attachments/' prefixes if present (sync script removes them)
+              if (cleanImagePath.startsWith('images/') || cleanImagePath.startsWith('attachments/')) {
+                imageSrc = cleanImagePath.replace(/^(images|attachments)\//, '');
+              } else {
+                imageSrc = cleanImagePath;
+              }
+              // Safety check: ensure project.id exists before using it
+              if (project.id) {
+                imageBasePath = `/projects/${project.id}/`;
+              } else {
+                // Fallback to attachments directory if project.id is undefined
+                imageBasePath = '/projects/attachments/';
+              }
             }
-            imageBasePath = `/projects/${project.id}/`;
           }
           
           // Convert to WebP if applicable (sync-images.js creates WebP versions)

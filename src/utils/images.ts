@@ -208,17 +208,27 @@ export function optimizePostImagePath(
   }
 
   // Prevent double processing - if already optimized, convert to WebP and return
-  if (cleanPath.startsWith("/posts/attachments/")) {
+  if (cleanPath.startsWith("/posts/attachments/") || cleanPath.startsWith("/posts/")) {
     return getOptimizedFormat(cleanPath);
   }
 
-  // All posts are folder-based - use postId to determine folder path
+  // Detect folder-based vs file-based: if image path starts with 'attachments/',
+  // it's a single-file post (shared attachments folder)
+  const isFileBased = cleanPath.startsWith("attachments/");
+
+  if (isFileBased) {
+    // Single-file post - remove attachments/ prefix
+    const imageName = cleanPath.replace("attachments/", "");
+    const attachPath = `/posts/attachments/${imageName}`;
+    return getOptimizedFormat(attachPath);
+  }
+
+  // Folder-based post - sync script copies images to post folder root
   if (postId && postSlug) {
     // Remove leading "./" if present
     let imageName = cleanPath.startsWith("./") ? cleanPath.slice(2) : cleanPath;
     
-    // Sync script copies images to post folder root, removing subfolder prefixes
-    // Strip 'images/' or 'attachments/' prefixes if present
+    // Strip 'images/' or 'attachments/' prefixes if present (sync script removes them)
     if (imageName.startsWith("images/") || imageName.startsWith("attachments/")) {
       imageName = imageName.replace(/^(images|attachments)\//, "");
     }
@@ -276,67 +286,39 @@ export function optimizeContentImagePath(
   }
 
   // Prevent double processing - if already optimized, convert to WebP and return
-  if (cleanPath.startsWith(`/${urlPath}/attachments/`)) {
+  if (cleanPath.startsWith(`/${urlPath}/attachments/`) || cleanPath.startsWith(`/${urlPath}/`)) {
     return getOptimizedFormat(cleanPath);
   }
 
-  // Handle folder-based content - in v6, we can't reliably detect this from contentId alone
-  // Instead, assume folder-based if imagePath doesn't start with 'attachments/'
-  // Single-file content typically has images in 'attachments/' folder
-  const isFolderBasedContent =
-    contentId && !cleanPath.startsWith("attachments/");
+  // Detect folder-based vs file-based: if image path starts with 'attachments/',
+  // it's a single-file content (shared attachments folder)
+  const isFileBased = cleanPath.startsWith("attachments/");
 
-  if (
-    isFolderBasedContent &&
-    (cleanPath.startsWith("./") ||
-      (!cleanPath.startsWith("/") && !cleanPath.startsWith("http")))
-  ) {
-    const imageName = cleanPath.startsWith("./")
-      ? cleanPath.slice(2)
-      : cleanPath;
+  if (isFileBased) {
+    // Single-file content - remove attachments/ prefix
+    const imageName = cleanPath.replace("attachments/", "");
+    const attachPath = `/${urlPath}/attachments/${imageName}`;
+    return getOptimizedFormat(attachPath);
+  }
+
+  // Folder-based content - sync script copies images to content folder root
+  // Remove leading "./" if present
+  let imageName = cleanPath.startsWith("./") ? cleanPath.slice(2) : cleanPath;
+  
+  // Strip 'images/' or 'attachments/' prefixes if present (sync script removes them)
+  if (imageName.startsWith("images/") || imageName.startsWith("attachments/")) {
+    imageName = imageName.replace(/^(images|attachments)\//, "");
+  }
+  
+  // For folder-based content, images are in /{urlPath}/{contentSlug}/
+  if (contentId && contentSlug) {
     const folderPath = `/${urlPath}/${contentSlug}/${imageName}`;
-    // Convert to WebP if applicable (sync-images.js creates WebP versions)
     return getOptimizedFormat(folderPath);
   }
 
-  // Handle Obsidian-style relative paths from markdown content
-  if (cleanPath.startsWith("./images/")) {
-    const attachPath = cleanPath.replace("./images/", `/${urlPath}/attachments/`);
-    return getOptimizedFormat(attachPath);
-  }
-
-  if (cleanPath.startsWith("images/")) {
-    const contentPath = `/${urlPath}/${cleanPath}`;
-    return getOptimizedFormat(contentPath);
-  }
-
-  // Handle Obsidian attachments subfolder within folder-based content
-  if (cleanPath.startsWith("./attachments/")) {
-    const attachPath = cleanPath.replace("./attachments/", `/${urlPath}/attachments/`);
-    return getOptimizedFormat(attachPath);
-  }
-
-  if (cleanPath.startsWith("attachments/")) {
-    const contentPath = `/${urlPath}/${cleanPath}`;
-    return getOptimizedFormat(contentPath);
-  }
-
-  // Handle case where filename is provided without path
-  if (!cleanPath.includes("/")) {
-    // For folder-based content, check if the image exists in the content folder first
-    if (isFolderBasedContent && contentSlug) {
-      const folderPath = `/${urlPath}/${contentSlug}/${cleanPath}`;
-      return getOptimizedFormat(folderPath);
-    }
-    const attachPath = `/${urlPath}/attachments/${cleanPath}`;
-    return getOptimizedFormat(attachPath);
-  }
-
-  // Default - assume it's a relative path in the content directory
-  const finalPath = `/${urlPath}/attachments/${cleanPath}`;
-  
-  // Convert to WebP if applicable (sync-images.js creates WebP versions)
-  return getOptimizedFormat(finalPath);
+  // Fallback: if no contentId/contentSlug, assume attachments folder
+  const attachPath = `/${urlPath}/attachments/${imageName}`;
+  return getOptimizedFormat(attachPath);
 }
 
 // Generate responsive image srcset
