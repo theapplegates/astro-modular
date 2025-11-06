@@ -1539,9 +1539,9 @@ deployment: {
 - **Netlify**: Generates `netlify.toml` with redirects and build settings
 - **Vercel**: Generates `vercel.json` with redirects and headers
 - **GitHub Pages**: Generates `public/_redirects` and `public/_headers` for GitHub Pages
-- **Cloudflare Pages**: Uses the same `public/_redirects` and `public/_headers` format as GitHub Pages (both platforms are compatible)
+- **Cloudflare Pages**: Generates `wrangler.toml` (deployment configuration) and `public/_redirects`/`public/_headers` (redirects and headers)
 
-**Note:** Cloudflare Pages and GitHub Pages use identical file formats, so you can use either platform option - both generate the same configuration files. Cloudflare Pages is for static site hosting (similar to Netlify/Vercel), while Cloudflare Workers is for serverless functions at the edge (not needed for basic static Astro sites).
+**Note:** Cloudflare Pages requires a `wrangler.toml` file for deployment configuration, in addition to `_redirects` and `_headers` files in the public directory. Cloudflare Pages is for static site hosting (similar to Netlify/Vercel), while Cloudflare Workers is for serverless functions at the edge (not needed for basic static Astro sites).
 
 #### Build Process
 The build process automatically detects your chosen platform and generates the correct configuration files:
@@ -1553,7 +1553,7 @@ pnpm run build  # Works for all platforms - no environment variables needed!
 - **Netlify**: Includes `netlify.toml` with redirects, build settings, and 404 handling
 - **Vercel**: Generates `vercel.json` with redirects and cache headers for assets
 - **GitHub Pages**: Creates `public/_redirects` and `public/_headers` in the format required by GitHub Pages
-- **Cloudflare Pages**: Creates `public/_redirects` and `public/_headers` (same format as GitHub Pages)
+- **Cloudflare Pages**: Creates `wrangler.toml` (deployment config with name, pages_build_output_dir, compatibility_date) and `public/_redirects`/`public/_headers` (redirects and headers)
 
 #### Platform Headers for PDF Embeds and Twitter Widgets
 
@@ -1581,13 +1581,13 @@ pnpm run build
 
 **Important:** The script merges new redirects/headers with existing `vercel.json` settings, so custom configurations won't be lost.
 
-**GitHub Pages / Cloudflare Pages**
+**GitHub Pages**
 Headers are generated automatically in `public/_headers` when you run the build command. The script creates:
-- `public/_redirects` - Redirect rules (works for both GitHub Pages and Cloudflare Pages)
+- `public/_redirects` - Redirect rules for GitHub Pages
 - `public/_headers` - Custom headers
 
 **Important:** These files are auto-generated during build and are ignored by git (see `.gitignore`). They are:
-- Only created when `platform: "github-pages"` or `platform: "cloudflare-pages"` is selected
+- Only created when `platform: "github-pages"` is selected
 - Automatically cleaned up when switching to other platforms
 - Build artifacts (similar to `dist/`) that should not be committed
 
@@ -1595,10 +1595,21 @@ Headers are generated automatically in `public/_headers` when you run the build 
 - Custom headers require GitHub Pages on a paid plan or GitHub Enterprise. Free GitHub Pages users won't have these headers applied.
 - For free GitHub Pages users: PDF embeds may show security warnings in some browsers, but Twitter widgets should still work as the script is included directly in the page
 
+**Cloudflare Pages**
+Cloudflare Pages requires both `wrangler.toml` (deployment configuration) and `_redirects`/`_headers` files. The script creates:
+- `wrangler.toml` - Deployment configuration (name, pages_build_output_dir, compatibility_date)
+- `public/_redirects` - Redirect rules (same format as GitHub Pages)
+- `public/_headers` - Custom headers (same format as GitHub Pages)
+
+**Important:** 
+- `wrangler.toml` is created in the project root and is NOT cleaned up when switching platforms (may contain custom bindings, KV namespaces, etc.)
+- `public/_redirects` and `public/_headers` are auto-generated and cleaned up when switching away from Cloudflare Pages
+- The script preserves existing custom settings in `wrangler.toml` (KV bindings, D1 databases, vars, etc.) and only updates the managed fields
+
 **Cloudflare Pages Notes:**
 - Cloudflare Pages supports custom headers on all plans (including free tier)
 - Both `_redirects` and `_headers` files work out of the box with Cloudflare Pages
-- Cloudflare Pages is for static site hosting (like Netlify/Vercel), while Cloudflare Workers is for serverless functions (not needed for basic Astro sites)
+- Cloudflare Pages is for static site hosting (like Netlify/Vercel), while Cloudflare Workers is for serverless functions (not needed for basic static Astro sites)
 
 **Common Issues:**
 - **PDF shows "Firefox Can't Open This Page"**: The server is blocking iframe embeds. Check that `X-Frame-Options: SAMEORIGIN` is set for PDF files.
@@ -1794,9 +1805,9 @@ deployment: {
 - **`"netlify"`** (default) - Generates `netlify.toml` with redirects and build settings
 - **`"vercel"`** - Generates `vercel.json` with redirects and cache headers
 - **`"github-pages"`** - Generates `public/_redirects` and `public/_headers` for GitHub Pages
-- **`"cloudflare-pages"`** - Generates `public/_redirects` and `public/_headers` (same format as GitHub Pages)
+- **`"cloudflare-pages"`** - Generates `wrangler.toml` (deployment config) and `public/_redirects`/`public/_headers` (redirects and headers)
 
-**Note:** Cloudflare Pages uses the same file format as GitHub Pages, so both platform options generate identical configuration files. Cloudflare Pages is for static site hosting (like Netlify/Vercel), while Cloudflare Workers is for serverless functions at the edge (not needed for basic static Astro sites).
+**Note:** Cloudflare Pages requires a `wrangler.toml` file for deployment configuration, in addition to `_redirects` and `_headers` files. Cloudflare Pages is for static site hosting (like Netlify/Vercel), while Cloudflare Workers is for serverless functions at the edge (not needed for basic static Astro sites).
 
 **Important:** Set this once in your config and the build process automatically generates the correct platform-specific configuration files. No environment variables needed!
 

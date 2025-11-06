@@ -105,7 +105,7 @@ Edit `src/config.ts` to customize your site - change the theme, enable/disable f
 
 Set your deployment platform once in `src/config.ts` under `deployment.platform` ("netlify", "vercel", "github-pages", or "cloudflare-pages"). The build process automatically generates the correct configuration files for your chosen platform - no environment variables needed!
 
-**Note:** Cloudflare Pages uses the same `_redirects` and `_headers` file format as GitHub Pages, so you can use either `"github-pages"` or `"cloudflare-pages"` - both will generate the same configuration files.
+**Note:** Cloudflare Pages requires a `wrangler.toml` file for deployment configuration (generated automatically), in addition to `_redirects` and `_headers` files in the public directory.
 
 ## Documentation
 

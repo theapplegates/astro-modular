@@ -389,6 +389,19 @@ function generateNetlifyConfig(redirects) {
   return redirectLines.join('\n');
 }
 
+function generateCloudflarePagesConfig(projectName) {
+  // Get current date for compatibility_date
+  const today = new Date();
+  const compatibilityDate = today.toISOString().split('T')[0];
+  
+  const configLines = [];
+  configLines.push(`name = "${projectName}"`);
+  configLines.push(`pages_build_output_dir = "./dist"`);
+  configLines.push(`compatibility_date = "${compatibilityDate}"`);
+  
+  return configLines.join('\n') + '\n';
+}
+
 // Clean up platform-specific files that don't match the selected platform
 async function cleanupOtherPlatformFiles(currentPlatform) {
   const projectRoot = path.join(__dirname, '..');
@@ -524,6 +537,68 @@ async function writeNetlifyConfig(redirects) {
   }
 }
 
+async function writeCloudflarePagesConfig(projectName) {
+  const projectRoot = path.join(__dirname, '..');
+  const wranglerTomlPath = path.join(projectRoot, 'wrangler.toml');
+  
+  if (DRY_RUN) {
+    log.info('📝 [DRY RUN] Would generate wrangler.toml:');
+    console.log(generateCloudflarePagesConfig(projectName));
+    return;
+  }
+  
+  try {
+    // Read existing wrangler.toml to preserve custom settings
+    let existingContent = '';
+    try {
+      existingContent = await fs.readFile(wranglerTomlPath, 'utf-8');
+    } catch (error) {
+      // File doesn't exist, create new one
+    }
+    
+    // Generate new config with managed fields
+    const newConfig = generateCloudflarePagesConfig(projectName);
+    
+    if (existingContent) {
+      // Update only the fields we manage while preserving everything else
+      // Use regex to replace name, pages_build_output_dir, and compatibility_date
+      let updatedContent = existingContent;
+      
+      // Update name field
+      updatedContent = updatedContent.replace(/^name\s*=\s*["'][^"']*["']/m, `name = "${projectName}"`);
+      if (!updatedContent.match(/^name\s*=/m)) {
+        // name doesn't exist, add it at the beginning
+        updatedContent = `name = "${projectName}"\n${updatedContent}`;
+      }
+      
+      // Update pages_build_output_dir field
+      updatedContent = updatedContent.replace(/^pages_build_output_dir\s*=\s*["'][^"']*["']/m, 'pages_build_output_dir = "./dist"');
+      if (!updatedContent.match(/^pages_build_output_dir\s*=/m)) {
+        // pages_build_output_dir doesn't exist, add it after name
+        updatedContent = updatedContent.replace(/^(name\s*=[^\n]+)/m, `$1\npages_build_output_dir = "./dist"`);
+      }
+      
+      // Update compatibility_date field
+      const today = new Date();
+      const compatibilityDate = today.toISOString().split('T')[0];
+      updatedContent = updatedContent.replace(/^compatibility_date\s*=\s*["'][^"']*["']/m, `compatibility_date = "${compatibilityDate}"`);
+      if (!updatedContent.match(/^compatibility_date\s*=/m)) {
+        // compatibility_date doesn't exist, add it after pages_build_output_dir
+        updatedContent = updatedContent.replace(/^(pages_build_output_dir\s*=[^\n]+)/m, `$1\ncompatibility_date = "${compatibilityDate}"`);
+      }
+      
+      await fs.writeFile(wranglerTomlPath, updatedContent, 'utf-8');
+      log.info(`📝 Updated wrangler.toml (preserved custom settings)`);
+    } else {
+      // File doesn't exist, create new one
+      await fs.writeFile(wranglerTomlPath, newConfig, 'utf-8');
+      log.info(`📝 Created wrangler.toml`);
+    }
+  } catch (error) {
+    log.error(`❌ Error updating wrangler.toml:`, error.message);
+  }
+}
+
 // Validation functions
 function validateVercelConfig(redirects) {
   const config = JSON.parse(generateVercelConfig(redirects));
@@ -574,7 +649,17 @@ async function generateRedirects() {
     log.info('🔍 Validation mode - checking all platform configurations...');
   }
   
+  // Get project name from package.json for Cloudflare Pages
   const projectRoot = path.join(__dirname, '..');
+  let projectName = 'astro-modular';
+  try {
+    const packageJsonPath = path.join(projectRoot, 'package.json');
+    const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf-8'));
+    projectName = packageJson.name || 'astro-modular';
+  } catch (error) {
+    // Use default if package.json can't be read
+  }
+  
   let allRedirects = [];
   let totalProcessedFiles = 0;
   
@@ -651,9 +736,12 @@ async function generateRedirects() {
         await writeVercelConfig(allRedirects);
         break;
       case 'github-pages':
-      case 'cloudflare-pages':
-        // Cloudflare Pages uses the same _redirects and _headers format as GitHub Pages
         await writeGitHubPagesConfig(allRedirects);
+        break;
+      case 'cloudflare-pages':
+        // Cloudflare Pages needs both wrangler.toml (deployment config) and _redirects/_headers (redirects/headers)
+        await writeCloudflarePagesConfig(projectName);
+        await writeGitHubPagesConfig(allRedirects); // Uses same _redirects/_headers format
         break;
       case 'netlify':
       default:
