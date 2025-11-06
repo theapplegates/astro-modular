@@ -1066,6 +1066,7 @@ img + p em {
 /* Image caption container styling for JavaScript-processed images */
 .image-caption-container {
   text-align: center;
+  margin-top: 0.25rem; /* Reduced from mt-2 (0.5rem) to bring captions closer to images */
 }
 
 .image-caption-container em {

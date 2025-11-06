@@ -87,7 +87,6 @@ export default defineConfig({
   markdown: {
       remarkPlugins: [
       remarkInternalLinks,
-      remarkBreaks,
       remarkFolderImages,
       remarkObsidianEmbeds,
       // Bases directive (table-only v1)
@@ -95,6 +94,7 @@ export default defineConfig({
       remarkImageCaptions,
       remarkMath,
       remarkCallouts,
+      remarkBreaks,
       remarkImageGrids,
       remarkMermaid,
       [remarkReadingTime, {}],

@@ -143,8 +143,15 @@ import { siteConfig } from '../config';
         // Add any non-image content (like captions) after the gallery
         if (nonImageContent.length > 0) {
           const captionContainer = document.createElement('div');
-          captionContainer.className = 'image-caption-container mt-2';
+          captionContainer.className = 'image-caption-container';
           nonImageContent.forEach(node => {
+            // Skip empty text nodes and br tags to reduce spacing
+            if (node.nodeType === Node.TEXT_NODE && (!node.textContent || !node.textContent.trim())) {
+              return;
+            }
+            if (node.nodeType === Node.ELEMENT_NODE && (node as Element).tagName === 'BR') {
+              return;
+            }
             captionContainer.appendChild(node.cloneNode(true));
           });
           container.appendChild(captionContainer);
