@@ -393,18 +393,19 @@ function generateNetlifyConfig(redirects) {
 async function cleanupOtherPlatformFiles(currentPlatform) {
   const projectRoot = path.join(__dirname, '..');
   
-  // Clean up GitHub Pages files if not using GitHub Pages
-  if (currentPlatform !== 'github-pages') {
-    const githubPagesFiles = [
+  // Clean up GitHub Pages/Cloudflare Pages files if not using those platforms
+  // (Both platforms use the same _redirects and _headers format)
+  if (currentPlatform !== 'github-pages' && currentPlatform !== 'cloudflare-pages') {
+    const sharedFiles = [
       path.join(projectRoot, 'public', '_redirects'),
       path.join(projectRoot, 'public', '_headers')
     ];
     
-    for (const file of githubPagesFiles) {
+    for (const file of sharedFiles) {
       try {
         await fs.access(file);
         await fs.unlink(file);
-        log.info(`🧹 Removed ${path.basename(file)} (GitHub Pages not selected)`);
+        log.info(`🧹 Removed ${path.basename(file)} (GitHub Pages/Cloudflare Pages not selected)`);
       } catch (error) {
         // File doesn't exist, nothing to clean up
       }
@@ -650,6 +651,8 @@ async function generateRedirects() {
         await writeVercelConfig(allRedirects);
         break;
       case 'github-pages':
+      case 'cloudflare-pages':
+        // Cloudflare Pages uses the same _redirects and _headers format as GitHub Pages
         await writeGitHubPagesConfig(allRedirects);
         break;
       case 'netlify':

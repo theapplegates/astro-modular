@@ -50,7 +50,7 @@ export interface SiteConfig {
   scrollToTop: boolean;
   featureButton: "mode" | "graph" | "theme" | "none";
   deployment: {
-    platform: "netlify" | "vercel" | "github-pages";
+    platform: "netlify" | "vercel" | "github-pages" | "cloudflare-pages";
   };
   
   // Command Palette
@@ -241,7 +241,7 @@ export const siteConfig: SiteConfig = {
   featureButton: "mode", // "mode" | "graph" | "theme" | "none"
   deployment: {
     // [CONFIG:DEPLOYMENT_PLATFORM]
-    platform: "netlify", // "netlify" | "vercel" | "github-pages" - sets redirect configuration for the chosen platform
+    platform: "netlify", // "netlify" | "vercel" | "github-pages" | "cloudflare-pages" - sets redirect configuration for the chosen platform (Cloudflare Pages uses same format as GitHub Pages)
   },
 
   // Command Palette

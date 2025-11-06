@@ -1531,14 +1531,17 @@ The theme supports deployment to all major platforms with an elegant configurati
 Set your deployment platform once in `src/config.ts`:
 ```typescript
 deployment: {
-  platform: "netlify", // "netlify" | "vercel" | "github-pages"
+  platform: "netlify", // "netlify" | "vercel" | "github-pages" | "cloudflare-pages"
 }
 ```
 
 #### Supported Platforms
 - **Netlify**: Generates `netlify.toml` with redirects and build settings
 - **Vercel**: Generates `vercel.json` with redirects and headers
-- **GitHub Pages**: Generates `public/redirects.txt` for GitHub Pages redirects
+- **GitHub Pages**: Generates `public/_redirects` and `public/_headers` for GitHub Pages
+- **Cloudflare Pages**: Uses the same `public/_redirects` and `public/_headers` format as GitHub Pages (both platforms are compatible)
+
+**Note:** Cloudflare Pages and GitHub Pages use identical file formats, so you can use either platform option - both generate the same configuration files. Cloudflare Pages is for static site hosting (similar to Netlify/Vercel), while Cloudflare Workers is for serverless functions at the edge (not needed for basic static Astro sites).
 
 #### Build Process
 The build process automatically detects your chosen platform and generates the correct configuration files:
@@ -1549,7 +1552,8 @@ pnpm run build  # Works for all platforms - no environment variables needed!
 #### Platform-Specific Features
 - **Netlify**: Includes `netlify.toml` with redirects, build settings, and 404 handling
 - **Vercel**: Generates `vercel.json` with redirects and cache headers for assets
-- **GitHub Pages**: Creates `public/redirects.txt` in the format required by GitHub Pages
+- **GitHub Pages**: Creates `public/_redirects` and `public/_headers` in the format required by GitHub Pages
+- **Cloudflare Pages**: Creates `public/_redirects` and `public/_headers` (same format as GitHub Pages)
 
 #### Platform Headers for PDF Embeds and Twitter Widgets
 
@@ -1577,21 +1581,24 @@ pnpm run build
 
 **Important:** The script merges new redirects/headers with existing `vercel.json` settings, so custom configurations won't be lost.
 
-**GitHub Pages**
+**GitHub Pages / Cloudflare Pages**
 Headers are generated automatically in `public/_headers` when you run the build command. The script creates:
-- `public/_redirects` - Redirect rules for GitHub Pages
-- `public/_headers` - Custom headers (requires paid GitHub Pages plan)
+- `public/_redirects` - Redirect rules (works for both GitHub Pages and Cloudflare Pages)
+- `public/_headers` - Custom headers
 
 **Important:** These files are auto-generated during build and are ignored by git (see `.gitignore`). They are:
-- Only created when `platform: "github-pages"` is selected
+- Only created when `platform: "github-pages"` or `platform: "cloudflare-pages"` is selected
 - Automatically cleaned up when switching to other platforms
 - Build artifacts (similar to `dist/`) that should not be committed
 
-**Note:** Custom headers require GitHub Pages on a paid plan or GitHub Enterprise. Free GitHub Pages users won't have these headers applied.
+**GitHub Pages Notes:**
+- Custom headers require GitHub Pages on a paid plan or GitHub Enterprise. Free GitHub Pages users won't have these headers applied.
+- For free GitHub Pages users: PDF embeds may show security warnings in some browsers, but Twitter widgets should still work as the script is included directly in the page
 
-**For free GitHub Pages users:**
-- PDF embeds may show security warnings in some browsers
-- Twitter widgets should still work as the script is included directly in the page
+**Cloudflare Pages Notes:**
+- Cloudflare Pages supports custom headers on all plans (including free tier)
+- Both `_redirects` and `_headers` files work out of the box with Cloudflare Pages
+- Cloudflare Pages is for static site hosting (like Netlify/Vercel), while Cloudflare Workers is for serverless functions (not needed for basic Astro sites)
 
 **Common Issues:**
 - **PDF shows "Firefox Can't Open This Page"**: The server is blocking iframe embeds. Check that `X-Frame-Options: SAMEORIGIN` is set for PDF files.
@@ -1779,14 +1786,17 @@ postsPerPage: 5,
 #### Deployment Platform Configuration
 ```typescript
 deployment: {
-  platform: "netlify", // "netlify" | "vercel" | "github-pages" - set once and forget!
+  platform: "netlify", // "netlify" | "vercel" | "github-pages" | "cloudflare-pages" - set once and forget!
 }
 ```
 
 **Deployment Platform Options:**
 - **`"netlify"`** (default) - Generates `netlify.toml` with redirects and build settings
 - **`"vercel"`** - Generates `vercel.json` with redirects and cache headers
-- **`"github-pages"`** - Generates `public/redirects.txt` for GitHub Pages redirects
+- **`"github-pages"`** - Generates `public/_redirects` and `public/_headers` for GitHub Pages
+- **`"cloudflare-pages"`** - Generates `public/_redirects` and `public/_headers` (same format as GitHub Pages)
+
+**Note:** Cloudflare Pages uses the same file format as GitHub Pages, so both platform options generate identical configuration files. Cloudflare Pages is for static site hosting (like Netlify/Vercel), while Cloudflare Workers is for serverless functions at the edge (not needed for basic static Astro sites).
 
 **Important:** Set this once in your config and the build process automatically generates the correct platform-specific configuration files. No environment variables needed!
 
