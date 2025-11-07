@@ -394,15 +394,21 @@ function generateNetlifyConfig(redirects) {
   return redirectLines.join('\n');
 }
 
-function generateCloudflarePagesConfig(projectName) {
+function generateCloudflareWorkersConfig(projectName) {
   // Get current date for compatibility_date
   const today = new Date();
   const compatibilityDate = today.toISOString().split('T')[0];
   
+  // Generate Workers-compatible config (recommended by Cloudflare)
+  // Workers uses assets.directory instead of pages_build_output_dir
+  // See: https://developers.cloudflare.com/workers/static-assets/migration-guides/migrate-from-pages/
   const configLines = [];
   configLines.push(`name = "${projectName}"`);
-  configLines.push(`pages_build_output_dir = "./dist"`);
   configLines.push(`compatibility_date = "${compatibilityDate}"`);
+  configLines.push(``);
+  configLines.push(`[assets]`);
+  configLines.push(`  directory = "./dist"`);
+  configLines.push(`  not_found_handling = "404-page"  # Serve custom 404 page from src/pages/404.astro`);
   
   return configLines.join('\n') + '\n';
 }
@@ -411,10 +417,10 @@ function generateCloudflarePagesConfig(projectName) {
 async function cleanupOtherPlatformFiles(currentPlatform) {
   const projectRoot = path.join(__dirname, '..');
   
-  // Clean up GitHub Pages/Cloudflare Pages files if not using those platforms
+  // Clean up GitHub Pages/Cloudflare Workers files if not using those platforms
   // (Both platforms use the same _redirects and _headers format)
-  // These files should ONLY exist for github-pages and cloudflare-pages
-  if (currentPlatform !== 'github-pages' && currentPlatform !== 'cloudflare-pages') {
+  // These files should ONLY exist for github-pages and cloudflare-workers
+  if (currentPlatform !== 'github-pages' && currentPlatform !== 'cloudflare-workers') {
     const sharedFiles = [
       path.join(projectRoot, 'public', '_redirects'),
       path.join(projectRoot, 'public', '_headers')
@@ -630,13 +636,54 @@ async function writeNetlifyConfig(redirects) {
   }
 }
 
-async function writeCloudflarePagesConfig(projectName) {
+async function copyAssetsIgnoreFile() {
+  const projectRoot = path.join(__dirname, '..');
+  const templatePath = path.join(projectRoot, '.assetsignore.template');
+  const distPath = path.join(projectRoot, 'dist');
+  const assetsIgnorePath = path.join(distPath, '.assetsignore');
+  
+  if (DRY_RUN) {
+    log.info('📝 [DRY RUN] Would copy .assetsignore.template to dist/.assetsignore');
+    return;
+  }
+  
+  try {
+    // Check if template exists
+    try {
+      await fs.access(templatePath);
+    } catch (error) {
+      // Template doesn't exist, that's okay - skip copying (optional file)
+      return;
+    }
+    
+    // Check if dist directory exists
+    // Note: This script runs before Astro build, so dist may not exist yet
+    // That's okay - the file will be copied if dist exists, or can be added manually
+    try {
+      await fs.access(distPath);
+      
+      // dist exists, copy the file
+      const templateContent = await fs.readFile(templatePath, 'utf-8');
+      await fs.writeFile(assetsIgnorePath, templateContent, 'utf-8');
+      log.info('📝 Copied .assetsignore to dist/');
+    } catch (error) {
+      // dist doesn't exist yet - that's fine, it will be created during Astro build
+      // The .assetsignore file is optional and mainly for safety
+      // Users can manually copy it to dist/ if needed, or it will be there on subsequent builds
+    }
+  } catch (error) {
+    // Non-critical error - just log it
+    log.warn(`⚠️  Could not copy .assetsignore file: ${error.message}`);
+  }
+}
+
+async function writeCloudflareWorkersConfig(projectName) {
   const projectRoot = path.join(__dirname, '..');
   const wranglerTomlPath = path.join(projectRoot, 'wrangler.toml');
   
   if (DRY_RUN) {
     log.info('📝 [DRY RUN] Would generate wrangler.toml:');
-    console.log(generateCloudflarePagesConfig(projectName));
+    console.log(generateCloudflareWorkersConfig(projectName));
     return;
   }
   
@@ -649,12 +696,12 @@ async function writeCloudflarePagesConfig(projectName) {
       // File doesn't exist, create new one
     }
     
-    // Generate new config with managed fields
-    const newConfig = generateCloudflarePagesConfig(projectName);
+    // Generate new config with managed fields (Workers format)
+    const newConfig = generateCloudflareWorkersConfig(projectName);
     
     if (existingContent) {
       // Update only the fields we manage while preserving everything else
-      // Use regex to replace name, pages_build_output_dir, and compatibility_date
+      // Migrate from Pages format (pages_build_output_dir) to Workers format (assets.directory)
       let updatedContent = existingContent;
       
       // Update name field
@@ -664,30 +711,49 @@ async function writeCloudflarePagesConfig(projectName) {
         updatedContent = `name = "${projectName}"\n${updatedContent}`;
       }
       
-      // Update pages_build_output_dir field
-      updatedContent = updatedContent.replace(/^pages_build_output_dir\s*=\s*["'][^"']*["']/m, 'pages_build_output_dir = "./dist"');
-      if (!updatedContent.match(/^pages_build_output_dir\s*=/m)) {
-        // pages_build_output_dir doesn't exist, add it after name
-        updatedContent = updatedContent.replace(/^(name\s*=[^\n]+)/m, `$1\npages_build_output_dir = "./dist"`);
+      // Migrate from Pages format to Workers format
+      // Remove old pages_build_output_dir if it exists
+      updatedContent = updatedContent.replace(/^pages_build_output_dir\s*=\s*["'][^"']*["']\s*\n?/m, '');
+      
+      // Update or add assets.directory (Workers format)
+      if (updatedContent.match(/^\[assets\]/m)) {
+        // [assets] section exists, update directory
+        updatedContent = updatedContent.replace(/^(\[assets\]\s*\n\s*)directory\s*=\s*["'][^"']*["']/m, `$1directory = "./dist"`);
+        if (!updatedContent.match(/^\[assets\]\s*\n\s*directory\s*=/m)) {
+          // directory doesn't exist in [assets], add it
+          updatedContent = updatedContent.replace(/^(\[assets\]\s*\n)/m, `$1  directory = "./dist"\n`);
+        }
+        // Ensure not_found_handling is set
+        if (!updatedContent.match(/not_found_handling\s*=/m)) {
+          updatedContent = updatedContent.replace(/^(\[assets\]\s*\n\s*directory\s*=[^\n]+)/m, `$1\n  not_found_handling = "404-page"  # Serve custom 404 page from src/pages/404.astro`);
+        }
+      } else {
+        // [assets] section doesn't exist, add it after compatibility_date
+        const today = new Date();
+        const compatibilityDate = today.toISOString().split('T')[0];
+        updatedContent = updatedContent.replace(/^compatibility_date\s*=\s*["'][^"']*["']/m, `compatibility_date = "${compatibilityDate}"`);
+        if (!updatedContent.match(/^compatibility_date\s*=/m)) {
+          // compatibility_date doesn't exist, add both
+          updatedContent = updatedContent.replace(/^(name\s*=[^\n]+)/m, `$1\ncompatibility_date = "${compatibilityDate}"`);
+        }
+        // Add [assets] section
+        updatedContent = updatedContent.replace(/^(compatibility_date\s*=[^\n]+)/m, `$1\n\n[assets]\n  directory = "./dist"\n  not_found_handling = "404-page"  # Serve custom 404 page from src/pages/404.astro`);
       }
       
       // Update compatibility_date field
       const today = new Date();
       const compatibilityDate = today.toISOString().split('T')[0];
       updatedContent = updatedContent.replace(/^compatibility_date\s*=\s*["'][^"']*["']/m, `compatibility_date = "${compatibilityDate}"`);
-      if (!updatedContent.match(/^compatibility_date\s*=/m)) {
-        // compatibility_date doesn't exist, add it after pages_build_output_dir
-        updatedContent = updatedContent.replace(/^(pages_build_output_dir\s*=[^\n]+)/m, `$1\ncompatibility_date = "${compatibilityDate}"`);
-      }
       
+      // Remove old [build] section if it exists (not needed for Workers)
       updatedContent = updatedContent.replace(/\n*\[build\]\s*\n\s*command\s*=\s*["'][^"']*["']\s*\n*/g, '\n');
       
       await fs.writeFile(wranglerTomlPath, updatedContent, 'utf-8');
-      log.info(`📝 Updated wrangler.toml (preserved custom settings)`);
+      log.info(`📝 Updated wrangler.toml (Workers format, preserved custom settings)`);
     } else {
-      // File doesn't exist, create new one
+      // File doesn't exist, create new one with Workers format
       await fs.writeFile(wranglerTomlPath, newConfig, 'utf-8');
-      log.info(`📝 Created wrangler.toml`);
+      log.info(`📝 Created wrangler.toml (Workers format)`);
     }
   } catch (error) {
     log.error(`❌ Error updating wrangler.toml:`, error.message);
@@ -744,7 +810,7 @@ async function generateRedirects() {
     log.info('🔍 Validation mode - checking all platform configurations...');
   }
   
-  // Get project name from package.json for Cloudflare Pages
+  // Get project name from package.json for Cloudflare Workers
   const projectRoot = path.join(__dirname, '..');
   let projectName = 'astro-modular';
   try {
@@ -842,12 +908,14 @@ async function generateRedirects() {
         // No Astro config needed - would create slow meta refresh HTML files
         await writeGitHubPagesConfig(allRedirects);
         break;
-      case 'cloudflare-pages':
-        // Cloudflare Pages: Uses _redirects file for instant HTTP redirects
+      case 'cloudflare-workers':
+        // Cloudflare Workers: Uses _redirects file for instant HTTP redirects
+        // See migration guide: https://developers.cloudflare.com/workers/static-assets/migration-guides/migrate-from-pages/
         // No Astro config needed - would create slow meta refresh HTML files
-        // wrangler.toml is optional and not generated by default to avoid configuration conflicts
-        // Users can create it manually if they need bindings (KV, D1, etc.)
+        // Generate Workers-compatible wrangler.toml (uses assets.directory instead of pages_build_output_dir)
         await writeGitHubPagesConfig(allRedirects); // Uses same _redirects/_headers format
+        await writeCloudflareWorkersConfig(projectName); // Generate Workers-compatible config
+        await copyAssetsIgnoreFile(); // Copy .assetsignore to dist/ for Workers
         break;
       case 'netlify':
       default:
