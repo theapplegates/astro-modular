@@ -262,7 +262,7 @@ async function processDirectory(dirPath, isPost = false) {
   }
 }
 
-// Function to update astro.config.mjs with redirects
+// Function to update astro.config.mjs with redirects (dev-only)
 async function updateAstroConfig(redirects) {
   const astroConfigPath = 'astro.config.mjs';
   
@@ -275,21 +275,25 @@ async function updateAstroConfig(redirects) {
       redirectsObj[redirect.from] = redirect.to;
     }
     
-    // Find and replace the redirects section
-    const redirectsRegex = /redirects:\s*\{[^}]*\}/s;
-    const newRedirectsSection = `redirects: ${JSON.stringify(redirectsObj, null, 2).replace(/"/g, "'")}`;
+    // Format redirects with conditional dev-only check
+    // Using process.env.NODE_ENV for reliable environment detection at config load time
+    const redirectsString = JSON.stringify(redirectsObj, null, 2).replace(/"/g, "'");
+    const newRedirectsSection = `redirects: (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'build') ? ${redirectsString} : {}`;
+    
+    // Find and replace the redirects section (handles both conditional and non-conditional formats)
+    const redirectsRegex = /redirects:\s*(\(process\.env\.NODE_ENV[^}]*:\s*\{\}\))|redirects:\s*(import\.meta\.env\.DEV\s*\?[^:]*:\s*\{\})|redirects:\s*\{[^}]*\}/s;
     
     if (redirectsRegex.test(astroContent)) {
       // Replace existing redirects
       astroContent = astroContent.replace(redirectsRegex, newRedirectsSection);
     } else {
-      // Add redirects after site config
-      const siteRegex = /(site:\s*siteConfig\.site,)/;
-      astroContent = astroContent.replace(siteRegex, `$1\n  ${newRedirectsSection},`);
+      // Add redirects after devToolbar config
+      const devToolbarRegex = /(devToolbar:\s*\{[^}]*\},)/;
+      astroContent = astroContent.replace(devToolbarRegex, `$1\n  ${newRedirectsSection},`);
     }
     
     await fs.writeFile(astroConfigPath, astroContent, 'utf-8');
-    log.info(`📝 Updated astro.config.mjs with ${redirects.length} redirects`);
+    log.info(`📝 Updated astro.config.mjs with ${redirects.length} redirects (dev-only)`);
   } catch (error) {
     log.error(`❌ Error updating astro.config.mjs:`, error.message);
   }
@@ -358,8 +362,9 @@ function generateGitHubPagesConfig(redirects) {
   // Filter out self-redirects (redirecting to the same URL causes infinite loops)
   const validRedirects = redirects.filter(redirect => redirect.from !== redirect.to);
   
+  // Note: Removed '!' suffix to avoid interstitial page - direct redirects like Netlify
   const redirectLines = validRedirects.map(redirect => 
-    `${redirect.from}    ${redirect.to}    ${redirect.status || 301}!`
+    `${redirect.from}    ${redirect.to}    ${redirect.status || 301}`
   );
   
   return redirectLines.join('\n') + '\n';
@@ -408,6 +413,7 @@ async function cleanupOtherPlatformFiles(currentPlatform) {
   
   // Clean up GitHub Pages/Cloudflare Pages files if not using those platforms
   // (Both platforms use the same _redirects and _headers format)
+  // These files should ONLY exist for github-pages and cloudflare-pages
   if (currentPlatform !== 'github-pages' && currentPlatform !== 'cloudflare-pages') {
     const sharedFiles = [
       path.join(projectRoot, 'public', '_redirects'),
@@ -418,7 +424,7 @@ async function cleanupOtherPlatformFiles(currentPlatform) {
       try {
         await fs.access(file);
         await fs.unlink(file);
-        log.info(`🧹 Removed ${path.basename(file)} (GitHub Pages/Cloudflare Pages not selected)`);
+        log.info(`🧹 Removed ${path.basename(file)} (not needed for ${currentPlatform})`);
       } catch (error) {
         // File doesn't exist, nothing to clean up
       }
@@ -427,6 +433,7 @@ async function cleanupOtherPlatformFiles(currentPlatform) {
   
   // Note: We don't remove vercel.json, netlify.toml, or wrangler.toml as they may contain
   // custom configuration (serverless functions, environment variables, bindings, etc.)
+  // Only _redirects and _headers are platform-specific and should be cleaned up
 }
 
 // Platform-specific file writers
@@ -705,10 +712,10 @@ function validateVercelConfig(redirects) {
 function validateGitHubPagesConfig(redirects) {
   const config = generateGitHubPagesConfig(redirects);
   
-  // Basic validation - check format
+  // Basic validation - check format (no '!' suffix - direct redirects)
   const lines = config.trim().split('\n');
   for (const line of lines) {
-    if (line.trim() && !line.match(/^[^\s]+\s+[^\s]+\s+\d+!$/)) {
+    if (line.trim() && !line.match(/^[^\s]+\s+[^\s]+\s+\d+$/)) {
       throw new Error(`Invalid GitHub Pages redirect format: ${line}`);
     }
   }
@@ -802,7 +809,8 @@ async function generateRedirects() {
     log.info(`📁 Processing docs directory...`);
     log.info(`   Processed ${totalProcessedFiles} files with redirects`);
     
-    // Update Astro config (platform-agnostic)
+    // Update Astro config with redirects (only used in dev mode - instant HTTP redirects)
+    // In production builds, redirects are set to {} to prevent HTML meta refresh files
     await updateAstroConfig(allRedirects);
     
     // Generate platform-specific configs
@@ -816,24 +824,35 @@ async function generateRedirects() {
     }
     
     // Clean up files from other platforms before generating new config
+    // This ensures we only have config files for the selected platform
     await cleanupOtherPlatformFiles(DEPLOYMENT_PLATFORM);
     
-    // Write platform-specific config
+    // Write platform-specific config - only generate files needed for the selected platform
+    // IMPORTANT: We use platform-specific redirect files (HTTP redirects) for production
+    // Astro config redirects are only active in dev mode (instant HTTP redirects)
+    // In production builds, Astro redirects are set to {} to prevent HTML meta refresh files
     switch (DEPLOYMENT_PLATFORM) {
       case 'vercel':
+        // Vercel: Uses vercel.json for instant HTTP redirects
+        // No Astro config needed - Vercel handles redirects at edge level
         await writeVercelConfig(allRedirects);
         break;
       case 'github-pages':
+        // GitHub Pages: Uses _redirects file for instant HTTP redirects
+        // No Astro config needed - would create slow meta refresh HTML files
         await writeGitHubPagesConfig(allRedirects);
         break;
       case 'cloudflare-pages':
-        // Cloudflare Pages only needs _redirects/_headers (redirects/headers)
+        // Cloudflare Pages: Uses _redirects file for instant HTTP redirects
+        // No Astro config needed - would create slow meta refresh HTML files
         // wrangler.toml is optional and not generated by default to avoid configuration conflicts
         // Users can create it manually if they need bindings (KV, D1, etc.)
         await writeGitHubPagesConfig(allRedirects); // Uses same _redirects/_headers format
         break;
       case 'netlify':
       default:
+        // Netlify: Uses netlify.toml for instant HTTP redirects
+        // No Astro config needed - Netlify handles redirects at edge level
         await writeNetlifyConfig(allRedirects);
         break;
     }
