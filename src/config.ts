@@ -413,29 +413,29 @@ export const siteConfig: SiteConfig = {
       // [CONFIG:POST_OPTIONS_COMMENTS_PROVIDER]
       provider: "giscus",
       // [CONFIG:POST_OPTIONS_COMMENTS_REPO]
-      repo: "davidvkimball/astro-modular",
+      repo: "",
       // [CONFIG:POST_OPTIONS_COMMENTS_REPO_ID]
-      repoId: "R_kgDOPllfKw",
+      repoId: "",
       // [CONFIG:POST_OPTIONS_COMMENTS_CATEGORY]
-      category: "General",
+      category: "",
       // [CONFIG:POST_OPTIONS_COMMENTS_CATEGORY_ID]
-      categoryId: "DIC_kwDOPllfK84CvUpx",
+      categoryId: "",
       // [CONFIG:POST_OPTIONS_COMMENTS_MAPPING]
-      mapping: "pathname",
+      mapping: "",
       // [CONFIG:POST_OPTIONS_COMMENTS_STRICT]
-      strict: "0",
+      strict: "",
       // [CONFIG:POST_OPTIONS_COMMENTS_REACTIONS]
-      reactions: "1",
+      reactions: "",
       // [CONFIG:POST_OPTIONS_COMMENTS_METADATA]
-      metadata: "0",
+      metadata: "",
       // [CONFIG:POST_OPTIONS_COMMENTS_INPUT_POSITION]
-      inputPosition: "bottom",
+      inputPosition: "",
       // [CONFIG:POST_OPTIONS_COMMENTS_THEME]
-      theme: "preferred_color_scheme",
+      theme: "",
       // [CONFIG:POST_OPTIONS_COMMENTS_LANG]
-      lang: "en",
+      lang: "",
       // [CONFIG:POST_OPTIONS_COMMENTS_LOADING]
-      loading: "lazy",
+      loading: "",
     },
   },
 };
