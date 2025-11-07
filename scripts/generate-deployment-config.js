@@ -280,16 +280,34 @@ async function updateAstroConfig(redirects) {
     const redirectsString = JSON.stringify(redirectsObj, null, 2).replace(/"/g, "'");
     const newRedirectsSection = `redirects: (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'build') ? ${redirectsString} : {}`;
     
-    // Find and replace the redirects section (handles both conditional and non-conditional formats)
-    const redirectsRegex = /redirects:\s*(\(process\.env\.NODE_ENV[^}]*:\s*\{\}\))|redirects:\s*(import\.meta\.env\.DEV\s*\?[^:]*:\s*\{\})|redirects:\s*\{[^}]*\}/s;
+    // Remove ALL existing redirects entries (including any comments before them)
+    // This handles multiple redirects entries that may have been duplicated
+    // Match from optional comments + redirects: through the entire conditional expression
+    // Pattern: redirects: (condition) ? { object } : {},
+    // Use [\s\S]*? to match any characters including newlines (non-greedy)
+    const redirectsRegex = /(\s*\/\/[^\n]*\n)*\s*redirects:\s*\([^)]+\)\s*\?\s*\{[\s\S]*?\}\s*:\s*\{\},\s*/g;
     
-    if (redirectsRegex.test(astroContent)) {
-      // Replace existing redirects
-      astroContent = astroContent.replace(redirectsRegex, newRedirectsSection);
-    } else {
-      // Add redirects after devToolbar config
-      const devToolbarRegex = /(devToolbar:\s*\{[^}]*\},)/;
+    // Remove all existing redirects entries (run multiple times to catch all duplicates)
+    let previousContent = '';
+    while (previousContent !== astroContent) {
+      previousContent = astroContent;
+      astroContent = astroContent.replace(redirectsRegex, '');
+    }
+    
+    // Add redirects after devToolbar config
+    const devToolbarRegex = /(devToolbar:\s*\{[^}]*\},)/;
+    if (devToolbarRegex.test(astroContent)) {
       astroContent = astroContent.replace(devToolbarRegex, `$1\n  ${newRedirectsSection},`);
+    } else {
+      // Fallback: add after deployment config if devToolbar not found
+      const deploymentRegex = /(deployment:\s*\{[^}]*\},)/;
+      if (deploymentRegex.test(astroContent)) {
+        astroContent = astroContent.replace(deploymentRegex, `$1\n  ${newRedirectsSection},`);
+      } else {
+        // Last resort: add after site config
+        const siteRegex = /(site:\s*[^,]+),/;
+        astroContent = astroContent.replace(siteRegex, `$1,\n  ${newRedirectsSection},`);
+      }
     }
     
     await fs.writeFile(astroConfigPath, astroContent, 'utf-8');

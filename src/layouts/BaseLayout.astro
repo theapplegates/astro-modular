@@ -912,8 +912,13 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
       const lang = containerElement.dataset.lang || 'en';
       const loading = containerElement.dataset.loading || 'lazy';
 
-      // Use the theme from config (should be 'preferred_color_scheme' for dynamic switching)
-      const theme = containerElement.dataset.theme || 'preferred_color_scheme';
+      // Determine the actual theme to use - convert 'preferred_color_scheme' to 'dark' or 'light'
+      let theme = containerElement.dataset.theme || 'preferred_color_scheme';
+      if (theme === 'preferred_color_scheme') {
+        // Get current theme from document
+        const isDark = document.documentElement.classList.contains('dark');
+        theme = isDark ? 'dark' : 'light';
+      }
 
       script.setAttribute('data-repo', repo);
       script.setAttribute('data-repo-id', repoId);
@@ -1887,13 +1892,15 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
 
 
     // Giscus theme change handling - use postMessage API for dynamic theme switching
-    function handleGiscusThemeChange() {
+    function handleGiscusThemeChange(isDarkParam) {
       // Only change theme if comments are enabled and Giscus iframe exists
       if (window.commentsEnabled) {
         const giscusIframe = document.querySelector('iframe.giscus-frame');
         if (giscusIframe) {
-          // Get current theme from document
-          const isDark = document.documentElement.classList.contains('dark');
+          // Get current theme from document or use provided parameter
+          const isDark = isDarkParam !== undefined 
+            ? isDarkParam 
+            : document.documentElement.classList.contains('dark');
           const newTheme = isDark ? 'dark' : 'light';
 
           // Send message to Giscus iframe to change theme
@@ -1946,7 +1953,7 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
             if (isDark !== wasDark) {
               handleMermaidThemeChange();
               handleTwitterThemeChange(isDark);
-              handleGiscusThemeChange();
+              handleGiscusThemeChange(isDark);
             }
           }
         });
@@ -1956,6 +1963,19 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
         attributes: true,
         attributeOldValue: true,
         attributeFilter: ['class']
+      });
+
+      // Also listen for themechange events (for dark/light mode toggles)
+      window.addEventListener('themechange', (event) => {
+        // Check if this is a dark/light mode change (has mode property)
+        if (event.detail && event.detail.mode) {
+          const isDark = event.detail.mode === 'dark';
+          handleGiscusThemeChange(isDark);
+        } else {
+          // Otherwise, check current state
+          const isDark = document.documentElement.classList.contains('dark');
+          handleGiscusThemeChange(isDark);
+        }
       });
     }
 

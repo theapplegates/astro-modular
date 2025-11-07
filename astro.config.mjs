@@ -48,41 +48,6 @@ export default defineConfig({
   '/docs/astro-modular-configuration': '/docs/configuration',
   '/docs/sourcetree-and-git': '/docs/sourcetree-and-git-setup'
 } : {},
-  redirects: (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'build') ? {
-  '/about-me': '/about',
-  '/about-us': '/about',
-  '/contact-me': '/contact',
-  '/contact-us': '/contact',
-  '/privacy': '/privacy-policy',
-  '/posts/mermaid-test': '/posts/obsidian-embeds-demo',
-  '/posts/mermaid-diagram-test': '/posts/obsidian-embeds-demo',
-  '/posts/mermaid-diagrams': '/posts/obsidian-embeds-demo',
-  '/posts/astro-suite-vault-modular-guide': '/posts/obsidian-vault-guide',
-  '/posts/astro-suite-obsidian-vault-guide-astro-modular': '/posts/obsidian-vault-guide',
-  '/projects/obsidian-astro-composer': '/projects/astro-composer',
-  '/docs/api-reference': '/docs/api',
-  '/docs/astro-modular-configuration': '/docs/configuration',
-  '/docs/sourcetree-and-git': '/docs/sourcetree-and-git-setup'
-} : {},
-  // Redirects: Only used in development (instant HTTP redirects)
-  // In production, platform-specific files handle redirects (_redirects, netlify.toml, vercel.json)
-  // Using process.env.NODE_ENV for reliable environment detection at config load time
-  redirects: (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'build') ? {
-    '/about-me': '/about',
-    '/about-us': '/about',
-    '/contact-me': '/contact',
-    '/contact-us': '/contact',
-    '/privacy': '/privacy-policy',
-    '/posts/mermaid-test': '/posts/obsidian-embeds-demo',
-    '/posts/mermaid-diagram-test': '/posts/obsidian-embeds-demo',
-    '/posts/mermaid-diagrams': '/posts/obsidian-embeds-demo',
-    '/posts/astro-suite-vault-modular-guide': '/posts/obsidian-vault-guide',
-    '/posts/astro-suite-obsidian-vault-guide-astro-modular': '/posts/obsidian-vault-guide',
-    '/projects/obsidian-astro-composer': '/projects/astro-composer',
-    '/docs/api-reference': '/docs/api',
-    '/docs/astro-modular-configuration': '/docs/configuration',
-    '/docs/sourcetree-and-git': '/docs/sourcetree-and-git-setup'
-  } : {},
   image: {
     service: {
       entrypoint: 'astro/assets/services/sharp',

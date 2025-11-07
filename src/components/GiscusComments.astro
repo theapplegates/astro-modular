@@ -33,13 +33,16 @@ const { comments } = siteConfig.postOptions;
 
 <style>
   .giscus-comments-container {
-    margin-top: 2rem;
+    margin-bottom: 2rem;
+    /* Ensure container is outside prose constraints */
+    max-width: 100% !important;
   }
 
   .giscus-comments-widget {
     min-height: 200px;
-    border: none !important;
-    background: transparent !important;
+    width: 100%;
+    /* Reset any prose styles */
+    max-width: 100% !important;
   }
 
   .giscus-comments-widget:empty::before {
@@ -58,21 +61,49 @@ const { comments } = siteConfig.postOptions;
     border-radius: 0.5rem;
   }
 
-  /* Giscus theme integration */
+  /* Ensure Giscus iframe renders properly with transparent background */
   :global(.giscus) {
-    border: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    display: block !important;
     background: transparent !important;
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
   }
 
   :global(.giscus-frame) {
+    width: 100% !important;
+    max-width: 100% !important;
     border: none !important;
+    min-height: 400px;
+    display: block !important;
     background: transparent !important;
+    /* Support transparent themes */
+    color-scheme: light dark;
+    /* Remove all outlines and focus states */
+    outline: none !important;
+    outline-offset: 0 !important;
+    box-shadow: none !important;
   }
 
-  /* Remove any default borders or backgrounds */
-  :global(.giscus-comments-widget) {
+  /* Remove focus outline from iframe */
+  :global(.giscus-frame:focus),
+  :global(.giscus-frame:focus-visible),
+  :global(.giscus-frame:active) {
+    outline: none !important;
     border: none !important;
-    background: transparent !important;
     box-shadow: none !important;
+  }
+
+  /* Ensure Giscus content is visible and properly styled */
+  :global(.giscus-comments-widget) {
+    width: 100%;
+    max-width: 100% !important;
+  }
+
+  /* Exclude Giscus from prose styling */
+  :global(.prose .giscus-comments-container) {
+    max-width: 100% !important;
   }
 </style>
