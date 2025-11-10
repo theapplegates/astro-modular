@@ -297,16 +297,16 @@ async function updateAstroConfig(redirects) {
     // Add redirects after devToolbar config
     const devToolbarRegex = /(devToolbar:\s*\{[^}]*\},)/;
     if (devToolbarRegex.test(astroContent)) {
-      astroContent = astroContent.replace(devToolbarRegex, `$1\n  ${newRedirectsSection},`);
+      astroContent = astroContent.replace(devToolbarRegex, `$1\n  ${newRedirectsSection},\n`);
     } else {
       // Fallback: add after deployment config if devToolbar not found
       const deploymentRegex = /(deployment:\s*\{[^}]*\},)/;
       if (deploymentRegex.test(astroContent)) {
-        astroContent = astroContent.replace(deploymentRegex, `$1\n  ${newRedirectsSection},`);
+        astroContent = astroContent.replace(deploymentRegex, `$1\n  ${newRedirectsSection},\n`);
       } else {
         // Last resort: add after site config
         const siteRegex = /(site:\s*[^,]+),/;
-        astroContent = astroContent.replace(siteRegex, `$1,\n  ${newRedirectsSection},`);
+        astroContent = astroContent.replace(siteRegex, `$1,\n  ${newRedirectsSection},\n`);
       }
     }
     
