@@ -1095,12 +1095,24 @@ import Icon from './Icon.astro';
     }
 
     private selectItem(items: NodeListOf<Element>) {
+      // If no item is selected but items exist, select the first one
+      if (this.selectedIndex < 0 && items.length > 0) {
+        this.selectedIndex = 0;
+      }
+      
       // If an item is selected, navigate to its URL or trigger its action
       if (this.selectedIndex >= 0 && items[this.selectedIndex]) {
         const item = items[this.selectedIndex] as HTMLElement;
         
-        // Close the command palette first
-        this.close();
+        // Check if this is a "change-theme" action - we need to keep palette open for theme selection
+        const isChangeThemeAction = item.tagName === 'BUTTON' && 
+                                    item.hasAttribute('data-action') && 
+                                    item.getAttribute('data-action') === 'change-theme';
+        
+        // Only close the palette if it's not a "change-theme" action
+        if (!isChangeThemeAction) {
+          this.close();
+        }
         
         // Ensure scroll is fully restored before navigation
         setTimeout(() => {
@@ -1154,7 +1166,17 @@ import Icon from './Icon.astro';
           // Show theme selection interface
           this.populateThemeList();
           this.showThemeSelection();
-          this.selectedIndex = -1; // Reset selection
+          this.selectedIndex = 0; // Select first theme by default so Enter works immediately
+          // Clear the search input and refocus it for keyboard navigation
+          this.input.value = '';
+          this.input.focus();
+          // Update visual selection after a brief delay to ensure DOM is ready
+          setTimeout(() => {
+            const themeButtons = this.themeList.querySelectorAll('button');
+            if (themeButtons.length > 0) {
+              this.updateSelection(themeButtons);
+            }
+          }, 10);
           break;
         case 'open-graph':
           // Open graph modal
