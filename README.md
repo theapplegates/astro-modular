@@ -27,7 +27,7 @@ A flexible blog theme designed for Obsidian users.
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4.17-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![Node.js](https://img.shields.io/badge/Node.js-20.3.0-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![pnpm](https://img.shields.io/badge/pnpm-7.1.0-F69220?logo=pnpm&logoColor=white)](https://pnpm.io/)
-[![Obsidian](https://img.shields.io/badge/Obsidian-1.10.2-7C3AED?logo=obsidian&logoColor=white)](https://obsidian.md/)
+[![Obsidian](https://img.shields.io/badge/Obsidian-1.10.3-7C3AED?logo=obsidian&logoColor=white)](https://obsidian.md/)
 
 ## Why Astro Modular?
 
