@@ -97,10 +97,10 @@ Community plugins enabled:
 - Paste image into property
 - Paste image rename
 - Property Over Filename
-- ProZen
 - SEO
 - Style Settings
 - Title-Only Tab
+- Zen
 
 ### Astro Modular Settings and Commander
 
@@ -279,11 +279,11 @@ When linking or searching notes, you can use the `title` property as its primary
 
 When you link to another note, its `title` is automatically set as the hyperlinked text, but you can easily change it to something else after it's been inserted.
 
-### ProZen
+### Zen
 
-Zen mode offers another quick option to focus on your writing. Pressing `CTRL + SHIFT + Z` will enter Zen mode: automatic full-screen, all elements removed except for your content. Then use `ESC` to exit. 
+Zen mode offers another quick option to focus on your writing. Pressing `CTRL + SHIFT + Z` will enter Zen mode. When activated, all elements removed except for your content. Use the keystroke again to exit. 
 
-This plugin is a great alternative if you don't prefer to use Hider to remove the UI, and prefer to toggle it all on or off at once as needed. Alternatively, you can use the Focus Mode included in the Minimal theme.
+This plugin is a great alternative if you don't prefer to use Hider to remove the UI, and prefer to toggle it all on or off at once as needed. Alternatively, you can use the Focus Mode included in Oxygen Theme.
 
 ### SEO
 

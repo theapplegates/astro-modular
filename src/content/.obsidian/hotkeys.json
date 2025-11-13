@@ -81,15 +81,6 @@
       "key": "'"
     }
   ],
-  "obsidian-prozen:zenmode": [
-    {
-      "modifiers": [
-        "Mod",
-        "Shift"
-      ],
-      "key": "Z"
-    }
-  ],
   "custom-save:save": [],
   "editor:insert-callout": [
     {
@@ -159,6 +150,43 @@
         "Shift"
       ],
       "key": "D"
+    }
+  ],
+  "seo:open-global": [
+    {
+      "modifiers": [
+        "Mod",
+        "Shift"
+      ],
+      "key": "A"
+    }
+  ],
+  "oxygen-settings:toggle-minimal-focus-mode": [
+    {
+      "modifiers": [
+        "Alt",
+        "Mod"
+      ],
+      "key": "F"
+    }
+  ],
+  "zen:toggle": [
+    {
+      "modifiers": [
+        "Mod",
+        "Shift"
+      ],
+      "key": "Z"
+    }
+  ],
+  "zen:toggle2": [
+    {
+      "modifiers": [
+        "Alt",
+        "Mod",
+        "Shift"
+      ],
+      "key": "Z"
     }
   ]
 }

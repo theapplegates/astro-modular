@@ -9,14 +9,15 @@
   "obsidian-git",
   "new-tab-default-page",
   "homepage",
-  "obsidian-prozen",
-  "obsidian-style-settings",
   "simple-banner",
   "iconic",
   "alias-file-name-history",
   "property-over-file-name",
-  "seo",
   "astro-composer",
+  "seo",
+  "astro-modular-settings",
+  "obsidian-shellcommands",
+  "obsidian-style-settings",
   "oxygen-settings",
-  "astro-modular-settings"
+  "zen"
 ]
