@@ -203,29 +203,16 @@ var ZenView = class extends import_obsidian2.View {
     this.addGlobalClasses();
   }
   onunload() {
-    var _a, _b, _c;
     if (this.headerIcon) {
       this.headerIcon.remove();
-      this.headerIcon = null;
-    }
-    const existingIcons = (_c = (_b = (_a = this.app.workspace.leftSplit) == null ? void 0 : _a.getContainer()) == null ? void 0 : _b.containerEl) == null ? void 0 : _c.querySelectorAll('[data-zen="icon"]');
-    if (existingIcons && existingIcons.length > 0) {
-      existingIcons.forEach((icon) => icon.remove());
     }
     this.removeGlobalClasses();
     super.onunload();
   }
   onload() {
-    var _a, _b, _c;
-    const existingIcons = (_c = (_b = (_a = this.app.workspace.leftSplit) == null ? void 0 : _a.getContainer()) == null ? void 0 : _b.containerEl) == null ? void 0 : _c.querySelectorAll('[data-zen="icon"]');
-    if (existingIcons && existingIcons.length > 0) {
-      existingIcons.forEach((icon) => icon.remove());
+    if (this.app.workspace.leftSplit) {
+      this.createHeaderIcon();
     }
-    const bodyIcons = this.containerEl.doc.body.querySelectorAll('[data-zen="icon"]');
-    if (bodyIcons && bodyIcons.length > 0) {
-      bodyIcons.forEach((icon) => icon.remove());
-    }
-    this.headerIcon = null;
     this.leaf.tabHeaderEl.draggable = false;
     this.updateClass();
     this.addEventListeners();
@@ -251,15 +238,6 @@ var ZenView = class extends import_obsidian2.View {
     });
   }
   createHeaderIcon() {
-    var _a, _b, _c;
-    const existingIcon = (_c = (_b = (_a = this.app.workspace.leftSplit) == null ? void 0 : _a.getContainer()) == null ? void 0 : _b.containerEl) == null ? void 0 : _c.querySelector('[data-zen="icon"]');
-    if (existingIcon) {
-      this.headerIcon = existingIcon;
-      return;
-    }
-    if (!this.app.workspace.leftSplit) {
-      return;
-    }
     let headerIcon = createEl("div", {
       cls: "zen-header",
       attr: { "data-zen": "icon", "aria-label": "Zen - Disable", "aria-label-position": "bottom" }
@@ -286,29 +264,6 @@ var ZenView = class extends import_obsidian2.View {
       }, 1e3);
     };
     this.app.workspace.leftSplit.getContainer().containerEl.appendChild(headerIcon);
-  }
-  showHeaderIcon() {
-    if (!this.app.workspace.leftSplit) {
-      return;
-    }
-    this.createHeaderIcon();
-  }
-  hideHeaderIcon() {
-    var _a, _b, _c;
-    const existingIcon = (_c = (_b = (_a = this.app.workspace.leftSplit) == null ? void 0 : _a.getContainer()) == null ? void 0 : _b.containerEl) == null ? void 0 : _c.querySelector('[data-zen="icon"]');
-    if (existingIcon) {
-      existingIcon.remove();
-      this.headerIcon = null;
-    }
-  }
-  toggleHeaderIcon() {
-    var _a, _b, _c;
-    const existingIcon = (_c = (_b = (_a = this.app.workspace.leftSplit) == null ? void 0 : _a.getContainer()) == null ? void 0 : _b.containerEl) == null ? void 0 : _c.querySelector('[data-zen="icon"]');
-    if (existingIcon) {
-      this.hideHeaderIcon();
-    } else {
-      this.showHeaderIcon();
-    }
   }
   addBodyClasses(addBaseClass) {
     if (addBaseClass) {
@@ -337,9 +292,7 @@ var ZenView = class extends import_obsidian2.View {
     this.containerEl.doc.body.className = this.containerEl.doc.body.className.split(" ").filter((c) => !c.startsWith("zen-module--")).join(" ").trim();
   }
   async updateClass() {
-    if (this.leaf.tabHeaderInnerIconEl) {
-      this.leaf.tabHeaderInnerIconEl.empty();
-    }
+    (0, import_obsidian2.setIcon)(this.leaf.tabHeaderInnerIconEl, this.plugin.settings.enabled ? "eye-off" : "eye");
     this.leaf.tabHeaderInnerIconEl.setAttr("aria-label", this.plugin.settings.enabled ? "Zen - Disable" : 'Zen - Enable (or Shift + Click  for Zen One "Active Pane Only")');
     if (this.plugin.settings.enabled) {
       this.removeBodyClasses();
@@ -366,7 +319,7 @@ var ZenView = class extends import_obsidian2.View {
     return 'Zen - Enable (or Shift + Click  for Zen One "Active Pane Only")';
   }
   getIcon() {
-    return "";
+    return !this.plugin.settings.enabled ? "eye" : "eye-off";
   }
 };
 
@@ -490,13 +443,8 @@ var pluginIntegrations = [
 // src/main.ts
 var Zen = class extends import_obsidian4.Plugin {
   async onload() {
-    var _a, _b, _c;
     console.log(`${this.manifest.name}: Loading`);
     await this.loadSettings();
-    const existingIcons = (_c = (_b = (_a = this.app.workspace.leftSplit) == null ? void 0 : _a.getContainer()) == null ? void 0 : _b.containerEl) == null ? void 0 : _c.querySelectorAll('[data-zen="icon"]');
-    if (existingIcons) {
-      existingIcons.forEach((icon) => icon.remove());
-    }
     this.addSettingTab(new SettingsTab(this.app, this));
     this.registerView(VIEW_TYPE_ZEN, (leaf) => {
       leaf.setPinned(true);
@@ -517,15 +465,6 @@ var Zen = class extends import_obsidian4.Plugin {
         this.zenView.toggleZen(true);
       }
     });
-    this.addCommand({
-      id: "toggle-header-icon",
-      name: "Toggle Header Icon",
-      callback: () => {
-        if (this.zenView) {
-          this.zenView.toggleHeaderIcon();
-        }
-      }
-    });
     this.integrator = new Integrator(this.app, this);
     this.integrator.load(pluginIntegrations);
     this.app.workspace.onLayoutReady(async () => {
@@ -533,24 +472,14 @@ var Zen = class extends import_obsidian4.Plugin {
     });
   }
   async initLeaf() {
-    var _a, _b, _c;
     this.app.workspace.detachLeavesOfType(VIEW_TYPE_ZEN);
-    const existingIcons = (_c = (_b = (_a = this.app.workspace.leftSplit) == null ? void 0 : _a.getContainer()) == null ? void 0 : _b.containerEl) == null ? void 0 : _c.querySelectorAll('[data-zen="icon"]');
-    if (existingIcons) {
-      existingIcons.forEach((icon) => icon.remove());
-    }
     await this.app.workspace.getLeftLeaf(false).setViewState({
       type: VIEW_TYPE_ZEN,
       active: false
     });
   }
   async onunload() {
-    var _a, _b, _c;
     console.log(`${this.manifest.name}: Unloading`);
-    const existingIcons = (_c = (_b = (_a = this.app.workspace.leftSplit) == null ? void 0 : _a.getContainer()) == null ? void 0 : _b.containerEl) == null ? void 0 : _c.querySelectorAll('[data-zen="icon"]');
-    if (existingIcons) {
-      existingIcons.forEach((icon) => icon.remove());
-    }
     this.app.workspace.detachLeavesOfType(VIEW_TYPE_ZEN);
     if (this.settings.enabled)
       this.zenView.toggleZen();

@@ -22,6 +22,8 @@ https://github.com/Maxymillion/zen
 	padding: var(--size-4-2) 0 7px 0;
 	opacity: 0.5;
 	transition: ease opacity 0.250s;
+	z-index: 10;
+	pointer-events: auto;
 }
 .zen-enabled .zen-header{
 	display: flex;
@@ -284,13 +286,43 @@ https://github.com/Maxymillion/zen
  */
 
 .zen-enabled.zen-module--tabs .workspace-split.mod-vertical.mod-root .workspace-tab-header-container {
-	background: transparent;
-	border-color: transparent;
-	box-shadow: none;
+	display: none;
 }
 
-.zen-enabled.zen-module--tabs .workspace-split.mod-vertical.mod-root .workspace-tab-header-container > div {
-	visibility: hidden;
+/* Add a draggable area at the top of the workspace content for window dragging */
+.zen-enabled.zen-module--tabs .workspace-split.mod-vertical.mod-root .workspace-tabs {
+	position: relative;
+	cursor: default;
+}
+
+.zen-enabled.zen-module--tabs .workspace-split.mod-vertical.mod-root .workspace-tabs::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 30px;
+	-webkit-app-region: drag;
+	z-index: 1;
+	cursor: default !important;
+}
+
+/* Ensure the top area shows default cursor, not pointer */
+.zen-enabled.zen-module--tabs .workspace-split.mod-vertical.mod-root .workspace-tabs .workspace-tab-header-container {
+	cursor: default !important;
+}
+
+/* Ensure the zen-header icon is clickable above the draggable area */
+.zen-enabled.zen-module--tabs .zen-header {
+	z-index: 9999 !important;
+	pointer-events: auto !important;
+}
+
+.zen-enabled.zen-module--tabs .zen-header-inner {
+	-webkit-app-region: no-drag !important;
+	pointer-events: auto !important;
+	position: relative;
+	z-index: 10000 !important;
 }
 
 /*
