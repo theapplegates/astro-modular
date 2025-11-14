@@ -170,19 +170,10 @@
       "key": "F"
     }
   ],
-  "zen:toggle": [
+  "zenmode:exit-zen-mode": [],
+  "oxygen-settings:toggle-zen-mode": [
     {
       "modifiers": [
-        "Mod",
-        "Shift"
-      ],
-      "key": "Z"
-    }
-  ],
-  "zen:toggle2": [
-    {
-      "modifiers": [
-        "Alt",
         "Mod",
         "Shift"
       ],
