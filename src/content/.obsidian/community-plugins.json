@@ -1,6 +1,5 @@
 [
   "insert-unsplash-image",
-  "obsidian-paste-image-rename",
   "obsidian42-brat",
   "title-only-tab",
   "paste-image-into-property",
@@ -10,12 +9,14 @@
   "simple-banner",
   "iconic",
   "alias-file-name-history",
-  "property-over-file-name",
-  "astro-composer",
   "seo",
   "astro-modular-settings",
   "obsidian-shellcommands",
-  "oxygen-settings",
   "tag-wrangler",
-  "homepage"
+  "homepage",
+  "settings-search",
+  "oxygen-settings",
+  "obsidian-paste-image-rename",
+  "astro-composer",
+  "property-over-file-name"
 ]

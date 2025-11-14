@@ -802,6 +802,12 @@ body.minimal-theme.borders-on:not(.sidebar-color) .mod-right-split {
   --background-secondary: var(--background-primary) !important;
 }
 
+/* Remove bottom rounded corners for Default mode (theme may apply them for Enhanced) */
+body.minimal-theme.borders-on .workspace .mod-root .workspace-tab-container {
+  border-bottom-left-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
 /* When borders-none is present (None mode), disable all enhanced border styling */
 /* The theme sets CSS variables to 0, but we also need to disable the enhanced border CSS */
 body.minimal-theme.borders-none .workspace .mod-root .workspace-tab-container {
