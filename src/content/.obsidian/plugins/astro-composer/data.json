@@ -5,7 +5,7 @@
   "postsLinkBasePath": "/posts/",
   "automatePostCreation": true,
   "autoInsertProperties": true,
-  "creationMode": "folder",
+  "creationMode": "file",
   "indexFileName": "index",
   "dateFormat": "YYYY-MM-DD",
   "excludedDirectories": "special",
@@ -17,7 +17,7 @@
   "pagesIndexFileName": "",
   "pageTemplate": "---\ntitle: \"{{title}}\"\ndescription: \"\"\nnoIndex: false\nhideTOC: false\n---\n",
   "enableCopyHeadingLink": true,
-  "copyHeadingLinkFormat": "astro",
+  "copyHeadingLinkFormat": "obsidian",
   "addTrailingSlashToLinks": true,
   "customContentTypes": [
     {

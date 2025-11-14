@@ -35,7 +35,7 @@ All plugins, key bindings, and the theme can be customized to your liking, but t
 
 For out-of-the-box customization, [Oxygen](https://github.com/davidvkimball/obsidian-oxygen) theme is used, based on the [Minimal theme system](https://minimal.guide/home). It uses a slick color scheme that's highly customizable. 
 
-The [Oxygen Theme Settings](https://github.com/davidvkimball/obsidian-oxygen-settings), [Hider](https://github.com/kepano/obsidian-hider), and [Style Settings](https://obsidian.md/plugins?id=obsidian-style-settings) community plugins are also installed by default, giving you complete control over your experience. You can even define your own color scheme presets and tweak just about anything.
+The [Oxygen Theme Settings](https://github.com/davidvkimball/obsidian-oxygen-settings) plugin is also installed by default, giving you complete control over your experience. You can even define your own color scheme presets. More on that [below](posts/obsidian-vault-guide.md#Oxygen%20Theme%20Settings).
 
 ## CSS Snippets
 
@@ -44,7 +44,7 @@ The [Oxygen Theme Settings](https://github.com/davidvkimball/obsidian-oxygen-set
 > [!tip]- Tip: Optional CSS Snippets
 > An optional custom CSS snippet called `custom-draggable-top-area.css` makes moving your window is easier when the window frame is hidden and there's no tab bar. There are also versions specific to Windows and Mac that have OS-specific UI offsets, or just use the base version for no offsets. All can be configured in Settings > Appearance > CSS Snippets. None of these are active in mobile.
 > 
-> `hide-properties-heading-and-add-properties-button.css` is included if you'd rather use a CSS snippet instead of the Style Settings plugin, mentioned later in this post.
+> `hide-properties-heading-and-add-properties-button.css` is included if you'd rather use a CSS snippet instead of the included Oxygen Theme Settings plugin or something like the Style Settings plugin, mentioned later in this post.
 > 
 > `hide-tabs-icon-mobile.css` removes the tabs icon in the mobile version of Obsidian. If you enable the Disable Tabs plugin, you may want to enable this snippet as well.
 > 
@@ -90,7 +90,6 @@ Community plugins enabled:
 - Astro Modular Settings
 - Default New Tab Page
 - Git
-- Hider
 - Homepage
 - Image Inserter
 - Oxygen Theme Settings
@@ -98,7 +97,7 @@ Community plugins enabled:
 - Paste image rename
 - Property Over Filename
 - SEO
-- Style Settings
+- Tag Wrangler
 - Title-Only Tab
 
 ### Astro Modular Settings and Commander
@@ -173,7 +172,6 @@ properties:
 views:
   - type: cards
     name: Posts
-    limit: 8
     filters:
       and:
         - file.folder.startsWith("posts")
@@ -184,6 +182,7 @@ views:
     sort:
       - property: date
         direction: DESC
+    limit: 8
     cardSize: 230
     image: note.image
     imageAspectRatio: 0.55
@@ -252,15 +251,17 @@ views:
 
 ```
 
-### Oxygen Theme Settings, Hider, and Style Settings
+### Oxygen Theme Settings
 
-As mentioned earlier, these plugins keep you focused and distraction-free while allowing for customization of your experience. 
+This plugin helps you customize your experience if you use the provided Oxygen Obsidian theme and can help you focus on writing.
+
+You'll notice a wide variety of color scheme options, most of which were included in the [Minimal](https://github.com/kepano/obsidian-minimal) theme upon which Oxygen was based.
 
 Should you desire to hide any of the panels, you can use `CTRL + ALT Z` for the left side panel, `CTRL + ALT + X` for the right side panel, or `CTRL + ALT + S` for the tab bar. Pressing it again will reveal it again. 
 
 Zen mode offers another quick option to focus on your writing. Pressing `CTRL + SHIFT + Z` will enter Zen mode. When activated, all elements removed except for your content. Use the keystroke again to exit. 
 
-In Style Settings, the only options that have been modified are hiding the Properties heading and the "Add Property" button. If you prefer, you disable this plugin and use the `hide-properties-heading-and-add-properties-button.css` CSS snippet.
+If you like, you can install the [Style Settings](https://github.com/mgmeyers/obsidian-style-settings) plugin for even more control. If you're just interested in hiding UI elements and wish to use a theme other than Oxygen, you can install the [Hider](https://github.com/kepano/obsidian-hider) plugin and use the aforementioned Style Settings plugin to hide the Properties heading and the "Add Property" button. For that use case specifically, you can also enable the `hide-properties-heading-and-add-properties-button.css` CSS snippet which you'll find under Settings > Appearance without using any plugins at all.
 
 ### Paste Image Rename and Paste Image Into Property
 
@@ -270,23 +271,27 @@ Quickly drag and drop image files or paste directly from your clipboard and give
 
 Pull in images from Unsplash or other sources easily with just a few keystrokes. Just use `CTRL + '` to insert an image - and immediately set a SEO-friendly filename for it via the Paste Image Rename plugin. Insert into the designated property with `CTRL + SHIFT + '`
 
+### Tag Wrangler
+
+Makes managing tabs more useful. Can easily bulk-rename tags or search your content by tags.
+
 ### Title-Only Tab
 
-Pulls from the `title` property instead of using the filename for any tab. 
+Pulls from the `title` property instead of using the file name for any tab. 
 
 ### Property Over Filename
 
-When linking or searching notes, you can use the `title` property as its primary identifier, which is more helpful visually and semantically for linking between and searching for content, since note filenames are post/page slugs in kebab case instead of titles. 
+When linking or searching notes, you can use the `title` property as its primary identifier, which is more helpful visually and semantically for linking between and searching for content, since note file names are post/page slugs in kebab case instead of titles. 
 
 When you link to another note, its `title` is automatically set as the hyperlinked text, but you can easily change it to something else after it's been inserted.
 
 ### SEO
 
-Get a snappy audit of your content for search engine rankings and AI parsing. You can get a quick snapshot of your whole vault or drill down into specific posts. 
+Get a snappy audit of your content for search engine rankings and AI parsing. You can get a quick snapshot of your whole vault or drill down into specific posts. You can configure the settings to turn off checks you don't care about or tweak the logic in the calculations.
 
-### BRAT (Temporary)
+### BRAT
 
-Only used temporarily to load Alias Filename History, Astro Composer, Disable Tabs, SEO, and Property Over Filename plugins before they're available in the Obsidian plugin directory. Future versions of this vault will remove BRAT in favor of the official releases.
+Used to load Astro Modular Settings, or the currently-pending plugins that haven't been added to the community plugin directory yet: Alias Filename History, Astro Composer, Disable Tabs, Oxygen Theme Settings, Property Over Filename, and SEO plugins as well as the Oxygen theme. Future versions of this vault will remove BRAT versions in favor of the official releases.
 
 ### Git
 

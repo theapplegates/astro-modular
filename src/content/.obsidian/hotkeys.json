@@ -55,15 +55,6 @@
       "key": "X"
     }
   ],
-  "obsidian-hider:toggle-tab-containers": [
-    {
-      "modifiers": [
-        "Alt",
-        "Mod"
-      ],
-      "key": "S"
-    }
-  ],
   "obsidian-git:push": [
     {
       "modifiers": [
@@ -178,6 +169,15 @@
         "Shift"
       ],
       "key": "Z"
+    }
+  ],
+  "oxygen-settings:toggle-tab-containers": [
+    {
+      "modifiers": [
+        "Alt",
+        "Mod"
+      ],
+      "key": "S"
     }
   ]
 }

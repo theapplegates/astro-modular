@@ -8,6 +8,7 @@ import remarkImageGrids from './src/utils/remark-image-grids.ts';
 import remarkMermaid from './src/utils/remark-mermaid.ts';
 import { remarkObsidianEmbeds } from './src/utils/remark-obsidian-embeds.ts';
 import remarkBases from './src/utils/remark-bases.ts';
+import remarkInlineTags from './src/utils/remark-inline-tags.ts';
 import remarkMath from 'remark-math';
 import remarkReadingTime from 'remark-reading-time';
 import remarkToc from 'remark-toc';
@@ -87,6 +88,7 @@ image: {
   markdown: {
       remarkPlugins: [
       remarkInternalLinks,
+      remarkInlineTags,
       remarkFolderImages,
       remarkObsidianEmbeds,
       // Bases directive (table-only v1)

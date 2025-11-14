@@ -1,14 +1,12 @@
 [
   "insert-unsplash-image",
   "obsidian-paste-image-rename",
-  "obsidian-hider",
   "obsidian42-brat",
   "title-only-tab",
   "paste-image-into-property",
   "cmdr",
   "obsidian-git",
   "new-tab-default-page",
-  "homepage",
   "simple-banner",
   "iconic",
   "alias-file-name-history",
@@ -17,6 +15,7 @@
   "seo",
   "astro-modular-settings",
   "obsidian-shellcommands",
-  "obsidian-style-settings",
-  "oxygen-settings"
+  "oxygen-settings",
+  "tag-wrangler",
+  "homepage"
 ]
