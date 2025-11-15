@@ -49,6 +49,8 @@ The [Oxygen Theme Settings](https://github.com/davidvkimball/obsidian-oxygen-set
 > `hide-tabs-icon-mobile.css` removes the tabs icon in the mobile version of Obsidian. If you enable the Disable Tabs plugin, you may want to enable this snippet as well.
 > 
 > Both `hide-longpress-flair-mobile.css` and `hide-header-title-mobile.css` are also related to making the mobile interface more simple. Enable any of these snippets to hide these elements.
+> 
+> There are few more mobile-specific CSS snippets you can check out.
 
 ## Important Hotkeys
 
@@ -312,3 +314,43 @@ When combined with the Homepage and New Default Tab plugins, `CTRL + T` and `CTR
 ### Shell Commands
 
 Off by default also, we used to use this to open the `config.ts` file and open the terminal in the project's root directory, but these functions have been replaced by Astro Modular Settings. You can re-enable it and use it though if it's useful to you.
+
+## Mobile 
+
+### Disabling the Git Plugin
+
+It's recommended to disable the Git plugin on mobile and use something like [Git Sync](https://github.com/ViscousPot/GitSync) for iOS and Android (or [MGit](https://github.com/maks/MGit) just for Android) instead. The Git plugin is notoriously buggy on mobile so it's better to use something else. 
+
+Here's how to disable it: 
+
+1. On your mobile device, open Obsidian, and open your Astro Modular site's `src/content` folder as a vault. 
+2. Open the left sidebar and open Settings. 
+3. Scroll down to community plugins and tap on Git from the list.
+4. Scroll all the way down and select "Disable on this device".
+5. Restart Obsidian. 
+
+This method is recommended rather than merely disabling the plugin, since if you sync with your desktop it will also get disabled there, too. This way it's disabled per-device.
+
+### Limitations
+
+The Astro Modular Settings plugin, the Paste Image Into Property plugin, and the Commander plugin UI buttons are all disabled on mobile. 
+
+### Customization 
+
+To tweak the mobile-specific experience, there are two main places to check: Toolbar and Appearance in settings.
+
+#### Toolbar
+
+Under the Toolbar settings, you can set the mobile quick action which is triggered by pulling down from the top of the screen by tapping the "Configure" option. 
+
+Below that you can adjust what options are available to you on the mobile toolbar.
+
+#### Appearance 
+
+Under the Appearance settings, locate "Interface" and the "Ribbon menu configuration" option's "Manage" button. You can set your preferred quick access item from the list, and customize which items appear on the ribbon menu. 
+
+If you keep scrolling down, you can find some optional mobile-specific CSS snippets, some of which were mentioned earlier.
+
+### You're All Set
+
+Assuming you have git working on your phone in another capacity, you now have seamless content sync between your desktop, laptop, tablet, and mobile devices.

@@ -19,10 +19,13 @@ This comprehensive guide covers everything needed to set up and customize your m
 ## Prerequisites & Setup
 
 You'll need:
-- **Node.js 18+**
-- **pnpm** (recommended) or npm
+- Git
 - Basic markdown familiarity
 - Obsidian (optional)
+
+If you want to build and test locally, you'll need:
+- **Node.js 18+**
+- **pnpm** (recommended) or npm
 
 ### Installation
 
@@ -42,6 +45,11 @@ pnpm build
 ```
 
 ## Configuration
+
+> [!Important] Important
+> If you're using Obsidian, you may be able to skip most of this and just jump in with the Astro Modular Settings Obsidian plugin. It has a wizard that walks you through site setup on startup and lets you tweak and manage practically everything covered here. 
+> 
+> If this applies to you, you can jump right to the [Content Structure](docs/configuration.md#Content%20Structure) section.
 
 ### Core Settings
 
@@ -373,7 +381,7 @@ postOptions: {
    - Select **"General"** as the discussion category
    - Copy the generated **Repository ID** and **Category ID**
 
-1. **Update Your Config**:
+4. **Update Your Config**:
 
 ```typescript
 postOptions: {

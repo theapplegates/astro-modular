@@ -15,19 +15,19 @@
       "id": "astro-modular-settings:open-terminal",
       "icon": "terminal-square",
       "name": "Open terminal",
-      "mode": "any"
+      "mode": "desktop"
     },
     {
       "id": "astro-modular-settings:open-settings",
       "icon": "settings-2",
       "name": "Open Astro Modular Settings",
-      "mode": "any"
+      "mode": "desktop"
     },
     {
       "id": "obsidian-git:push",
       "icon": "lucide-circle-arrow-up",
       "name": "Commit-and-sync",
-      "mode": "any"
+      "mode": "desktop"
     }
   ],
   "hide": {

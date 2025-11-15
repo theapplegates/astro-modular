@@ -33,6 +33,7 @@ var ZenMode = class extends import_obsidian.Plugin {
     super(...arguments);
     this.hasButton = false;
     this._isTogglingZen = false;
+    this.visualViewportResizeHandler = null;
     // refresh function for when we change settings
     this.refresh = () => {
       this.updateStyle();
@@ -98,6 +99,12 @@ var ZenMode = class extends import_obsidian.Plugin {
     if (this.buttonContainer) {
       this.buttonContainer.remove();
     }
+    if (this.visualViewportResizeHandler && window.visualViewport) {
+      window.visualViewport.removeEventListener(
+        "resize",
+        this.visualViewportResizeHandler
+      );
+    }
   }
   async loadSettings() {
     this.settings = Object.assign(DEFAULT_SETTINGS, await this.loadData());
@@ -137,6 +144,34 @@ var ZenMode = class extends import_obsidian.Plugin {
       this.toggleZenMode();
     });
     document.body.appendChild(this.buttonContainer);
+    this.adjustButtonPosition();
+    this.registerDomEvent(window, "resize", () => {
+      this.adjustButtonPosition();
+    });
+    if (window.visualViewport) {
+      this.visualViewportResizeHandler = () => {
+        this.adjustButtonPosition();
+      };
+      window.visualViewport.addEventListener(
+        "resize",
+        this.visualViewportResizeHandler
+      );
+    }
+  }
+  adjustButtonPosition() {
+    var _a;
+    if (!this.buttonContainer || !document.body.classList.contains("is-mobile")) {
+      return;
+    }
+    const viewportHeight = ((_a = window.visualViewport) == null ? void 0 : _a.height) || window.innerHeight;
+    const windowHeight = window.outerHeight;
+    const navigationBarHeight = Math.max(0, windowHeight - viewportHeight);
+    const minBottomOffset = 60;
+    const calculatedOffset = Math.max(
+      minBottomOffset,
+      navigationBarHeight + 10
+    );
+    this.buttonContainer.style.bottom = `${calculatedOffset}px`;
   }
   setButtonVisibility() {
     const shouldShow = this.settings.zenMode && (this.settings.exitButtonVisibility === "always" || this.settings.exitButtonVisibility === "mobile-only" && document.body.classList.contains("is-mobile"));
@@ -146,6 +181,7 @@ var ZenMode = class extends import_obsidian.Plugin {
         this.hasButton = true;
       }
       this.buttonContainer.style.display = "block";
+      this.adjustButtonPosition();
     } else {
       if (this.hasButton) {
         this.buttonContainer.style.display = "none";
