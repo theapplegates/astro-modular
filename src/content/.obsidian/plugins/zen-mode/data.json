@@ -1,0 +1,12 @@
+{
+  "zenMode": false,
+  "leftSidebar": false,
+  "rightSidebar": true,
+  "fullscreen": false,
+  "exitButtonVisibility": "mobile-only",
+  "hideProperties": true,
+  "hideInlineTitle": false,
+  "topPadding": 0,
+  "bottomPadding": 0,
+  "focusedFileMode": true
+}

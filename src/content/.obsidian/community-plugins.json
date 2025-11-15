@@ -6,7 +6,6 @@
   "cmdr",
   "obsidian-git",
   "new-tab-default-page",
-  "simple-banner",
   "iconic",
   "alias-file-name-history",
   "seo",
@@ -15,8 +14,10 @@
   "tag-wrangler",
   "homepage",
   "settings-search",
-  "oxygen-settings",
   "obsidian-paste-image-rename",
   "astro-composer",
-  "property-over-file-name"
+  "property-over-file-name",
+  "oxygen-settings",
+  "simple-banner",
+  "zenmode"
 ]

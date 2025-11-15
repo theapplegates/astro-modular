@@ -22,6 +22,12 @@
       "icon": "settings-2",
       "name": "Open Astro Modular Settings",
       "mode": "any"
+    },
+    {
+      "id": "obsidian-git:push",
+      "icon": "lucide-circle-arrow-up",
+      "name": "Commit-and-sync",
+      "mode": "any"
     }
   ],
   "hide": {
