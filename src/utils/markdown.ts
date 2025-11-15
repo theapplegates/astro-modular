@@ -228,8 +228,14 @@ export function formatDateISO(date: Date): string {
   return date.toISOString();
 }
 
+// Helper to check if we're in development mode (not preview or production)
+// import.meta.env.DEV is true only for 'astro dev', false for 'astro build' and 'astro preview'
+function isDevelopmentMode(): boolean {
+  return import.meta.env.DEV === true;
+}
+
 // Check if a post should be shown in production
-export function shouldShowPost(post: Post, isDev: boolean = false): boolean {
+export function shouldShowPost(post: Post, isDev: boolean | undefined = undefined): boolean {
   const { draft, title, date } = post.data;
 
   // Always require title and date
@@ -237,12 +243,16 @@ export function shouldShowPost(post: Post, isDev: boolean = false): boolean {
     return false;
   }
 
-  // In development, show all posts (even drafts)
-  if (isDev) {
+  // Determine if we're in dev mode (use provided value or check environment)
+  const inDevMode = isDev !== undefined ? isDev : isDevelopmentMode();
+
+  // In development mode only, show all posts (even drafts)
+  // In preview and production builds, hide drafts
+  if (inDevMode) {
     return true;
   }
 
-  // In production, hide drafts (draft: true or undefined draft defaults to false)
+  // In production/preview, hide drafts (draft: true or undefined draft defaults to false)
   if (draft === true) {
     return false;
   }
@@ -253,7 +263,7 @@ export function shouldShowPost(post: Post, isDev: boolean = false): boolean {
 // Generic function to check if any content item should be shown
 export function shouldShowContent(
   item: { data: { title: string; draft?: boolean } },
-  isDev: boolean = false
+  isDev: boolean | undefined = undefined
 ): boolean {
   const { draft, title } = item.data;
 
@@ -262,12 +272,16 @@ export function shouldShowContent(
     return false;
   }
 
-  // In development, show all content (even drafts)
-  if (isDev) {
+  // Determine if we're in dev mode (use provided value or check environment)
+  const inDevMode = isDev !== undefined ? isDev : isDevelopmentMode();
+
+  // In development mode only, show all content (even drafts)
+  // In preview and production builds, hide drafts
+  if (inDevMode) {
     return true;
   }
 
-  // In production, hide drafts
+  // In production/preview, hide drafts
   return !draft;
 }
 

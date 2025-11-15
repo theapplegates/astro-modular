@@ -2,6 +2,7 @@
 import type { GetStaticPaths } from 'astro';
 import { getCollection } from 'astro:content';
 import { siteConfig } from '@/config';
+import { shouldShowContent } from '@/utils/markdown';
 import PageLayout from '@/layouts/PageLayout.astro';
 
 export const getStaticPaths: GetStaticPaths = async () => {
@@ -11,10 +12,17 @@ export const getStaticPaths: GetStaticPaths = async () => {
   // Get all special pages
   const specialPages = await getCollection('special');
 
-  // Filter out special pages that are handled by dedicated routes
-  // Note: 'projects' and 'docs' are NOT filtered out here because they can be fallback pages
-  const specialPageSlugs = ['home', '404'];
-  const visiblePages = pages.filter(page => !specialPageSlugs.includes(page.id));
+  // Filter pages based on environment (in dev, show all including drafts)
+  const isDev = import.meta.env.DEV;
+  const visiblePages = pages.filter(page => {
+    // Filter out special pages that are handled by dedicated routes
+    const specialPageSlugs = ['home', '404'];
+    if (specialPageSlugs.includes(page.id)) {
+      return false;
+    }
+    // Filter drafts in production
+    return shouldShowContent(page, isDev);
+  });
 
   // Generate paths for regular pages
   const pagePaths = visiblePages.map(page => ({
@@ -62,9 +70,9 @@ if (!page) {
   return Astro.redirect('/404');
 }
 
-// Check if page is draft (only in production)
+// Check if page should be visible (handles drafts in production)
 const isDev = import.meta.env.DEV;
-if (!isDev && page.data.draft) {
+if (!shouldShowContent(page, isDev)) {
   return Astro.redirect('/404');
 }
 ---

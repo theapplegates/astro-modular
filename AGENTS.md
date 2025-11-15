@@ -199,7 +199,7 @@ Every feature can be toggled on or off through a single configuration file. Enab
 #### 3. **Content Management Excellence**
 - **Markdown-first** with enhanced processing and reading time estimation
 - **Folder-based posts** - Organize content and assets in dedicated folders
-- **Draft support** - Show drafts in development, hide in production
+- **Draft support** - Show drafts in development, hide in preview and production (works for posts, pages, projects, and docs)
 - **Image optimization** with WebP format priority and responsive layouts
 - **Table of contents** auto-generation from headings
 
@@ -2162,6 +2162,7 @@ description: ""
 hideCoverImage: false
 hideTOC: false
 noIndex: false
+draft: false
 ---
 ```
 

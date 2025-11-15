@@ -492,9 +492,9 @@ Tags sync between Obsidian and your blog, creating:
 - Organized navigation
 
 ### Drafts
-- **Development**: All posts visible
-- **Production**: Only published posts
-- Use `draft: true` in frontmatter to hide
+- **Development**: All content visible (posts, pages, projects, docs)
+- **Preview and production**: Only published content
+- Use `draft: true` in frontmatter to hide any content type
 
 ## Writing Posts
 
@@ -512,7 +512,7 @@ imageOG: false
 hideCoverImage: false
 targetKeyword: ""
 hideTOC: false
-draft: true
+draft: false
 ---
 
 ## Start with H2 Headings
@@ -539,6 +539,7 @@ title: "{{title}}"
 description: ""
 hideTOC: false
 noIndex: false
+draft: false
 ---
 
 ## Start with H2 Headings

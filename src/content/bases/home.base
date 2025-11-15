@@ -32,6 +32,8 @@ properties:
     displayName: Date
   formula.Slug:
     displayName: Path
+  note.draft:
+    displayName: Draft
 views:
   - type: cards
     name: Posts
@@ -42,6 +44,7 @@ views:
       - title
       - formula.Slug
       - date
+      - draft
     sort:
       - property: date
         direction: DESC
@@ -56,6 +59,7 @@ views:
     order:
       - title
       - formula.Slug
+      - draft
     sort:
       - property: title
         direction: ASC
@@ -78,6 +82,7 @@ views:
     order:
       - title
       - formula.Slug
+      - draft
     sort:
       - property: date
         direction: DESC
@@ -92,6 +97,7 @@ views:
     order:
       - title
       - formula.Slug
+      - draft
     sort:
       - property: lastModified
         direction: DESC
@@ -105,6 +111,7 @@ views:
     order:
       - title
       - formula.Slug
+      - draft
     sort:
       - property: file.folder
         direction: ASC

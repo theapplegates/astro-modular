@@ -49,10 +49,10 @@ export async function GET() {
   // Get all posts
   const posts = await getCollection("posts");
 
-  // Filter and sort posts based on environment
+  // Filter and sort posts based on environment (in dev, show all including drafts)
   const isDev = import.meta.env.DEV;
   const visiblePosts = posts.filter(
-    (post) => (post as any).data?.draft !== true
+    (post) => shouldShowPost(post, isDev)
   );
   const sortedPosts = sortPostsByDate(visiblePosts);
 

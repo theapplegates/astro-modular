@@ -29,16 +29,16 @@ export const GET: APIRoute = async () => {
   const projects = await getCollection("projects");
   const docs = await getCollection("docs");
 
-  // Filter posts based on environment
+  // Filter posts based on environment (in dev, show all including drafts)
   const isDev = import.meta.env.DEV;
   const visiblePosts = posts.filter(
-    (post) => (post as any).data?.draft !== true && !post.data.noIndex
+    (post) => shouldShowPost(post, isDev) && !post.data.noIndex
   );
 
   // Filter pages (exclude drafts, special pages, and noIndex)
   const visiblePages = pages.filter(
     (page) =>
-      !page.data.draft &&
+      shouldShowContent(page, isDev) &&
       !page.data.noIndex &&
       !shouldExcludeFromSitemap(getSlugFromId(page.id))
   );
