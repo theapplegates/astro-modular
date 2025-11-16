@@ -101,6 +101,7 @@ Community plugins enabled:
 - SEO
 - Tag Wrangler
 - Title-Only Tab
+- Zen Mode
 
 ### Astro Modular Settings and Commander
 
@@ -268,8 +269,6 @@ If you like, you can install the [Style Settings](https://github.com/mgmeyers/ob
 #### Using a Theme Other Than Oxygen
 
 If you're just interested in hiding UI elements and wish to use a theme other than Oxygen, you can install the [Hider](https://github.com/kepano/obsidian-hider) plugin and use the aforementioned Style Settings plugin to hide the Properties heading and the "Add Property" button. For that use case specifically, you can also enable the `hide-properties-heading-and-add-properties-button.css` CSS snippet which you'll find under Settings > Appearance without using any plugins at all. 
-
-For a standalone focus mode solution, I recommend the [Zen Mode](https://github.com/paperbenni/obsidian-zenmode) community plugin, or my fork of it.
 
 ### Paste Image Rename and Paste Image Into Property
 
