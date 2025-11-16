@@ -71,7 +71,7 @@ A flexible blog theme designed for Obsidian users.
 - pnpm 7.1.0 or npm 9.6.5
 
 > [!NOTE]
-> While this theme works great with any markdown editor, it's specifically optimized for Obsidian use. See the [Astro Suite Vault Guide](src/content/posts/astro-suite-vault-modular-guide.md) for Obsidian-specific features.
+> While this theme works great with any markdown editor, it's specifically optimized for Obsidian use. See the [Astro Suite Vault Guide](src/content/posts/obsidian-vault-guide.md) for Obsidian-specific features.
 
 ### Setup
 
