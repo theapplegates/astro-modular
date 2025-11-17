@@ -146,3 +146,33 @@ views:
     newNoteLocation: pages
     cardSize: 250
     imageAspectRatio: 0.55
+    maxTagsToShow: 3
+  - type: bases-cms
+    name: All Content-CMS (Test)
+    groupBy:
+      property: formula.Content Folder
+      direction: ASC
+    sort:
+      - property: date
+        direction: DESC
+    imageProperty: note.image
+    fallbackToEmbeds: true
+    propertyDisplay1: formula.Slug
+    showTextPreview: true
+    imageFormat: cover
+    showDate: true
+    showDraftStatus: true
+    propertyLabels: above
+    titleProperty: note.title
+    dateProperty: note.date
+    draftStatusProperty: note.draft
+    descriptionProperty: note.description
+    propertyLayout12SideBySide: false
+    propertyLayout34SideBySide: false
+    showTags: true
+    tagsProperty: note.tags
+    customizeNewButton: true
+    newNoteLocation: pages
+    cardSize: 250
+    imageAspectRatio: 0.55
+    maxTagsToShow: 3
