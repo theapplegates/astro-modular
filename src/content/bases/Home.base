@@ -118,3 +118,28 @@ views:
     cardSize: 230
     image: note.image
     imageAspectRatio: 0.55
+  - type: bases-cms
+    name: Posts-CMS (Test)
+    filters:
+      and:
+        - file.folder.startsWith("posts")
+    imageProperty: note.image
+    fallbackToEmbeds: true
+    propertyDisplay1: formula.Slug
+    showTextPreview: true
+    imageFormat: cover
+    showDate: true
+    showDraftStatus: true
+    propertyLabels: above
+    titleProperty: note.title
+    dateProperty: note.date
+    draftStatusProperty: note.draft
+    descriptionProperty: note.description
+    propertyLayout12SideBySide: false
+    propertyLayout34SideBySide: false
+    showTags: true
+    tagsProperty: note.tags
+    customizeNewButton: true
+    newNoteLocation: pages
+    cardSize: 250
+    imageAspectRatio: 0.55

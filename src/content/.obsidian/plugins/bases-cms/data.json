@@ -1,0 +1,9 @@
+{
+  "cardLayout": "top-cover",
+  "confirmBulkOperations": true,
+  "deleteParentFolder": true,
+  "deleteParentFolderFilename": "index",
+  "deleteUniqueAttachments": false,
+  "confirmDeletions": true,
+  "useHomeIcon": true
+}
