@@ -123,6 +123,9 @@ views:
     filters:
       and:
         - file.folder.startsWith("posts")
+    sort:
+      - property: date
+        direction: DESC
     imageProperty: note.image
     fallbackToEmbeds: true
     propertyDisplay1: formula.Slug
