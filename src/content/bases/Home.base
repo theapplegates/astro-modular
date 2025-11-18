@@ -143,10 +143,10 @@ views:
     showTags: true
     tagsProperty: note.tags
     customizeNewButton: true
-    newNoteLocation: pages
+    newNoteLocation: posts
     cardSize: 250
     imageAspectRatio: 0.55
-    maxTagsToShow: 3
+    maxTagsToShow: 2
   - type: bases-cms
     name: All Content-CMS (Test)
     groupBy:
