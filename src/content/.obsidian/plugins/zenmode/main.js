@@ -34,6 +34,8 @@ var ZenMode = class extends import_obsidian.Plugin {
     this.hasButton = false;
     this._isTogglingZen = false;
     this.visualViewportResizeHandler = null;
+    this._hasShownInitialHighlight = false;
+    this._highlightTimeouts = [];
     // refresh function for when we change settings
     this.refresh = () => {
       this.updateStyle();
@@ -93,9 +95,19 @@ var ZenMode = class extends import_obsidian.Plugin {
         this.updateFocusedFileMode();
       })
     );
+    this.registerDomEvent(document, "keydown", (evt) => {
+      if (evt.key === "Escape" && this.settings.zenMode) {
+        const activeModal = document.querySelector(".modal");
+        if (!activeModal) {
+          this.toggleZenMode();
+          evt.preventDefault();
+        }
+      }
+    });
     this.refresh();
   }
   onunload() {
+    this._highlightTimeouts.forEach((id) => clearTimeout(id));
     if (this.buttonContainer) {
       this.buttonContainer.remove();
     }
@@ -174,13 +186,49 @@ var ZenMode = class extends import_obsidian.Plugin {
     this.buttonContainer.style.bottom = `${calculatedOffset}px`;
   }
   setButtonVisibility() {
-    const shouldShow = this.settings.zenMode && (this.settings.exitButtonVisibility === "always" || this.settings.exitButtonVisibility === "mobile-only" && document.body.classList.contains("is-mobile"));
+    const isMobile = document.body.classList.contains("is-mobile");
+    const shouldShow = this.settings.zenMode && (this.settings.exitButtonVisibility === "always" || this.settings.exitButtonVisibility === "mobile-only" && isMobile);
     if (shouldShow) {
       if (!this.hasButton) {
         this.createButton();
         this.hasButton = true;
       }
       this.buttonContainer.style.display = "block";
+      if (this.settings.autoHideButtonOnDesktop && !isMobile && this.settings.exitButtonVisibility === "always") {
+        this.buttonContainer.classList.add("zenmode-button-auto-hide");
+        if (!this._hasShownInitialHighlight) {
+          this.buttonContainer.classList.add(
+            "zenmode-button-initial-highlight"
+          );
+          this._hasShownInitialHighlight = true;
+          const timeout1 = window.setTimeout(() => {
+            if (this.buttonContainer) {
+              this.buttonContainer.classList.remove(
+                "zenmode-button-initial-highlight"
+              );
+              const timeout2 = window.setTimeout(() => {
+                if (this.buttonContainer) {
+                  this.buttonContainer.classList.add(
+                    "zenmode-button-fade-out"
+                  );
+                }
+              }, 300);
+              this._highlightTimeouts.push(timeout2);
+            }
+          }, 1500);
+          this._highlightTimeouts.push(timeout1);
+        }
+      } else {
+        this.buttonContainer.classList.remove(
+          "zenmode-button-auto-hide"
+        );
+        this.buttonContainer.classList.remove(
+          "zenmode-button-initial-highlight"
+        );
+        this.buttonContainer.classList.remove(
+          "zenmode-button-fade-out"
+        );
+      }
       this.adjustButtonPosition();
     } else {
       if (this.hasButton) {
@@ -224,6 +272,9 @@ var ZenMode = class extends import_obsidian.Plugin {
     this._isTogglingZen = true;
     try {
       const enteringZenMode = !this.settings.zenMode;
+      if (!enteringZenMode) {
+        this._hasShownInitialHighlight = false;
+      }
       if (enteringZenMode) {
         if (this.settings.fullscreen && document.documentElement.requestFullscreen) {
           try {
@@ -263,7 +314,8 @@ var DEFAULT_SETTINGS = {
   leftSidebar: false,
   rightSidebar: false,
   fullscreen: false,
-  exitButtonVisibility: "mobile-only",
+  exitButtonVisibility: "always",
+  autoHideButtonOnDesktop: false,
   hideProperties: false,
   hideInlineTitle: false,
   topPadding: 0,
@@ -278,29 +330,31 @@ var ZenModeSettingTab = class extends import_obsidian.PluginSettingTab {
   display() {
     const { containerEl } = this;
     containerEl.empty();
-    new import_obsidian.Setting(containerEl).setName("Preview Zen mode").setDesc("Preview Zen mode (use a hotkey to toggle)").addToggle(
-      (toggle) => toggle.setValue(this.plugin.settings.zenMode).onChange((value) => {
-        this.plugin.settings.zenMode = value;
-        this.plugin.saveSettings();
-        this.plugin.refresh();
-      })
-    );
-    new import_obsidian.Setting(containerEl).setName("Full screen").setDesc("Automatically enter fullscreen when enabling Zen mode").addToggle(
+    new import_obsidian.Setting(containerEl).setName("Full screen").setDesc("Automatically enter fullscreen when enabling Zen mode.").addToggle(
       (toggle) => toggle.setValue(this.plugin.settings.fullscreen).onChange((value) => {
         this.plugin.settings.fullscreen = value;
         this.plugin.saveSettings();
       })
     );
-    new import_obsidian.Setting(containerEl).setName("Show Zen mode exit button").setDesc("When to show the exit button in Zen mode").addDropdown(
-      (dropdown) => dropdown.addOption("mobile-only", "Mobile Only").addOption("always", "Always Show").addOption("never", "Never Show").setValue(this.plugin.settings.exitButtonVisibility).onChange((value) => {
+    new import_obsidian.Setting(containerEl).setName("Show Zen mode exit button").setDesc(
+      "When to show the exit button in Zen mode. You can also exit via the command palette, by pressing ESC, or by assigning a hotkey to the 'Toggle Zen mode' command."
+    ).addDropdown(
+      (dropdown) => dropdown.addOption("always", "Always show").addOption("mobile-only", "Mobile only").addOption("never", "Never show").setValue(this.plugin.settings.exitButtonVisibility).onChange((value) => {
         this.plugin.settings.exitButtonVisibility = value;
         this.plugin.saveSettings();
         this.plugin.refresh();
       })
     );
-    new import_obsidian.Setting(containerEl).setName("Hide properties in Zen mode").setDesc(
-      "Hide properties (YAML frontmatter) when Zen mode is active"
+    new import_obsidian.Setting(containerEl).setName("Auto-hide Zen mode exit button on desktop").setDesc(
+      "When enabled, the exit button is hidden on desktop but reveals itself on hover as long as the Zen mode exit button is on."
     ).addToggle(
+      (toggle) => toggle.setValue(this.plugin.settings.autoHideButtonOnDesktop).onChange((value) => {
+        this.plugin.settings.autoHideButtonOnDesktop = value;
+        this.plugin.saveSettings();
+        this.plugin.refresh();
+      })
+    );
+    new import_obsidian.Setting(containerEl).setName("Hide properties in Zen mode").setDesc("Hide properties when Zen mode is active.").addToggle(
       (toggle) => toggle.setValue(this.plugin.settings.hideProperties).onChange((value) => {
         this.plugin.settings.hideProperties = value;
         this.plugin.saveSettings();
@@ -308,7 +362,7 @@ var ZenModeSettingTab = class extends import_obsidian.PluginSettingTab {
       })
     );
     new import_obsidian.Setting(containerEl).setName("Hide inline title in Zen mode").setDesc(
-      "Hide the inline title (note title) when Zen mode is active"
+      "Hide the inline title (note title) when Zen mode is active."
     ).addToggle(
       (toggle) => toggle.setValue(this.plugin.settings.hideInlineTitle).onChange((value) => {
         this.plugin.settings.hideInlineTitle = value;
@@ -316,14 +370,14 @@ var ZenModeSettingTab = class extends import_obsidian.PluginSettingTab {
         this.plugin.refresh();
       })
     );
-    new import_obsidian.Setting(containerEl).setName("Top padding").setDesc("Top padding in pixels (0-100)").addSlider(
+    new import_obsidian.Setting(containerEl).setName("Top padding").setDesc("Top padding in pixels (0-100).").addSlider(
       (slider) => slider.setLimits(0, 100, 1).setValue(this.plugin.settings.topPadding).setDynamicTooltip().onChange((value) => {
         this.plugin.settings.topPadding = value;
         this.plugin.saveSettings();
         this.plugin.refresh();
       })
     );
-    new import_obsidian.Setting(containerEl).setName("Bottom padding").setDesc("Bottom padding in pixels (0-100)").addSlider(
+    new import_obsidian.Setting(containerEl).setName("Bottom padding").setDesc("Bottom padding in pixels (0-100).").addSlider(
       (slider) => slider.setLimits(0, 100, 1).setValue(this.plugin.settings.bottomPadding).setDynamicTooltip().onChange((value) => {
         this.plugin.settings.bottomPadding = value;
         this.plugin.saveSettings();
@@ -331,7 +385,7 @@ var ZenModeSettingTab = class extends import_obsidian.PluginSettingTab {
       })
     );
     new import_obsidian.Setting(containerEl).setName("Focused file mode").setDesc(
-      "Only show the active file in Zen mode, hide all other panes"
+      "Only show the active file in Zen mode, hide all other panes."
     ).addToggle(
       (toggle) => toggle.setValue(this.plugin.settings.focusedFileMode).onChange((value) => {
         this.plugin.settings.focusedFileMode = value;

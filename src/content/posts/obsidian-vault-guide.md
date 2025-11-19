@@ -68,7 +68,7 @@ Here's a guide for some important hotkeys set especially for this theme:
 - Insert image: `CTRL + '`
 - Insert image into property: `CTRL + SHIFT + '`
 - Insert callout: `CTRL + SHIFT + C`
-- Rename current note: `CTRL + R` 
+- Rename current content: `CTRL + R` 
 - Open SEO audit: `CTRL + SHIFT + A`
 - Open Terminal: `CTRL + SHIFT + D`
 - Open Astro Modular Settings: `CTRL + SHIFT + ,`
@@ -90,6 +90,7 @@ Community plugins enabled:
 - Alias Filename History
 - Astro Composer
 - Astro Modular Settings
+- Bases CRM
 - Default New Tab Page
 - Git
 - Homepage
@@ -131,9 +132,9 @@ You can also easily grab links to headings by right clicking one and selecting "
 
 You can adjust lots of settings including regex for ignoring names (like `Untitled` or a `_` prefix), timeout in seconds to store the name, or looking for changes in the parent folder name as well if you use the folder-based post option.
 
-### Homepage and Default New Tab Page
+### Homepage, Default New Tab Page, and Bases CRM
 
-Both of these work together so you're default screen is a `.base` file that's a directory of all of your blog posts, listed in reverse-chronological order. You're able to customize the note properties and views to your liking. 
+All three of these plugins work together so you're default screen is a `.base` file that's a directory of all of your blog posts, listed in reverse-chronological order. You're able to configure the CMS view and even add new views to your liking. 
 
 I call this "Home Base."
 
@@ -254,6 +255,7 @@ views:
 
 ```
 
+Bases CRM lets us treat a grid of content like a content management system. You can select multiple items and do bulk edits, rename content right from that view, or toggle the draft status of an item.
 ### Oxygen Theme Settings and Zen Mode
 
 This plugin helps you customize your experience if you use the provided Oxygen Obsidian theme and can help you focus on writing.

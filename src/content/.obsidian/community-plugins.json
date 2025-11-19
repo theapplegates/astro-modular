@@ -1,5 +1,4 @@
 [
-  "zenmode",
   "title-only-tab",
   "tag-wrangler",
   "settings-search",
@@ -9,7 +8,6 @@
   "obsidian-paste-image-rename",
   "insert-unsplash-image",
   "homepage",
-  "obsidian-git",
   "new-tab-default-page",
   "cmdr",
   "astro-composer",
@@ -17,6 +15,9 @@
   "iconic",
   "paste-image-into-property",
   "bases-cms",
+  "astro-modular-settings",
+  "zenmode",
   "oxygen-settings",
-  "astro-modular-settings"
+  "obsidian42-brat",
+  "obsidian-git"
 ]

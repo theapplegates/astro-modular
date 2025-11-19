@@ -35,91 +35,8 @@ properties:
   note.draft:
     displayName: Draft
 views:
-  - type: cards
-    name: Posts
-    filters:
-      and:
-        - file.folder.startsWith("posts")
-    order:
-      - title
-      - formula.Slug
-      - date
-      - draft
-    sort:
-      - property: date
-        direction: DESC
-    cardSize: 230
-    image: note.image
-    imageAspectRatio: 0.55
-  - type: cards
-    name: Standard Pages
-    filters:
-      and:
-        - file.folder.startsWith("pages")
-    order:
-      - title
-      - formula.Slug
-      - draft
-    sort:
-      - property: title
-        direction: ASC
-  - type: cards
-    name: Special Pages
-    filters:
-      and:
-        - file.folder.startsWith("special")
-    order:
-      - title
-      - formula.Slug
-    sort:
-      - property: title
-        direction: ASC
-  - type: cards
-    name: Projects
-    filters:
-      and:
-        - file.folder.startsWith("projects")
-    order:
-      - title
-      - formula.Slug
-      - draft
-    sort:
-      - property: date
-        direction: DESC
-    image: note.image
-    cardSize: 200
-    imageAspectRatio: 0.6
-  - type: cards
-    name: Documentation
-    filters:
-      and:
-        - file.folder.startsWith("docs")
-    order:
-      - title
-      - formula.Slug
-      - draft
-    sort:
-      - property: lastModified
-        direction: DESC
-    image: note.image
-    imageAspectRatio: 0.8
-  - type: cards
-    name: All Content
-    groupBy:
-      property: formula.Content Folder
-      direction: ASC
-    order:
-      - title
-      - formula.Slug
-      - draft
-    sort:
-      - property: file.folder
-        direction: ASC
-    cardSize: 230
-    image: note.image
-    imageAspectRatio: 0.55
   - type: bases-cms
-    name: Posts-CMS (Test)
+    name: Posts
     filters:
       and:
         - file.folder.startsWith("posts")
@@ -148,13 +65,13 @@ views:
     imageAspectRatio: 0.55
     maxTagsToShow: 2
   - type: bases-cms
-    name: All Content-CMS (Test)
-    groupBy:
-      property: formula.Content Folder
-      direction: ASC
+    name: Pages
+    filters:
+      and:
+        - file.folder.startsWith("pages")
     sort:
-      - property: date
-        direction: DESC
+      - property: title
+        direction: ASC
     imageProperty: note.image
     fallbackToEmbeds: true
     propertyDisplay1: formula.Slug
@@ -175,4 +92,125 @@ views:
     newNoteLocation: pages
     cardSize: 250
     imageAspectRatio: 0.55
-    maxTagsToShow: 3
+    maxTagsToShow: 2
+  - type: bases-cms
+    name: Projects
+    filters:
+      and:
+        - file.folder.startsWith("projects")
+    sort:
+      - property: title
+        direction: ASC
+    imageProperty: note.image
+    fallbackToEmbeds: true
+    propertyDisplay1: formula.Slug
+    showTextPreview: true
+    imageFormat: cover
+    showDate: true
+    showDraftStatus: true
+    propertyLabels: above
+    titleProperty: note.title
+    dateProperty: note.date
+    draftStatusProperty: note.draft
+    descriptionProperty: note.description
+    propertyLayout12SideBySide: false
+    propertyLayout34SideBySide: false
+    showTags: true
+    tagsProperty: note.tags
+    customizeNewButton: true
+    newNoteLocation: projects
+    cardSize: 250
+    imageAspectRatio: 0.55
+    maxTagsToShow: 2
+  - type: bases-cms
+    name: Documentation
+    filters:
+      and:
+        - file.folder.startsWith("docs")
+    groupBy:
+      property: category
+      direction: ASC
+    sort:
+      - property: title
+        direction: ASC
+    imageProperty: note.image
+    fallbackToEmbeds: true
+    propertyDisplay1: formula.Slug
+    showTextPreview: true
+    imageFormat: cover
+    showDate: true
+    showDraftStatus: true
+    propertyLabels: above
+    titleProperty: note.title
+    dateProperty: note.lastModified
+    draftStatusProperty: note.draft
+    descriptionProperty: note.description
+    propertyLayout12SideBySide: false
+    propertyLayout34SideBySide: false
+    showTags: false
+    tagsProperty: note.tags
+    customizeNewButton: true
+    newNoteLocation: docs
+    cardSize: 250
+    imageAspectRatio: 0.55
+    maxTagsToShow: 2
+    propertyDisplay2: note.version
+  - type: bases-cms
+    name: Special Pages
+    filters:
+      and:
+        - file.folder.startsWith("special")
+    sort:
+      - property: title
+        direction: ASC
+    imageProperty: note.image
+    fallbackToEmbeds: true
+    propertyDisplay1: formula.Slug
+    showTextPreview: false
+    imageFormat: none
+    showDate: false
+    showDraftStatus: false
+    propertyLabels: above
+    titleProperty: note.title
+    dateProperty: note.date
+    descriptionProperty: note.description
+    propertyLayout12SideBySide: false
+    propertyLayout34SideBySide: false
+    showTags: false
+    tagsProperty: note.tags
+    customizeNewButton: true
+    newNoteLocation: pages
+    cardSize: 250
+    imageAspectRatio: 0.55
+    maxTagsToShow: 2
+    hideQuickEditIcon: true
+  - type: bases-cms
+    name: All Content
+    groupBy:
+      property: formula.Content Folder
+      direction: ASC
+    sort:
+      - property: title
+        direction: ASC
+    imageProperty: note.image
+    fallbackToEmbeds: true
+    propertyDisplay1: formula.Slug
+    showTextPreview: true
+    imageFormat: thumbnail
+    showDate: true
+    showDraftStatus: true
+    propertyLabels: above
+    titleProperty: note.title
+    dateProperty: note.lastModified
+    draftStatusProperty: note.draft
+    descriptionProperty: note.description
+    propertyLayout12SideBySide: false
+    propertyLayout34SideBySide: false
+    showTags: false
+    tagsProperty: note.tags
+    customizeNewButton: true
+    newNoteLocation: docs
+    cardSize: 250
+    imageAspectRatio: 0.55
+    maxTagsToShow: 2
+    hideQuickEditIcon: true

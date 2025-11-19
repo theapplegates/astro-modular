@@ -197,13 +197,13 @@ views:
 You can also embed a `.base` as a markdown embed:
 
 ```markdown
-![](bases/home.base)
+![](bases/Home.base)
 ```
 
 Or as a wikilinks embed:
 
 ```markdown
-![[home.base]]
+![[Home.base]]
 ```
 ## Math
 
