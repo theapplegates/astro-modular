@@ -21,6 +21,7 @@ import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import { siteConfig } from './src/config.ts';
 import swup from '@swup/astro';
+import { fileURLToPath } from 'url';
 
 // Deployment platform configuration
 const DEPLOYMENT_PLATFORM = process.env.DEPLOYMENT_PLATFORM || 'netlify';
@@ -132,12 +133,12 @@ image: {
   vite: {
     resolve: {
       alias: {
-        '@': new URL('./src', import.meta.url).pathname,
-        '@/components': new URL('./src/components', import.meta.url).pathname,
-        '@/layouts': new URL('./src/layouts', import.meta.url).pathname,
-        '@/utils': new URL('./src/utils', import.meta.url).pathname,
-        '@/types': new URL('./src/types.ts', import.meta.url).pathname,
-        '@/config': new URL('./src/config.ts', import.meta.url).pathname
+        '@': fileURLToPath(new URL('./src', import.meta.url)),
+        '@/components': fileURLToPath(new URL('./src/components', import.meta.url)),
+        '@/layouts': fileURLToPath(new URL('./src/layouts', import.meta.url)),
+        '@/utils': fileURLToPath(new URL('./src/utils', import.meta.url)),
+        '@/types': fileURLToPath(new URL('./src/types.ts', import.meta.url)),
+        '@/config': fileURLToPath(new URL('./src/config.ts', import.meta.url))
       }
     },
     server: {
