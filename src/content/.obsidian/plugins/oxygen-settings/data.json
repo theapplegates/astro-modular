@@ -104,6 +104,7 @@
   "autoHideRightTabHeaders": false,
   "collapseOtherNavHeaders": false,
   "autoCollapseRibbon": false,
+  "autoHideTabBarWhenSingleTab": false,
   "hideButtonNewNote": false,
   "hideButtonNewFolder": false,
   "hideButtonSortOrder": false,
