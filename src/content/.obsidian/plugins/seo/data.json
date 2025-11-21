@@ -27,6 +27,7 @@
   "skipH1Check": true,
   "publishMode": true,
   "defaultSort": "issues-desc",
+  "showRibbonIcon": true,
   "minContentLength": 300,
   "keywordDensityMin": 1,
   "keywordDensityMax": 2,

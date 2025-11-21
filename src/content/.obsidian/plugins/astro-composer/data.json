@@ -19,6 +19,12 @@
   "enableCopyHeadingLink": true,
   "copyHeadingLinkFormat": "obsidian",
   "addTrailingSlashToLinks": true,
+  "enableOpenTerminalCommand": true,
+  "terminalProjectRootPath": "../..",
+  "enableTerminalRibbonIcon": true,
+  "enableOpenConfigFileCommand": false,
+  "configFilePath": "../config.ts",
+  "enableConfigRibbonIcon": false,
   "customContentTypes": [
     {
       "id": "custom-1758090445018",

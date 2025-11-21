@@ -39,5 +39,6 @@
   "newFileLocation": "folder",
   "newFileFolderPath": "posts",
   "newLinkFormat": "relative",
-  "mobileQuickRibbonItem": ""
+  "mobileQuickRibbonItem": "",
+  "vimMode": false
 }

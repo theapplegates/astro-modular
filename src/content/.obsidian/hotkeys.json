@@ -134,15 +134,6 @@
       "key": ","
     }
   ],
-  "astro-modular-settings:open-terminal": [
-    {
-      "modifiers": [
-        "Mod",
-        "Shift"
-      ],
-      "key": "D"
-    }
-  ],
   "seo:open-global": [
     {
       "modifiers": [
@@ -214,6 +205,15 @@
         "Shift"
       ],
       "key": "M"
+    }
+  ],
+  "astro-composer:open-project-terminal": [
+    {
+      "modifiers": [
+        "Mod",
+        "Shift"
+      ],
+      "key": "D"
     }
   ]
 }

@@ -7,23 +7,17 @@
   "leftRibbon": [],
   "rightRibbon": [],
   "titleBar": [],
-  "statusBar": [],
-  "pageHeader": [],
-  "macros": [],
-  "explorer": [
-    {
-      "id": "astro-modular-settings:open-terminal",
-      "icon": "terminal-square",
-      "name": "Open terminal",
-      "mode": "desktop"
-    },
+  "statusBar": [
     {
       "id": "obsidian-git:push",
-      "icon": "lucide-circle-arrow-up",
-      "name": "Commit-and-sync",
-      "mode": "desktop"
+      "icon": "lucide-arrow-up-circle",
+      "name": "Git: Commit-and-sync",
+      "mode": "any"
     }
   ],
+  "pageHeader": [],
+  "macros": [],
+  "explorer": [],
   "hide": {
     "statusbar": [],
     "leftRibbon": []

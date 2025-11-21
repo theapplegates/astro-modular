@@ -102,6 +102,7 @@ Community plugins enabled:
 - SEO
 - Simple Banner
 - Simple Focus
+- Status Bar Organizer
 - Tag Wrangler
 - Title-Only Tab
 - Zen Mode
@@ -188,79 +189,18 @@ views:
     sort:
       - property: date
         direction: DESC
-    limit: 8
+    limit: 2
     cardSize: 230
     image: note.image
     imageAspectRatio: 0.55
     columnSize:
       note.title: 235
-  - type: cards
-    name: Standard Pages
-    filters:
-      and:
-        - file.folder.startsWith("pages")
-    order:
-      - title
-      - formula.Slug
-    sort:
-      - property: title
-        direction: ASC
-  - type: cards
-    name: Special Pages
-    filters:
-      and:
-        - file.folder.startsWith("special")
-    order:
-      - title
-      - formula.Slug
-    sort:
-      - property: title
-        direction: ASC
-  - type: cards
-    name: Projects
-    filters:
-      and:
-        - file.folder.startsWith("projects")
-    order:
-      - title
-      - formula.Slug
-    sort:
-      - property: date
-        direction: DESC
-    image: note.image
-    cardSize: 200
-    imageAspectRatio: 0.6
-  - type: cards
-    name: Documentation
-    filters:
-      and:
-        - file.folder.startsWith("docs")
-    order:
-      - title
-      - formula.Slug
-    sort:
-      - property: lastModified
-        direction: DESC
-    image: note.image
-    imageAspectRatio: 0.8
-  - type: cards
-    name: All Content
-    order:
-      - title
-      - formula.Slug
-    sort:
-      - property: file.folder
-        direction: ASC
-    cardSize: 230
-    image: note.image
-    imageAspectRatio: 0.55
-
 ```
 
 Bases CRM lets us treat a grid of content like a content management system. You can select multiple items and do bulk edits, rename content right from that view, or toggle the draft status of an item.
-### Oxygen Theme Settings, Simple Focus, and Zen Mode
+### Oxygen Theme Settings, Simple Focus, Zen Mode, and Status Bar Organizer
 
-This plugin helps you customize your experience if you use the provided Oxygen Obsidian theme and can help you focus on writing.
+The Oxygen Theme Settings plugin helps you customize your experience if you use the provided Oxygen Obsidian theme and can help you focus on writing.
 
 You'll notice a wide variety of color scheme options, most of which were included in the [Minimal](https://github.com/kepano/obsidian-minimal) theme upon which Oxygen was based.
 
@@ -270,7 +210,9 @@ With the Simple Focus plugin, you can can simplify your file explorer view to ju
 
 Zen Mode offers another quick option to focus on your writing. Pressing `CTRL + SHIFT + Z` will enter Zen mode. When activated, all elements removed except for your content. Use the keystroke again to exit. 
 
-If you like, you can install the [Style Settings](https://github.com/mgmeyers/obsidian-style-settings) plugin for even more control.
+Status Bar Organizer helps you hide or re-arrange items on your status bar.
+
+If you like, you can install the [Style Settings](https://github.com/mgmeyers/obsidian-style-settings) plugin for even more control over your experience.
 
 #### Using a Theme Other Than Oxygen
 
@@ -312,17 +254,15 @@ Used to load Astro Modular Settings, or the currently-pending plugins that haven
 
 ### Git
 
-With the [Git](https://obsidian.md/plugins?id=obsidian-git) plugin, you can easily publish to your Astro blog without leaving Obsidian using `CTRL + SHIFT + S`. Simply enable the plugin and configure with git to turn it on.
+With the [Git](https://obsidian.md/plugins?id=obsidian-git) plugin, you can easily publish to your Astro blog without leaving Obsidian. Simply configure with git to enable it. By default, you'll see your current git status and count of files changed (if any) in the status bar on the bottom right.
+
+To publish, you can use `CTRL + SHIFT + S` or click the "commit-and-sync" button on the status bar (added with the Commander plugin). Your changes will be committed and pushed to your remote repository automatically.
 
 ### Disable Tabs
 
 This is off by default, but if enabled, opening any new tab replaces the current one only. Especially nice for when you're hiding the tab bar and don't want multiple tabs. If you enable this plugin, you'd probably want to use some of those optional CSS snippets mentioned above to make window management easier.
 
 When combined with the Homepage and New Default Tab plugins, `CTRL + T` and `CTRL + M` essentially do the same thing.
-
-### Shell Commands
-
-Off by default also, we used to use this to open the `config.ts` file and open the terminal in the project's root directory, but these functions have been replaced by Astro Modular Settings. You can re-enable it and use it though if it's useful to you.
 
 ## Mobile 
 

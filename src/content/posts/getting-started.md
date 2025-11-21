@@ -8,7 +8,7 @@ tags:
   - quick-start
   - astro
   - blog
-image: "[[attachments/sunset.jpg]]"
+image: "[[attachments/sunset.png]]"
 imageAlt: Sunset skyline.
 imageOG: true
 hideCoverImage: false
