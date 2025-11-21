@@ -100,6 +100,8 @@ Community plugins enabled:
 - Paste image rename
 - Property Over Filename
 - SEO
+- Simple Banner
+- Simple Focus
 - Tag Wrangler
 - Title-Only Tab
 - Zen Mode
@@ -114,9 +116,9 @@ Pretty much anything else you'd possible want to customize is in the settings of
 
 It also has several useful commands. To open terminal quickly, use the `Open terminal` command. It's been modified for Windows, macOS, and Linux to start terminal in the relevant directory so you can easily do standard package manager commands with `pnpm` or `npm`. It can be activated with `CTRL + SHIFT + D`. 
 
-You can quickly configure your site settings with the `Open Astro Modular Settings` command. You can also press `CTRL + SHIFT + ,` to open it. 
+You can quickly configure your site settings with the `Open Astro Modular Settings` command. You can also press `CTRL + SHIFT + ,` to open it, or use the conveniently-placed icon next to the traditional Obsidian settings icon (which can be toggled off in the plugin's settings if you don't want it there). 
 
-The Commander plugin helps us place a button for each of these actions on the file explorer UI. If you don't want them there, simply disable the plugin or customize the clickable icons to be somewhere else in Obsidian's interface.
+The Commander plugin helps us place a button for each of these actions on the file explorer UI. If you don't want them there, simply disable the plugin or customize the clickable icons to be somewhere else in Obsidian's interface. 
 
 ### Astro Composer and Alias Filename History
 
@@ -256,13 +258,15 @@ views:
 ```
 
 Bases CRM lets us treat a grid of content like a content management system. You can select multiple items and do bulk edits, rename content right from that view, or toggle the draft status of an item.
-### Oxygen Theme Settings and Zen Mode
+### Oxygen Theme Settings, Simple Focus, and Zen Mode
 
 This plugin helps you customize your experience if you use the provided Oxygen Obsidian theme and can help you focus on writing.
 
 You'll notice a wide variety of color scheme options, most of which were included in the [Minimal](https://github.com/kepano/obsidian-minimal) theme upon which Oxygen was based.
 
 Should you desire to hide any of the panels, you can use `CTRL + ALT Z` for the left side panel, `CTRL + ALT + X` for the right side panel, or `CTRL + ALT + S` for the tab bar. Pressing it again will reveal it again. 
+
+With the Simple Focus plugin, you can can simplify your file explorer view to just the directory that's immediately relevant to your currently-open file. Just click the toggle focus button or right click a directory in the file explorer pane to pare down on the number of files and folder you're seeing.
 
 Zen Mode offers another quick option to focus on your writing. Pressing `CTRL + SHIFT + Z` will enter Zen mode. When activated, all elements removed except for your content. Use the keystroke again to exit. 
 
@@ -297,6 +301,10 @@ When you link to another note, its `title` is automatically set as the hyperlink
 ### SEO
 
 Get a snappy audit of your content for search engine rankings and AI parsing. You can get a quick snapshot of your whole vault or drill down into specific posts. You can configure the settings to turn off checks you don't care about or tweak the logic in the calculations.
+
+### Simple Banner
+
+Adds a nice-looking banner on the top of each compatible content, as long as a valid `image` property is defined. Matches the cover image used in the Bases CMS view.
 
 ### BRAT
 

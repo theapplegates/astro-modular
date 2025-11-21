@@ -1,6 +1,6 @@
 {
   "confirmDeletion": true,
-  "showAddCommand": true,
+  "showAddCommand": false,
   "debug": false,
   "editorMenu": [],
   "fileMenu": [],
@@ -15,12 +15,6 @@
       "id": "astro-modular-settings:open-terminal",
       "icon": "terminal-square",
       "name": "Open terminal",
-      "mode": "desktop"
-    },
-    {
-      "id": "astro-modular-settings:open-settings",
-      "icon": "settings-2",
-      "name": "Open Astro Modular Settings",
       "mode": "desktop"
     },
     {

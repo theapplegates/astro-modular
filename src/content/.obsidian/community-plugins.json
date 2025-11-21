@@ -2,7 +2,6 @@
   "title-only-tab",
   "tag-wrangler",
   "settings-search",
-  "simple-banner",
   "seo",
   "property-over-file-name",
   "obsidian-paste-image-rename",
@@ -11,13 +10,14 @@
   "new-tab-default-page",
   "cmdr",
   "astro-composer",
-  "alias-file-name-history",
   "iconic",
   "paste-image-into-property",
   "zenmode",
-  "oxygen-settings",
-  "astro-modular-settings",
   "obsidian-git",
   "bases-cms",
-  "obsidian42-brat"
+  "alias-file-name-history",
+  "simple-banner",
+  "simple-focus",
+  "astro-modular-settings",
+  "oxygen-settings"
 ]
