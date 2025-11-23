@@ -22,7 +22,7 @@
   "enableOpenTerminalCommand": true,
   "terminalProjectRootPath": "../..",
   "enableTerminalRibbonIcon": true,
-  "enableOpenConfigFileCommand": false,
+  "enableOpenConfigFileCommand": true,
   "configFilePath": "../config.ts",
   "enableConfigRibbonIcon": false,
   "customContentTypes": [
@@ -45,6 +45,11 @@
       "creationMode": "file"
     }
   ],
+  "helpButtonReplacement": {
+    "enabled": true,
+    "commandId": "astro-modular-settings:open-settings",
+    "iconId": "wrench"
+  },
   "linkBasePath": "/posts/",
   "enableAutoRename": true,
   "enableAutoInsertFrontmatter": true,

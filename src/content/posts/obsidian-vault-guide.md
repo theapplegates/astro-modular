@@ -100,6 +100,7 @@ Community plugins enabled:
 - Paste image rename
 - Property Over Filename
 - SEO
+- Settings Search
 - Simple Banner
 - Simple Focus
 - Status Bar Organizer
@@ -107,19 +108,13 @@ Community plugins enabled:
 - Title-Only Tab
 - Zen Mode
 
-### Astro Modular Settings and Commander
+### Astro Modular Settings
 
 The Astro Modular Settings plugin was specifically made for this theme. It has everything you need to easily tweak your blog's features. It edits the project's `config.ts` file, even though it's outside of the Obsidian vault's root directory. 
 
 A wizard will open at startup which will lead you through some configuration options. You can disable this pop up if you like. 
 
 Pretty much anything else you'd possible want to customize is in the settings of the plugin. You can also create your own theme, import and export configs, and a bunch more.
-
-It also has several useful commands. To open terminal quickly, use the `Open terminal` command. It's been modified for Windows, macOS, and Linux to start terminal in the relevant directory so you can easily do standard package manager commands with `pnpm` or `npm`. It can be activated with `CTRL + SHIFT + D`. 
-
-You can quickly configure your site settings with the `Open Astro Modular Settings` command. You can also press `CTRL + SHIFT + ,` to open it, or use the conveniently-placed icon next to the traditional Obsidian settings icon (which can be toggled off in the plugin's settings if you don't want it there). 
-
-The Commander plugin helps us place a button for each of these actions on the file explorer UI. If you don't want them there, simply disable the plugin or customize the clickable icons to be somewhere else in Obsidian's interface. 
 
 ### Astro Composer and Alias Filename History
 
@@ -134,6 +129,10 @@ You can also easily grab links to headings by right clicking one and selecting "
 `CTRL + R` allows you to easily rename blog posts, and note filenames (or parent folders) get updated in kebab-case automatically. When this happens, the old filename will be stored as an alias by default via the Alias Filename History plugin. This means redirects of the old post or page URL will go to the current post's slug, which is configured in Astro. 
 
 You can adjust lots of settings including regex for ignoring names (like `Untitled` or a `_` prefix), timeout in seconds to store the name, or looking for changes in the parent folder name as well if you use the folder-based post option.
+
+Astro Composer also has several useful commands. To open terminal quickly, use the `Open terminal` command. It's been modified for Windows, macOS, and Linux to start terminal in the relevant directory so you can easily do standard package manager commands with `pnpm` or `npm`. It can be activated with `CTRL + SHIFT + D`. 
+
+You can also launch the `Edit Astro config` command, which will open your `config.ts` file. You can access this if you want, but it's a bit easier to just launch the `Open Astro Modular Settings` command instead. You can also press `CTRL + SHIFT + ,` to open it, or use the conveniently-placed icon next to the traditional Obsidian settings icon (which can be toggled off in Astro Composer's plugin settings if you don't want it there). 
 
 ### Homepage, Default New Tab Page, and Bases CRM
 
@@ -210,8 +209,6 @@ With the Simple Focus plugin, you can can simplify your file explorer view to ju
 
 Zen Mode offers another quick option to focus on your writing. Pressing `CTRL + SHIFT + Z` will enter Zen mode. When activated, all elements removed except for your content. Use the keystroke again to exit. 
 
-Status Bar Organizer helps you hide or re-arrange items on your status bar.
-
 If you like, you can install the [Style Settings](https://github.com/mgmeyers/obsidian-style-settings) plugin for even more control over your experience.
 
 #### Using a Theme Other Than Oxygen
@@ -240,6 +237,10 @@ When linking or searching notes, you can use the `title` property as its primary
 
 When you link to another note, its `title` is automatically set as the hyperlinked text, but you can easily change it to something else after it's been inserted.
 
+### Settings Search
+
+Simply provides a global search option for all settings in Obsidian.
+
 ### SEO
 
 Get a snappy audit of your content for search engine rankings and AI parsing. You can get a quick snapshot of your whole vault or drill down into specific posts. You can configure the settings to turn off checks you don't care about or tweak the logic in the calculations.
@@ -252,11 +253,13 @@ Adds a nice-looking banner on the top of each compatible content, as long as a v
 
 Used to load Astro Modular Settings, or the currently-pending plugins that haven't been added to the community plugin directory yet: Alias Filename History, Astro Composer, Disable Tabs, Oxygen Theme Settings, Property Over Filename, and SEO plugins as well as the Oxygen theme. Future versions of this vault will remove BRAT versions in favor of the official releases.
 
-### Git
+### Git, Commander, and Status Bar Organizer
 
 With the [Git](https://obsidian.md/plugins?id=obsidian-git) plugin, you can easily publish to your Astro blog without leaving Obsidian. Simply configure with git to enable it. By default, you'll see your current git status and count of files changed (if any) in the status bar on the bottom right.
 
 To publish, you can use `CTRL + SHIFT + S` or click the "commit-and-sync" button on the status bar (added with the Commander plugin). Your changes will be committed and pushed to your remote repository automatically.
+
+Status Bar Organizer ensures the commit-and-sync icon stays on the far right. You can also use it to hide or re-arrange status bar items to your liking.
 
 ### Disable Tabs
 
