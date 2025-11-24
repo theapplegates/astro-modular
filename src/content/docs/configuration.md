@@ -681,7 +681,7 @@ Common issues:
 
 1. **Customize** `src/config.ts`
 2. **Write** your first post
-3. **Explore** [Formatting Reference](formatting-reference.md)
+3. **Explore** [Formatting Reference](../posts/formatting-reference.md)
 4. **Set up** Obsidian vault workflow
 5. **Deploy** and share
 

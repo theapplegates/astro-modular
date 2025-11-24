@@ -9,6 +9,7 @@
   "quickEditCommand": "astro-composer:rename-content",
   "quickEditCommandName": "Astro Composer: Rename current content",
   "quickEditIcon": "lucide-pencil-line",
+  "quickEditOpenFile": false,
   "showToolbarSelectAll": true,
   "showToolbarClear": true,
   "showToolbarDraft": true,

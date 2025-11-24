@@ -131,6 +131,6 @@ Optimized for performance with automatic image optimization and lazy loading.
 
 - **Complete Setup Guide**: [Configuration Documentation](docs/configuration.md)
 - **Obsidian Vault Guide**: [Obsidian Vault Guide](obsidian-vault-guide.md)
-- **Formatting Reference**: [Formatting Reference](posts/formatting-reference.md)
+- **Formatting Reference**: [Formatting Reference](formatting-reference.md)
 
 Your modular Astro blog is ready to go!

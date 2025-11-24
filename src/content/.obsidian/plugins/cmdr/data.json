@@ -7,15 +7,15 @@
   "leftRibbon": [],
   "rightRibbon": [],
   "titleBar": [],
-  "statusBar": [
+  "statusBar": [],
+  "pageHeader": [
     {
-      "id": "obsidian-git:push",
-      "icon": "lucide-arrow-up-circle",
-      "name": "Git: Commit-and-sync",
+      "id": "editing-toolbar:hide-show-menu",
+      "icon": "lucide-chevrons-up-down",
+      "name": "Toggle editing toolbar",
       "mode": "any"
     }
   ],
-  "pageHeader": [],
   "macros": [],
   "explorer": [],
   "hide": {

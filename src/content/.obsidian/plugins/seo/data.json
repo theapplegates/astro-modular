@@ -244,26 +244,64 @@
       "file": "posts/obsidian-embeds-demo.md",
       "displayName": "Obsidian Embeds Demo",
       "checks": {
-        "titleLength": [],
-        "metaDescription": [
+        "titleLength": [
           {
             "passed": false,
-            "message": "No frontmatter found",
-            "suggestion": "Add frontmatter with description property",
+            "message": "Title too short: 20 characters",
+            "suggestion": "Aim for 30-60 characters",
             "severity": "warning"
           }
         ],
-        "titleH1Uniqueness": [],
-        "keywordInTitle": [],
-        "keywordInDescription": [],
-        "keywordInHeadings": [],
-        "keywordInSlug": [],
+        "metaDescription": [
+          {
+            "passed": false,
+            "message": "Description too short: 39 characters",
+            "suggestion": "Aim for 120-160 characters",
+            "severity": "warning"
+          }
+        ],
+        "titleH1Uniqueness": [
+          {
+            "passed": false,
+            "message": "Meta title and H1 are identical",
+            "suggestion": "Modify one to be unique, or specify a suffix/prefix in plugin settings",
+            "severity": "warning"
+          }
+        ],
+        "keywordInTitle": [
+          {
+            "passed": true,
+            "message": "Keyword found in title",
+            "severity": "info"
+          }
+        ],
+        "keywordInDescription": [
+          {
+            "passed": true,
+            "message": "Keyword found in description",
+            "severity": "info"
+          }
+        ],
+        "keywordInHeadings": [
+          {
+            "passed": true,
+            "message": "Keyword found in H1",
+            "severity": "info"
+          }
+        ],
+        "keywordInSlug": [
+          {
+            "passed": true,
+            "message": "Target keyword \"obsidian embeds\" found in slug",
+            "severity": "info"
+          }
+        ],
         "slugFormat": [],
         "keywordDensity": [
           {
             "passed": false,
-            "message": "No frontmatter found",
-            "suggestion": "Add frontmatter with keyword property",
+            "message": "Keyword density too low: 0.1%",
+            "suggestion": "Aim for at least 1% density",
             "severity": "warning"
           }
         ],
@@ -277,7 +315,7 @@
         "contentLength": [
           {
             "passed": true,
-            "message": "Good content length: 762 words",
+            "message": "Good content length: 720 words",
             "severity": "info"
           }
         ],
@@ -300,7 +338,7 @@
             "position": {
               "line": 53,
               "searchText": "![Why doesn't everyone use Astro? Writing blog posts in markdown is beautiful.](https://x.com/davidvkimball/status/1933196479801536736)",
-              "context": "### Twitter/X Posts\r\n\r\n![Why doesn't everyone use Astro? Writing blog posts in markdown is beautiful.](https://x.com/davidvkimball/status/1933196479801536736)\r\n\r\nTwitter posts are embedded with theme-aware styling that matches your site's light/dark mode.\r"
+              "context": "### Twitter/X Posts\n\n![Why doesn't everyone use Astro? Writing blog posts in markdown is beautiful.](https://x.com/davidvkimball/status/1933196479801536736)\n\nTwitter posts are embedded with theme-aware styling that matches your site's light/dark mode."
             }
           }
         ],
@@ -329,22 +367,39 @@
         "externalBrokenLinks": [
           {
             "passed": true,
-            "message": "Found 2 external link(s), all appear to resolve and are working",
-            "severity": "info"
+            "message": "External link: https://www.youtube.com/watch?v=ZhizarvwLnU",
+            "suggestion": "To find if any of these are broken, use the 'Check external links for 404s' button to trigger it.",
+            "severity": "notice",
+            "position": {
+              "line": 47,
+              "searchText": "https://www.youtube.com/watch?v=ZhizarvwLnU",
+              "context": "### YouTube Videos\n\n![Astro Suite for Obsidian](https://www.youtube.com/watch?v=ZhizarvwLnU)\n\nYouTube videos are automatically embedded with responsive design and optimized settings."
+            }
+          },
+          {
+            "passed": true,
+            "message": "External link: https://x.com/davidvkimball/status/1933196479801536736",
+            "suggestion": "To find if any of these are broken, use the 'Check external links for 404s' button to trigger it.",
+            "severity": "notice",
+            "position": {
+              "line": 53,
+              "searchText": "https://x.com/davidvkimball/status/1933196479801536736",
+              "context": "### Twitter/X Posts\n\n![Why doesn't everyone use Astro? Writing blog posts in markdown is beautiful.](https://x.com/davidvkimball/status/1933196479801536736)\n\nTwitter posts are embedded with theme-aware styling that matches your site's light/dark mode."
+            }
           }
         ],
         "readingLevel": [
           {
             "passed": true,
-            "message": "Good reading level: 9.1 (Moderately easy to read)",
+            "message": "Good reading level: 8.6 (Easy to read)",
             "severity": "info"
           }
         ]
       },
-      "overallScore": 71.22727272727273,
+      "overallScore": 66.25,
       "issuesCount": 0,
-      "warningsCount": 3,
-      "noticesCount": 0
+      "warningsCount": 5,
+      "noticesCount": 2
     },
     {
       "file": "posts/getting-started.md",

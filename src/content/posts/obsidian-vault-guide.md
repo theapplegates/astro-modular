@@ -23,7 +23,7 @@ aliases:
 
 ## Overview
 
-All plugins, key bindings, and the theme can be customized to your liking, but this is what's on by default. 
+All plugins, key bindings, and the theme can be customized to your liking, but this is what's on by default.
 
 ## Philosophy 
 
@@ -64,6 +64,7 @@ Here's a guide for some important hotkeys set especially for this theme:
 - Add a new property: `CTRL + ;`
 - Toggle property visibility for current note: `CTRL + ALT + P`
 - Toggle reading view: `CTRL + E`
+- Toggle Editing toolbar: `CTRL + SHIFT + E`
 - Toggle Zen mode: `CTRL + SHIFT + Z`
 - Insert image: `CTRL + '`
 - Insert image into property: `CTRL + SHIFT + '`
@@ -90,8 +91,9 @@ Community plugins enabled:
 - Alias Filename History
 - Astro Composer
 - Astro Modular Settings
-- Bases CRM
+- Bases CMS
 - Default New Tab Page
+- Editing Toolbar
 - Git
 - Homepage
 - Image Inserter
@@ -134,7 +136,7 @@ Astro Composer also has several useful commands. To open terminal quickly, use t
 
 You can also launch the `Edit Astro config` command, which will open your `config.ts` file. You can access this if you want, but it's a bit easier to just launch the `Open Astro Modular Settings` command instead. You can also press `CTRL + SHIFT + ,` to open it, or use the conveniently-placed icon next to the traditional Obsidian settings icon (which can be toggled off in Astro Composer's plugin settings if you don't want it there). 
 
-### Homepage, Default New Tab Page, and Bases CRM
+### Homepage, Default New Tab Page, and Bases CMS
 
 All three of these plugins work together so you're default screen is a `.base` file that's a directory of all of your blog posts, listed in reverse-chronological order. You're able to configure the CMS view and even add new views to your liking. 
 
@@ -196,7 +198,7 @@ views:
       note.title: 235
 ```
 
-Bases CRM lets us treat a grid of content like a content management system. You can select multiple items and do bulk edits, rename content right from that view, or toggle the draft status of an item.
+Bases CMS lets us treat a grid of content like a content management system. You can select multiple items and do bulk edits, rename content right from that view, or toggle the draft status of an item.
 ### Oxygen Theme Settings, Simple Focus, Zen Mode, and Status Bar Organizer
 
 The Oxygen Theme Settings plugin helps you customize your experience if you use the provided Oxygen Obsidian theme and can help you focus on writing.
@@ -249,9 +251,9 @@ Get a snappy audit of your content for search engine rankings and AI parsing. Yo
 
 Adds a nice-looking banner on the top of each compatible content, as long as a valid `image` property is defined. Matches the cover image used in the Bases CMS view.
 
-### BRAT
+### Editing Toolbar
 
-Used to load Astro Modular Settings, or the currently-pending plugins that haven't been added to the community plugin directory yet: Alias Filename History, Astro Composer, Disable Tabs, Oxygen Theme Settings, Property Over Filename, and SEO plugins as well as the Oxygen theme. Future versions of this vault will remove BRAT versions in favor of the official releases.
+This adds a Microsoft Word-style toolbar to Obsidian. Click the "toggle editing toolbar" button on the title bar to show or hide it. It's hidden until revealed and completely disabled on mobile by default.
 
 ### Git, Commander, and Status Bar Organizer
 
@@ -260,6 +262,10 @@ With the [Git](https://obsidian.md/plugins?id=obsidian-git) plugin, you can easi
 To publish, you can use `CTRL + SHIFT + S` or click the "commit-and-sync" button on the status bar (added with the Commander plugin). Your changes will be committed and pushed to your remote repository automatically.
 
 Status Bar Organizer ensures the commit-and-sync icon stays on the far right. You can also use it to hide or re-arrange status bar items to your liking.
+
+### BRAT
+
+Used to load Astro Modular Settings and the beta plugins and themes that aren't included in the community directory yet. Future versions of this vault will remove BRAT versions in favor of the official releases.
 
 ### Disable Tabs
 

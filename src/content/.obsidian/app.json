@@ -40,5 +40,7 @@
   "newFileFolderPath": "posts",
   "newLinkFormat": "relative",
   "mobileQuickRibbonItem": "",
-  "vimMode": false
+  "vimMode": false,
+  "readableLineLength": true,
+  "defaultViewMode": "source"
 }
