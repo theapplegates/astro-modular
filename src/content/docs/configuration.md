@@ -622,7 +622,7 @@ The vault provides:
 - **Optional CSS snippets** to customize your experience
 - **Custom hotkeys** for accelerating post creation and publishing
 
-Read [the guide](../posts/obsidian-vault-guide.md) for more detailed information.
+Read [the guide](../posts/vault-cms-guide.md) for more detailed information.
 
 To remove Obsidian, simply delete the `.obsidian` folder.
 

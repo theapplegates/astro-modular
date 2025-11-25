@@ -4,5 +4,7 @@
   "enableForQuickSwitcher": true,
   "includeFilenameInSearch": true,
   "includeAliasesInSearch": true,
-  "enableForDragDrop": true
+  "enableForDragDrop": true,
+  "useSimpleSearch": false,
+  "enableForGraphView": true
 }

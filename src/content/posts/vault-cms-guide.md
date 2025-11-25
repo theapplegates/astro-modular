@@ -1,25 +1,26 @@
 ---
-title: Obsidian Vault Guide
+title: Vault CMS Guide
 date: 2025-09-10
-description: How to use the included Astro Suite Obsidian vault.
+description: How to use this Obsidian vault as a content management system.
 tags:
   - tutorial
   - setup
   - configuration
   - astro
   - obsidian
-image: "[[attachments/astro-composer-suite-for-obsidian.png]]"
+image:
 imageAlt: Astro and Obsidian logos stacked vertically with a "+" (plus) sign between them.
 imageOG: true
-hideCoverImage: true
+hideCoverImage: false
 hideTOC: false
-targetKeyword: astro suite obsidian vault
+targetKeyword: vault cms
 draft: false
 aliases:
   - astro-suite-vault-modular-guide
   - astro-suite-obsidian-vault-guide-astro-modular
+  - obsidian-vault-guide
 ---
-![Astro and Obsidian logos stacked vertically with a "+" (plus) sign between them.](/posts/attachments/astro-composer-suite-for-obsidian.png)
+![Vault CMS logo](attachments/vault-cms-cover.png)
 
 ## Overview
 
@@ -31,11 +32,17 @@ All plugins, key bindings, and the theme can be customized to your liking, but t
 2. Emphasis on customization and modularity. 
 3. Visual parity between backend and frontend.
 
+## Default Settings
+
+1. Markdown links are used in favor of wikilinks.
+2. Default location for new notes is the `posts` folder.
+3. 
+
 ## Theme
 
 For out-of-the-box customization, [Oxygen](https://github.com/davidvkimball/obsidian-oxygen) theme is used, based on the [Minimal theme system](https://minimal.guide/home). It uses a slick color scheme that's highly customizable. 
 
-The [Oxygen Theme Settings](https://github.com/davidvkimball/obsidian-oxygen-settings) plugin is also installed by default, giving you complete control over your experience. You can even define your own color scheme presets. More on that [below](posts/obsidian-vault-guide.md#Oxygen%20Theme%20Settings%20and%20Zen%20Mode).
+The [Oxygen Theme Settings](https://github.com/davidvkimball/obsidian-oxygen-settings) plugin is also installed by default, giving you complete control over your experience. You can even define your own color scheme presets. More on that [below](vault-cms-guide.md#Oxygen%20Theme%20Settings%20and%20Zen%20Mode).
 
 ## CSS Snippets
 
@@ -97,6 +104,7 @@ Community plugins enabled:
 - Git
 - Homepage
 - Image Inserter
+- Node masquerade
 - Oxygen Theme Settings
 - Paste image into property
 - Paste image rename
@@ -199,6 +207,8 @@ views:
 ```
 
 Bases CMS lets us treat a grid of content like a content management system. You can select multiple items and do bulk edits, rename content right from that view, or toggle the draft status of an item.
+
+To edit a view, select the current view on the top left, revealing the list, and then select the right chevron arrow to open up the "configure view" options. Configure your desired properties here. At the very bottom, you can set where new notes are created when the "new" button is clicked on the top right. 
 ### Oxygen Theme Settings, Simple Focus, Zen Mode, and Status Bar Organizer
 
 The Oxygen Theme Settings plugin helps you customize your experience if you use the provided Oxygen Obsidian theme and can help you focus on writing.

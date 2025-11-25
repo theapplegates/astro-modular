@@ -197,7 +197,7 @@ Here's an [external link](https://obsidian.md).
 
 You can create internal links using double brackets (wikilinks) or with standard markdown. 
 
-For example: [[getting-started|Getting Started]] or [Astro Suite Obsidian Vault Guide (Astro Modular)](obsidian-vault-guide.md).
+For example: [[getting-started|Getting Started]] or [Astro Suite Obsidian Vault Guide (Astro Modular)](vault-cms-guide.md).
 
 ```markdown
 For example: [[getting-started|Getting Started]] or [Astro Suite Vault (Modular) Guide](astro-suite-vault-modular-guide).
@@ -213,7 +213,7 @@ Here's the same internal link with an anchor formatted in 4 different ways (both
 [Choose Your Workflow](/posts/getting-started#choose-your-workflow)
 
 
-Here's a relative link: [Mermaid Diagram Test](mermaid-diagrams.md) 
+Here's a relative link: [Obsidian Embeds Demo](obsidian-embeds-demo.md)
 ### Reference Links
 
 This is a [reference link][1] and this is another [reference link][markdown].
@@ -349,6 +349,10 @@ This content is hidden by default and can be expanded by clicking the summary.
 </details>
 
 <small>Small text for fine print</small>
+
+<sup>Superscript</sup>
+
+<sub>Subscript</sub>
 
 ### Keyboard Shortcuts
 

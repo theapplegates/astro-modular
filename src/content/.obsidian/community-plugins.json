@@ -2,7 +2,6 @@
   "alias-file-name-history",
   "astro-composer",
   "astro-modular-settings",
-  "bases-cms",
   "cmdr",
   "editing-toolbar",
   "obsidian-git",
@@ -12,7 +11,6 @@
   "oxygen-settings",
   "paste-image-into-property",
   "obsidian-paste-image-rename",
-  "property-over-file-name",
   "seo",
   "settings-search",
   "simple-banner",
@@ -20,5 +18,9 @@
   "statusbar-organizer",
   "tag-wrangler",
   "title-only-tab",
-  "zenmode"
+  "zenmode",
+  "property-over-file-name",
+  "new-tab-default-page",
+  "bases-cms",
+  "obsidian42-brat"
 ]
