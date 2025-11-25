@@ -4,7 +4,9 @@ A flexible blog theme designed for Obsidian users.
 
 [![Alt](https://github.com/user-attachments/assets/612b2171-d141-412b-a891-5b1caa1447b8 "Astro Modular theme shown off in 3 screenshots, with the left screenshot showing the homepage, the top right showing the bottom of a post, and the bottom right showing a minimal homepage")](https://astro.build/themes/details/astro-modular/)
 
-## Use Obsidian as a CMS
+## Made with Vault CMS
+
+Use Obsidian as a CMS with [Vault CMS](https://github.com/davidvkimball/vault-cms).
 
 ![Alt](https://github.com/user-attachments/assets/582f651d-e507-4bde-8b3a-642be07c428a "Astro Modular Obsidian vault")
 
