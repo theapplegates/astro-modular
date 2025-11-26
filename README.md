@@ -8,7 +8,7 @@ A flexible blog theme designed for Obsidian users.
 
 Use Obsidian as a CMS with [Vault CMS](https://github.com/davidvkimball/vault-cms).
 
-![Alt](https://github.com/user-attachments/assets/582f651d-e507-4bde-8b3a-642be07c428a "Astro Modular Obsidian vault")
+![Alt](https://github.com/user-attachments/assets/3db459e6-6b9a-4c37-b86d-0f661e88e204 "Astro Modular Obsidian vault")
 
 ## Stats
 
