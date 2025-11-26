@@ -2,14 +2,12 @@
   "alias-file-name-history",
   "astro-composer",
   "astro-modular-settings",
-  "cmdr",
   "editing-toolbar",
   "obsidian-git",
   "homepage",
   "iconic",
   "insert-unsplash-image",
   "oxygen-settings",
-  "paste-image-into-property",
   "obsidian-paste-image-rename",
   "seo",
   "settings-search",
@@ -19,8 +17,9 @@
   "tag-wrangler",
   "title-only-tab",
   "zenmode",
-  "property-over-file-name",
   "new-tab-default-page",
   "bases-cms",
-  "obsidian42-brat"
+  "paste-image-into-property",
+  "property-over-file-name",
+  "cmdr"
 ]

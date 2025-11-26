@@ -200,7 +200,7 @@ You can create internal links using double brackets (wikilinks) or with standard
 For example: [[getting-started|Getting Started]] or [Astro Suite Obsidian Vault Guide (Astro Modular)](vault-cms-guide.md).
 
 ```markdown
-For example: [[getting-started|Getting Started]] or [Astro Suite Vault (Modular) Guide](astro-suite-vault-modular-guide).
+For example: [[getting-started|Getting Started]] or [Obsidian Embeds Demo](obsidian-embeds-demo).
 ```
 
 Here's an internal link with an anchor: [[sample-folder-based-post/index#Benefits of Folder-Based Approach|Benefits of Folder-Based Approach]]
