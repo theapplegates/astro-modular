@@ -8,10 +8,10 @@ tags:
   - configuration
   - astro
   - obsidian
-image:
+image: "[[attachments/vault-cms-cover.png]]"
 imageAlt: Astro and Obsidian logos stacked vertically with a "+" (plus) sign between them.
 imageOG: true
-hideCoverImage: false
+hideCoverImage: true
 hideTOC: false
 targetKeyword: vault cms
 draft: false
