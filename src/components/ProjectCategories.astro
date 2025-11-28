@@ -74,18 +74,7 @@ const sortedCategories = [...categories].sort();
   }
 
   .category-item:hover {
-    @apply transform scale-105 shadow-md;
-  }
-
-  /* Active category hover state - keep active colors, just add grow effect */
-  .category-item.bg-highlight-100:hover {
-    @apply transform scale-105 shadow-md;
-    /* Keep the active background and text colors - don't override them */
-  }
-  
-  .category-item.dark\:bg-highlight-900\/40:hover {
-    @apply transform scale-105 shadow-md;
-    /* Keep the active background and text colors - don't override them */
+    /* No scale effect - removed for cleaner look */
   }
 
   .category-text {
@@ -98,9 +87,113 @@ const sortedCategories = [...categories].sort();
       @apply text-xs px-2 py-1;
     }
 
-    .category-text {
-      @apply max-w-24;
-    }
+  .category-text {
+    @apply max-w-24;
   }
+}
 </style>
+
+<script>
+  /**
+   * Category Filtering Script for Projects Page
+   * Handles clickable category pills to filter project cards
+   */
+  function initializeProjectCategoryFiltering() {
+    // Scope to only projects page category items (not docs)
+    const categoriesContainer = document.querySelector('.categories-container');
+    if (!categoriesContainer) {
+      return;
+    }
+    
+    const categoryItems = categoriesContainer.querySelectorAll('.category-item');
+    const projectCards = document.querySelectorAll('[data-project-categories]');
+    let currentActiveCategory = null;
+
+    if (categoryItems.length === 0) {
+      return;
+    }
+
+    // Remove existing event listeners and add new ones
+    categoryItems.forEach((item, index) => {
+      // Clone the element to remove all event listeners
+      const newItem = item.cloneNode(true);
+      item.parentNode?.replaceChild(newItem, item);
+      
+      newItem.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const category = newItem.getAttribute('data-category');
+        
+        // Visual feedback
+        newItem.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+          newItem.style.transform = '';
+        }, 150);
+        
+        if (!category) return;
+        
+        // Check if this category is already active
+        const isCurrentlyActive = currentActiveCategory === category;
+        
+        // Get fresh references to all category items within this container (after cloning)
+        const container = newItem.closest('.categories-container');
+        const freshCategoryItems = container ? container.querySelectorAll('.category-item') : [];
+        
+        // Reset all buttons to inactive state
+        freshCategoryItems.forEach(btn => {
+          btn.classList.remove('bg-highlight-100', 'dark:bg-highlight-900/40', 'text-highlight-800', 'dark:text-highlight-200', 'ring-1', 'ring-highlight-300', 'dark:ring-highlight-700');
+          btn.classList.add('bg-primary-100', 'dark:bg-primary-800', 'text-primary-700', 'dark:text-primary-300');
+        });
+        
+        if (isCurrentlyActive) {
+          // If clicking the same category, show all projects
+          projectCards.forEach(card => {
+            card.style.display = 'block';
+          });
+          currentActiveCategory = null;
+        } else {
+          // Filter projects by category
+          projectCards.forEach((card, cardIndex) => {
+            const cardCategories = card.getAttribute('data-project-categories') || '';
+            
+            // Projects can have multiple categories, check if this category is in the list
+            const categories = cardCategories.split(',').map(c => c.trim());
+            
+            if (categories.includes(category)) {
+              card.style.display = 'block';
+            } else {
+              card.style.display = 'none';
+            }
+          });
+          
+          // Make clicked button active
+          newItem.classList.remove('bg-primary-100', 'dark:bg-primary-800', 'text-primary-700', 'dark:text-primary-300');
+          newItem.classList.add('bg-highlight-100', 'dark:bg-highlight-900/40', 'text-highlight-800', 'dark:text-highlight-200', 'ring-1', 'ring-highlight-300', 'dark:ring-highlight-700');
+          currentActiveCategory = category;
+        }
+
+        // Dispatch custom event for analytics
+        window.dispatchEvent(new CustomEvent('projectCategoryClicked', {
+          detail: { category, isActive: currentActiveCategory === category }
+        }));
+      });
+    });
+  }
+
+  // Initialize with multiple strategies to ensure it works
+  function tryInitialize() {
+    initializeProjectCategoryFiltering();
+  }
+
+  // Make function globally available
+  (window as any).initializeProjectCategoryFiltering = initializeProjectCategoryFiltering;
+
+  // Initialize on DOMContentLoaded
+  document.addEventListener('DOMContentLoaded', tryInitialize);
+
+  // Also try after a short delay (for Swup compatibility)
+  setTimeout(tryInitialize, 100);
+  setTimeout(tryInitialize, 500);
+</script>
 

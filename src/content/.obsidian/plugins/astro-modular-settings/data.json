@@ -244,10 +244,5 @@
   "availableThemes": "default",
   "customThemes": "",
   "customThemeGenerationEnabled": false,
-  "removeRibbonIcon": false,
-  "helpButtonReplacement": {
-    "enabled": false,
-    "commandId": "astro-modular-settings:open-settings",
-    "iconId": "lucide-wrench"
-  }
+  "removeRibbonIcon": false
 }

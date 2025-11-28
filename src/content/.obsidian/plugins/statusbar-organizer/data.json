@@ -43,6 +43,10 @@
       "plugin-sync;1": {
         "position": 9,
         "visible": true
+      },
+      "plugin-properties;1": {
+        "position": 11,
+        "visible": true
       }
     }
   },

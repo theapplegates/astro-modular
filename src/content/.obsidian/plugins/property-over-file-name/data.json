@@ -6,5 +6,8 @@
   "includeAliasesInSearch": true,
   "enableForDragDrop": true,
   "useSimpleSearch": false,
-  "enableForGraphView": true
+  "enableForGraphView": true,
+  "enableForBacklinks": true,
+  "enableForTabs": true,
+  "enableForWindowTitle": true
 }

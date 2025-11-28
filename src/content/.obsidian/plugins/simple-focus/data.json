@@ -1,6 +1,6 @@
 {
   "showRightClickMenu": true,
   "showFileExplorerIcon": true,
-  "focusLevel": "grandparent",
+  "focusLevel": "parent",
   "customFolderPath": ""
 }

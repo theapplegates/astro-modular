@@ -13,15 +13,32 @@ export async function getStaticPaths() {
   const docs = await getCollection('docs');
   const isDev = import.meta.env.DEV;
   
-  return docs
-    .filter(doc => shouldShowContent(doc, isDev))
-    .map(doc => ({
-      params: { slug: doc.id },
-      props: { documentation: doc }
-    }));
+  const paths = [];
+  
+  // Generate paths for all docs - each .md file is a separate doc
+  for (const doc of docs) {
+    if (!shouldShowContent(doc, isDev)) continue;
+    
+    // Use the full doc ID as the slug (e.g., "api" or "sourcetree-and-git-setup")
+    const slug = doc.id;
+    
+    paths.push({
+      params: { slug: slug },
+      props: { 
+        documentation: doc 
+      }
+    });
+  }
+  
+  return paths;
 }
 
-const { documentation } = Astro.props as { documentation: any };
+const { documentation } = Astro.props;
+
+if (!documentation) {
+  return Astro.redirect('/docs/', 404);
+}
 ---
 
 <DocumentationLayout documentation={documentation} />
+

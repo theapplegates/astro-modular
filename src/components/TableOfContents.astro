@@ -12,11 +12,13 @@ const { headings } = Astro.props;
 // Filter and structure headings using configurable depth
 const maxDepth = getTableOfContentsDepth();
 const filteredHeadings = headings.filter(h => h.depth >= 2 && h.depth <= maxDepth);
+// Hide TOC if there's only 1 heading (not useful)
+const shouldShowTOC = filteredHeadings.length > 1;
 ---
 
-{filteredHeadings.length > 0 && (
-  <nav class="toc-nav toc-container p-4 bg-white dark:bg-primary-900 rounded-xl border border-primary-200 dark:border-primary-700 shadow-lg backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95">
-    <div class="toc-content pr-2">
+{shouldShowTOC && (
+  <nav class="toc-nav toc-container p-4 pr-5 bg-white dark:bg-primary-900 rounded-xl border border-primary-200 dark:border-primary-700 shadow-lg backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95">
+    <div class="toc-content">
       <button 
         class="toc-toggle w-full font-semibold text-primary-900 dark:text-primary-50 mb-3 flex items-center justify-between text-sm hover:text-highlight-600 dark:hover:text-highlight-400 transition-colors"
         aria-expanded="true"
@@ -34,7 +36,7 @@ const filteredHeadings = headings.filter(h => h.depth >= 2 && h.depth <= maxDept
           <li class={`toc-item toc-level-${heading.depth}`}>
             <a 
               href={`#${heading.slug}`}
-              class="toc-link block text-sm text-primary-600 dark:text-primary-300 hover:text-highlight-600 dark:hover:text-highlight-400 transition-colors py-1"
+              class="toc-link block text-sm text-primary-600 dark:text-primary-300 hover:text-highlight-600 dark:hover:text-highlight-400 transition-colors py-1 pr-2"
               data-heading={heading.slug}
             >
               {heading.text}
@@ -185,13 +187,57 @@ const filteredHeadings = headings.filter(h => h.depth >= 2 && h.depth <= maxDept
   
   .toc-content {
     /* No scrolling needed - content flows naturally */
+    overflow-x: hidden;
+    overflow-y: visible;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .toc-link {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    hyphens: auto;
+    line-height: 1.5;
+    display: block;
+    box-sizing: border-box;
+  }
+  
+  /* Level 2 (no indentation) - full width */
+  .toc-level-2 .toc-link {
+    width: 100%;
+    max-width: 100%;
+  }
+  
+  /* Indented levels - account for left margin in width calculation */
+  .toc-level-3 .toc-link {
+    width: calc(100% - 1rem);
+    max-width: calc(100% - 1rem);
+  }
+  
+  .toc-level-4 .toc-link {
+    width: calc(100% - 2rem);
+    max-width: calc(100% - 2rem);
+  }
+  
+  .toc-level-5 .toc-link {
+    width: calc(100% - 3rem);
+    max-width: calc(100% - 3rem);
+  }
+  
+  .toc-level-6 .toc-link {
+    width: calc(100% - 4rem);
+    max-width: calc(100% - 4rem);
   }
   
   /* Desktop floating TOC */
   @media (min-width: 1280px) {
     .toc-nav {
-      width: 280px;
-      max-width: 280px;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
     }
   }
   
@@ -203,7 +249,23 @@ const filteredHeadings = headings.filter(h => h.depth >= 2 && h.depth <= maxDept
     }
   }
   
-  /* No scrollbar needed - content flows naturally */
+  /* Prevent horizontal overflow */
+  .toc-list {
+    overflow-x: hidden;
+    overflow-y: visible;
+    width: 100%;
+    padding-right: 0;
+    box-sizing: border-box;
+  }
+  
+  .toc-item {
+    min-width: 0;
+    width: 100%;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    box-sizing: border-box;
+  }
+  
   
   .toc-chevron {
     @apply transition-transform duration-200;

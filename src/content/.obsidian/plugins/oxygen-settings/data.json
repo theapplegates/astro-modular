@@ -96,7 +96,7 @@
   "deemphasizeProperties": false,
   "autoHideVaultSwitcher": true,
   "autoHideVaultSwitcherBgTransparency": 1,
-  "hideHelpButton": true,
+  "hideHelpButton": false,
   "autoHideSettingsButton": false,
   "collapseFileExplorerButtons": true,
   "autoHideFileExplorerNavHeader": false,

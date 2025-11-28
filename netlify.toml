@@ -195,13 +195,19 @@
 
 [[redirects]]
   from = "/posts/astro-suite-vault-modular-guide"
-  to = "/posts/obsidian-vault-guide"
+  to = "/posts/vault-cms-guide"
   status = 301
   force = true
 
 [[redirects]]
   from = "/posts/astro-suite-obsidian-vault-guide-astro-modular"
-  to = "/posts/obsidian-vault-guide"
+  to = "/posts/vault-cms-guide"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/posts/obsidian-vault-guide"
+  to = "/posts/vault-cms-guide"
   status = 301
   force = true
 

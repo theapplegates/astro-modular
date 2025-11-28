@@ -36,7 +36,11 @@ All plugins, key bindings, and the theme can be customized to your liking, but t
 
 1. Markdown links are used in favor of wikilinks.
 2. Default location for new notes is the `posts` folder.
-3. 
+3. Some core plugins are disabled (details below).
+4. Indentation guides have been disabled.
+5. Inline title has been hidden to prioritize the `title` property.
+6. Custom hotkeys have been set (details below).
+7. Community plugins have been enabled.
 
 ## Theme
 
@@ -104,7 +108,6 @@ Community plugins enabled:
 - Git
 - Homepage
 - Image Inserter
-- Node masquerade
 - Oxygen Theme Settings
 - Paste image into property
 - Paste image rename
@@ -115,7 +118,6 @@ Community plugins enabled:
 - Simple Focus
 - Status Bar Organizer
 - Tag Wrangler
-- Title-Only Tab
 - Zen Mode
 
 ### Astro Modular Settings
@@ -150,62 +152,6 @@ All three of these plugins work together so you're default screen is a `.base` f
 
 I call this "Home Base."
 
-```base
-filters:
-  and:
-    - file.ext == "md"
-formulas:
-  Slug: |-
-    if(file.folder == "posts", "/posts/" + file.name.replace(".md", ""), 
-      if(file.folder == "pages", "/" + file.name.replace(".md", ""), 
-        if(file.folder == "special", if(file.name.replace(".md", "") == "home", "/", "/" + file.name.replace(".md", "")), 
-          if(file.folder == "projects", "/projects/" + file.name.replace(".md", ""), 
-            if(file.folder == "docs", "/docs/" + file.name.replace(".md", ""), 
-              "/" + file.folder)))))
-  Content Folder: |-
-    if(file.name == "index",
-      if(file.folder != "",
-        if(file.folder.replace("/" + file.folder.replace(/.*\//, ""), "") != "",
-          file.folder.replace("/" + file.folder.replace(/.*\//, ""), ""),
-          file.folder
-        ),
-        "root"
-      ),
-      if(file.folder != "",
-        file.folder,
-        "root"
-      )
-    )
-properties:
-  note.title:
-    displayName: Title
-  note.date:
-    displayName: Date
-  note.pubDate:
-    displayName: Date
-  formula.Slug:
-    displayName: Path
-views:
-  - type: cards
-    name: Posts
-    filters:
-      and:
-        - file.folder.startsWith("posts")
-    order:
-      - title
-      - formula.Slug
-      - date
-    sort:
-      - property: date
-        direction: DESC
-    limit: 2
-    cardSize: 230
-    image: note.image
-    imageAspectRatio: 0.55
-    columnSize:
-      note.title: 235
-```
-
 Bases CMS lets us treat a grid of content like a content management system. You can select multiple items and do bulk edits, rename content right from that view, or toggle the draft status of an item.
 
 To edit a view, select the current view on the top left, revealing the list, and then select the right chevron arrow to open up the "configure view" options. Configure your desired properties here. At the very bottom, you can set where new notes are created when the "new" button is clicked on the top right. 
@@ -239,15 +185,13 @@ Pull in images from Unsplash or other sources easily with just a few keystrokes.
 
 Makes managing tabs more useful. Can easily bulk-rename tags or search your content by tags.
 
-### Title-Only Tab
-
-Pulls from the `title` property instead of using the file name for any tab. 
-
 ### Property Over Filename
 
-When linking or searching notes, you can use the `title` property as its primary identifier, which is more helpful visually and semantically for linking between and searching for content, since note file names are post/page slugs in kebab case instead of titles. 
+When linking, searching, or displaying notes, you can use the `title` property as its primary label instead of its file name. Using title properties is more helpful visually and semantically for linking, searching, and displaying content, since note file names are actually page slugs in kebab case instead of traditional titles. 
 
-When you link to another note, its `title` is automatically set as the hyperlinked text, but you can easily change it to something else after it's been inserted.
+When you link to another note, its `title` is automatically set as the hyperlinked text, but you can easily change it to something else after it's been inserted. 
+
+Tabs display the note's `title` property instead of the file name as well.
 
 ### Settings Search
 
