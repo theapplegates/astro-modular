@@ -1400,8 +1400,6 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
             }
             // Re-setup smooth scrolling for anchor links
             setupSmoothScrolling();
-            // Also setup same-page path anchor handler
-            setupSamePagePathAnchors();
           }, 100);
         });
 
@@ -1999,6 +1997,18 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
           if (window.initializeLocalGraph) {
             window.initializeLocalGraph();
           }
+          // Initialize docs sidebar after page transition
+          if (window.initializeDocsSidebar) {
+            window.initializeDocsSidebar();
+          }
+          // Initialize doc category filtering after page transition
+          if (window.initializeDocCategoryFiltering) {
+            window.initializeDocCategoryFiltering();
+          }
+          // Initialize project category filtering after page transition
+          if (window.initializeProjectCategoryFiltering) {
+            window.initializeProjectCategoryFiltering();
+          }
           if (window.setupLocalGraphButtons) {
             window.setupLocalGraphButtons();
           }
@@ -2035,6 +2045,18 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
           // Initialize table of contents after page transition is complete
           if (window.initializeTableOfContents) {
             window.initializeTableOfContents();
+          }
+          // Initialize docs sidebar after page transition is complete
+          if (window.initializeDocsSidebar) {
+            window.initializeDocsSidebar();
+          }
+          // Initialize doc category filtering after page transition is complete
+          if (window.initializeDocCategoryFiltering) {
+            window.initializeDocCategoryFiltering();
+          }
+          // Initialize project category filtering after page transition is complete
+          if (window.initializeProjectCategoryFiltering) {
+            window.initializeProjectCategoryFiltering();
           }
           // Initialize Twitter widgets after page transition is complete
           if (window.initializeTwitterWidgets) {

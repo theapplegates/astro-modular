@@ -81,6 +81,12 @@ const sortedCategories = [...categories].sort();
     @apply truncate max-w-32;
   }
 
+  /* Hide project cards - display: none works fine with CSS Grid */
+  /* This class is applied to project cards to hide them while filtering */
+  :global(.project-card-hidden) {
+    display: none;
+  }
+
   /* Responsive adjustments */
   @media (max-width: 640px) {
     .category-item {
@@ -98,87 +104,124 @@ const sortedCategories = [...categories].sort();
    * Category Filtering Script for Projects Page
    * Handles clickable category pills to filter project cards
    */
+  // Persistent selected categories array - survives re-initializations
+  if (!(window as any).projectSelectedCategories) {
+    (window as any).projectSelectedCategories = [];
+  }
+  
   function initializeProjectCategoryFiltering() {
-    // Scope to only projects page category items (not docs)
-    const categoriesContainer = document.querySelector('.categories-container');
-    if (!categoriesContainer) {
+    // Find ALL categories containers (mobile and desktop)
+    const categoriesContainers = document.querySelectorAll('.categories-container');
+    if (categoriesContainers.length === 0) {
       return;
     }
     
-    const categoryItems = categoriesContainer.querySelectorAll('.category-item');
     const projectCards = document.querySelectorAll('[data-project-categories]');
-    let currentActiveCategory = null;
+    // Use persistent array for multi-select support
+    const selectedCategories = (window as any).projectSelectedCategories as string[];
 
-    if (categoryItems.length === 0) {
-      return;
+    // Helper function to update all button states across all containers
+    function updateAllButtonStates() {
+      categoriesContainers.forEach(container => {
+        const categoryItems = container.querySelectorAll('.category-item');
+        categoryItems.forEach(btn => {
+          const btnCategory = btn.getAttribute('data-category');
+          const isSelected = btnCategory && selectedCategories.includes(btnCategory);
+          
+          if (isSelected) {
+            btn.classList.remove('bg-primary-100', 'dark:bg-primary-800', 'text-primary-700', 'dark:text-primary-300');
+            btn.classList.add('bg-highlight-100', 'dark:bg-highlight-900/40', 'text-highlight-800', 'dark:text-highlight-200', 'ring-1', 'ring-highlight-300', 'dark:ring-highlight-700');
+          } else {
+            btn.classList.remove('bg-highlight-100', 'dark:bg-highlight-900/40', 'text-highlight-800', 'dark:text-highlight-200', 'ring-1', 'ring-highlight-300', 'dark:ring-highlight-700');
+            btn.classList.add('bg-primary-100', 'dark:bg-primary-800', 'text-primary-700', 'dark:text-primary-300');
+          }
+        });
+      });
     }
 
-    // Remove existing event listeners and add new ones
-    categoryItems.forEach((item, index) => {
-      // Clone the element to remove all event listeners
-      const newItem = item.cloneNode(true);
-      item.parentNode?.replaceChild(newItem, item);
-      
-      newItem.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        const category = newItem.getAttribute('data-category');
-        
-        // Visual feedback
-        newItem.style.transform = 'scale(0.95)';
-        setTimeout(() => {
-          newItem.style.transform = '';
-        }, 150);
-        
-        if (!category) return;
-        
-        // Check if this category is already active
-        const isCurrentlyActive = currentActiveCategory === category;
-        
-        // Get fresh references to all category items within this container (after cloning)
-        const container = newItem.closest('.categories-container');
-        const freshCategoryItems = container ? container.querySelectorAll('.category-item') : [];
-        
-        // Reset all buttons to inactive state
-        freshCategoryItems.forEach(btn => {
-          btn.classList.remove('bg-highlight-100', 'dark:bg-highlight-900/40', 'text-highlight-800', 'dark:text-highlight-200', 'ring-1', 'ring-highlight-300', 'dark:ring-highlight-700');
-          btn.classList.add('bg-primary-100', 'dark:bg-primary-800', 'text-primary-700', 'dark:text-primary-300');
+    // Initialize button states on page load (sync all containers)
+    updateAllButtonStates();
+    
+    // Helper function to filter project cards
+    function filterProjectCards() {
+      if (selectedCategories.length === 0) {
+        // No categories selected, show all cards
+        projectCards.forEach(card => {
+          card.classList.remove('project-card-hidden');
         });
-        
-        if (isCurrentlyActive) {
-          // If clicking the same category, show all projects
-          projectCards.forEach(card => {
-            card.style.display = 'block';
-          });
-          currentActiveCategory = null;
-        } else {
-          // Filter projects by category
-          projectCards.forEach((card, cardIndex) => {
-            const cardCategories = card.getAttribute('data-project-categories') || '';
-            
-            // Projects can have multiple categories, check if this category is in the list
-            const categories = cardCategories.split(',').map(c => c.trim());
-            
-            if (categories.includes(category)) {
-              card.style.display = 'block';
-            } else {
-              card.style.display = 'none';
-            }
-          });
+      } else {
+        // Filter cards based on selected categories
+        projectCards.forEach((card) => {
+          const cardCategories = card.getAttribute('data-project-categories') || '';
+          const categories = cardCategories.split(',').map(c => c.trim());
           
-          // Make clicked button active
-          newItem.classList.remove('bg-primary-100', 'dark:bg-primary-800', 'text-primary-700', 'dark:text-primary-300');
-          newItem.classList.add('bg-highlight-100', 'dark:bg-highlight-900/40', 'text-highlight-800', 'dark:text-highlight-200', 'ring-1', 'ring-highlight-300', 'dark:ring-highlight-700');
-          currentActiveCategory = category;
-        }
+          const hasAllSelectedCategories = selectedCategories.every(selectedCat => 
+            categories.includes(selectedCat)
+          );
+          
+          if (hasAllSelectedCategories) {
+            card.classList.remove('project-card-hidden');
+          } else {
+            card.classList.add('project-card-hidden');
+          }
+        });
+      }
+    }
+
+    // Initialize project card visibility on page load
+    filterProjectCards();
+
+    // Initialize event listeners for ALL containers
+    categoriesContainers.forEach(container => {
+      const categoryItems = container.querySelectorAll('.category-item');
+      
+      if (categoryItems.length === 0) {
+        return;
+      }
+
+      // Remove existing event listeners and add new ones
+      categoryItems.forEach((item) => {
+        // Clone the element to remove all event listeners
+        const newItem = item.cloneNode(true);
+        item.parentNode?.replaceChild(newItem, item);
+        
+        newItem.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          const category = newItem.getAttribute('data-category');
+          
+          // Visual feedback
+          newItem.style.transform = 'scale(0.95)';
+          setTimeout(() => {
+            newItem.style.transform = '';
+          }, 150);
+          
+          if (!category) return;
+          
+          // Toggle category in selection array
+          const categoryIndex = selectedCategories.indexOf(category);
+          if (categoryIndex > -1) {
+            // Remove from selection
+            selectedCategories.splice(categoryIndex, 1);
+          } else {
+            // Add to selection
+            selectedCategories.push(category);
+          }
+          
+          // Update ALL button states across ALL containers (mobile and desktop)
+          updateAllButtonStates();
+        
+        // Filter projects - show those matching ALL selected categories (AND logic)
+        filterProjectCards();
 
         // Dispatch custom event for analytics
         window.dispatchEvent(new CustomEvent('projectCategoryClicked', {
-          detail: { category, isActive: currentActiveCategory === category }
+          detail: { category, isActive: selectedCategories.includes(category), selectedCategories: [...selectedCategories] }
         }));
       });
     });
+    }); // Close categoriesContainers.forEach
   }
 
   // Initialize with multiple strategies to ensure it works
