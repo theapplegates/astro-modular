@@ -16,6 +16,7 @@
   "pagesCreationMode": "file",
   "pagesIndexFileName": "",
   "pageTemplate": "---\ntitle: \"{{title}}\"\ndescription: \"\"\nnoIndex: false\nhideTOC: false\ndraft: true\n---\n",
+  "onlyAutomateInPagesFolder": false,
   "enableCopyHeadingLink": true,
   "copyHeadingLinkFormat": "obsidian",
   "addTrailingSlashToLinks": true,
