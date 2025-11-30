@@ -131,7 +131,7 @@ views:
       property: category
       direction: ASC
     sort:
-      - property: title
+      - property: order
         direction: ASC
     imageProperty: note.image
     fallbackToEmbeds: true
