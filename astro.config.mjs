@@ -47,6 +47,7 @@ export default defineConfig({
   '/posts/astro-suite-obsidian-vault-guide-astro-modular': '/posts/vault-cms-guide',
   '/posts/obsidian-vault-guide': '/posts/vault-cms-guide',
   '/projects/obsidian-astro-composer': '/projects/astro-composer',
+  '/projects/obsidian-astro-suite': '/projects/vault-cms',
   '/docs/api-reference': '/docs/api',
   '/docs/astro-modular-configuration': '/docs/configuration',
   '/docs/sourcetree-and-git': '/docs/sourcetree-and-git-setup'
