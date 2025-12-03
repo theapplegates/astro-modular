@@ -182,7 +182,7 @@ const sortedCategories = [...categories].sort();
       // Remove existing event listeners and add new ones
       categoryItems.forEach((item) => {
         // Clone the element to remove all event listeners
-        const newItem = item.cloneNode(true);
+        const newItem = item.cloneNode(true) as HTMLElement;
         item.parentNode?.replaceChild(newItem, item);
         
         newItem.addEventListener('click', (e) => {

@@ -9,5 +9,8 @@
   "enableForGraphView": true,
   "enableForBacklinks": true,
   "enableForTabs": true,
+  "enableForExplorer": false,
+  "folderNoteFilename": "index",
+  "enableForWindowFrame": true,
   "enableForWindowTitle": true
 }
