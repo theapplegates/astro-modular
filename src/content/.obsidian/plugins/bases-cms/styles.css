@@ -625,7 +625,8 @@
 	transition: opacity 0.2s ease, transform 0.2s ease;
 	padding-left: var(--bases-header-padding-start, var(--size-4-2));
 	padding-right: var(--bases-header-padding-end, var(--size-4-2));
-	margin-top: var(--size-4-2);
+	margin-top: var(--size-4-1);
+	margin-bottom: var(--size-4-1);
 	box-sizing: border-box;
 	min-width: 0; /* Allow flex items to shrink */
 	overflow: hidden; /* Prevent overflow */
@@ -648,6 +649,30 @@
 	margin-left: auto;
 	min-width: 0; /* Allow shrinking */
 	flex-wrap: nowrap; /* Keep buttons in a row */
+}
+
+/* Mobile-specific toolbar improvements */
+@media (hover: none) and (pointer: coarse),
+       (max-width: 768px) {
+	.bases-cms-bulk-toolbar-left,
+	.bases-cms-bulk-toolbar-right {
+		gap: var(--size-4-1);
+	}
+	
+	.bases-cms-bulk-toolbar .text-icon-button {
+		padding: var(--size-4-2) var(--size-4-2);
+		min-height: 40px;
+	}
+	
+	.bases-cms-bulk-toolbar .text-icon-button .text-button-icon {
+		width: 20px;
+		height: 20px;
+	}
+	
+	.bases-cms-bulk-toolbar .text-icon-button .text-button-icon svg {
+		width: 20px;
+		height: 20px;
+	}
 }
 
 /* Selected count styling */
@@ -781,4 +806,60 @@
 .bases-cms-deletion-list li {
 	margin: 0.25rem 0;
 	word-break: break-all;
+}
+
+/* ============================================
+   PROPERTIES INFO MODAL
+   ============================================ */
+
+.properties-info-explanation {
+	margin: 1rem 0;
+}
+
+.properties-info-explanation p {
+	margin: 0.5rem 0;
+	line-height: 1.6;
+}
+
+.properties-info-special,
+.properties-info-configured,
+.properties-info-howto,
+.properties-info-note {
+	margin: 1.5rem 0;
+}
+
+.properties-info-special h3,
+.properties-info-configured h3,
+.properties-info-howto h3 {
+	margin-top: 0;
+	margin-bottom: 0.75rem;
+	font-size: 1.1em;
+	font-weight: 600;
+}
+
+.properties-info-special ul,
+.properties-info-configured ul,
+.properties-info-howto ol {
+	margin: 0.5rem 0;
+	padding-left: 1.5rem;
+}
+
+.properties-info-special li,
+.properties-info-configured li,
+.properties-info-howto li {
+	margin: 0.5rem 0;
+	line-height: 1.5;
+}
+
+.properties-info-none {
+	color: var(--text-muted);
+	font-style: italic;
+}
+
+.properties-info-tip {
+	background-color: var(--background-modifier-border);
+	padding: 0.75rem 1rem;
+	border-radius: 4px;
+	margin: 1rem 0;
+	border-left: 3px solid var(--interactive-accent);
 }
