@@ -210,7 +210,7 @@ views:
     showTags: false
     tagsProperty: note.tags
     customizeNewButton: true
-    newNoteLocation: posts
+    newNoteLocation: ""
     cardSize: 250
     imageAspectRatio: 0.55
     maxTagsToShow: 2

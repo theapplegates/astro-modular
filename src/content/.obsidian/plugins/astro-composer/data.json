@@ -14,7 +14,7 @@
   "pagesFolder": "pages",
   "pagesLinkBasePath": "",
   "pagesCreationMode": "file",
-  "pagesIndexFileName": "",
+  "pagesIndexFileName": "index",
   "pageTemplate": "---\ntitle: \"{{title}}\"\ndescription: \"\"\nnoIndex: false\nhideTOC: false\ndraft: true\n---\n",
   "onlyAutomateInPagesFolder": false,
   "enableCopyHeadingLink": true,
@@ -34,7 +34,8 @@
       "template": "---\ntitle: \"{{title}}\"\ndescription: \"\"\ndate: {{date}}\ncategories: []\nrepositoryUrl: \"\"\ndemoURL: \"\"\nstatus: \"\"\nimage: \"\"\nimageAlt: \"\"\nhideCoverImage: false\nhideTOC: false\nnoIndex: false\nfeatured: false\n---\n",
       "enabled": true,
       "linkBasePath": "/projects/",
-      "creationMode": "file"
+      "creationMode": "file",
+      "indexFileName": "index"
     },
     {
       "id": "custom-1758090465286",
@@ -43,7 +44,8 @@
       "template": "---\ntitle: \"{{title}}\"\ndescription: \"\"\ncategory: \"\"\norder: 0\nlastModified: {{date}}\nversion: \"\"\nimage: \"\"\nimageAlt: \"\"\nhideCoverImage: false\nhideTOC: false\ndraft: false\nnoIndex: false\nfeatured: false\n---\n",
       "enabled": true,
       "linkBasePath": "/docs/",
-      "creationMode": "file"
+      "creationMode": "file",
+      "indexFileName": "index"
     }
   ],
   "helpButtonReplacement": {
@@ -54,5 +56,19 @@
   "linkBasePath": "/posts/",
   "enableAutoRename": true,
   "enableAutoInsertFrontmatter": true,
-  "draftStyle": "filename"
+  "draftStyle": "filename",
+  "contentDependentTreatments": {
+    "posts": {
+      "creationMode": "file"
+    },
+    "pages": {
+      "creationMode": "file"
+    },
+    "projects": {
+      "creationMode": "file"
+    },
+    "docs": {
+      "creationMode": "file"
+    }
+  }
 }
