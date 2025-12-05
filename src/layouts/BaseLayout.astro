@@ -2005,6 +2005,10 @@ const scrollbarClass = siteConfig.hideScrollBar ? '' : 'show-scrollbars';
           if (window.initializeProjectCategoryFiltering) {
             window.initializeProjectCategoryFiltering();
           }
+          // Initialize collapsible categories after page transition (for docs index page)
+          if (window.initializeCollapsibleCategories) {
+            window.initializeCollapsibleCategories();
+          }
           if (window.setupLocalGraphButtons) {
             window.setupLocalGraphButtons();
           }

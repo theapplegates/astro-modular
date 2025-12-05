@@ -14,11 +14,12 @@
   "editing-toolbar",
   "new-tab-default-page",
   "cmdr",
-  "astro-modular-settings",
   "alias-file-name-history",
   "oxygen-settings",
   "simple-focus",
   "astro-composer",
   "property-over-file-name",
-  "bases-cms"
+  "bases-cms",
+  "astro-modular-settings",
+  "obsidian-style-settings"
 ]
