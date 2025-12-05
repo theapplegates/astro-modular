@@ -9,6 +9,7 @@ import remarkMermaid from './src/utils/remark-mermaid.ts';
 import { remarkObsidianEmbeds } from './src/utils/remark-obsidian-embeds.ts';
 import remarkBases from './src/utils/remark-bases.ts';
 import remarkInlineTags from './src/utils/remark-inline-tags.ts';
+import { remarkObsidianComments } from './src/utils/remark-obsidian-comments.ts';
 import remarkMath from 'remark-math';
 import remarkReadingTime from 'remark-reading-time';
 import remarkToc from 'remark-toc';
@@ -92,6 +93,7 @@ image: {
       remarkPlugins: [
       remarkInternalLinks,
       remarkInlineTags,
+      remarkObsidianComments, // Remove Obsidian comments (%%...%%) early in processing
       remarkFolderImages,
       remarkObsidianEmbeds,
       // Bases directive (table-only v1)
