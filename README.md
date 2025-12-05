@@ -1,6 +1,6 @@
 # Astro Modular
 
-A flexible blog theme designed for Obsidian users. 
+A flexible [Astro](https://astro.build) blog theme designed for [Obsidian](https://obsidian.md) users. 
 
 [![Alt](https://github.com/user-attachments/assets/612b2171-d141-412b-a891-5b1caa1447b8 "Astro Modular theme shown off in 3 screenshots, with the left screenshot showing the homepage, the top right showing the bottom of a post, and the bottom right showing a minimal homepage")](https://astro.build/themes/details/astro-modular/)
 
