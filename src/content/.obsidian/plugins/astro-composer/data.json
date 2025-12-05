@@ -56,19 +56,5 @@
   "linkBasePath": "/posts/",
   "enableAutoRename": true,
   "enableAutoInsertFrontmatter": true,
-  "draftStyle": "filename",
-  "contentDependentTreatments": {
-    "posts": {
-      "creationMode": "file"
-    },
-    "pages": {
-      "creationMode": "file"
-    },
-    "projects": {
-      "creationMode": "file"
-    },
-    "docs": {
-      "creationMode": "file"
-    }
-  }
+  "draftStyle": "filename"
 }
