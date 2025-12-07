@@ -32,7 +32,7 @@ Use Obsidian as a CMS with [Vault CMS](https://github.com/davidvkimball/vault-cm
 
 ## Why Astro Modular?
 
-- **Obsidian As A CMS**: Works with Obsidian out of the box (built upon [Obsidian Astro Suite](https://github.com/davidvkimball/obsidian-astro-suite)), write and publish instantly
+- **Obsidian As A CMS**: Works with Obsidian out of the box (built upon [Vault CMS](https://github.com/davidvkimball/vault-cms)), write and publish instantly
 - **Highly Customizable**: Every feature can be enabled/disabled independently
 - **Performance-Focused**: Assets are highly optimized for lightning-fast loading
 - **SEO-Ready**: Automatic sitemap, RSS feed, and Open Graph image generation
@@ -67,6 +67,32 @@ Use Obsidian as a CMS with [Vault CMS](https://github.com/davidvkimball/vault-cm
 [![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/davidvkimball/astro-modular)
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/davidvkimball/astro-modular)
 [![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/davidvkimball/astro-modular)
+
+### Get the Code
+
+Choose one of the following methods to get started:
+
+#### Option 1: Use GitHub Template (Recommended)
+
+1. Click the **"Use this template"** button on the [repository page](https://github.com/davidvkimball/astro-modular)
+2. Select **"Create a new repository"**
+3. Choose your repository name and settings
+4. Click **"Create repository from template"**
+5. Clone your new repository:
+   ```bash
+   git clone https://github.com/your-username/your-repo-name.git
+   cd your-repo-name
+   ```
+
+#### Option 2: Fork the Repository
+
+1. Click the **"Fork"** button on the [repository page](https://github.com/davidvkimball/astro-modular)
+2. Choose where to fork the repository (your personal account or organization)
+3. Clone your forked repository:
+   ```bash
+   git clone https://github.com/your-username/your-repo-name.git
+   cd your-repo-name
+   ```
 
 ### Prerequisites
 - Node.js 18.20.8
