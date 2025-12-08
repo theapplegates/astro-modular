@@ -316,7 +316,7 @@ export const siteConfig: SiteConfig = {
       { title: "Docs", url: "/docs/" },
       { title: "About", url: "/about/",
         children: [
-          { title: "Contact", url: "/contact" }
+          { title: "Privacy Policy", url: "/privacy-policy/" }
         ] },
       { title: "GitHub", url: "https://github.com/davidvkimball/astro-modular" }
     ],
