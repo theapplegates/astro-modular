@@ -181,7 +181,7 @@ export interface SiteConfig {
 export const siteConfig: SiteConfig = {
   // Site Information
   // [CONFIG:SITE_URL]
-  site: "https://astro-modular.netlify.app",
+  site: "https://obsidian.paulapplegate.com",
   // [CONFIG:SITE_TITLE]
   title: "Astro Modular",
   // [CONFIG:SITE_DESCRIPTION]
