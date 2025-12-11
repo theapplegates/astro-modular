@@ -132,6 +132,7 @@
   "orderNavbarButton6": "order-navbar-button-nth-child-6-6",
   "animationPersonality": "default",
   "animationSpeed": 0.7,
+  "enableBlur": false,
   "helpButtonReplacement": {
     "enabled": false,
     "commandId": "oxygen-settings:oxygen-settings:open-settings",

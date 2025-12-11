@@ -163,6 +163,7 @@
   },
   "features": {
     "commandPalette": true,
+    "tableOfContents": true,
     "readingTime": true,
     "linkedMentions": true,
     "linkedMentionsCompact": false,
@@ -174,6 +175,9 @@
     "profilePicture": false,
     "comments": false,
     "featureButton": "mode",
+    "showPostCardCoverImages": "featured-and-posts",
+    "postCardAspectRatio": "og",
+    "customPostCardAspectRatio": "2.5/1",
     "quickActions": {
       "enabled": true,
       "toggleMode": true,
