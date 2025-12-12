@@ -1,5 +1,4 @@
 [
-  "obsidian-git",
   "obsidian-paste-image-rename",
   "seo",
   "settings-search",
@@ -21,5 +20,6 @@
   "oxygen-settings",
   "astro-composer",
   "astro-modular-settings",
+  "obsidian-git",
   "obsidian42-brat"
 ]

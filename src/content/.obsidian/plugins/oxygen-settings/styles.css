@@ -1108,8 +1108,22 @@ body.hider-vault:not(.is-mobile) .workspace-split.mod-left-split .workspace-draw
 }
 
 /* Hide tabs */
-.hider-tabs .mod-root .workspace-tabs .workspace-tab-header-container {
-	display: none;
+/* Use !important and high specificity to override theme-specific rules */
+.hider-tabs .mod-root .workspace-tabs .workspace-tab-header-container,
+body.hider-tabs .mod-root .workspace-tabs .workspace-tab-header-container,
+body.hider-tabs.minimal-theme .mod-root .workspace-tabs .workspace-tab-header-container,
+body.hider-tabs.minimal-theme:not(.borders-on):not(.borders-none) .workspace .mod-root .workspace-tab-header-container,
+body.hider-tabs.minimal-theme:not(.borders-on):not(.borders-none):not(.colorful-frame) .workspace .mod-root .workspace-tab-header-container {
+	display: none !important;
+}
+
+/* Hide view-header when tabs are hidden (matches original Hider plugin behavior) */
+.hider-tabs .mod-root .view-header,
+body.hider-tabs .mod-root .view-header,
+body.hider-tabs.minimal-theme .mod-root .view-header,
+body.hider-tabs.minimal-theme:not(.borders-on):not(.borders-none) .workspace .mod-root .view-header,
+body.hider-tabs.minimal-theme:not(.borders-on):not(.borders-none):not(.colorful-frame) .workspace .mod-root .view-header {
+	display: none !important;
 }
 
 .hider-tabs .mod-top-left-space .view-header {
