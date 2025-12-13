@@ -17,9 +17,10 @@
   "simple-focus",
   "property-over-file-name",
   "bases-cms",
-  "oxygen-settings",
   "astro-composer",
   "astro-modular-settings",
   "obsidian-git",
-  "obsidian42-brat"
+  "oxygen-settings",
+  "obsidian42-brat",
+  "ui-tweaker"
 ]

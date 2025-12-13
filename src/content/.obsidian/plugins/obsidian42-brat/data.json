@@ -1,5 +1,6 @@
 {
   "pluginList": [
+    "davidvkimball/obsidian-ui-tweaker",
     "davidvkimball/obsidian-vault-cms",
     "davidvkimball/obsidian-bases-cms",
     "davidvkimball/obsidian-astro-modular-settings",
@@ -11,6 +12,10 @@
     "davidvkimball/obsidian-astro-composer"
   ],
   "pluginSubListFrozenVersion": [
+    {
+      "repo": "davidvkimball/obsidian-ui-tweaker",
+      "version": "latest"
+    },
     {
       "repo": "davidvkimball/obsidian-vault-cms",
       "version": "latest"
