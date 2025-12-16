@@ -658,7 +658,16 @@ body.hide-mobile-title .minimal-tab-title-visible .view-header-title-container {
 .hide-mobile-sync-icon.is-mobile .mobile-navbar .sync-button,
 .hide-mobile-sync-icon.is-mobile .nav-buttons-container .sync-icon,
 .hide-mobile-sync-icon.is-mobile .status-bar-item.sync-status,
-.hide-mobile-sync-icon.is-mobile [data-tooltip="Sync status"] {
+.hide-mobile-sync-icon.is-mobile [data-tooltip="Sync status"],
+.hide-mobile-sync-icon.is-mobile [data-tooltip*="Sync"],
+.hide-mobile-sync-icon.is-mobile .clickable-icon:has(svg.lucide-cloud),
+.hide-mobile-sync-icon.is-mobile .clickable-icon:has(svg.lucide-cloud-off),
+.hide-mobile-sync-icon.is-mobile .workspace-drawer-vault-actions .clickable-icon:has(svg.lucide-cloud),
+.hide-mobile-sync-icon.is-mobile .workspace-drawer-vault-actions .clickable-icon:has(svg.lucide-cloud-off),
+.hide-mobile-sync-icon.is-mobile .workspace-split.mod-right-split .workspace-drawer-vault-actions .clickable-icon:has(svg.lucide-cloud),
+.hide-mobile-sync-icon.is-mobile .workspace-split.mod-right-split .workspace-drawer-vault-actions .clickable-icon:has(svg.lucide-cloud-off),
+.hide-mobile-sync-icon.is-mobile .workspace-sidedock-vault-profile .clickable-icon:has(svg.lucide-cloud),
+.hide-mobile-sync-icon.is-mobile .workspace-sidedock-vault-profile .clickable-icon:has(svg.lucide-cloud-off) {
 	display: none !important;
 }
 
@@ -880,8 +889,17 @@ body.ui-tweaker-hide-sync-button .is-mobile .mobile-navbar .sync-button,
 body.ui-tweaker-hide-sync-button .is-mobile .nav-buttons-container .sync-icon,
 body.ui-tweaker-hide-sync-button .is-mobile .status-bar-item.sync-status,
 body.ui-tweaker-hide-sync-button .is-mobile [data-tooltip="Sync status"],
+body.ui-tweaker-hide-sync-button .is-mobile [data-tooltip*="Sync"],
+body.ui-tweaker-hide-sync-button .is-mobile .clickable-icon:has(svg.lucide-cloud),
+body.ui-tweaker-hide-sync-button .is-mobile .clickable-icon:has(svg.lucide-cloud-off),
+body.ui-tweaker-hide-sync-button .is-mobile .workspace-drawer-vault-actions .clickable-icon:has(svg.lucide-cloud),
+body.ui-tweaker-hide-sync-button .is-mobile .workspace-drawer-vault-actions .clickable-icon:has(svg.lucide-cloud-off),
 body.ui-tweaker-hide-sync-button .is-mobile .workspace-split.mod-right-split .workspace-drawer-vault-actions .clickable-icon:has(svg.lucide-cloud),
-body.ui-tweaker-hide-sync-button .is-mobile .workspace-split.mod-right-split .workspace-drawer-vault-actions .clickable-icon:has(svg.lucide-cloud-off) {
+body.ui-tweaker-hide-sync-button .is-mobile .workspace-split.mod-right-split .workspace-drawer-vault-actions .clickable-icon:has(svg.lucide-cloud-off),
+body.ui-tweaker-hide-sync-button .is-mobile .workspace-sidedock-vault-profile .clickable-icon:has(svg.lucide-cloud),
+body.ui-tweaker-hide-sync-button .is-mobile .workspace-sidedock-vault-profile .clickable-icon:has(svg.lucide-cloud-off),
+body.ui-tweaker-hide-sync-button .is-mobile .mod-right-split .workspace-drawer-vault-actions .clickable-icon:has(svg.lucide-cloud),
+body.ui-tweaker-hide-sync-button .is-mobile .mod-right-split .workspace-drawer-vault-actions .clickable-icon:has(svg.lucide-cloud-off) {
 	display: none !important;
 }
 

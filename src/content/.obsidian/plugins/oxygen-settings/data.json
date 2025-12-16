@@ -1,8 +1,8 @@
 {
-  "lightStyle": "minimal-light",
-  "darkStyle": "minimal-dark",
-  "lightScheme": "minimal-oxygen-light",
-  "darkScheme": "minimal-oxygen-dark",
+  "lightStyle": "oxygen-light",
+  "darkStyle": "oxygen-dark",
+  "lightScheme": "oxygen-oxygen-light",
+  "darkScheme": "oxygen-oxygen-dark",
   "editorFont": "",
   "lineHeight": 1.5,
   "lineWidth": 40,
@@ -78,7 +78,7 @@
   "navIndentationGuideWidth": "0px",
   "navIndentationGuideColor": "rgba(var(--mono-rgb-100), 0.12)",
   "deemphasizeProperties": false,
-  "autoHideTabBarWhenSingleTab": false,
+  "autoHideTabBarWhenSingleTab": true,
   "animationPersonality": "default",
   "animationSpeed": 0.7,
   "enableBlur": false,
@@ -549,5 +549,8 @@
   "lineNumberColorDark": "",
   "lineNumberColorActiveLight": "",
   "lineNumberColorActiveDark": "",
-  "dashedUnderlineInternal": false
+  "dashedUnderlineInternal": false,
+  "_migrationVersions": [
+    "minimal-to-oxygen-prefix-v1"
+  ]
 }
