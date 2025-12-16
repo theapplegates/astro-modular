@@ -142,14 +142,9 @@
   }
 }
 
-/* Hide tab titles until they're renamed by the plugin to prevent flicker */
-.workspace-tab-header:not([data-pov-processed="true"]) .workspace-tab-header-inner-title {
-  opacity: 0;
-  transition: opacity 0.1s ease;
-}
-
-.workspace-tab-header[data-pov-processed="true"] .workspace-tab-header-inner-title {
-  opacity: 1;
+/* Tab title styling - no dimming */
+.workspace-tab-header .workspace-tab-header-inner-title {
+  transition: opacity 0.05s ease;
 }
 
 /* Hide backlink elements until they're processed by the plugin to prevent flicker */

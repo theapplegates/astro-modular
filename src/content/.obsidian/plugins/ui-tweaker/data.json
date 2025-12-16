@@ -5,10 +5,11 @@
   "leftTabHeaders": "show",
   "rightTabHeaders": "show",
   "ribbonRevealOnHover": false,
-  "vaultSwitcher": "reveal",
+  "vaultSwitcher": "show",
   "helpButton": "show",
   "settingsButton": "show",
   "tabBar": false,
+  "enableWindowDragging": false,
   "newNoteButton": false,
   "newFolderButton": false,
   "sortOrderButton": false,
@@ -38,20 +39,23 @@
   "openTabButton": false,
   "ribbonMenuButton": false,
   "swapMobileNewTabIcon": false,
+  "hideMobileTitle": false,
+  "hideMobileSyncIcon": false,
   "navigateButtonPosition": "1",
   "navigationButtonPosition": "2",
   "quickSwitcherPosition": "3",
   "newTabPosition": "4",
   "openTabsPosition": "5",
   "ribbonMenuPosition": "6",
-  "vaultSwitcherBackgroundTransparency": 0.98,
+  "vaultSwitcherBackgroundTransparency": 1,
   "helpButtonReplacement": {
     "enabled": false,
     "commandId": "astro-composer:edit-astro-config",
-    "iconId": "lucide-wrench"
+    "iconId": "wrench"
   },
-  "vaultName": false,
-  "ribbon": "show",
-  "tabBarWhenSingleTab": "show",
-  "fileExplorerButtons": false
+  "syncButtonReplacement": {
+    "enabled": true,
+    "commandId": "open-settings",
+    "iconId": "wrench"
+  }
 }

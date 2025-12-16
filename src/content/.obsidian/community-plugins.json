@@ -8,7 +8,6 @@
   "homepage",
   "new-tab-default-page",
   "simple-focus",
-  "obsidian-git",
   "cmdr",
   "bases-cms",
   "astro-modular-settings",
@@ -16,11 +15,12 @@
   "alias-file-name-history",
   "obsidian-paste-image-rename",
   "paste-image-into-property",
-  "oxygen-settings",
   "insert-unsplash-image",
-  "iconic",
   "editing-toolbar",
-  "property-over-file-name",
+  "obsidian-git",
   "ui-tweaker",
+  "oxygen-settings",
+  "iconic",
+  "property-over-file-name",
   "obsidian42-brat"
 ]
