@@ -878,12 +878,13 @@ body.ui-tweaker-hide-help-button .workspace-drawer-vault-actions .clickable-icon
 
 /* Hide sync button when replacement is enabled */
 /* Target: right drawer header icon with mod-sync class (similar to mod-pin pattern) */
-body.ui-tweaker-hide-sync-button .is-mobile .workspace-drawer.mod-right .workspace-drawer-header .workspace-drawer-header-icon.mod-sync,
-body.ui-tweaker-hide-sync-button .is-mobile .workspace-drawer.mod-right .workspace-drawer-header .workspace-drawer-header-icon[class*="sync"],
-body.ui-tweaker-hide-sync-button .is-mobile .workspace-drawer.mod-right .workspace-drawer-header .workspace-drawer-header-icon.clickable-icon:has(svg.lucide-cloud),
-body.ui-tweaker-hide-sync-button .is-mobile .workspace-drawer.mod-right .workspace-drawer-header .workspace-drawer-header-icon.clickable-icon:has(svg.lucide-cloud-off),
-body.ui-tweaker-hide-sync-button .is-mobile .workspace-drawer.mod-right .workspace-drawer-header .clickable-icon:has(svg.lucide-cloud),
-body.ui-tweaker-hide-sync-button .is-mobile .workspace-drawer.mod-right .workspace-drawer-header .clickable-icon:has(svg.lucide-cloud-off) {
+/* Don't hide our custom replacement button */
+body.ui-tweaker-hide-sync-button .is-mobile .workspace-drawer.mod-right .workspace-drawer-header .workspace-drawer-header-icon.mod-sync:not(.ui-tweaker-sync-replacement),
+body.ui-tweaker-hide-sync-button .is-mobile .workspace-drawer.mod-right .workspace-drawer-header .workspace-drawer-header-icon[class*="sync"]:not(.ui-tweaker-sync-replacement),
+body.ui-tweaker-hide-sync-button .is-mobile .workspace-drawer.mod-right .workspace-drawer-header .workspace-drawer-header-icon.clickable-icon:has(svg.lucide-cloud):not(.ui-tweaker-sync-replacement),
+body.ui-tweaker-hide-sync-button .is-mobile .workspace-drawer.mod-right .workspace-drawer-header .workspace-drawer-header-icon.clickable-icon:has(svg.lucide-cloud-off):not(.ui-tweaker-sync-replacement),
+body.ui-tweaker-hide-sync-button .is-mobile .workspace-drawer.mod-right .workspace-drawer-header .clickable-icon:has(svg.lucide-cloud):not(.ui-tweaker-sync-replacement),
+body.ui-tweaker-hide-sync-button .is-mobile .workspace-drawer.mod-right .workspace-drawer-header .clickable-icon:has(svg.lucide-cloud-off):not(.ui-tweaker-sync-replacement) {
 	display: none !important;
 }
 
