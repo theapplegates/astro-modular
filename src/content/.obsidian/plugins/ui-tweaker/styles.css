@@ -875,15 +875,14 @@ body.ui-tweaker-hide-help-button .workspace-drawer-vault-actions .clickable-icon
    ======================================== */
 
 /* Hide sync button when replacement is enabled */
-/* Primary target: right drawer sync button (mobile) */
-body.ui-tweaker-hide-sync-button .is-mobile .workspace-drawer.mod-right .workspace-drawer-vault-actions .clickable-icon:has(svg.lucide-cloud),
-body.ui-tweaker-hide-sync-button .is-mobile .workspace-drawer.mod-right .workspace-drawer-vault-actions .clickable-icon:has(svg.lucide-cloud-off),
-body.ui-tweaker-hide-sync-button .is-mobile .workspace-drawer.mod-right .nav-buttons-container .clickable-icon:has(svg.lucide-cloud),
-body.ui-tweaker-hide-sync-button .is-mobile .workspace-drawer.mod-right .nav-buttons-container .clickable-icon:has(svg.lucide-cloud-off),
+/* Target: right drawer header icon (similar to settings icon pattern) */
+body.ui-tweaker-hide-sync-button .is-mobile .workspace-drawer.mod-right .workspace-drawer-header .workspace-drawer-header-icon.clickable-icon:has(svg.lucide-cloud),
+body.ui-tweaker-hide-sync-button .is-mobile .workspace-drawer.mod-right .workspace-drawer-header .workspace-drawer-header-icon.clickable-icon:has(svg.lucide-cloud-off),
+body.ui-tweaker-hide-sync-button .is-mobile .workspace-drawer.mod-right .workspace-drawer-header .clickable-icon:has(svg.lucide-cloud),
+body.ui-tweaker-hide-sync-button .is-mobile .workspace-drawer.mod-right .workspace-drawer-header .clickable-icon:has(svg.lucide-cloud-off),
+/* Fallback: any sync icon in right drawer */
 body.ui-tweaker-hide-sync-button .is-mobile .workspace-drawer.mod-right .clickable-icon:has(svg.lucide-cloud),
-body.ui-tweaker-hide-sync-button .is-mobile .workspace-drawer.mod-right .clickable-icon:has(svg.lucide-cloud-off),
-body.ui-tweaker-hide-sync-button .is-mobile .workspace-drawer.mod-right [data-tooltip="Sync status"],
-body.ui-tweaker-hide-sync-button .is-mobile .workspace-drawer.mod-right [data-tooltip*="Sync"] {
+body.ui-tweaker-hide-sync-button .is-mobile .workspace-drawer.mod-right .clickable-icon:has(svg.lucide-cloud-off) {
 	display: none !important;
 }
 
