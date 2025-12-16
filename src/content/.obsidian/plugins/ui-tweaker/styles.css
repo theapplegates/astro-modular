@@ -654,11 +654,11 @@ body.hide-mobile-title .minimal-tab-title-visible .view-header-title-container {
    Hide Mobile Sync Icon
    ======================================== */
 
-.hide-mobile-sync-icon.is-mobile .status-bar-item.plugin-sync,
-.hide-mobile-sync-icon.is-mobile .sync-status-icon,
+.hide-mobile-sync-icon.is-mobile .sync-status-indicator,
+.hide-mobile-sync-icon.is-mobile .mobile-navbar .sync-button,
+.hide-mobile-sync-icon.is-mobile .nav-buttons-container .sync-icon,
 .hide-mobile-sync-icon.is-mobile .status-bar-item.sync-status,
-.hide-mobile-sync-icon.is-mobile [data-tooltip="Sync status"],
-.hide-mobile-sync-icon.is-mobile [data-tooltip*="Sync"] {
+.hide-mobile-sync-icon.is-mobile [data-tooltip="Sync status"] {
 	display: none !important;
 }
 
@@ -875,17 +875,15 @@ body.ui-tweaker-hide-help-button .workspace-drawer-vault-actions .clickable-icon
    ======================================== */
 
 /* Hide sync button when replacement is enabled */
-/* Primary target: status bar sync button (mobile) */
-body.ui-tweaker-hide-sync-button .is-mobile .status-bar-item.plugin-sync,
-body.ui-tweaker-hide-sync-button .is-mobile .sync-status-icon,
-body.ui-tweaker-hide-sync-button .is-mobile .status-bar-item.sync-status,
-body.ui-tweaker-hide-sync-button .is-mobile [data-tooltip="Sync status"],
-body.ui-tweaker-hide-sync-button .is-mobile [data-tooltip*="Sync"],
-/* Fallback: vault actions area (if sync button appears there) */
-body.ui-tweaker-hide-sync-button .is-mobile .workspace-split.mod-right-split .workspace-drawer-vault-actions .clickable-icon:has(svg.lucide-cloud),
-body.ui-tweaker-hide-sync-button .is-mobile .workspace-split.mod-right-split .workspace-drawer-vault-actions .clickable-icon:has(svg.lucide-cloud-off),
-body.ui-tweaker-hide-sync-button .is-mobile .workspace-drawer-vault-actions .clickable-icon:has(svg.lucide-cloud),
-body.ui-tweaker-hide-sync-button .is-mobile .workspace-drawer-vault-actions .clickable-icon:has(svg.lucide-cloud-off) {
+/* Primary target: right drawer sync button (mobile) */
+body.ui-tweaker-hide-sync-button .is-mobile .workspace-drawer.mod-right .workspace-drawer-vault-actions .clickable-icon:has(svg.lucide-cloud),
+body.ui-tweaker-hide-sync-button .is-mobile .workspace-drawer.mod-right .workspace-drawer-vault-actions .clickable-icon:has(svg.lucide-cloud-off),
+body.ui-tweaker-hide-sync-button .is-mobile .workspace-drawer.mod-right .nav-buttons-container .clickable-icon:has(svg.lucide-cloud),
+body.ui-tweaker-hide-sync-button .is-mobile .workspace-drawer.mod-right .nav-buttons-container .clickable-icon:has(svg.lucide-cloud-off),
+body.ui-tweaker-hide-sync-button .is-mobile .workspace-drawer.mod-right .clickable-icon:has(svg.lucide-cloud),
+body.ui-tweaker-hide-sync-button .is-mobile .workspace-drawer.mod-right .clickable-icon:has(svg.lucide-cloud-off),
+body.ui-tweaker-hide-sync-button .is-mobile .workspace-drawer.mod-right [data-tooltip="Sync status"],
+body.ui-tweaker-hide-sync-button .is-mobile .workspace-drawer.mod-right [data-tooltip*="Sync"] {
 	display: none !important;
 }
 
