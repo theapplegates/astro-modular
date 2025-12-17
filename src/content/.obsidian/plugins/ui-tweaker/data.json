@@ -40,7 +40,7 @@
   "ribbonMenuButton": false,
   "swapMobileNewTabIcon": false,
   "hideMobileTitle": false,
-  "hideMobileSyncIcon": false,
+  "hideMobileSyncIcon": true,
   "navigateButtonPosition": "1",
   "navigationButtonPosition": "2",
   "quickSwitcherPosition": "3",
@@ -54,7 +54,7 @@
     "iconId": "wrench"
   },
   "syncButtonReplacement": {
-    "enabled": true,
+    "enabled": false,
     "commandId": "open-settings",
     "iconId": "wrench"
   }
