@@ -78,7 +78,7 @@
   "navIndentationGuideWidth": "0px",
   "navIndentationGuideColor": "rgba(var(--mono-rgb-100), 0.12)",
   "deemphasizeProperties": false,
-  "autoHideTabBarWhenSingleTab": true,
+  "autoHideTabBarWhenSingleTab": false,
   "animationPersonality": "default",
   "animationSpeed": 0.7,
   "enableBlur": false,
