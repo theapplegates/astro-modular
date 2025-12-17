@@ -655,12 +655,15 @@ body.hide-mobile-title .minimal-tab-title-visible .view-header-title-container {
    ======================================== */
 
 /* Use the same selectors that work for sync button replacement */
-.hide-mobile-sync-icon.is-mobile .workspace-drawer.mod-right .workspace-drawer-header .workspace-drawer-header-icon.mod-sync,
-.hide-mobile-sync-icon.is-mobile .workspace-drawer.mod-right .workspace-drawer-header .workspace-drawer-header-icon[class*="sync"],
-.hide-mobile-sync-icon.is-mobile .workspace-drawer.mod-right .workspace-drawer-header .workspace-drawer-header-icon.clickable-icon:has(svg.lucide-cloud),
-.hide-mobile-sync-icon.is-mobile .workspace-drawer.mod-right .workspace-drawer-header .workspace-drawer-header-icon.clickable-icon:has(svg.lucide-cloud-off),
-.hide-mobile-sync-icon.is-mobile .workspace-drawer.mod-right .workspace-drawer-header .clickable-icon:has(svg.lucide-cloud),
-.hide-mobile-sync-icon.is-mobile .workspace-drawer.mod-right .workspace-drawer-header .clickable-icon:has(svg.lucide-cloud-off) {
+/* Hide sync button - but NOT the custom replacement button */
+/* Target both right drawer header AND status bar sync indicators */
+.hide-mobile-sync-icon.is-mobile .workspace-drawer.mod-right .workspace-drawer-header .workspace-drawer-header-icon.mod-sync:not(.ui-tweaker-sync-replacement),
+.hide-mobile-sync-icon.is-mobile .workspace-drawer.mod-right .workspace-drawer-header .workspace-drawer-header-icon[class*="sync"]:not(.ui-tweaker-sync-replacement),
+.hide-mobile-sync-icon.is-mobile .workspace-drawer.mod-right .workspace-drawer-header .workspace-drawer-header-icon.clickable-icon:has(svg.lucide-cloud):not(.ui-tweaker-sync-replacement),
+.hide-mobile-sync-icon.is-mobile .workspace-drawer.mod-right .workspace-drawer-header .workspace-drawer-header-icon.clickable-icon:has(svg.lucide-cloud-off):not(.ui-tweaker-sync-replacement),
+.hide-mobile-sync-icon.is-mobile .workspace-drawer.mod-right .workspace-drawer-header .clickable-icon:has(svg.lucide-cloud):not(.ui-tweaker-sync-replacement),
+.hide-mobile-sync-icon.is-mobile .workspace-drawer.mod-right .workspace-drawer-header .clickable-icon:has(svg.lucide-cloud-off):not(.ui-tweaker-sync-replacement),
+.hide-mobile-sync-icon.is-mobile .status-bar > .plugin-sync:not(.ui-tweaker-sync-replacement) {
 	display: none !important;
 }
 
@@ -878,13 +881,15 @@ body.ui-tweaker-hide-help-button .workspace-drawer-vault-actions .clickable-icon
 
 /* Hide sync button when replacement is enabled */
 /* Target: right drawer header icon with mod-sync class (similar to mod-pin pattern) */
+/* Also target status bar sync indicator if it exists */
 /* Don't hide our custom replacement button */
 body.ui-tweaker-hide-sync-button .is-mobile .workspace-drawer.mod-right .workspace-drawer-header .workspace-drawer-header-icon.mod-sync:not(.ui-tweaker-sync-replacement),
 body.ui-tweaker-hide-sync-button .is-mobile .workspace-drawer.mod-right .workspace-drawer-header .workspace-drawer-header-icon[class*="sync"]:not(.ui-tweaker-sync-replacement),
 body.ui-tweaker-hide-sync-button .is-mobile .workspace-drawer.mod-right .workspace-drawer-header .workspace-drawer-header-icon.clickable-icon:has(svg.lucide-cloud):not(.ui-tweaker-sync-replacement),
 body.ui-tweaker-hide-sync-button .is-mobile .workspace-drawer.mod-right .workspace-drawer-header .workspace-drawer-header-icon.clickable-icon:has(svg.lucide-cloud-off):not(.ui-tweaker-sync-replacement),
 body.ui-tweaker-hide-sync-button .is-mobile .workspace-drawer.mod-right .workspace-drawer-header .clickable-icon:has(svg.lucide-cloud):not(.ui-tweaker-sync-replacement),
-body.ui-tweaker-hide-sync-button .is-mobile .workspace-drawer.mod-right .workspace-drawer-header .clickable-icon:has(svg.lucide-cloud-off):not(.ui-tweaker-sync-replacement) {
+body.ui-tweaker-hide-sync-button .is-mobile .workspace-drawer.mod-right .workspace-drawer-header .clickable-icon:has(svg.lucide-cloud-off):not(.ui-tweaker-sync-replacement),
+body.ui-tweaker-hide-sync-button .is-mobile .status-bar > .plugin-sync:not(.ui-tweaker-sync-replacement) {
 	display: none !important;
 }
 
