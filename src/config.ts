@@ -181,13 +181,13 @@ export interface SiteConfig {
 export const siteConfig: SiteConfig = {
   // Site Information
   // [CONFIG:SITE_URL]
-  site: "https://astro-modular.netlify.app",
+  site: "https://obsidian.paulapplegate.com",
   // [CONFIG:SITE_TITLE]
-  title: "Astro Modular",
+  title: "Living Life",
   // [CONFIG:SITE_DESCRIPTION]
   description: "A flexible blog theme designed for Obsidian users.",
   // [CONFIG:SITE_AUTHOR]
-  author: "David V. Kimball",
+  author: "Paul Applegate",
   // [CONFIG:SITE_LANGUAGE]
   language: "en",
   // [CONFIG:FAVICON_THEME_ADAPTIVE]
